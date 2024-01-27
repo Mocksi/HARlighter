@@ -1,52 +1,81 @@
-# Hack Your Demo: HARlighter – Where Every Session Crafts a Story.
-![HARLighter@0 2x](https://github.com/Mocksi/HARlighter/assets/63699/e77e0307-75d8-4d4b-8879-5d97e07673c2)
+# Turborepo starter
 
-HARlighter is a powerful Chrome extension designed for professionals who need to create clear and concise demonstrations from their web interactions. It allows you to record your browser sessions into HAR (HTTP Archive) files and place customizable placeholder labels for text modifications, ideal for creating tutorials, demonstrations, and presentations.
+This is an official starter Turborepo.
 
-### Key Features
+## Using this example
 
-- **Web Session Recording:** Capture your entire browsing session in a HAR file format.
-- **Placeholder Labeling:** Easily add and edit placeholder labels on recorded text for personalized demonstrations.
-- **Demo Generation:** Transform recorded sessions into interactive and editable demos.
-- **User-friendly Interface:** Simple and intuitive design for a hassle-free recording and editing experience.
-- **Export and Share:** Export your demos in various formats and share them with your team or audience.
+Run the following command:
 
-### Installation
+```sh
+npx create-turbo@latest
+```
 
-1. Add HARHighlighter to your Chrome browser from the Chrome Web Store.
-2. Once installed, you will see the HARHighlighter icon in your browser toolbar.
+## What's inside?
 
-### Getting Started
+This Turborepo includes the following packages/apps:
 
-#### Recording a Session
+### Apps and Packages
 
-1. Click on the HARlighter icon in your Chrome toolbar.
-2. Choose 'Start Recording' to begin capturing your browser session.
-3. Browse as normal. Every interaction will be recorded.
-4. Click 'Stop Recording' when you are done.
+- `docs`: a [Next.js](https://nextjs.org/) app
+- `web`: another [Next.js](https://nextjs.org/) app
+- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
+- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
 
-#### Adding Placeholders
+Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
-1. Open the recorded session from the HARHighlighter dashboard.
-2. Click on any text to add or edit a placeholder label.
-3. Save your changes.
+### Utilities
 
-#### Generating and Exporting a Demo
+This Turborepo has some additional tools already setup for you:
 
-1. Select the 'Generate Demo' option in the HARHighlighter dashboard.
-2. Customize the demo settings as needed.
-3. Export the demo in your desired format.
-4. Share your demo via link or download.
+- [TypeScript](https://www.typescriptlang.org/) for static type checking
+- [ESLint](https://eslint.org/) for code linting
+- [Prettier](https://prettier.io) for code formatting
 
-### Contributing
+### Build
 
-We welcome contributions to the HARHighlighter project. If you have suggestions or improvements, please open an issue or submit a pull request.
+To build all apps and packages, run the following command:
 
-### Support
+```
+cd my-turborepo
+pnpm build
+```
 
-For support or to report a bug, please open an issue on the GitHub repository.
+### Develop
 
-### License
+To develop all apps and packages, run the following command:
 
+```
+cd my-turborepo
+pnpm dev
+```
 
+### Remote Caching
 
+Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+
+By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
+
+```
+cd my-turborepo
+npx turbo login
+```
+
+This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+
+Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+
+```
+npx turbo link
+```
+
+## Useful Links
+
+Learn more about the power of Turborepo:
+
+- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
+- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
+- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
+- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
+- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
+- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
