@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rm -r dist/* ; pnpm exec rollup -c --bundleConfigAsCjs && cp ./src/manifest.json dist/ && cp -r ./assets dist/"
+    "build:clean": "mkdir -p dist && touch dist/building.txt && rm -r dist/*",
+    "build:rollup": "pnpm exec rollup -c --bundleConfigAsCjs",
+    "build:copy": "cp ./src/manifest.json dist/ && cp -r ./assets dist/",
+    "build": "pnpm run build:clean && pnpm run build:rollup && pnpm run build:copy"
   },
   "keywords": [],
   "author": "",
