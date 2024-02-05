@@ -3,6 +3,11 @@
     "name": "Owlserver by Mocksi",
     "description": "Owlserver records interactions and sends them to Mocksi",
     "version": "1.0",
+    "icons": {
+      "16": "./assets/owlserver.png",
+      "48": "./assets/owlserver.png",
+      "128": "./assets/owlserver.png"
+    },
     "action": {
       "default_popup": "./assets/default_popup.html",
       "default_icon": "./assets/owlserver.png"
@@ -12,6 +17,13 @@
         "matches": ["<all_urls>"],
         "js": ["main.js"]
       }
+    ],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "permissions": [
+      "webRequest",
+      "downloads"
     ],
     "host_permissions": [
       "*://*/*"

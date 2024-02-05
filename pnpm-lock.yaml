@@ -97,6 +97,9 @@ importers:
       '@types/chrome':
         specifier: ^0.0.259
         version: 0.0.259
+      '@types/har-format':
+        specifier: ^1.2.15
+        version: 1.2.15
       '@types/node':
         specifier: ^20.10.6
         version: 20.10.6

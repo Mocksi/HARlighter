@@ -14,7 +14,7 @@ const plugins = [
   }),
 ];
 
-const main = defineConfig({
+const mainConfig = defineConfig({
   input: "src/main.tsx",
   output: {
     file: "dist/main.js",
@@ -24,4 +24,14 @@ const main = defineConfig({
   external: ["chrome-types"],
 });
 
-export default main;
+const backgroundConfig = defineConfig({
+  input: "src/background.ts",
+  output: {
+    file: "dist/background.js",
+    format: "iife",
+  },
+  plugins,
+  external: ["chrome-types"],
+});
+
+export default [mainConfig, backgroundConfig];
