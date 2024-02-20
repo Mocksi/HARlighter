@@ -1,0 +1,15 @@
+{
+  "name": "capturer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mocksi",
+  "private": "true",
+  "dependencies": {
+    "chrome-har-capturer": "^0.14.0",
+    "chrome-launcher": "^1.1.0"
+  }
+}
