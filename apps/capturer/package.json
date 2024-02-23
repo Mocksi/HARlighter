@@ -10,6 +10,7 @@
   "private": "true",
   "dependencies": {
     "chrome-har-capturer": "^0.14.0",
-    "chrome-launcher": "^1.1.0"
+    "chrome-launcher": "^1.1.0",
+    "sqlite3": "^5.1.7"
   }
 }
