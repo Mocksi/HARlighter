@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "rag"
+version = "0.1.0"
+description = ""
+authors = ["elg0nz <elg0nz@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.12"
+altair = "^5.2.0"
+pandas = "^2.2.1"
+streamlit = "^1.31.1"
+python-dotenv = "^1.0.1"
+llama-index = "^0.10.12"
+pinecone-client = "^3.1.0"
+llama-index-vector-stores-pinecone = "^0.1.3"
+llama-index-readers-database = "^0.1.3"
+sqlalchemy = "^2.0.27"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

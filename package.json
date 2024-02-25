@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "capturer": "workspace:^",
-    "owlserver-chrome": "workspace:^"
+    "owlserver-chrome": "workspace:^",
+    "rag": "workspace:^"
   }
 }

@@ -1,0 +1,9 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "docker-compose up",
+    "load": "poetry run python loader.py --db_path "
+  }
+}
