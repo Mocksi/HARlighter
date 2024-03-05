@@ -80,6 +80,7 @@ async function captureNetworkTraffic() {
       response = await Network.getResponseBody({ requestId: params.requestId });
     } catch (e) {
       console.error("Error getting response body:", e);
+      return;
     }
 
     if (!response) {
@@ -108,6 +109,5 @@ main()
   })
   .catch(async (e) => {
     console.error(e);
-    await prisma.$disconnect();
     process.exit(1);
   });
