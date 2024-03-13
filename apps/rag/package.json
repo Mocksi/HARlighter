@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "docker-compose up",
     "load": "poetry run python loader.py --db_path ",
-    "notebook": "poetry run streamlit run streamlit_app.py"
+    "notebook": "poetry run streamlit run streamlit_app.py",
+    "demo": "poetry run streamlit run demo_app.py"
   }
 }
