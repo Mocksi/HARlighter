@@ -1,7 +1,7 @@
 import React from "react";
 
-function runGenerateHar() {
-  chrome.runtime.sendMessage({ action: "generateHAR" }, (response) => {
+function runStartRecording() {
+  chrome.runtime.sendMessage({ action: "startRecording" }, (response) => {
     console.log(response.status); // "success"
   });
 }
@@ -9,7 +9,7 @@ function runGenerateHar() {
 function GenerateHarButton() {
   return (
     <div>
-      <button onClick={runGenerateHar}>Generate HAR</button>
+      <button type="button" onClick={runStartRecording}>Start Recording</button>
     </div>
   );
 }
@@ -17,7 +17,7 @@ function GenerateHarButton() {
 function PopUp() {
   return (
     <div>
-      <img src="./owlserver.png" />
+      <img src="./owlserver.png" alt="Owlserver logo"/>
       <GenerateHarButton />
     </div>
   );

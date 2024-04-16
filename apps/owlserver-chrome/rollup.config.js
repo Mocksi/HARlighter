@@ -24,6 +24,17 @@ const mainConfig = defineConfig({
   external: ["chrome-types"],
 });
 
+// TODO: DRY up these configs
+const wrappersConfig = defineConfig({
+  input: "src/wrappers.ts",
+  output: {
+    file: "dist/wrappers.js",
+    format: "iife",
+  },
+  plugins,
+  external: ["chrome-types"],
+});
+
 const backgroundConfig = defineConfig({
   input: "src/background.ts",
   output: {
@@ -34,4 +45,4 @@ const backgroundConfig = defineConfig({
   external: ["chrome-types"],
 });
 
-export default [mainConfig, backgroundConfig];
+export default [mainConfig, backgroundConfig, wrappersConfig];
