@@ -1,13 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import PopUp from "src/applications/Popup";
-import { ChakraProvider } from "@chakra-ui/react"
+import { ChakraProvider } from "@chakra-ui/react";
 
-
-const s = document.createElement('script');
-s.src = chrome.runtime.getURL('wrappers.js');
+const s = document.createElement("script");
+s.src = chrome.runtime.getURL("wrappers.js");
 (document.head || document.documentElement).appendChild(s);
-s.onload = () => { s.remove() };
+s.onload = () => {
+  s.remove();
+};
 
 const root = document.getElementById("popup-container");
 const rootDiv = ReactDOM.createRoot(root || document.createElement("div"));
@@ -16,16 +17,19 @@ rootDiv.render(
     <ChakraProvider>
       <PopUp />
     </ChakraProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
-document.addEventListener('sendToBackground', (e): void => {
-  const jsonHolder = document.getElementById('jsonHolder');
-  const data = jsonHolder?.getAttribute('src') || '';
+document.addEventListener("sendToBackground", (e): void => {
+  const jsonHolder = document.getElementById("jsonHolder");
+  const data = jsonHolder?.getAttribute("src") || "";
   jsonHolder?.remove();
-  chrome.runtime.sendMessage({ message: "wrapperToBackground", data }, (response) => {
-    if(response.status !== "success") {
-      console.log(response);
-    }
-  });
+  chrome.runtime.sendMessage(
+    { message: "wrapperToBackground", data },
+    (response) => {
+      if (response.status !== "success") {
+        console.log(response);
+      }
+    },
+  );
 });

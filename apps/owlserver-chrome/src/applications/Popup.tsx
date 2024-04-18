@@ -1,27 +1,37 @@
 import React from "react";
-import { Box, Heading, Center, Icon, HStack, Text } from "@chakra-ui/react"
-  // TODO: add VSCode icons attribution
-import { VscRecord } from "react-icons/vsc";
+import { Box, Heading, Center, Icon, HStack, Text } from "@chakra-ui/react";
+import RecordButton from "./record_button";
 
-function runStartRecording() {
-  chrome.runtime.sendMessage({ action: "startRecording" }, (response) => {
-    console.log(response.status); // "success"
+function runStartRecording(isRecording: boolean) {
+  const action = isRecording ? "startRecording" : "stopRecording";
+  chrome.runtime.sendMessage({ action }, (response) => {
+    console.log(response.status);
   });
 }
 
+// FIXME: refactor this to use a hook
+let initState = false;
+if (localStorage.getItem("recordingState") === null) {
+  localStorage.setItem("recordingState", initState.toString());
+} else {
+  initState = localStorage.getItem("recordingState") === "true";
+}
+runStartRecording(initState);
+
 function PopUp() {
+  chrome.runtime.sendMessage({ text: "popOpened" });
+
   return (
-    <Box w="200px" p={4} >
-        <Heading size='md'>Mocksi Lite</Heading>
-        <Center>
-          <HStack spacing={4}>
-            <Text>Start Recording</Text>
-            <Icon as={VscRecord} w={8} h={8} color='red.500' onClick={runStartRecording} />
-          </HStack>
-        </Center>
+    <Box w="200px" p={4}>
+      <Heading size="md">Mocksi Lite</Heading>
+      <Center>
+        <RecordButton
+          onRecordChange={runStartRecording}
+          initialState={initState}
+        />
+      </Center>
     </Box>
   );
 }
 
 export default PopUp;
-

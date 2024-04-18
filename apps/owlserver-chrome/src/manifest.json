@@ -29,7 +29,8 @@
     "permissions": [
       "activeTab",
       "webRequest",
-      "downloads"
+      "downloads",
+      "storage"
     ],
     "host_permissions": [
       "<all_urls>"
