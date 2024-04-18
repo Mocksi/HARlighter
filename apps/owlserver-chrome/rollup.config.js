@@ -22,6 +22,12 @@ const mainConfig = defineConfig({
   },
   plugins,
   external: ["chrome-types"],
+  onwarn: (warning, warn) => {
+    // Suppress warning about `use strict` in the main file
+    // See https://github.com/TanStack/query/issues/5175 for more info
+    if (warning.code === "MODULE_LEVEL_DIRECTIVE") return;
+    warn(warning)
+  }
 });
 
 // TODO: DRY up these configs

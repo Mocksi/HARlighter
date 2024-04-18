@@ -13,10 +13,17 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@chakra-ui/icons": "^2.1.1",
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
     "@repo/ui": "workspace:*",
+    "@vscode/codicons": "^0.0.35",
+    "framer-motion": "^6",
     "next": "^14.0.4",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.1.0"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

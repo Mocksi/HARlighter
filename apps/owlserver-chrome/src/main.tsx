@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import PopUp from "src/applications/Popup";
+import { ChakraProvider } from "@chakra-ui/react"
+
 
 const s = document.createElement('script');
 s.src = chrome.runtime.getURL('wrappers.js');
@@ -11,7 +13,9 @@ const root = document.getElementById("popup-container");
 const rootDiv = ReactDOM.createRoot(root || document.createElement("div"));
 rootDiv.render(
   <React.StrictMode>
-    <PopUp />
+    <ChakraProvider>
+      <PopUp />
+    </ChakraProvider>
   </React.StrictMode>
 );
 
