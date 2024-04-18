@@ -11,12 +11,9 @@ const buffer: string[] = [];
 let recordingState = false;
 
 // TODO:: make this neater
-function isRecording(): boolean {
-  chrome.storage.local.get("recordingState", (result) => {
-    recordingState = result.recordingState;
-  });
-  return recordingState;
-}
+chrome.storage.local.get("recordingState", (result) => {
+  recordingState = result.recordingState || false;
+});
 
 chrome.runtime.onMessage.addListener(
   (
@@ -26,12 +23,14 @@ chrome.runtime.onMessage.addListener(
   ): void => {
     // FIXME: refactor this to use a switch statement
     if (request.message === "startRecording") {
-      chrome.storage.local.set({ recordingState: true });
+      recordingState = true;
+      chrome.storage.local.set({ recordingState });
       sendResponse({ message: request.message, status: "success" });
       return;
     }
     if (request.message === "stopRecording") {
-      chrome.storage.local.set({ recordingState: false });
+      recordingState = false;
+      chrome.storage.local.set({ recordingState });
       sendResponse({ message: request.message, status: "success" });
       return;
     }
@@ -45,11 +44,7 @@ chrome.runtime.onMessage.addListener(
   },
 );
 
-function sendDataToBeacon(): Promise<void> {
-  if (!isRecording()) {
-    return;
-  }
-
+function sendDataToBeacon(): void {
   if (buffer.length > 0) {
     const dataToSend: string = JSON.stringify(buffer);
     // FIXME: implement the actual beacon

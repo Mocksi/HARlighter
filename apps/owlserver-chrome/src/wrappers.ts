@@ -7,7 +7,12 @@ function sendToBackground(data: string) {
   jsonHolder.id = "jsonHolder";
   const timestamp = Date.now() / 1000;
   const b64encoded = btoa(JSON.stringify(data)) as string;
-  jsonHolder.src = JSON.stringify({ payload: b64encoded, timestamp });
+  try {
+    jsonHolder.src = JSON.stringify({ payload: b64encoded, timestamp });
+  } catch (e) {
+    console.log(e);
+    return
+  }
   (document.head || document.documentElement).appendChild(jsonHolder);
   if (document.defaultView) {
     const view = Object.assign({}, document.defaultView);

@@ -4,7 +4,7 @@ import RecordButton from "./record_button";
 
 function runStartRecording(isRecording: boolean) {
   const action = isRecording ? "startRecording" : "stopRecording";
-  chrome.runtime.sendMessage({ action }, (response) => {
+  chrome.runtime.sendMessage({ message: action }, (response) => {
     console.log(response.status);
   });
 }
