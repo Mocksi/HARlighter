@@ -37,30 +37,33 @@ chrome.runtime.onMessage.addListener(
 
     // FIXME: check recordingState
     if (request.message === "wrapperToBackground") {
-      if (request.data.length > 0) { 
+      if (request.data.length > 0) {
         buffer.push(request.data);
       }
       sendResponse({ message: "backgroundToPopup", status: "ok" });
-      return
+      return;
     }
     sendResponse({ message: request.message, status: "pending" });
   },
 );
-
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
     const dataUnencoded = { tabId, url: tab.url, title: tab.title };
     const data = btoa(JSON.stringify(dataUnencoded));
 
-    const payload = { dataType: "tab_data", data: data, timestamp: nowTimestampB() };
+    const payload = {
+      dataType: "tab_data",
+      data: data,
+      timestamp: nowTimestampB(),
+    };
     webSocket.send(JSON.stringify(payload));
   }
 });
 
-let webSocket = new WebSocket('ws://localhost:8080/ws');
+let webSocket = new WebSocket("ws://localhost:8080/ws");
 webSocket.onopen = (event) => {
-  console.log('websocket open');
+  console.log("websocket open");
   keepAlive();
 };
 
@@ -69,7 +72,7 @@ webSocket.onmessage = (event) => {
 };
 
 webSocket.onclose = (event) => {
-  console.log('websocket connection closed');
+  console.log("websocket connection closed");
   webSocket = null;
 };
 
@@ -90,7 +93,7 @@ function keepAlive() {
       }
     },
     // Set the interval to 20 seconds to prevent the service worker from becoming inactive.
-    20 * 1000 
+    20 * 1000,
   );
 }
 
@@ -100,9 +103,13 @@ function nowTimestampB(): number {
 }
 
 function sendDataToServer(): void {
-  console.log('sending data to server');
+  console.log("sending data to server");
   buffer.map((data) => {
-    const payload = { dataType: "bData", data: data, timestamp: nowTimestampB() };
+    const payload = {
+      dataType: "bData",
+      data: data,
+      timestamp: nowTimestampB(),
+    };
     webSocket.send(JSON.stringify(payload));
   });
 

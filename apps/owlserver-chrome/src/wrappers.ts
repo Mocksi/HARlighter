@@ -10,7 +10,7 @@ function sendToBackground(data: string, dataType: string) {
   jsonHolder.type = "application/json";
   jsonHolder.id = "jsonHolder";
   const timestamp = nowTimestamp();
-  const payload = { dataType, data: data, timestamp }
+  const payload = { dataType, data: data, timestamp };
 
   const b64encoded = btoa(JSON.stringify(payload)) as string;
 
@@ -53,7 +53,9 @@ function stringifyEventTarget(event: Event): string {
     targetInfo.className = (event.target as Element).className; // Class names of the element
 
     // Collect attributes in a serializable object
-    targetInfo.attributes = Array.from((event.target as Element).attributes).reduce((attrs, attr) => {
+    targetInfo.attributes = Array.from(
+      (event.target as Element).attributes,
+    ).reduce((attrs, attr) => {
       attrs[attr.name] = attr.value;
       return attrs;
     }, {});
@@ -64,10 +66,10 @@ function stringifyEventTarget(event: Event): string {
 }
 
 function sendTagsToServer() {
-  const scriptTags = document.querySelectorAll('script');
+  const scriptTags = document.querySelectorAll("script");
   // Loop through scriptTags and access their attributes (e.g., src)
   // biome-ignore lint/complexity/noForEach: <explanation>
-    scriptTags.forEach((scriptTag) => {
+  scriptTags.forEach((scriptTag) => {
     const scriptSrc = scriptTag.src;
     const payload = {
       event_type: "script_tag_found",
@@ -76,10 +78,10 @@ function sendTagsToServer() {
     sendToBackground(JSON.stringify(payload), "tags");
   });
 
-  const linkTags = document.querySelectorAll('link');
+  const linkTags = document.querySelectorAll("link");
   // Loop through linkTags and access their attributes (e.g., href)
   // biome-ignore lint/complexity/noForEach: <explanation>
-    linkTags.forEach((linkTag) => {
+  linkTags.forEach((linkTag) => {
     const linkHref = linkTag.href;
     const payload = {
       event_type: "link_tag_found",
@@ -88,7 +90,6 @@ function sendTagsToServer() {
     sendToBackground(JSON.stringify(payload), "tags");
   });
 }
-
 
 document.addEventListener("click", (event: MouseEvent) => {
   const payload = {
@@ -189,7 +190,10 @@ observer.observe(document.body, {
             const arr = this.responseText;
 
             sendToBackground(this._url, "request_url");
-            sendToBackground(JSON.parse(this._requestHeaders), "request_headers");
+            sendToBackground(
+              JSON.parse(this._requestHeaders),
+              "request_headers",
+            );
             sendToBackground(responseHeaders, "response_headers");
             sendToBackground(JSON.parse(arr), "response_body");
           } catch (err) {
