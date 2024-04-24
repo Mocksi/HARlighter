@@ -1,27 +1,137 @@
-function sendToBackground(data: string) {
+function nowTimestamp(): number {
+  return Math.floor(Date.now() / 1000);
+}
+
+function sendToBackground(data: string, dataType: string) {
   if (!data || !document) {
     return;
   }
   const jsonHolder = document.createElement("script");
   jsonHolder.type = "application/json";
   jsonHolder.id = "jsonHolder";
-  const timestamp = Date.now() / 1000;
-  const b64encoded = btoa(JSON.stringify(data)) as string;
+  const timestamp = nowTimestamp();
+  const payload = { dataType, data: data, timestamp }
+
+  const b64encoded = btoa(JSON.stringify(payload)) as string;
+
   try {
-    jsonHolder.src = JSON.stringify({ payload: b64encoded, timestamp });
+    jsonHolder.src = b64encoded;
   } catch (e) {
     console.log(e);
-    return
+    return;
   }
   (document.head || document.documentElement).appendChild(jsonHolder);
   if (document.defaultView) {
     const view = Object.assign({}, document.defaultView);
-    const event = new CustomEvent("sendToBackground", { detail: view });
+    const event = new CustomEvent("wrapperToBackground", { detail: view });
     document.dispatchEvent(event);
   } else {
     console.error("Default view is not available");
   }
 }
+
+type SerializableTargetInfo = {
+  eventType?: string;
+  tagName?: string;
+  id?: string;
+  className?: string;
+  attributes?: { [key: string]: string };
+};
+
+// Helper function to convert an event's target to a JSON string
+function stringifyEventTarget(event: Event): string {
+  // Initialize an empty object for storing serializable info
+  const targetInfo: SerializableTargetInfo = {};
+
+  // Store the event type
+  targetInfo.eventType = event.type;
+
+  // Ensure the event.target exists and is a DOM element
+  if (event.target && event.target instanceof Element) {
+    targetInfo.tagName = (event.target as Element).tagName; // Tag name of the element
+    targetInfo.id = (event.target as Element).id; // ID of the element
+    targetInfo.className = (event.target as Element).className; // Class names of the element
+
+    // Collect attributes in a serializable object
+    targetInfo.attributes = Array.from((event.target as Element).attributes).reduce((attrs, attr) => {
+      attrs[attr.name] = attr.value;
+      return attrs;
+    }, {});
+  }
+
+  // Convert the target info object to a JSON string
+  return JSON.stringify(targetInfo);
+}
+
+function sendTagsToServer() {
+  const scriptTags = document.querySelectorAll('script');
+  // Loop through scriptTags and access their attributes (e.g., src)
+  // biome-ignore lint/complexity/noForEach: <explanation>
+    scriptTags.forEach((scriptTag) => {
+    const scriptSrc = scriptTag.src;
+    const payload = {
+      event_type: "script_tag_found",
+      target: scriptSrc,
+    };
+    sendToBackground(JSON.stringify(payload), "tags");
+  });
+
+  const linkTags = document.querySelectorAll('link');
+  // Loop through linkTags and access their attributes (e.g., href)
+  // biome-ignore lint/complexity/noForEach: <explanation>
+    linkTags.forEach((linkTag) => {
+    const linkHref = linkTag.href;
+    const payload = {
+      event_type: "link_tag_found",
+      target: linkHref,
+    };
+    sendToBackground(JSON.stringify(payload), "tags");
+  });
+}
+
+
+document.addEventListener("click", (event: MouseEvent) => {
+  const payload = {
+    event_type: event.type,
+    target: stringifyEventTarget(event),
+  };
+  sendToBackground(JSON.stringify(payload), "click");
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const payload = {
+    event_type: "DOMContentLoaded",
+    target: document.location.href,
+  };
+  sendToBackground(JSON.stringify(payload), "DOMContentLoaded");
+});
+
+document.addEventListener("keydown", (event: KeyboardEvent) => {
+  const payload = {
+    event_type: event.type,
+    target: stringifyEventTarget(event),
+  };
+  sendToBackground(JSON.stringify(payload), "keydown");
+});
+
+const observer = new MutationObserver((mutations) => {
+  for (const mutation of mutations) {
+    const addedNodes = Array.from(mutation.addedNodes);
+    for (const node of addedNodes) {
+      if (node instanceof HTMLInputElement && node.type === "text") {
+        node.addEventListener("input", () => {
+          // FIXME: add debounce
+          sendToBackground(node.value, "input");
+        });
+      }
+    }
+  }
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true,
+});
 
 ((xhr) => {
   const XHR = XMLHttpRequest.prototype;
@@ -36,6 +146,7 @@ function sendToBackground(data: string) {
     this._requestHeaders = {};
     this._startTime = new Date().toISOString();
 
+    // biome-ignore lint/style/noArguments: this is not transpiling correctly.
     return open.apply(this, arguments);
   };
 
@@ -53,7 +164,6 @@ function sendToBackground(data: string) {
         if (postData) {
           if (typeof postData === "string") {
             try {
-              // here you get the REQUEST HEADERS, in JSON format, so you can also use JSON.parse
               this._requestHeaders = postData;
             } catch (err) {
               console.log(
@@ -74,21 +184,16 @@ function sendToBackground(data: string) {
         // here you get the RESPONSE HEADERS
         const responseHeaders = this.getAllResponseHeaders();
 
-        if (this.responseType != "blob" && this.responseText) {
-          // responseText is string or null
+        if (this.responseType !== "blob" && this.responseText) {
           try {
-            // here you get RESPONSE TEXT (BODY), in JSON format, so you can use JSON.parse
             const arr = this.responseText;
 
-            // printing url, request headers, response headers, response body, to console
-
-            sendToBackground(this._url);
-            sendToBackground(JSON.parse(this._requestHeaders));
-            sendToBackground(responseHeaders);
-            sendToBackground(JSON.parse(arr));
+            sendToBackground(this._url, "request_url");
+            sendToBackground(JSON.parse(this._requestHeaders), "request_headers");
+            sendToBackground(responseHeaders, "response_headers");
+            sendToBackground(JSON.parse(arr), "response_body");
           } catch (err) {
-            sendToBackground("Error in responseType try catch");
-            sendToBackground(err);
+            sendToBackground(err, "response_error");
           }
         }
       }

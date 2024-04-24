@@ -20,7 +20,7 @@ rootDiv.render(
   </React.StrictMode>,
 );
 
-document.addEventListener("sendToBackground", (e): void => {
+document.addEventListener("wrapperToBackground", (e): void => {
   const jsonHolder = document.getElementById("jsonHolder");
   const data = jsonHolder?.getAttribute("src") || "";
   jsonHolder?.remove();
