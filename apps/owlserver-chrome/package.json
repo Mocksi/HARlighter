@@ -15,8 +15,8 @@
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
-    "@emotion/react": "^11",
-    "@emotion/styled": "^11",
+    "@emotion/react": "11.11.4",
+    "@emotion/styled": "11.11.5",
     "@repo/ui": "workspace:*",
     "@vscode/codicons": "^0.0.35",
     "framer-motion": "^6",
@@ -41,6 +41,6 @@
     "eslint": "^8.56.0",
     "rollup": "^4.9.6",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "5.3.3"
   }
 }
