@@ -1,6 +1,6 @@
 import React from "react";
-import { HStack } from '@chakra-ui/react'
-import { Center, Box, Text } from '@chakra-ui/react'
+import { HStack } from "@chakra-ui/react";
+import { Center, Box, Text } from "@chakra-ui/react";
 import RecordButton from "./record_button";
 
 function runStartRecording(isRecording: boolean) {
@@ -24,18 +24,21 @@ function PopUp() {
 
   return (
     <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden">
-    <HStack>
-      <Center w="40px" h="40px" bg="tomato" color="white">
-        <img src="../assets/birdie.svg" alt="Birdie" />
-      </Center>
-      <Center w="200px" h="40px" bg="white" color="black">
-        <Text>Mocksi Recording</Text>
-      </Center>
-      <Center w="80px" h="40px" bg="red" color="white">
-        <RecordButton initialState={initState} onRecordChange = {runStartRecording}/>
-      </Center>
-    </HStack>
-  </Box>
+      <HStack>
+        <Center w="40px" h="40px" bg="tomato" color="white">
+          <img src="../assets/birdie.svg" alt="Birdie" />
+        </Center>
+        <Center w="200px" h="40px" bg="white" color="black">
+          <Text>Mocksi Recording</Text>
+        </Center>
+        <Center w="80px" h="40px" bg="red" color="white">
+          <RecordButton
+            initialState={initState}
+            onRecordChange={runStartRecording}
+          />
+        </Center>
+      </HStack>
+    </Box>
   );
 }
 

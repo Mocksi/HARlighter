@@ -23,7 +23,7 @@ const RecordButton: React.FC<RecordButtonProps> = ({
   };
 
   const label = isRecording ? "stop" : "start";
-  const colorScheme = isRecording? "red" : "green";
+  const colorScheme = isRecording ? "red" : "green";
 
   return (
     <Button colorScheme={colorScheme} onClick={handleToggleRecording}>
