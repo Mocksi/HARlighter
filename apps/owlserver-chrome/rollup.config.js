@@ -7,10 +7,12 @@ import replace from "@rollup/plugin-replace";
 const plugins = [
   nodeResolve(),
   commonjs(),
-  typescript(),
+  typescript({ tsconfig: './tsconfig.json' }),
   replace({
     "process.env.NODE_ENV": JSON.stringify("production"),
     preventAssignment: true,
+    'globalThis.development': JSON.stringify(process.env.NODE_ENV),
+    'globalThis.process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
   }),
 ];
 
@@ -36,6 +38,7 @@ const wrappersConfig = defineConfig({
   output: {
     file: "dist/wrappers.js",
     format: "iife",
+    name: "wrappers"
   },
   plugins,
   external: ["chrome-types"],

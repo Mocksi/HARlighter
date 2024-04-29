@@ -22,13 +22,12 @@ const RecordButton: React.FC<RecordButtonProps> = ({
     setIsRecording(!isRecording);
   };
 
+  const label = isRecording ? "stop" : "start";
+  const colorScheme = isRecording? "red" : "green";
+
   return (
-    <Button
-      leftIcon={isRecording ? <FaStopCircle /> : <FaRecordVinyl />}
-      colorScheme={isRecording ? "red" : "green"}
-      onClick={handleToggleRecording}
-    >
-      {isRecording ? "Stop Recording" : "Start Recording"}
+    <Button colorScheme={colorScheme} onClick={handleToggleRecording}>
+      {label}
     </Button>
   );
 };

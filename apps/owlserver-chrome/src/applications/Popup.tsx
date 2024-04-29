@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Heading, Center, Icon, HStack, Text } from "@chakra-ui/react";
+import { HStack } from '@chakra-ui/react'
+import { Center, Box, Text } from '@chakra-ui/react'
 import RecordButton from "./record_button";
 
 function runStartRecording(isRecording: boolean) {
@@ -22,15 +23,19 @@ function PopUp() {
   chrome.runtime.sendMessage({ text: "popOpened" });
 
   return (
-    <Box w="200px" p={4}>
-      <Heading size="md">Mocksi Lite</Heading>
-      <Center>
-        <RecordButton
-          onRecordChange={runStartRecording}
-          initialState={initState}
-        />
+    <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden">
+    <HStack>
+      <Center w="40px" h="40px" bg="tomato" color="white">
+        <img src="../assets/birdie.svg" alt="Birdie" />
       </Center>
-    </Box>
+      <Center w="200px" h="40px" bg="white" color="black">
+        <Text>Mocksi Recording</Text>
+      </Center>
+      <Center w="80px" h="40px" bg="red" color="white">
+        <RecordButton initialState={initState} onRecordChange = {runStartRecording}/>
+      </Center>
+    </HStack>
+  </Box>
   );
 }
 

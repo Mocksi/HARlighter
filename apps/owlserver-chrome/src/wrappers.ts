@@ -146,6 +146,7 @@ observer.observe(document.body, {
     this._url = url;
     this._requestHeaders = {};
     this._startTime = new Date().toISOString();
+    this._request_id = crypto.randomUUID();
 
     // biome-ignore lint/style/noArguments: this is not transpiling correctly.
     return open.apply(this, arguments);
@@ -153,6 +154,7 @@ observer.observe(document.body, {
 
   XHR.setRequestHeader = function (header, value) {
     this._requestHeaders[header] = value;
+    // biome-ignore lint/style/noArguments: dynamic
     return setRequestHeader.apply(this, arguments);
   };
 
