@@ -7,8 +7,11 @@ interface ChromeMessageWithData extends ChromeMessage {
   data: string;
 }
 
+// TODO: introduce a Recorder class to handle recording state, data, and sending data to the server
 const buffer: string[] = [];
 let recordingState = true;
+let sessionId = "";
+let tabSessionId = "";
 
 // TODO:: make this neater
 chrome.storage.local.get("recordingState", (result) => {
@@ -21,20 +24,6 @@ chrome.runtime.onMessage.addListener(
     sender: chrome.runtime.MessageSender,
     sendResponse: (response: ChromeMessage) => void,
   ): void => {
-    console.log(`recordingState: ${recordingState}`)
-    // FIXME: refactor this to use a switch statement
-    if (request.message === "startRecording") {
-      recordingState = true;
-      chrome.storage.local.set({ recordingState });
-      sendResponse({ message: request.message, status: "success" });
-      return;
-    }
-    if (request.message === "stopRecording") {
-      recordingState = false;
-      chrome.storage.local.set({ recordingState });
-      sendResponse({ message: request.message, status: "success" });
-      return;
-    }
 
     if (recordingState && request.message === "wrapperToBackground") {
       if (request.data.length > 0) {
@@ -43,27 +32,58 @@ chrome.runtime.onMessage.addListener(
       sendResponse({ message: "backgroundToPopup", status: "ok" });
       return;
     }
+
+    if (request.message === "startRecording" || request.message === "stopRecording") {
+      recordingState = request.message === "startRecording";
+      chrome.storage.local.set({ recordingState });
+      sendResponse({ message: request.message, status: "success" });
+      return;
+    }
+
+    if (request.message === "startRecording") {
+      sessionId = crypto.randomUUID();
+    }
+
+    if (request.message === "stopRecording") {
+      sessionId = "";
+    }
+
     sendResponse({ message: request.message, status: "pending" });
   },
 );
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+interface WebsocketPayload {
+  dataType: string;
+  data: string;
+  timestamp: number;
+  sessionId?: string;
+  tabSessionId?: string;
+}
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab: chrome.tabs.Tab) => {
   if (changeInfo.status === "complete") {
-    const dataUnencoded = { tabId, url: tab.url, title: tab.title };
+    const dataUnencoded = { tabId, url: tab.url, title: tab.title, pendingUrl: tab.pendingUrl, sessionId: tab.sessionId};
     const data = btoa(JSON.stringify(dataUnencoded));
 
-    const payload = {
+    const payload: WebsocketPayload = {
       dataType: "tab_data",
       data: data,
       timestamp: nowTimestampB(),
     };
+
+    if (sessionId) {
+      payload.sessionId = sessionId;
+    }
+    if (tab.sessionId) {
+      tabSessionId = tab.sessionId;
+      payload.tabSessionId = tabSessionId;
+    }
     webSocket.send(JSON.stringify(payload));
   }
 });
 
 let webSocket = new WebSocket("ws://localhost:8080/ws");
 webSocket.onopen = (event) => {
-  console.log("websocket open");
   keepAlive();
 };
 
@@ -107,11 +127,14 @@ function sendDataToServer(): void {
     return;
   }
   buffer.map((data) => {
-    const payload = {
+    const payload: WebsocketPayload = {
       dataType: "bData",
-      data: data,
+      data,
       timestamp: nowTimestampB(),
     };
+    if (sessionId) {
+      payload.sessionId = sessionId;
+    }
     webSocket.send(JSON.stringify(payload));
   });
 
