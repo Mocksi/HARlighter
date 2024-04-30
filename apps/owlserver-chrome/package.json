@@ -7,7 +7,8 @@
     "build:clean": "mkdir -p dist && touch dist/building.txt && rm -r dist/*",
     "build:rollup": "pnpm exec rollup -c --bundleConfigAsCjs",
     "build:copy": "cp ./src/manifest.json dist/ && cp -r ./assets dist/",
-    "build": "pnpm run build:clean && pnpm run build:rollup && pnpm run build:copy"
+    "build": "pnpm run build:clean && pnpm run build:rollup && pnpm run build:copy",
+    "test": "pnpm exec vitest"
   },
   "keywords": [],
   "author": "",
@@ -42,6 +43,7 @@
     "eslint": "^8.56.0",
     "rollup": "^4.9.6",
     "ts-node": "^10.9.2",
-    "typescript": "5.3.3"
+    "typescript": "5.3.3",
+    "vitest": "^1.5.2"
   }
 }
