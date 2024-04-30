@@ -21,6 +21,7 @@ chrome.runtime.onMessage.addListener(
     sender: chrome.runtime.MessageSender,
     sendResponse: (response: ChromeMessage) => void,
   ): void => {
+    console.log(`recordingState: ${recordingState}`)
     // FIXME: refactor this to use a switch statement
     if (request.message === "startRecording") {
       recordingState = true;
@@ -35,8 +36,7 @@ chrome.runtime.onMessage.addListener(
       return;
     }
 
-    // FIXME: check recordingState
-    if (request.message === "wrapperToBackground") {
+    if (recordingState && request.message === "wrapperToBackground") {
       if (request.data.length > 0) {
         buffer.push(request.data);
       }
@@ -103,7 +103,9 @@ function nowTimestampB(): number {
 }
 
 function sendDataToServer(): void {
-  console.log("sending data to server");
+  if (buffer.length <1) {
+    return;
+  }
   buffer.map((data) => {
     const payload = {
       dataType: "bData",
