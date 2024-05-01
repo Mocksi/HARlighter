@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from "uuid";
+
 interface ChromeMessage {
   message: string;
   status?: string;
@@ -24,7 +26,6 @@ chrome.runtime.onMessage.addListener(
     sender: chrome.runtime.MessageSender,
     sendResponse: (response: ChromeMessage) => void,
   ): void => {
-
     if (recordingState && request.message === "wrapperToBackground") {
       if (request.data.length > 0) {
         buffer.push(request.data);
@@ -33,7 +34,10 @@ chrome.runtime.onMessage.addListener(
       return;
     }
 
-    if (request.message === "startRecording" || request.message === "stopRecording") {
+    if (
+      request.message === "startRecording" ||
+      request.message === "stopRecording"
+    ) {
       recordingState = request.message === "startRecording";
       chrome.storage.local.set({ recordingState });
       sendResponse({ message: request.message, status: "success" });
@@ -41,7 +45,7 @@ chrome.runtime.onMessage.addListener(
     }
 
     if (request.message === "startRecording") {
-      sessionId = crypto.randomUUID();
+      sessionId = uuidv4();
     }
 
     if (request.message === "stopRecording") {
@@ -62,7 +66,13 @@ interface WebsocketPayload {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab: chrome.tabs.Tab) => {
   if (changeInfo.status === "complete") {
-    const dataUnencoded = { tabId, url: tab.url, title: tab.title, pendingUrl: tab.pendingUrl, sessionId: tab.sessionId};
+    const dataUnencoded = {
+      tabId,
+      url: tab.url,
+      title: tab.title,
+      pendingUrl: tab.pendingUrl,
+      sessionId: tab.sessionId,
+    };
     const data = btoa(JSON.stringify(dataUnencoded));
 
     const payload: WebsocketPayload = {
@@ -70,7 +80,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab: chrome.tabs.Tab) => {
       data: data,
       timestamp: nowTimestampB(),
     };
-
     if (sessionId) {
       payload.sessionId = sessionId;
     }
@@ -78,7 +87,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab: chrome.tabs.Tab) => {
       tabSessionId = tab.sessionId;
       payload.tabSessionId = tabSessionId;
     }
-    webSocket.send(JSON.stringify(payload));
+    if (recordingState && webSocket) {
+      webSocket.send(JSON.stringify(payload));
+    }
   }
 });
 
@@ -107,7 +118,7 @@ function keepAlive() {
   const keepAliveIntervalId = setInterval(
     () => {
       if (webSocket) {
-        webSocket.send('keepalive');
+        webSocket.send("keepalive");
       } else {
         clearInterval(keepAliveIntervalId);
       }
@@ -123,7 +134,7 @@ function nowTimestampB(): number {
 }
 
 function sendDataToServer(): void {
-  if (buffer.length <1) {
+  if (buffer.length < 1) {
     return;
   }
   buffer.map((data) => {

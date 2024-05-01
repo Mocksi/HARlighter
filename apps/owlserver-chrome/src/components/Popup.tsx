@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { Button, HStack } from "@chakra-ui/react";
 import { Center, Box, Text } from "@chakra-ui/react";
 import RecordButton from "./record_button";
@@ -6,7 +6,7 @@ import RecordButton from "./record_button";
 function runStartRecording(isRecording: boolean) {
   const action = isRecording ? "startRecording" : "stopRecording";
   chrome.runtime.sendMessage({ message: action }, (response) => {
-    console.log(`${action} status: ${response.status}`)
+    console.log(`${action} status: ${response.status}`);
   });
 }
 
@@ -22,10 +22,10 @@ function PopUp() {
           <Text>Step 1: Record your app</Text>
         </Center>
         <Center w="80px" h="40px" bg="white" color="white">
-          <RecordButton
-            onRecordChange={runStartRecording}
-          />
-          <Button color="blue" isDisabled>Next</Button>
+          <RecordButton onRecordChange={runStartRecording} />
+          <Button color="blue" isDisabled>
+            Next
+          </Button>
         </Center>
       </HStack>
     </Box>
