@@ -33,10 +33,21 @@ const mainConfig = defineConfig({
 });
 
 // TODO: DRY up these configs
-const wrappersConfig = defineConfig({
-  input: "src/wrappers.ts",
+const networkWrapperConfig = defineConfig({
+  input: "src/observers/network_wrapper.ts",
   output: {
-    file: "dist/wrappers.js",
+    file: "dist/network_wrapper_observer.js",
+    format: "iife",
+    name: "wrappers"
+  },
+  plugins,
+  external: ["chrome-types"],
+});
+
+const documentConfig = defineConfig({
+  input: "src/observers/document.ts",
+  output: {
+    file: "dist/document_observer.js",
     format: "iife",
     name: "wrappers"
   },
@@ -54,4 +65,4 @@ const backgroundConfig = defineConfig({
   external: ["chrome-types"],
 });
 
-export default [mainConfig, backgroundConfig, wrappersConfig];
+export default [mainConfig, backgroundConfig, networkWrapperConfig, documentConfig];

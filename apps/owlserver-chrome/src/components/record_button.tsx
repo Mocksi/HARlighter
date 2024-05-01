@@ -1,7 +1,6 @@
 // biome-ignore lint/style/useImportType: it's ok
 import React,{useState, useEffect } from "react";
 import { Button } from "@chakra-ui/react";
-import { on } from "events";
 
 const MOCKSI_RECORDING_STATE = "mocksi-recordingState";
 interface RecordButtonProps {

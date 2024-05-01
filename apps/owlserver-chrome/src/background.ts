@@ -107,7 +107,7 @@ function keepAlive() {
   const keepAliveIntervalId = setInterval(
     () => {
       if (webSocket) {
-        webSocket.send('{ "type": "keepalive" }');
+        webSocket.send('keepalive');
       } else {
         clearInterval(keepAliveIntervalId);
       }
