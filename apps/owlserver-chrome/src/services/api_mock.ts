@@ -1,63 +1,49 @@
 "use client";
 
 type Config = {
-	delay?: number;
+    mockData: Record<string, MockResponse>;
+    delay?: number;
 };
 
 type FetchOptions = {
-	method?: string;
-	dataType?: string;
+    method?: string;
+    headers?: HeadersInit;
+    body?: string;
 };
 
 type MockResponse = {
-	RequestBody: string;
-	status: number;
-	requestHeaders?: HeadersInit;
+    ResponseStatus: number;
+    ResponseBody: string;
+    ResponseHeaders?: HeadersInit;
+    ResponseError?: string;
 };
 
 class ApiMock {
-	private mockData: Record<string, MockResponse>; // NOTE: this string is the request URL
-	private delay: number;
+    private mockData: Record<string, MockResponse>;
+    private delay: number;
 
-	constructor(config: Config) {
-		this.mockData = config.mockData;
-		this.delay = config.delay ?? 100; // Use nullish coalescing instead of logical OR for default value
-	}
+    constructor(config: Config) {
+        this.mockData = config.mockData;
+        this.delay = config.delay ?? 100;  // Default delay set to 100ms
+    }
 
-	async fetch(url: string, options?: FetchOptions): Promise<Response> {
-		const response = this.findMockResponse(url, options);
-		if (response) {
-			return Promise.resolve(
-				new Response(JSON.stringify(response.RequestBody), {
-					status: response.status,
-					headers: response.requestHeaders,
-				}),
-			);
-		}
-		return Promise.resolve(new Response(null, { status: 404 }));
-	}
+    async fetch(url: string, options?: FetchOptions): Promise<Response> {
+        await new Promise(resolve => setTimeout(resolve, this.delay));  // Simulate network delay
 
-	private findMockResponse(
-		url: string,
-		options?: FetchOptions,
-	): MockResponse | null {
-		if (this.mockData[url]) {
-			return this.mockData[url];
-		}
+        const method = (options?.method || 'GET').toUpperCase();  // Default method to GET
+        const key = `${method} ${url}`;
 
-		const methodUrlKey = options?.method
-			? `${options.method.toUpperCase()} ${url}`
-			: "";
-		if (this.mockData[methodUrlKey]) {
-			return this.mockData[methodUrlKey];
-		}
+        const response = this.mockData[key];
 
-		const dataTypeKey = options?.dataType ?? "";
-		if (this.mockData[dataTypeKey]) {
-			return this.mockData[dataTypeKey];
-		}
-		return null;
-	}
+        if (!response) {
+            return new Response(null, { status: 404 });
+        }
+
+        return new Response(response.ResponseBody, {
+            status: response.ResponseStatus,
+            headers: response.ResponseHeaders
+        });
+    }
 }
 
 export default ApiMock;
