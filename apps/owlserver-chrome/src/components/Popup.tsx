@@ -46,7 +46,7 @@ const StepOne: React.FC<StepProps> = ({ currentStep, onNextStep }) => {
 	);
 };
 
-const StepTwo: React.FC<StepProps> = ({currentStep, onNextStep}) => {
+const StepTwo: React.FC<StepProps> = ({ currentStep, onNextStep }) => {
 	if (Number(currentStep) !== 2) {
 		return null;
 	}
