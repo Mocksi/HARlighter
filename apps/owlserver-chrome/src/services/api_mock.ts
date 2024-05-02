@@ -10,13 +10,13 @@ type FetchOptions = {
 };
 
 type MockResponse = {
-	body: string;
+	RequestBody: string;
 	status: number;
-	headers?: HeadersInit;
+	requestHeaders?: HeadersInit;
 };
 
 class ApiMock {
-	private mockData: Record<string, MockResponse>;
+	private mockData: Record<string, MockResponse>; // NOTE: this string is the request URL
 	private delay: number;
 
 	constructor(config: Config) {
@@ -28,9 +28,9 @@ class ApiMock {
 		const response = this.findMockResponse(url, options);
 		if (response) {
 			return Promise.resolve(
-				new Response(JSON.stringify(response.body), {
+				new Response(JSON.stringify(response.RequestBody), {
 					status: response.status,
-					headers: response.headers,
+					headers: response.requestHeaders,
 				}),
 			);
 		}
