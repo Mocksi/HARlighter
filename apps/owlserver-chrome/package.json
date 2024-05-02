@@ -29,6 +29,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.7.2",
     "@repo/eslint-config": "workspace:*",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
