@@ -1,84 +1,102 @@
-import { expect, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import ApiMock from "./api_mock";
 
+// Mock setup for node-fetch to simulate a browser environment
+beforeAll(() => {
+	globalThis.fetch = fetch;
+	globalThis.Headers = Headers;
+	globalThis.Response = Response;
+	globalThis.Blob = Blob;
+	globalThis.FormData = FormData;
+});
+
+afterAll(() => {
+	// biome-ignore lint/performance/noDelete: teardown
+	delete globalThis.fetch;
+	// biome-ignore lint/performance/noDelete: teardown
+	delete globalThis.Headers;
+	// biome-ignore lint/performance/noDelete: teardown
+	delete globalThis.Response;
+	// biome-ignore lint/performance/noDelete: teardown
+	delete globalThis.Blob;
+	// biome-ignore lint/performance/noDelete: teardown
+	delete globalThis.FormData;
+});
+
+// Define mock data with various response types and scenarios
 const mockData = {
-	"GET /api/users": {
-		ResponseBody: JSON.stringify({
-			Content: JSON.stringify({
-				success: true,
-				ContentLength: 19,
-				ContentType: "application/json",
-				Headers:
-					"Date: Wed, 01 May 2024 07:04:37 GMT\nContent-Type: application/json\nContent-Length: 19\n",
-			}),
+	"GET /api/text": {
+		ResponseBody: "Simple text response",
+		ResponseStatus: 200,
+		ResponseHeaders: { "Content-Type": "text/plain" },
+		ResponseType: "text",
+	},
+	"POST /api/json": {
+		ResponseBody: { message: "Data received" },
+		ResponseStatus: 201,
+		ResponseHeaders: { "Content-Type": "application/json" },
+		ResponseType: "json",
+	},
+	"PUT /api/blob": {
+		ResponseBody: new Blob(["binary data"], {
+			type: "application/octet-stream",
 		}),
 		ResponseStatus: 200,
-		ResponseHeaders: {
-			"Content-Type": "application/json",
-			Server: "cloudflare",
-		},
+		ResponseHeaders: { "Content-Type": "application/octet-stream" },
+		ResponseType: "blob",
 	},
-	"POST /api/create": {
-		ResponseBody: JSON.stringify({
-			id: "0",
-			json: JSON.stringify({
-				method: "POST",
-				url: "https://foobar.com/echo/post/json",
-				content: JSON.stringify({
-					Id: 78912,
-					Customer: "Jason Sweet",
-					Quantity: 1,
-					Price: 18.0,
-				}),
-				headers: "Content-Type: application/json\n",
-			}),
-		}),
-		ResponseStatus: 201,
-		ResponseHeaders: {
-			"Content-Type": "application/json",
-			Server: "cloudflare",
-		},
-	},
-	"GET /api/error": {
-		ResponseBody: JSON.stringify({ message: "Not Found" }),
-		ResponseStatus: 404,
-		ResponseHeaders: { "Content-Type": "application/json" },
+	"DELETE /api/formData": {
+		ResponseBody: new FormData(),
+		ResponseStatus: 204,
+		ResponseHeaders: { "Content-Type": "multipart/form-data" },
+		ResponseType: "formData",
 	},
 };
 
-test("should return a mocked response for a valid URL", async () => {
+// Tests for different response types
+describe("ApiMock tests for different HTTP methods and response types", () => {
 	const apiMock = new ApiMock({ mockData, delay: 100 });
-	const response = await apiMock.fetch("/api/users");
-	const data = JSON.parse(JSON.parse(await response.text()).Content);
 
-	expect(response.status).toBe(200);
-	expect(data).toEqual({
-		success: true,
-		ContentLength: 19,
-		ContentType: "application/json",
-		Headers:
-			"Date: Wed, 01 May 2024 07:04:37 GMT\nContent-Type: application/json\nContent-Length: 19\n",
-	});
-});
-
-test("should handle a POST request with a JSON body", async () => {
-	const apiMock = new ApiMock({ mockData, delay: 100 });
-	const requestBody = JSON.stringify({
-		username: "johndoe",
-		email: "john@example.com",
+	test("should handle text response correctly", async () => {
+		const response = await apiMock.fetch("/api/text");
+		expect(await response.text()).toBe("Simple text response");
+		expect(response.headers.get("Content-Type")).toBe("text/plain");
 	});
 
-	const response = await apiMock.fetch("/api/create", {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: requestBody,
+	test("should handle JSON response correctly", async () => {
+		const response = await apiMock.fetch("/api/json", { method: "POST" });
+		expect(await response.json()).toEqual({ message: "Data received" });
+		expect(response.status).toBe(201);
 	});
 
-	const data = JSON.parse(await response.text());
+	test("should handle Blob response correctly", async () => {
+		const response = await apiMock.fetch("/api/blob", { method: "PUT" });
+		expect(response.headers.get("Content-Type")).toBe(
+			"application/octet-stream",
+		);
+		const blob = await response.blob();
+		expect(blob.size).toBeGreaterThan(0);
+	});
 
-	expect(response.status).toBe(201);
-	expect(data).toEqual({
-		id: "0",
-		json: '{"method":"POST","url":"https://foobar.com/echo/post/json","content":"{\\"Id\\":78912,\\"Customer\\":\\"Jason Sweet\\",\\"Quantity\\":1,\\"Price\\":18}","headers":"Content-Type: application/json\\n"}',
+	test("should handle FormData response correctly", async () => {
+		const response = await apiMock.fetch("/api/formData", { method: "DELETE" });
+		expect(response.headers.get("Content-Type")).toBe("multipart/form-data");
+		expect(response.status).toBe(204);
+	});
+
+	test("should handle aborted requests", async () => {
+		const abortController = new AbortController();
+		const fetchPromise = apiMock.fetch("/api/text", {
+			signal: abortController.signal,
+		});
+		abortController.abort();
+
+		try {
+			await fetchPromise;
+			//
+		} catch (error: unknown) {
+			const errorName = (error as Error)?.name;
+			expect(errorName).toBe("AbortError");
+		}
 	});
 });
