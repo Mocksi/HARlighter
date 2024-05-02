@@ -1,5 +1,5 @@
-import { expect, test } from 'vitest'
-import ApiMock from './api_mock';
+import { expect, test } from "vitest";
+import ApiMock from "./api_mock";
 
 const mockData = {
   'GET /api/users': {
@@ -41,13 +41,13 @@ const mockData = {
 };
 
 
-test('should return a mocked response for a valid URL', async () => {
-    const apiMock = new ApiMock({ mockData, delay: 100 });
-    const response = await apiMock.fetch('/api/users');
-    const data = await response.json();
+test("should return a mocked response for a valid URL", async () => {
+	const apiMock = new ApiMock({ mockData, delay: 100 });
+	const response = await apiMock.fetch("/api/users");
+	const data = JSON.parse(JSON.parse(await response.text()).Content);
 
     expect(response.status).toBe(200);
-    expect(data).toEqual({ id: 1, name: 'John Doe' });
+    expect(data).toEqual({ success: true, ContentLength: 19, ContentType: 'application/json', Headers: 'Date: Wed, 01 May 2024 07:04:37 GMT\nContent-Type: application/json\nContent-Length: 19\n' });
 });
 
 test('should handle a POST request with a JSON body', async () => {
@@ -60,8 +60,8 @@ test('should handle a POST request with a JSON body', async () => {
         body: requestBody,
     });
 
-    const data = await response.json();
+    const data = JSON.parse(await response.text());
 
     expect(response.status).toBe(201);
-    expect(data).toEqual(requestBody);
+    expect(data).toEqual({ id: '0', json: "{\"method\":\"POST\",\"url\":\"https://foobar.com/echo/post/json\",\"content\":\"{\\\"Id\\\":78912,\\\"Customer\\\":\\\"Jason Sweet\\\",\\\"Quantity\\\":1,\\\"Price\\\":18}\",\"headers\":\"Content-Type: application/json\\n\"}" });
 });

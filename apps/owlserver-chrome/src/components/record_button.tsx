@@ -2,7 +2,8 @@ import { Button } from "@chakra-ui/react";
 // biome-ignore lint/style/useImportType: it's ok
 import React, { useState, useEffect } from "react";
 
-const MOCKSI_RECORDING_STATE = "mocksi-recordingState";
+const MOCKSI_RECORDING_STATE = "mocksi-recording-state";
+export const MOCKSI_CURRENT_STEP = "mocksi-current-step";
 interface RecordButtonProps {
 	onRecordChange: (isRecording: boolean) => void;
 }
@@ -26,6 +27,9 @@ const RecordButton: React.FC<RecordButtonProps> = ({ onRecordChange }) => {
 		onRecordChange(newRecordingState);
 		setIsRecording(newRecordingState);
 		localStorage.setItem(MOCKSI_RECORDING_STATE, newRecordingState.toString());
+		if (newRecordingState) {
+			localStorage.setItem(MOCKSI_CURRENT_STEP, "1");
+		}
 	};
 
 	const label = isRecording ? "stop" : "start";
