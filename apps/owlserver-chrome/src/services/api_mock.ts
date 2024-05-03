@@ -1,102 +1,117 @@
-import { Blob, FormData, Headers, Response } from "node-fetch"; // Import node-fetch classes for types
-
 type Config = {
-	mockData: Record<string, MockResponse>;
-	delay?: number;
+    mockData: Record<string, MockResponse>;
+    delay?: number;
 };
-
-type FetchOptions = {
-	method?: string;
-	headers?: HeadersInit;
-	body?: Blob | FormData | ArrayBuffer | string; // More specific types instead of any
-	signal?: AbortSignal;
-};
-
-type ResponseBodyType = Blob | FormData | ArrayBuffer | string;
 
 type MockResponse = {
-	ResponseStatus: number;
-	ResponseBody: ResponseBodyType;
-	ResponseHeaders?: HeadersInit;
-	ResponseType?: "json" | "text" | "blob" | "formData" | "arrayBuffer";
-	ResponseError?: string;
+    ResponseStatus: number;
+    ResponseBody: Blob | FormData | ArrayBuffer | string;
+    ResponseHeaders?: HeadersInit;
+    ResponseType?: "json" | "text" | "blob" | "formData" | "arrayBuffer";
 };
 
 class ApiMock {
-	private mockData: Record<string, MockResponse>;
-	private delay: number;
+    private mockData: Record<string, MockResponse>;
+    private delay: number;
 
-	constructor(config: Config) {
-		this.mockData = config.mockData;
-		this.delay = config.delay ?? 100; // Default delay set to 100ms
-	}
+    constructor(config: Config) {
+        this.mockData = config.mockData;
+        this.delay = config.delay ?? 100; // Default delay
+    }
 
-	async fetch(url: string, options: FetchOptions = {}): Promise<Response> {
-		const { signal } = options;
-		if (signal?.aborted) {
-			return Promise.reject(
-				new DOMException("The user aborted a request.", "AbortError"),
-			);
-		}
+    createFakeXHR() {
+        const mock = this.mockData;
+        const delay = this.delay;
 
-		await new Promise((resolve) => setTimeout(resolve, this.delay)); // Simulate network delay
+        return class FakeXMLHttpRequest {
+            static DONE = 4;
+            static UNSENT = 0;
+            static HEADERS_RECEIVED = 2;
+            static LOADING = 3;
+            static OPENED = 1;
 
-		const method = (options.method || "GET").toUpperCase();
-		const key = `${method} ${url}`;
-		const mock = this.mockData[key];
+            readyState: number = FakeXMLHttpRequest.UNSENT;
+            onreadystatechange: ((this: XMLHttpRequest, ev: Event) => any) | null = null;
+            response: any;
+            responseText: string = "";
+            responseType: string = "";
+            status: number = 0;
+            method: string;
+            url: string;
+            async: boolean;
+            requestHeaders: Record<string, string> = {};
+            responseHeaders: Record<string, string> = {};
 
-		if (!mock) {
-			return new Response(null, { status: 404 });
-		}
+            open(method: string, url: string, async: boolean = true) {
+                this.method = method;
+                this.url = url;
+                this.async = async;
+                this.readyState = FakeXMLHttpRequest.OPENED;
+                this.triggerEvent("readystatechange");
+            }
 
-		if (signal?.aborted) {
-			return Promise.reject(
-				new DOMException("The user aborted a request.", "AbortError"),
-			);
-		}
+            send(data?: any) {
+                const responseKey = `${this.method} ${this.url}`;
+                const mockResponse = mock[responseKey];
 
-		const headers = new Headers(mock.ResponseHeaders);
-		let body: ResponseBodyType = mock.ResponseBody;
+                if (!mockResponse) {
+                    this.status = 404;
+                    this.triggerEvent("readystatechange");
+                    this.triggerEvent("error");
+                    return;
+                }
 
-		// Response based on the specified response type
-		switch (mock.ResponseType) {
-			case "json":
-				body = JSON.stringify(body);
-				break;
-			case "blob":
-				if (!(body instanceof Blob)) {
-					body = new Blob([JSON.stringify(body)], {
-						type: headers.get("Content-Type"),
-					});
-				}
-				break;
-			case "formData":
-				if (!(body instanceof FormData)) {
-					const formData = new FormData();
-					// biome-ignore lint/complexity/noForEach: simpler this way
-					Object.entries(body).forEach(([key, value]) =>
-						formData.append(key, value.toString()),
-					);
-					body = formData;
-				}
-				break;
-			case "arrayBuffer":
-				if (!(body instanceof ArrayBuffer)) {
-					// Convert string to ArrayBuffer if necessary
-					const encoder = new TextEncoder();
-					body = encoder.encode(body.toString()).buffer;
-				}
-				break;
-			default:
-				body = body.toString();
-				break;
-		}
+                setTimeout(() => {
+                    this.status = mockResponse.ResponseStatus;
+                    this.responseHeaders = mockResponse.ResponseHeaders || {};
+                    this.handleResponseType(mockResponse);
+                    this.readyState = FakeXMLHttpRequest.DONE;
+                    this.triggerEvent("readystatechange");
+                    this.triggerEvent("load");
+                }, delay);
+            }
 
-		return new Response(body, {
-			status: mock.ResponseStatus,
-			headers: headers,
-		});
-	}
+            setRequestHeader(header: string, value: string) {
+                this.requestHeaders[header] = value;
+            }
+
+            getAllResponseHeaders() {
+                return this.responseHeaders;
+            }
+
+			abort() {
+				this.readyState = FakeXMLHttpRequest.UNSENT;
+				this.triggerEvent("abort");
+			}
+
+            private handleResponseType(mockResponse: MockResponse) {
+                switch (mockResponse.ResponseType) {
+                    case "json":
+                        this.response = JSON.stringify(mockResponse.ResponseBody);
+                        this.responseText = this.response;
+                        break;
+                    case "blob":
+                        this.response = new Blob([mockResponse.ResponseBody], { type: "application/octet-stream" });
+                        break;
+                    case "arrayBuffer":
+                        const encoder = new TextEncoder();
+                        this.response = encoder.encode(mockResponse.ResponseBody.toString()).buffer;
+                        break;
+                    case "text":
+                    default:
+                        this.response = mockResponse.ResponseBody.toString();
+                        this.responseText = this.response;
+                        break;
+                }
+            }
+
+            private triggerEvent(type: string) {
+                if (type === "readystatechange" && this.onreadystatechange) {
+                    this.onreadystatechange(new Event(type));
+                }
+            }
+        };
+    }
 }
 
 export default ApiMock;
