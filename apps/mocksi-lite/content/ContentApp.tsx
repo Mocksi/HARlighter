@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import reactLogo from '../public/react.png'
 import tailwindBg from '../public/tailwind_bg.png'
 import typescriptLogo from '../public/typescript.png'
@@ -6,7 +6,7 @@ import tailwindLogo from '../public/tailwind.png'
 import chromeWindowBg from '../public/chromeWindow.png'
 
 export default function ContentApp() {
-  const [isdialogOpen, setIsDialogOpen] = React.useState(true)
+  const [isdialogOpen, setIsDialogOpen] = useState(false)
 
   if (!isdialogOpen) {
     return (
