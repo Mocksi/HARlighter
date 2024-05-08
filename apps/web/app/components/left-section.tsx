@@ -1,10 +1,10 @@
 import styles from "./left-section.module.css"
-import { titleFont } from "./fonts"
+import { titleFont } from "../fonts"
 import Image from "next/image"
-import mocksiIcon from "./images/mocksi-logo.png"
-import develIcon from "./images/devel-icon.png"
-import sandboxIcon from "./images/sandbox-icon.png"
-import testingIcon from "./images/testing-icon.png"
+import mocksiIcon from "../images/mocksi-logo.png"
+import develIcon from "../images/devel-icon.png"
+import sandboxIcon from "../images/sandbox-icon.png"
+import testingIcon from "../images/testing-icon.png"
 
 
 export default function LeftSection(): JSX.Element {
