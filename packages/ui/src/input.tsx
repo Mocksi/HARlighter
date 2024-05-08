@@ -3,17 +3,24 @@
 import { ChangeEventHandler } from "react";
 
 interface InputProps {
-  value: string;
+  value?: string;
+  inputLabel?: string;
   className?: string;
-  onChange: ChangeEventHandler
+  labelClassName?: string;
+  onChange?: ChangeEventHandler
 }
 
-export const Input = ({value, className, onChange}: InputProps) => {
+
+export const Input = ({ value, inputLabel, labelClassName ,className, onChange }: InputProps) => {
   return (
-    <input 
-      className={className}
-      value={value}
-      onChange={onChange}
-    />
+    <>
+      <label className={labelClassName} style={{ display: 'flex', flexDirection: 'column' }}>{inputLabel}
+        <input
+          className={className}
+          value={value}
+          onChange={onChange}
+        />
+      </label>
+    </>
   )
 }
