@@ -1,18 +1,15 @@
 import LeftSection from "./components/left-section";
 import { RightSection } from "./components/right-section";
+import { SignIn } from "./components/sign-in";
 import styles from "./page.module.css";
-import { Button } from "@repo/ui/button";
-import { Input } from "@repo/ui/input";
 
 export default function Page(): JSX.Element {
+
   return (
     <main className={styles.main}>
       <LeftSection />
       <RightSection>
-        <Input 
-          inputLabel="Email Address"
-        />
-        <Button>Sign In With Email</Button>
+        <SignIn />
       </RightSection>
     </main>
   );

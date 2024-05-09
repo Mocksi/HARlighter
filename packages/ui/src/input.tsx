@@ -1,16 +1,18 @@
 "use client";
 
-import { ChangeEventHandler, useState } from "react";
+import { ChangeEventHandler, HTMLInputTypeAttribute, useState } from "react";
 
 interface InputProps {
   value?: string;
   inputLabel?: string;
-  className?: string;
+  inputClassName?: string;
   labelClassName?: string;
-  onChange?: ChangeEventHandler
+  onChange?: (valueChanged: string) => void;
+  errorMessage?: string;
+  inputType?: HTMLInputTypeAttribute
 }
 
-export const Input = ({ value, inputLabel, labelClassName ,className, onChange }: InputProps) => {
+export const Input = ({ value, inputLabel, labelClassName, inputClassName, onChange, errorMessage, inputType }: InputProps) => {
   const [focused, setFocused] = useState(false)
   return (
     <>
@@ -21,17 +23,21 @@ export const Input = ({ value, inputLabel, labelClassName ,className, onChange }
             outline: 'none',
             borderRadius: '8px',
             borderWidth: '2px',
-            borderColor: focused ? '#009875' : '#ABABAB',
+            borderStyle: 'solid',
+            borderColor: errorMessage ? '#B8293D' : (focused ? '#009875' : '#ABABAB'),
             height: '40px',
-            boxShadow: '0px 0px 8px 0px #0000001A'
+            boxShadow: '0px 0px 8px 0px #0000001A',
+            padding: '0 8px'
           }}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          className={className}
+          className={inputClassName}
           value={value}
-          onChange={onChange}
+          onChange={onChange ? (event) => onChange(event.target.value) : () => {}}
+          type={inputType}
         />
       </label>
+      {errorMessage && <span style={{color: '#B8293D'}}>{errorMessage}</span>}
     </>
   )
 }
