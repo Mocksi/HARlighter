@@ -1,23 +1,19 @@
-.inputContainer {
+.titleWrapper {
   display: flex;
-  flex-direction: row;
-
-}
-.inputContainer input {
-    width: 70px;
-    height: 90px !important;
-    font-size: 34px;
-    text-align: center;
+  flex-direction: column;
 }
 
-.inputContainer .firstInput {
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+.titleWrapper h1, .titleWrapper span {
+  text-align: center;
 }
-.inputContainer .lastInput {
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
+
+.titleWrapper h1 {
+  font-size: 34px;
 }
-.inputContainer .middleInput {
-    border-radius: 0 !important;
+
+.sectionWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 }

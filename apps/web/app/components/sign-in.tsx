@@ -6,6 +6,6 @@ import { ConfirmationCode } from "./confirmation-code"
 export const SignIn = () => {
   const [submittedEmail, setSubmittedEmail] = useState('')
   return submittedEmail ? 
-    (<ConfirmationCode />) :
+    (<ConfirmationCode submittedEmail={submittedEmail} />) :
     (<SubmitEmail setSubmittedEmail={setSubmittedEmail}/>)
 }

@@ -18,6 +18,7 @@ export const Button = ({ children, className, onClick }: ButtonProps) => {
         borderColor: '#00513D',
         borderWidth: '1px',
         borderRadius: '99px',
+        borderStyle: 'solid',
         color: 'white',
         height: '42px',
         cursor: 'pointer',

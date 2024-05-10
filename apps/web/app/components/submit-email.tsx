@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Input } from "@repo/ui/input"
 import { Button } from "@repo/ui/button"
 import { validateEmail } from "../utils"
+import styles from './submit-email.module.css'
 
 interface SubmitEmailProps {
   setSubmittedEmail: (email: string) => void
@@ -30,6 +31,7 @@ export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
         errorMessage={inputError}
       />
       <Button
+        className={styles.button}
         onClick={() => submitSignIn()}
       >Sign in with Email</Button>
     </>
