@@ -1,24 +1,37 @@
 "use client";
 
-import { ChangeEventHandler, HTMLInputTypeAttribute, useState } from "react";
+import { HTMLInputTypeAttribute, useState, forwardRef, ForwardedRef, BaseSyntheticEvent } from "react";
 
 interface InputProps {
-  value?: string;
+  id?: string,
+  value?: string | number | null | undefined;
   inputLabel?: string;
   inputClassName?: string;
   labelClassName?: string;
-  onChange?: (valueChanged: string) => void;
+  onChange?: (valueChanged: BaseSyntheticEvent<InputEvent>) => void;
+  onFocus? : () => void
+  onBlur? : () => void
   errorMessage?: string;
-  inputType?: HTMLInputTypeAttribute
+  inputType?: HTMLInputTypeAttribute;
 }
 
-export const Input = ({ value, inputLabel, labelClassName, inputClassName, onChange, errorMessage, inputType }: InputProps) => {
+export const Input = forwardRef(({ 
+  id,
+  value,
+  inputLabel,
+  labelClassName,
+  inputClassName,
+  onChange,
+  errorMessage,
+  inputType,
+}: InputProps, ref: ForwardedRef<any>) => {
   const [focused, setFocused] = useState(false)
   return (
     <>
       <label className={labelClassName} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {inputLabel}
         <input
+          id={id}
           style={{
             outline: 'none',
             borderRadius: '8px',
@@ -32,12 +45,13 @@ export const Input = ({ value, inputLabel, labelClassName, inputClassName, onCha
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           className={inputClassName}
-          value={value}
-          onChange={onChange ? (event) => onChange(event.target.value) : () => {}}
+          value={value || ""}
+          onChange={onChange ? (event) => onChange(event) : () => {}}
           type={inputType}
+          ref={ref}
         />
       </label>
-      {errorMessage && <span style={{color: '#B8293D'}}>{errorMessage}</span>}
+      {errorMessage && <span style={{marginLeft: '8px', fontSize: '14px', color: '#B8293D'}}>{errorMessage}</span>}
     </>
   )
-}
+})

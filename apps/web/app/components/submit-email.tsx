@@ -21,9 +21,9 @@ export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
   return (
     <>
       <Input
-        onChange={(value) => {
+        onChange={({ target }) => {
           inputError && setInputError('')
-          setInputValue(value)
+          setInputValue(target.value)
         }}
         value={inputValue}
         inputLabel="Email Address"
