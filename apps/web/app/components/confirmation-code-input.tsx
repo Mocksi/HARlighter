@@ -12,11 +12,10 @@ export const ConfirmationCodeInput = () => {
       prevValue[index] = value || null
       return [...prevValue]
     })
-    if (value) {
-      if (index < 5) setFocusedInputIndex(index + 1)
-      else {
-        // submit code if all inputs are filled
-      }
+    if (index < 5) {
+      value && setFocusedInputIndex(index + 1)
+    } else {
+      // submit code if all inputs are filled
     }
   }
   
