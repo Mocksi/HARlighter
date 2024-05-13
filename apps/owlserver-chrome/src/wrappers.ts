@@ -1,81 +1,43 @@
-import "./observers/document";
-import { ActionType, sendToBackground } from "./services/background_interactor";
+import ApiMock, { type MockResponse } from "./services/api_mock";
 
-((xhr) => {
-	const XHR = XMLHttpRequest.prototype;
+enum ModeType {
+	Record = "record",
+	Mock = "mock",
+	Original = "original",
+}
 
-	const open = XHR.open;
-	const send = XHR.send;
-	const setRequestHeader = XHR.setRequestHeader;
+// biome-ignore lint/complexity/noStaticOnlyClass: wrapper got to wrap.
+class XHRWrapper extends XMLHttpRequest {
+	public static originalXHR = XMLHttpRequest;
+	// biome-ignore lint/suspicious/noExplicitAny: it's ok:
+	public static injectedXHR: any = XMLHttpRequest;
+	public static mockData: Record<string, MockResponse>;
+	public static mode: ModeType = ModeType.Original;
 
-	XHR.open = function (method: string, url: string | URL) {
-		this._method = method;
-		this._url = url.toString();
-		this._requestHeaders = {};
-		this._startTime = new Date().toISOString();
-		this._postData = {};
-		// biome-ignore lint/style/noArguments: dynamic
-		return open.apply(this, arguments);
-	};
+	static record() {
+		XHRWrapper.wrap(ModeType.Record);
+	}
 
-	XHR.setRequestHeader = function (header: string, value: string) {
-		this._requestHeaders[header] = value;
+	static mock(mockData: Record<string, MockResponse>) {
+		XHRWrapper.injectedXHR = ApiMock; // Assuming ApiMock is compatible with XMLHttpRequest interface
+		XHRWrapper.mockData = mockData;
+		XHRWrapper.wrap(ModeType.Mock);
+	}
 
-		// biome-ignore lint/style/noArguments: dynamic
-		return setRequestHeader.apply(this, arguments);
-	};
+	static remove() {
+		XHRWrapper.injectedXHR = XMLHttpRequest;
+		XHRWrapper.wrap(ModeType.Original);
+	}
 
-	XHR.send = function (postData?: Document | BodyInit | null) {
-		this._postData = postData;
-		this.addEventListener("load", () => {
-			sendToBackground(this._method, ActionType.RequestMethod);
-			sendToBackground(this._url.toLowerCase(), ActionType.RequestUrl);
-			sendToBackground(JSON.stringify(this._postData), ActionType.RequestBody);
-			sendToBackground(
-				JSON.stringify(this._requestHeaders),
-				ActionType.RequestHeaders,
-			);
+	static wrap(mode: ModeType) {
+		XHRWrapper.mode = mode;
+		const xhrFactory = () => new XHRWrapper.injectedXHR();
+		// Copy over all static properties and methods from XMLHttpRequest to xhrFactory
+		Object.assign(xhrFactory, XMLHttpRequest);
+		window.XMLHttpRequest = xhrFactory as unknown as typeof XMLHttpRequest;
+	}
+}
 
-			const responseHeaders = this.getAllResponseHeaders();
-			sendToBackground(
-				JSON.stringify(responseHeaders),
-				ActionType.ResponseHeaders,
-			);
-
-			let responseBody = "";
-			switch (this.responseType) {
-				case "":
-				case "text":
-					responseBody = this.responseText;
-					break;
-				case "arraybuffer": {
-					const buffer = new Uint8Array(this.response);
-					const decoder = new TextDecoder();
-					responseBody = decoder.decode(buffer);
-					break;
-				}
-				case "blob": {
-					responseBody = "BLOB";
-					break;
-				}
-				case "document": {
-					const serializer = new XMLSerializer();
-					responseBody = serializer.serializeToString(this.response);
-					break;
-				}
-				case "json":
-					responseBody = JSON.stringify(this.response);
-					break;
-			}
-			if (this.responseType !== "blob") {
-				// Ensure we do not send blob data synchronously
-				sendToBackground(responseBody, ActionType.ResponseBody);
-			}
-		});
-
-		// biome-ignore lint/style/noArguments: dynamic
-		return send.apply(this, arguments);
-	};
-})(XMLHttpRequest);
-
-window.XMLHttpRequest = XMLHttpRequest; // Ensure global XMLHttpRequest is modified
+if (typeof window !== "undefined") {
+	XHRWrapper.record(); // Supply necessary mock data
+}
