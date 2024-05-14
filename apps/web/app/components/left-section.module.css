@@ -1,0 +1,46 @@
+.wrapper {
+  background: #E8F3EC;
+  min-width: 720px;
+}
+
+.iconWrapper {
+  margin-left: 32px;
+  margin-top: 32px;
+}
+
+.textWrapper {
+  margin: auto;
+  width: 520px;
+}
+
+.itemsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.itemWrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.itemWrapper span {
+  font-size: 28px;
+  font-weight: 300;
+}
+
+.title {
+  font-size: 46px;
+  line-height: 65px;
+  text-align: left;
+  color: #009875;    
+  white-space: nowrap;
+}
+
+.subtitle {
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: 300;
+  color: #003829;
+}

@@ -1,18 +1,31 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 
 interface ButtonProps {
   children: ReactNode;
   className?: string;
-  appName: string;
+  onClick: () => any
 }
 
-export const Button = ({ children, className, appName }: ButtonProps) => {
+export const Button = ({ children, className, onClick }: ButtonProps) => {
+  const [hover, setHover] = useState(false)
   return (
     <button
       className={className}
-      onClick={() => alert(`Hello from your ${appName} app!`)}
+      style={{
+        background: hover ? '#006C52' : '#00513D',
+        borderColor: '#00513D',
+        borderWidth: '1px',
+        borderRadius: '99px',
+        borderStyle: 'solid',
+        color: 'white',
+        height: '42px',
+        cursor: 'pointer',
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onClick={onClick}
     >
       {children}
     </button>
