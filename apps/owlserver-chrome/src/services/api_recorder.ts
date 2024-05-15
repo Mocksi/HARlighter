@@ -1,103 +1,80 @@
-import {
-	ActionType,
-	sendToBackground,
-} from "../services/background_interactor";
+import { ActionType, sendToBackground } from "./background_interactor";
 
-class ApiRecorder {
-	private XHR: typeof XMLHttpRequest;
-	private originalXHR: typeof XMLHttpRequest;
-	// TODO: do these need to be protected or private?
-	protected requestHeaders: Record<string, string>;
-	protected _method: string;
-	protected _url: string;
+class APIRecorder extends XMLHttpRequest {
+	private _method: string;
+	private _url: string;
+	private _requestHeaders: Record<string, string> = {};
+	// biome-ignore lint/suspicious/noExplicitAny: it's fine
+	private _postData: any;
+	private _startTime: string;
 
-	constructor() {
-		this.XHR = XMLHttpRequest;
-		this.originalXHR = XMLHttpRequest;
-		this.requestHeaders = {};
-		this.setupXHR();
+	open(
+		method: string,
+		url: string | URL,
+		async = true,
+		username?: string,
+		password?: string,
+	): void {
+		this._method = method;
+		this._url = url.toString();
+		this._requestHeaders = {};
+		this._startTime = new Date().toISOString();
+		this._postData = {};
+		super.open(method, url.toString(), async, username, password);
 	}
 
-	setupXHR() {
-		const open = this.originalXHR.prototype.open;
-		const send = this.originalXHR.prototype.send;
-		const setRequestHeader = this.originalXHR.prototype.setRequestHeader;
+	setRequestHeader(header: string, value: string): void {
+		this._requestHeaders[header] = value;
+		super.setRequestHeader(header, value);
+	}
 
-		this.XHR.prototype.open = function (
-			method: string,
-			url: string | URL,
-			...args
-		) {
-			this._method = method;
-			this._url = url.toString();
-			return open.call(this, method, url, ...args);
-		};
+	send(postData?: Document | BodyInit | null): void {
+		this._postData = postData;
+		this.addEventListener("load", () => {
+			sendToBackground(this._method, ActionType.RequestMethod);
+			sendToBackground(this._url.toLowerCase(), ActionType.RequestUrl);
+			sendToBackground(JSON.stringify(this._postData), ActionType.RequestBody);
+			sendToBackground(
+				JSON.stringify(this._requestHeaders),
+				ActionType.RequestHeaders,
+			);
 
-		this.XHR.prototype.setRequestHeader = function (
-			header: string,
-			value: string,
-			...args
-		) {
-			this.requestHeaders = this.requestHeaders || {};
-			this._requestHeaders[header] = value;
-			return setRequestHeader.call(this, header, value, ...args);
-		};
+			const responseHeaders = this.getAllResponseHeaders();
+			sendToBackground(
+				JSON.stringify(responseHeaders),
+				ActionType.ResponseHeaders,
+			);
 
-		this.XHR.prototype.send = function (postData?: Document | BodyInit | null) {
-			this._postData = postData;
-			this.addEventListener("load", () => {
-				sendToBackground(this._method, ActionType.RequestMethod);
-				sendToBackground(this._url.toLowerCase(), ActionType.RequestUrl);
-				sendToBackground(
-					JSON.stringify(this._postData),
-					ActionType.RequestBody,
-				);
-				sendToBackground(
-					JSON.stringify(this._requestHeaders),
-					ActionType.RequestHeaders,
-				);
-
-				const responseHeaders = this.getAllResponseHeaders();
-				sendToBackground(
-					JSON.stringify(responseHeaders),
-					ActionType.ResponseHeaders,
-				);
-
-				let responseBody = "";
-				switch (this.responseType) {
-					case "":
-					case "text":
-						responseBody = this.responseText;
-						break;
-					case "arraybuffer": {
-						const buffer = new Uint8Array(this.response);
-						const decoder = new TextDecoder();
-						responseBody = decoder.decode(buffer);
-						break;
-					}
-					case "blob": {
-						responseBody = "BLOB";
-						break;
-					}
-					case "document": {
-						const serializer = new XMLSerializer();
-						responseBody = serializer.serializeToString(this.response);
-						break;
-					}
-					case "json":
-						responseBody = JSON.stringify(this.response);
-						break;
+			let responseBody = "";
+			switch (this.responseType) {
+				case "":
+				case "text":
+					responseBody = this.responseText;
+					break;
+				case "arraybuffer": {
+					const buffer = new Uint8Array(this.response);
+					const decoder = new TextDecoder();
+					responseBody = decoder.decode(buffer);
+					break;
 				}
-				if (this.responseType !== "blob") {
-					// Ensure we do not send blob data synchronously
-					sendToBackground(responseBody, ActionType.ResponseBody);
+				case "blob":
+					responseBody = "BLOB";
+					break;
+				case "document": {
+					const serializer = new XMLSerializer();
+					responseBody = serializer.serializeToString(this.response);
+					break;
 				}
-			});
-
-			// biome-ignore lint/style/noArguments: dynamic
-			return send.apply(this, arguments);
-		};
+				case "json":
+					responseBody = JSON.stringify(this.response);
+					break;
+			}
+			if (this.responseType !== "blob") {
+				sendToBackground(responseBody, ActionType.ResponseBody);
+			}
+		});
+		super.send(postData as XMLHttpRequestBodyInit);
 	}
 }
 
-export default ApiRecorder;
+export default APIRecorder;

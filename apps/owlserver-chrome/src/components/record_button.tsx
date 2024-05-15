@@ -30,6 +30,24 @@ const RecordButton: React.FC<RecordButtonProps> = ({ onRecordChange }) => {
 		if (newRecordingState) {
 			localStorage.setItem(MOCKSI_CURRENT_STEP, "1");
 		}
+		const type = newRecordingState
+			? "startRecordingAction"
+			: "stopRecordingAction";
+		chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+			if (tabs[0].id) {
+				chrome.scripting.executeScript(
+					{
+						target: { tabId: tabs[0].id },
+						files: ["main.js"],
+					},
+					() => {
+						chrome.tabs.sendMessage(tabs[0].id, { type: type }, (response) => {
+							console.log("Response from content script:", response);
+						});
+					},
+				);
+			}
+		});
 	};
 
 	const label = isRecording ? "stop" : "start";

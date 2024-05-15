@@ -1,43 +1,51 @@
-import ApiMock, { type MockResponse } from "./services/api_mock";
+// Import necessary classes and types
+import APIRecorder from "./services/api_recorder";
 
+// Define the mode types
 enum ModeType {
 	Record = "record",
 	Mock = "mock",
 	Original = "original",
 }
 
-// biome-ignore lint/complexity/noStaticOnlyClass: wrapper got to wrap.
-class XHRWrapper extends XMLHttpRequest {
-	public static originalXHR = XMLHttpRequest;
-	// biome-ignore lint/suspicious/noExplicitAny: it's ok:
-	public static injectedXHR: any = XMLHttpRequest;
-	public static mockData: Record<string, MockResponse>;
-	public static mode: ModeType = ModeType.Original;
+// Declare new property on the window object
+declare global {
+	interface Window {
+		wrapper: typeof XHRWrapper;
+	}
+}
 
+// Define the XHRWrapper class
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
+class XHRWrapper extends XMLHttpRequest {
+	public static originalXHR: typeof XMLHttpRequest = XMLHttpRequest;
+	public static injectedXHR: typeof XMLHttpRequest = XMLHttpRequest;
+	public static mode: ModeType = ModeType.Original;
+	static XHRWrapper: typeof XHRWrapper;
+
+	// Set the mode to record
 	static record() {
+		XHRWrapper.injectedXHR = APIRecorder; // Assuming APIRecorder extends XMLHttpRequest
 		XHRWrapper.wrap(ModeType.Record);
 	}
 
-	static mock(mockData: Record<string, MockResponse>) {
-		XHRWrapper.injectedXHR = ApiMock; // Assuming ApiMock is compatible with XMLHttpRequest interface
-		XHRWrapper.mockData = mockData;
-		XHRWrapper.wrap(ModeType.Mock);
-	}
-
+	// Revert to the original XMLHttpRequest
 	static remove() {
-		XHRWrapper.injectedXHR = XMLHttpRequest;
+		XHRWrapper.injectedXHR = XHRWrapper.originalXHR;
 		XHRWrapper.wrap(ModeType.Original);
 	}
 
+	// Wrap the XMLHttpRequest with the specified mode
 	static wrap(mode: ModeType) {
 		XHRWrapper.mode = mode;
-		const xhrFactory = () => new XHRWrapper.injectedXHR();
-		// Copy over all static properties and methods from XMLHttpRequest to xhrFactory
-		Object.assign(xhrFactory, XMLHttpRequest);
-		window.XMLHttpRequest = xhrFactory as unknown as typeof XMLHttpRequest;
+		((xhr) => XHRWrapper.injectedXHR)(XMLHttpRequest);
+		window.XMLHttpRequest = XMLHttpRequest;
 	}
 }
 
 if (typeof window !== "undefined") {
-	XHRWrapper.record(); // Supply necessary mock data
+	window.wrapper = XHRWrapper; // Make the wrapper available globally on the window object
 }
+
+// Export the XHRWrapper class as a default export
+export default XHRWrapper;
