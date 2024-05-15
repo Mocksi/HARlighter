@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import mocksiLogo from '../public/mocksi-logo.png'
 import closeIcon from '../public/close-icon.png'
+import { RecordButton } from './RecordButton'
 
 export default function ContentApp() {
   const [isdialogOpen, setIsDialogOpen] = useState(true)
@@ -18,10 +19,7 @@ export default function ContentApp() {
           {isRecording ? 'Mocksi Recording' : 'Record your app'}
         </span>
       </div>
-      <button className={`h-full w-[56px] border-r-2 text-center ${isRecording ? 'bg-crimson/95': 'bg-green/95'}`} 
-        onClick={() => setIsRecording(!isRecording)}>
-        {isRecording ? 'Stop' : 'Start'}
-      </button>
+      <RecordButton onRecordChange={setIsRecording} />
     </div>
   )
 }
