@@ -3,8 +3,12 @@ import mocksiLogo from '../public/mocksi-logo.png'
 import closeIcon from '../public/close-icon.png'
 import { RecordButton } from './RecordButton'
 
-export default function ContentApp() {
-  const [isdialogOpen, setIsDialogOpen] = useState(false)
+interface ContentProps {
+  isOpen?: boolean
+}
+
+export default function ContentApp({ isOpen }: ContentProps) {
+  const [isdialogOpen, setIsDialogOpen] = useState(isOpen || false)
   const [isRecording, setIsRecording] = useState(false)
 
   if (!isdialogOpen) return null

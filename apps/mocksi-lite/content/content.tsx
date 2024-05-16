@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
       const extensionRoot = document.getElementById('extension-root')
       if (extensionRoot?.firstChild === null) {
         root = ReactDOM.createRoot(extensionRoot)
-        root.render(<ContentApp />)
+        root.render(<ContentApp isOpen={true}/>)
       } else {
         root.unmount()
       }
