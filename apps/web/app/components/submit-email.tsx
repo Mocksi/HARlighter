@@ -3,6 +3,7 @@ import { Input } from "@repo/ui/input"
 import { Button } from "@repo/ui/button"
 import { validateEmail } from "../utils"
 import styles from './submit-email.module.css'
+import { useCreateAccount } from "../hooks/createAccount"
 
 interface SubmitEmailProps {
   setSubmittedEmail: (email: string) => void
@@ -11,9 +12,19 @@ interface SubmitEmailProps {
 export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
   const [inputValue, setInputValue] = useState('')
   const [inputError, setInputError] = useState('')
+  
+  const { isLoading, callCreateAccount } = useCreateAccount(
+    () => setSubmittedEmail(inputValue),
+    () => {
+      setSubmittedEmail('')
+      // TODO better error showing for the user
+      setInputError('Sorry')
+    }
+  )
+
   const submitSignIn = () => {
     if (validateEmail(inputValue)) {
-      setSubmittedEmail(inputValue)
+      callCreateAccount(inputValue)
     } else {
       setSubmittedEmail('')
       setInputError('Sorry, but that email is invalid.')
@@ -34,6 +45,7 @@ export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
         className={styles.button}
         onClick={() => submitSignIn()}
       >Sign in with Email</Button>
+      {isLoading && <h2>Sending...</h2>}
     </>
   )
 }
