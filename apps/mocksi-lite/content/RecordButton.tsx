@@ -26,7 +26,7 @@ export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
   }
 
   return (
-    <button className={`h-full w-[56px] border-r-2 text-center ${isRecording ? 'bg-crimson/95': 'bg-green/95'}`} 
+    <button className={`h-full w-[56px] border-r-2 text-center ${isRecording ? 'bg-crimson/95': 'bg-green/95'} text-white`} 
       onClick={() => handleToggleRecording()}>
       {isRecording ? 'Stop' : 'Start'}
     </button>
