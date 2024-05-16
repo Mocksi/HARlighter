@@ -28,7 +28,6 @@ export const useCreateAccount = (
 
 const createWithEmailAccount = (email: string) => apiCall('auth/email/start', { email })
 
-
 export const useConfirmAccount = (
   onSuccess: () => void = () => undefined,
   onError: () => void = () => undefined

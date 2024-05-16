@@ -1,0 +1,20 @@
+.successWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.successTitleWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.successWrapper h1 {
+    font-weight: 400;
+    margin: 8px;
+}
+.successWrapper span{
+    font-weight: 400;
+}
