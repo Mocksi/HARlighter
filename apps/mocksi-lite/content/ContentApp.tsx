@@ -4,7 +4,7 @@ import closeIcon from '../public/close-icon.png'
 import { RecordButton } from './RecordButton'
 
 export default function ContentApp() {
-  const [isdialogOpen, setIsDialogOpen] = useState(true)
+  const [isdialogOpen, setIsDialogOpen] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
 
   if (!isdialogOpen) return null
