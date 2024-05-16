@@ -1,10 +1,12 @@
+
+const API_URL = 'https://nest-1zzp.onrender.com'
 export const apiCall = async (
     url: string,
     body: any
 ) => {
 	try {
 		const res = await fetch(
-      `${'api_url'}/v1/${url}` , {
+      `${API_URL}/v1/${url}` , {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
