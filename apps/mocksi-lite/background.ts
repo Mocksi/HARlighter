@@ -7,3 +7,10 @@ addEventListener("install", () => {
     url: "https://mocksi.ai/login"
   })
 })
+
+chrome.action.onClicked.addListener(function (tab) {
+  chrome.tabs.sendMessage(
+      tab?.id || 0,
+      { text: 'clickedIcon' }
+  );
+});
