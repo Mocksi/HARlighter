@@ -5,8 +5,7 @@ export const apiCall = async (
     body: any
 ) => {
 	try {
-		const res = await fetch(
-      `${API_URL}/v1/${url}` , {
+		const res = await fetch(`${API_URL}/v1/${url}` , {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -20,21 +19,6 @@ export const apiCall = async (
 	}
 };
 
-/*
- onSuccess: (data: any) => void = () => undefined,
-    onError: (error: any) => void = () => undefined
-
-
-   await fetch("/api/endpoint", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(todo),
-    })
-      .then((res) => res.json())
-      .then((data) => setData(data.todo)); 
-*/
 
 export const validateEmail = (email: string) => {
   return String(email)

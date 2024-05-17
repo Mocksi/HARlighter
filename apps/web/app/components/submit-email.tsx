@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Input } from "@repo/ui/input"
 import { Button } from "@repo/ui/button"
 import { validateEmail } from "../utils"
