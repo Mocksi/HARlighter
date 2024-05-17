@@ -10,7 +10,7 @@ const recordingLabel = (currentStatus: RecordingState) => {
   switch (currentStatus) {
     case RecordingState.READY: return 'Record your app'
     case RecordingState.RECORDING: return 'Mocksi Recording'
-    case RecordingState.ANALYZING: return 'Analyzing'
+    case RecordingState.ANALYZING: return 'Analyzing...'
     default: return 'Record your app'
   }
 }
