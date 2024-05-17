@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLInputTypeAttribute, useState, forwardRef, ForwardedRef, BaseSyntheticEvent } from "react";
+import { type HTMLInputTypeAttribute, useState, forwardRef, type ForwardedRef, type BaseSyntheticEvent } from "react";
 
 interface InputProps {
   id?: string,
@@ -46,7 +46,6 @@ export const Input = forwardRef(({
           onBlur={() => setFocused(false)}
           className={inputClassName}
           value={value || ""}
-          onChange={onChange ? (event) => onChange(event) : () => {}}
           type={inputType}
           ref={ref}
         />

@@ -22,5 +22,7 @@ jobs:
         with:
           version: 'latest'
           working-dir: "/"
-      - name: Run Biome
+      - name: Run Biome Owlserver
         run: biome ci ./apps/owlserver-chrome
+      - name: Run Biome mocksi-lite
+        run: biome ci ./apps/mocksi-lite

@@ -28,7 +28,7 @@ importers:
         specifier: ^3.2.5
         version: 3.2.5
       turbo:
-        specifier: latest
+        specifier: 1.13.3
         version: 1.13.3
 
   apps/capturer:
@@ -88,6 +88,12 @@ importers:
 
   apps/mocksi-lite:
     devDependencies:
+      '@biomejs/biome':
+        specifier: 1.7.2
+        version: 1.7.2
+      '@types/chrome':
+        specifier: ^0.0.259
+        version: 0.0.259
       '@types/react':
         specifier: ^18.0.9
         version: 18.3.1
@@ -95,8 +101,8 @@ importers:
         specifier: ^18.0.5
         version: 18.3.0
       extension:
-        specifier: latest
-        version: 1.4.6(@babel/core@7.24.4)(browserslist@4.23.0)(typescript@5.3.3)
+        specifier: 1.5.0
+        version: 1.5.0(@babel/core@7.24.4)(browserslist@4.23.0)(typescript@5.3.3)
       react:
         specifier: ^18.1.0
         version: 18.3.1
@@ -7661,8 +7667,8 @@ packages:
       - supports-color
     dev: true
 
-  /extension@1.4.6(@babel/core@7.24.4)(browserslist@4.23.0)(typescript@5.3.3):
-    resolution: {integrity: sha512-axhzlfmsbftOlbg5kK2ypHQRZwUgSlAprDtksjyUpHJIfeMlCt3Xy+oPko1iVURLdrzX7+v4OcLZodqLVJQdjQ==}
+  /extension@1.5.0(@babel/core@7.24.4)(browserslist@4.23.0)(typescript@5.3.3):
+    resolution: {integrity: sha512-i+3HGEt4PUw0NNO85qrjUR78x4bYf42VFYLhayg3Xi51iIhH7uGulVdTyzeKaKOCqqom2xed+IKVgohLLTW1Jw==}
     engines: {node: '>=18'}
     hasBin: true
     dependencies:
