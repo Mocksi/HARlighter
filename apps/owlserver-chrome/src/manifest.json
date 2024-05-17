@@ -28,6 +28,13 @@
 	"background": {
 		"service_worker": "background.js"
 	},
-	"permissions": ["activeTab", "webRequest", "downloads", "storage"],
+	"permissions": [
+		"activeTab",
+		"webRequest",
+		"downloads",
+		"storage",
+		"tabs",
+		"scripting"
+	],
 	"host_permissions": ["<all_urls>"]
 }

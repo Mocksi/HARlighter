@@ -8,7 +8,9 @@
 		"build:rollup": "pnpm exec rollup -c --bundleConfigAsCjs",
 		"build:copy": "cp ./src/manifest.json dist/ && cp -r ./assets dist/",
 		"build": "pnpm run build:clean && pnpm run build:rollup && pnpm run build:copy",
-		"test": "pnpm exec vitest"
+		"test": "pnpm exec vitest",
+		"lint": "biome ci .",
+		"format": "biome check --apply . && biome lint --apply ."
 	},
 	"keywords": [],
 	"author": "",
@@ -21,6 +23,7 @@
 		"@repo/ui": "workspace:*",
 		"@vscode/codicons": "^0.0.35",
 		"framer-motion": "^6",
+		"jsdom": "^24.0.0",
 		"next": "^14.0.4",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",

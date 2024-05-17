@@ -93,7 +93,17 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab: chrome.tabs.Tab) => {
 	}
 });
 
-let webSocket = new WebSocket("ws://localhost:8080/ws");
+let webSocket: WebSocket | null = null;
+try {
+	webSocket = new WebSocket("ws://localhost:8080/ws");
+} catch (error) {
+	console.error("websocket connection failed");
+}
+
+if (!webSocket) {
+	console.error("websocket connection failed");
+}
+
 webSocket.onopen = (event) => {
 	keepAlive();
 };
@@ -146,6 +156,7 @@ function sendDataToServer(): void {
 		if (sessionId) {
 			payload.sessionId = sessionId;
 		}
+		console.log(`sending data to server: ${data}`);
 		webSocket.send(JSON.stringify(payload));
 	});
 
