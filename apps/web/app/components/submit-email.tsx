@@ -18,7 +18,7 @@ export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
     () => {
       setSubmittedEmail('')
       // TODO better error showing for the user
-      setInputError('Sorry')
+      setInputError('Sorry, something happened')
     }
   )
 
