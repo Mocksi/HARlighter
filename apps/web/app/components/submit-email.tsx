@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Input } from "@repo/ui/input"
 import { Button } from "@repo/ui/button"
 import { validateEmail } from "../utils"
 import styles from './submit-email.module.css'
 import { useCreateAccount } from "../hooks/createAccount"
+import { useTimeout } from "../hooks/useTimeout"
 
 interface SubmitEmailProps {
   setSubmittedEmail: (email: string) => void
@@ -12,6 +13,7 @@ interface SubmitEmailProps {
 export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
   const [inputValue, setInputValue] = useState('')
   const [inputError, setInputError] = useState('')
+  const runTimeoutFunction = useTimeout(() => setInputError(''))
   
   const { isLoading, callCreateAccount } = useCreateAccount(
     () => setSubmittedEmail(inputValue),
@@ -19,6 +21,7 @@ export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
       setSubmittedEmail('')
       // TODO better error showing for the user
       setInputError('Sorry, something happened')
+      runTimeoutFunction()
     }
   )
 
@@ -28,6 +31,7 @@ export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
     } else {
       setSubmittedEmail('')
       setInputError('Sorry, but that email is invalid.')
+      runTimeoutFunction()
     }
   }
   return (
