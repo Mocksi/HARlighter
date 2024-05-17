@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom/client'
 import ContentApp from './ContentApp'
 import('./base.css')
 import('./content.css')
+import('./spinner.css')
 
 setTimeout(initial, 1000)
 

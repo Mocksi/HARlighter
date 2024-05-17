@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { LoadingSpinner } from "./LoadingSpinner";
 
 interface RecordButtonProps {
   onRecordChange: (status: RecordingState) => void
@@ -34,6 +35,13 @@ export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
     const storageState = (localStorage.getItem(MOCKSI_RECORDING_STATE) as RecordingState) || RecordingState.READY
     setStatus(storageState)
     onRecordChange(storageState)
+    // THIS IS FOR DEMO PURPOSES
+    if (storageState === RecordingState.ANALYZING) {
+      setTimeout(() => {
+        setStatus(RecordingState.READY)
+        localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.READY.toString())
+      }, 3000)
+    }
 	}, []);
   
   const handleToggleRecording = () => {
@@ -41,13 +49,20 @@ export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
     onRecordChange(newRecordState)
     setStatus(newRecordState)
     localStorage.setItem(MOCKSI_RECORDING_STATE, newRecordState.toString())
+    // THIS IS FOR DEMO PURPOSES
+    if (newRecordState === RecordingState.ANALYZING) {
+      setTimeout(() => {
+        setStatus(RecordingState.READY)
+        localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.READY.toString())
+      }, 10000)
+    }
   }
 
   const {color, label} = recordingColorAndLabel(status)
   return (
     <button className={`h-full w-[56px] border-r-2 text-center ${color} text-white`} 
-      onClick={() => handleToggleRecording()}>
-      {label}
-    </button>
+      onClick={status !== RecordingState.ANALYZING ? () => handleToggleRecording(): () => undefined}>
+      {status !== RecordingState.ANALYZING ? label : <LoadingSpinner />}
+    </button> 
   )
 }
