@@ -30,6 +30,9 @@ export default function ContentApp({ isOpen }: ContentProps) {
 				<div
 					className="ml-2 cursor-pointer"
 					onClick={() => setIsDialogOpen(false)}
+					onKeyUp={(event) => {
+						event.key === "esc" && setIsDialogOpen(false);
+					}}
 				>
 					<img src={closeIcon} alt="closeIcon"/>
 				</div>
