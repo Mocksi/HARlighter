@@ -31,6 +31,7 @@ const nextRecordingState = (currentStatus: RecordingState) => {
 export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
   const [status, setStatus] = useState<RecordingState>(RecordingState.READY)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: hook will only run once
   useEffect(() => {
     const storageState = (localStorage.getItem(MOCKSI_RECORDING_STATE) as RecordingState) || RecordingState.READY
     setStatus(storageState)

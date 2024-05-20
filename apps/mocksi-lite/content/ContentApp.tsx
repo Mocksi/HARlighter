@@ -4,7 +4,7 @@ import closeIcon from '../public/close-icon.png'
 import { RecordButton, RecordingState } from './RecordButton'
 
 interface ContentProps {
-  isOpen?: boolean
+	isOpen?: boolean;
 }
 const recordingLabel = (currentStatus: RecordingState) => {
   switch (currentStatus) {
