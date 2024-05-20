@@ -81,6 +81,7 @@ export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
 	return (
 		<button
 			className={`h-full w-[56px] border-r-2 text-center ${color} text-white`}
+      type="button"
 			onClick={
 				status !== RecordingState.ANALYZING
 					? () => handleToggleRecording()
