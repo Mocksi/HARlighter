@@ -36,19 +36,27 @@ export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
   }
   return (
     <>
-      <Input
-        onChange={({ target }) => {
-          inputError && setInputError('')
-          setInputValue(target.value)
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          submitSignIn()
         }}
-        value={inputValue}
-        inputLabel="Email Address"
-        errorMessage={inputError}
-      />
-      <Button
-        className={styles.button}
-        onClick={() => submitSignIn()}
-      >Sign in with Email</Button>
+      >
+        <Input
+          onChange={({ target }) => {
+            inputError && setInputError('')
+            setInputValue(target.value)
+          }}
+          value={inputValue}
+          inputLabel="Email Address"
+          errorMessage={inputError}
+        />
+        <Button
+          type="submit"
+          className={styles.button}
+          onClick={() => submitSignIn()}
+        >Sign in with Email</Button>
+      </form>
       {isLoading && <h2>Sending...</h2>}
     </>
   )

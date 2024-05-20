@@ -1,5 +1,5 @@
 
-const API_URL = 'https://nest-1zzp.onrender.com'
+const API_URL = 'https://auth-2hfb.onrender.com'
 export const apiCall = async (
     url: string,
     body: any
@@ -13,7 +13,7 @@ export const apiCall = async (
         body: JSON.stringify(body),
       }
     );
-		return await res.json();
+		return res.json();
 	} catch (err) {
     throw err
 	}

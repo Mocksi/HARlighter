@@ -40,7 +40,9 @@ export const ConfirmationCodeInput = ({ submittedEmail, onSuccess }: Confirmatio
   
   const onPastedValue = (pastedValue: string) => {
     const pastedCode: string[] = pastedValue.split('')
-    setCode(code.map((_, index) => pastedCode[index] || null))
+    const codeToSend = code.map((_, index) => pastedCode[index] || null)
+    setCode(codeToSend)
+    callSendCode(submittedEmail, codeToSend.join(''))
   }
 
   useEffect(() => {
@@ -76,7 +78,7 @@ export const ConfirmationCodeInput = ({ submittedEmail, onSuccess }: Confirmatio
           ))
         }
       </div>
-      {isLoading && <h2>Confirming...</h2>}
+      {isLoading && <h2>Validating Code...</h2>}
       {errorMessage && <h3>{errorMessage}</h3>}
     </>
   )

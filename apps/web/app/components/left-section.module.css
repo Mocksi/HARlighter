@@ -11,6 +11,9 @@
 .textWrapper {
   margin: auto;
   width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .itemsWrapper {
