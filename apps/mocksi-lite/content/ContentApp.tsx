@@ -34,9 +34,9 @@ export default function ContentApp({ isOpen }: ContentProps) {
 						event.key === "esc" && setIsDialogOpen(false);
 					}}
 				>
-					<img src={closeIcon} alt="closeIcon"/>
+					<img src={closeIcon} alt="closeIcon" />
 				</div>
-				<img className="w-[30px] h-[20px]" src={mocksiLogo} alt="mocksiLogo"/>
+				<img className="w-[30px] h-[20px]" src={mocksiLogo} alt="mocksiLogo" />
 				<span className="font-medium text-[#000F0C] text-sm">
 					{recordingLabel(state)}
 				</span>
