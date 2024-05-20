@@ -9,7 +9,7 @@ export interface SubmittedEmailProps {
 
 
 export const ConfirmationCode = ({ submittedEmail }: SubmittedEmailProps) => {
-  const [successConfirmEmail, setSuccessConfirmEmail] = useState(true)
+  const [successConfirmEmail, setSuccessConfirmEmail] = useState(false)
 
   return (
     <div className={styles.sectionWrapper}>
