@@ -1,1 +1,1 @@
-export const LoadingSpinner = () => (<span id='loader' />)
+export const LoadingSpinner = () => <span id="loader" />;
