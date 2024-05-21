@@ -63,6 +63,7 @@ export const ConfirmationCodeInput = ({ submittedEmail, onSuccess }: Confirmatio
               } 
               value={value} 
               onChange={({ target, nativeEvent }) => {
+                // TODO Find a better way to implement this!
                 nativeEvent.inputType === "insertFromPaste" ? 
                   onPastedValue(target.value) :
                   onChangedValue(nativeEvent.data, index)
