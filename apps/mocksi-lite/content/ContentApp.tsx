@@ -1,15 +1,27 @@
 import { useState } from "react";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
-import { RecordButton } from "./RecordButton";
+import { RecordButton, RecordingState } from "./RecordButton";
 
 interface ContentProps {
 	isOpen?: boolean;
 }
+const recordingLabel = (currentStatus: RecordingState) => {
+	switch (currentStatus) {
+		case RecordingState.READY:
+			return "Record your app";
+		case RecordingState.RECORDING:
+			return "Mocksi Recording";
+		case RecordingState.ANALYZING:
+			return "Analyzing...";
+		default:
+			return "Record your app";
+	}
+};
 
 export default function ContentApp({ isOpen }: ContentProps) {
 	const [isdialogOpen, setIsDialogOpen] = useState(isOpen || false);
-	const [isRecording, setIsRecording] = useState(false);
+	const [state, setState] = useState<RecordingState>(RecordingState.READY);
 
 	if (!isdialogOpen) return null;
 	return (
@@ -18,23 +30,18 @@ export default function ContentApp({ isOpen }: ContentProps) {
 				<div
 					className="ml-2 cursor-pointer"
 					onClick={() => setIsDialogOpen(false)}
-					onKeyPress={(event) => {
+					onKeyUp={(event) => {
 						event.key === "esc" && setIsDialogOpen(false);
 					}}
-					aria-label="Close dialog"
 				>
-					<img src={closeIcon} aria-label="Close Dialog image" />
+					<img src={closeIcon} alt="closeIcon" />
 				</div>
-				<img
-					className="w-[30px] h-[20px]"
-					src={mocksiLogo}
-					aria-label="Mocksi logo"
-				/>
+				<img className="w-[30px] h-[20px]" src={mocksiLogo} alt="mocksiLogo" />
 				<span className="font-medium text-[#000F0C] text-sm">
-					{isRecording ? "Mocksi Recording" : "Record your app"}
+					{recordingLabel(state)}
 				</span>
 			</div>
-			<RecordButton onRecordChange={setIsRecording} />
+			<RecordButton onRecordChange={setState} />
 		</div>
 	);
 }

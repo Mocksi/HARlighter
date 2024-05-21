@@ -13,6 +13,7 @@ export const Button = ({ children, className, onClick }: ButtonProps) => {
   return (
     <button
       className={className}
+      type="button"
       style={{
         background: hover ? '#006C52' : '#00513D',
         borderColor: '#00513D',
