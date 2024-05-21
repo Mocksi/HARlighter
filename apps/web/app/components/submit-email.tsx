@@ -41,6 +41,7 @@ export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
           e.preventDefault()
           submitSignIn()
         }}
+        className={styles.form}
       >
         <Input
           onChange={({ target }) => {

@@ -1,4 +1,5 @@
 
+// TODO move this to .env file
 const API_URL = 'https://auth-2hfb.onrender.com'
 export const apiCall = async (
     url: string,
@@ -13,7 +14,11 @@ export const apiCall = async (
         body: JSON.stringify(body),
       }
     );
-		return res.json();
+    const response = await res.json();
+    if (res.ok) {
+      return response
+    }
+    throw new Error(response.error_description || response.error)
 	} catch (err) {
     throw err
 	}

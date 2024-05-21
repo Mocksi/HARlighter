@@ -7,6 +7,7 @@ interface RecordButtonProps {
 const MOCKSI_RECORDING_STATE = "mocksi-recordingState";
 
 export enum RecordingState {
+  UNAUTHORIZED = "UNAUTHORIZED",
 	READY = "READY",
 	RECORDING = "RECORDING",
 	ANALYZING = "ANALYZING",
