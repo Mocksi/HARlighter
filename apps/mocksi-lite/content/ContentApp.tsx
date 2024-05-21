@@ -1,87 +1,47 @@
-import React, { useState } from 'react'
-import reactLogo from '../public/react.png'
-import tailwindBg from '../public/tailwind_bg.png'
-import typescriptLogo from '../public/typescript.png'
-import tailwindLogo from '../public/tailwind.png'
-import chromeWindowBg from '../public/chromeWindow.png'
+import { useState } from "react";
+import closeIcon from "../public/close-icon.png";
+import mocksiLogo from "../public/mocksi-logo.png";
+import { RecordButton, RecordingState } from "./RecordButton";
 
-export default function ContentApp() {
-  const [isdialogOpen, setIsDialogOpen] = useState(false)
+interface ContentProps {
+	isOpen?: boolean;
+}
+const recordingLabel = (currentStatus: RecordingState) => {
+	switch (currentStatus) {
+		case RecordingState.READY:
+			return "Record your app";
+		case RecordingState.RECORDING:
+			return "Mocksi Recording";
+		case RecordingState.ANALYZING:
+			return "Analyzing...";
+		default:
+			return "Record your app";
+	}
+};
 
-  if (!isdialogOpen) {
-    return (
-      <div className="mx-auto p-6">
-        <button
-          onClick={() => setIsDialogOpen(true)}
-          className="bg-white rounded-md p-3 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-        >
-          🧩 Open content script hint <span aria-hidden="true">+</span>
-        </button>
-      </div>
-    )
-  }
+export default function ContentApp({ isOpen }: ContentProps) {
+	const [isdialogOpen, setIsDialogOpen] = useState(isOpen || false);
+	const [state, setState] = useState<RecordingState>(RecordingState.READY);
 
-  return (
-    <div className="mx-auto max-w-7xl md:px-0 lg:p-6">
-      <div className="relative isolate overflow-hidden bg-gray-900 px-6 pt-16 shadow-2xl lg:rounded-3xl md:pt-24 md:h-full sm:h-[100vh] lg:flex lg:gap-x-20 lg:px-24 lg:pt-0">
-        <div className="absolute z-20 top-0 inset-x-0 flex justify-center overflow-hidden pointer-events-none">
-          <div className="w-[108rem] flex-none flex justify-end">
-            <picture>
-              <img
-                src={tailwindBg}
-                alt=""
-                className="w-[90rem] flex-none max-w-none hidden dark:block"
-                decoding="async"
-              />
-            </picture>
-          </div>
-        </div>
-        <div className="mx-auto max-w-md text-center lg:py-12 lg:mx-0 lg:flex-auto lg:text-left">
-          <div className="flex items-center justify-center space-x-4 my-4 mx-auto">
-            <img
-              alt="React logo"
-              src={reactLogo}
-              className="relative inline-block w-12"
-            />
-            <div className="text-3xl text-white">+</div>
-            <img
-              alt="TypeScript logo"
-              src={typescriptLogo}
-              className="relative inline-block w-12"
-            />
-            <div className="text-3xl text-white">+</div>
-            <img
-              alt="Tailwind logo"
-              src={tailwindLogo}
-              className="relative inline-block w-12"
-            />
-          </div>
-          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            This is a content script running React, TypeScript, and
-            Tailwind.css.
-          </h2>
-          <p className="mt-6 text-lg leading-8 text-gray-300">
-            Learn more about creating cross-browser extensions by{' '}
-            <button
-              onClick={() => setIsDialogOpen(false)}
-              className="underline hover:no-underline
-            "
-            >
-              closing this hint
-            </button>
-            .
-          </p>
-        </div>
-        <div className="relative mt-16 h-80 lg:mt-8">
-          <img
-            className="absolute left-0 top-0 w-[57rem] max-w-none rounded-md bg-white/5 ring-1 ring-white/10"
-            src={chromeWindowBg}
-            alt="Chrome window screenshot"
-            width="1824"
-            height="1080"
-          />
-        </div>
-      </div>
-    </div>
-  )
+	if (!isdialogOpen) return null;
+	return (
+		<div className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center">
+			<div className="flex flex-row w-[80%] gap-2">
+				<div
+					className="ml-2 cursor-pointer"
+					onClick={() => setIsDialogOpen(false)}
+					onKeyUp={(event) => {
+						event.key === "esc" && setIsDialogOpen(false);
+					}}
+				>
+					<img src={closeIcon} alt="closeIcon" />
+				</div>
+				<img className="w-[30px] h-[20px]" src={mocksiLogo} alt="mocksiLogo" />
+				<span className="font-medium text-[#000F0C] text-sm">
+					{recordingLabel(state)}
+				</span>
+			</div>
+			<RecordButton onRecordChange={setState} />
+		</div>
+	);
 }

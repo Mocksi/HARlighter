@@ -1,81 +1,51 @@
-import "./observers/document";
-import { ActionType, sendToBackground } from "./services/background_interactor";
+// Import necessary classes and types
+import APIRecorder from "./services/api_recorder";
 
-((xhr) => {
-	const XHR = XMLHttpRequest.prototype;
+// Define the mode types
+enum ModeType {
+	Record = "record",
+	Mock = "mock",
+	Original = "original",
+}
 
-	const open = XHR.open;
-	const send = XHR.send;
-	const setRequestHeader = XHR.setRequestHeader;
+// Declare new property on the window object
+declare global {
+	interface Window {
+		wrapper: typeof XHRWrapper;
+	}
+}
 
-	XHR.open = function (method: string, url: string | URL) {
-		this._method = method;
-		this._url = url.toString();
-		this._requestHeaders = {};
-		this._startTime = new Date().toISOString();
-		this._postData = {};
-		// biome-ignore lint/style/noArguments: dynamic
-		return open.apply(this, arguments);
-	};
+// Define the XHRWrapper class
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
+class XHRWrapper extends XMLHttpRequest {
+	public static originalXHR: typeof XMLHttpRequest = XMLHttpRequest;
+	public static injectedXHR: typeof XMLHttpRequest = XMLHttpRequest;
+	public static mode: ModeType = ModeType.Original;
+	static XHRWrapper: typeof XHRWrapper;
 
-	XHR.setRequestHeader = function (header: string, value: string) {
-		this._requestHeaders[header] = value;
+	// Set the mode to record
+	static record() {
+		XHRWrapper.injectedXHR = APIRecorder; // Assuming APIRecorder extends XMLHttpRequest
+		XHRWrapper.wrap(ModeType.Record);
+	}
 
-		// biome-ignore lint/style/noArguments: dynamic
-		return setRequestHeader.apply(this, arguments);
-	};
+	// Revert to the original XMLHttpRequest
+	static remove() {
+		XHRWrapper.injectedXHR = XHRWrapper.originalXHR;
+		XHRWrapper.wrap(ModeType.Original);
+	}
 
-	XHR.send = function (postData?: Document | BodyInit | null) {
-		this._postData = postData;
-		this.addEventListener("load", () => {
-			sendToBackground(this._method, ActionType.RequestMethod);
-			sendToBackground(this._url.toLowerCase(), ActionType.RequestUrl);
-			sendToBackground(JSON.stringify(this._postData), ActionType.RequestBody);
-			sendToBackground(
-				JSON.stringify(this._requestHeaders),
-				ActionType.RequestHeaders,
-			);
+	// Wrap the XMLHttpRequest with the specified mode
+	static wrap(mode: ModeType) {
+		XHRWrapper.mode = mode;
+		((xhr) => XHRWrapper.injectedXHR)(XMLHttpRequest);
+		window.XMLHttpRequest = XMLHttpRequest;
+	}
+}
 
-			const responseHeaders = this.getAllResponseHeaders();
-			sendToBackground(
-				JSON.stringify(responseHeaders),
-				ActionType.ResponseHeaders,
-			);
+if (typeof window !== "undefined") {
+	window.wrapper = XHRWrapper; // Make the wrapper available globally on the window object
+}
 
-			let responseBody = "";
-			switch (this.responseType) {
-				case "":
-				case "text":
-					responseBody = this.responseText;
-					break;
-				case "arraybuffer": {
-					const buffer = new Uint8Array(this.response);
-					const decoder = new TextDecoder();
-					responseBody = decoder.decode(buffer);
-					break;
-				}
-				case "blob": {
-					responseBody = "BLOB";
-					break;
-				}
-				case "document": {
-					const serializer = new XMLSerializer();
-					responseBody = serializer.serializeToString(this.response);
-					break;
-				}
-				case "json":
-					responseBody = JSON.stringify(this.response);
-					break;
-			}
-			if (this.responseType !== "blob") {
-				// Ensure we do not send blob data synchronously
-				sendToBackground(responseBody, ActionType.ResponseBody);
-			}
-		});
-
-		// biome-ignore lint/style/noArguments: dynamic
-		return send.apply(this, arguments);
-	};
-})(XMLHttpRequest);
-
-window.XMLHttpRequest = XMLHttpRequest; // Ensure global XMLHttpRequest is modified
+// Export the XHRWrapper class as a default export
+export default XHRWrapper;
