@@ -5,15 +5,16 @@ import { ReactNode, useState } from "react";
 interface ButtonProps {
   children: ReactNode;
   className?: string;
-  onClick: () => any
+  onClick: () => any;
+  type: "submit" | "button" | undefined
 }
 
-export const Button = ({ children, className, onClick }: ButtonProps) => {
+export const Button = ({ children, type, className, onClick }: ButtonProps) => {
   const [hover, setHover] = useState(false)
   return (
     <button
       className={className}
-      type="button"
+      type={type}
       style={{
         background: hover ? '#006C52' : '#00513D',
         borderColor: '#00513D',
