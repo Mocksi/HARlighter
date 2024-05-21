@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		const extensionRoot = document.getElementById("extension-root");
 		if (extensionRoot?.firstChild === null) {
 			root = ReactDOM.createRoot(extensionRoot);
-			root.render(<ContentApp isOpen={true} sessionCookie={msg.loginToken}/>);
+			root.render(<ContentApp isOpen={true} sessionCookie={msg.loginToken} />);
 		} else {
 			root.unmount();
 		}

@@ -7,12 +7,16 @@ addEventListener("install", () => {
 	});
 });
 
-
 // TODO The same login URL should be the cookie URL
 // TODO2 What should we do if user is not logged in?
 chrome.action.onClicked.addListener((tab) => {
-  chrome.cookies.get({url: 'http://localhost', name: 'sessionid'}, (cookie) => {
-    chrome.tabs.sendMessage(tab?.id || 0, { text: "clickedIcon", loginToken: cookie?.value || '' });
-  })
+	chrome.cookies.get(
+		{ url: "http://localhost", name: "sessionid" },
+		(cookie) => {
+			chrome.tabs.sendMessage(tab?.id || 0, {
+				text: "clickedIcon",
+				loginToken: cookie?.value || "",
+			});
+		},
+	);
 });
-

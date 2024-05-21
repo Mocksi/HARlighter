@@ -23,10 +23,7 @@
 		"tabs",
 		"cookies"
 	],
-	"host_permissions": [
-		"https://*/*",
-		"<all_urls>"
-	],
+	"host_permissions": ["https://*/*", "<all_urls>"],
 	"icons": {
 		"16": "public/icon/icon_16.png",
 		"48": "public/icon/icon_48.png"

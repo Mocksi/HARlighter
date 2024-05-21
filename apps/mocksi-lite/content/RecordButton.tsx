@@ -7,7 +7,7 @@ interface RecordButtonProps {
 const MOCKSI_RECORDING_STATE = "mocksi-recordingState";
 
 export enum RecordingState {
-  UNAUTHORIZED = "UNAUTHORIZED",
+	UNAUTHORIZED = "UNAUTHORIZED",
 	READY = "READY",
 	RECORDING = "RECORDING",
 	ANALYZING = "ANALYZING",
@@ -70,7 +70,7 @@ export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
 		if (newRecordState === RecordingState.ANALYZING) {
 			setTimeout(() => {
 				setStatus(RecordingState.READY);
-        onRecordChange(RecordingState.READY)
+				onRecordChange(RecordingState.READY);
 				localStorage.setItem(
 					MOCKSI_RECORDING_STATE,
 					RecordingState.READY.toString(),
