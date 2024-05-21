@@ -56,5 +56,5 @@ export const useConfirmAccount = (
 
 const sendCode = (email: string, code: string) => apiCall('auth/email/complete', { email, code })
 
-// TODO test httpOnly, secure.
+// TODO see ways to make more secure this cookie...
 const manageCookies = (token: string, expires: number) => document.cookie = `sessionid=${token}; max-age=${expires}`
