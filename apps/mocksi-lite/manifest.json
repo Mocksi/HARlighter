@@ -11,7 +11,12 @@
 		{
 			"matches": ["<all_urls>"],
 			"run_at": "document_start",
-			"js": ["./content/content.tsx"]
+			"js": ["./content/content.tsx"],
+			"css": [
+				"./content/base.css",
+				"./content/content.css",
+				"./content/spinner.css"
+			]
 		}
 	],
 	"permissions": [
