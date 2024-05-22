@@ -9,6 +9,7 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.12.1",
     "@repo/ui": "workspace:*",
     "next": "^14.0.4",
     "react": "^18.2.0",

@@ -5,6 +5,7 @@ import { validateEmail } from "../utils"
 import styles from './submit-email.module.css'
 import { useCreateAccount } from "../hooks/createAccount"
 import { useTimeout } from "../hooks/useTimeout"
+import { GoogleLogin } from '@react-oauth/google';
 
 interface SubmitEmailProps {
   setSubmittedEmail: (email: string) => void
@@ -58,6 +59,14 @@ export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
           onClick={() => submitSignIn()}
         >Sign in with Email</Button>
       </form>
+      <GoogleLogin
+        onSuccess={credentialResponse => {
+          console.log(credentialResponse);
+        }}
+        onError={() => {
+          console.log('Login Failed');
+        }}
+      />
       {isLoading && <h2>Sending...</h2>}
     </>
   )
