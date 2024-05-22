@@ -12,6 +12,7 @@ interface InputProps {
   onFocus? : () => void
   onBlur? : () => void
   errorMessage?: string;
+  showErrorMessage?: boolean;
   inputType?: HTMLInputTypeAttribute;
 }
 
@@ -23,6 +24,7 @@ export const Input = forwardRef(({
   inputClassName,
   onChange,
   errorMessage,
+  showErrorMessage = true,
   inputType,
 }: InputProps, ref: ForwardedRef<any>) => {
   const [focused, setFocused] = useState(false)
@@ -44,13 +46,14 @@ export const Input = forwardRef(({
           }}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
+          onChange={onChange}
           className={inputClassName}
           value={value || ""}
           type={inputType}
           ref={ref}
         />
       </label>
-      {errorMessage && <span style={{marginLeft: '8px', fontSize: '14px', color: '#B8293D'}}>{errorMessage}</span>}
+      {(errorMessage && showErrorMessage) && <span style={{marginLeft: '8px', fontSize: '14px', color: '#B8293D'}}>{errorMessage}</span>}
     </>
   )
 })

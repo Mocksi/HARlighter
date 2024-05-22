@@ -5,6 +5,7 @@ import { RecordButton, RecordingState } from "./RecordButton";
 
 interface ContentProps {
 	isOpen?: boolean;
+	sessionCookie?: string | null;
 }
 const recordingLabel = (currentStatus: RecordingState) => {
 	switch (currentStatus) {
@@ -14,14 +15,18 @@ const recordingLabel = (currentStatus: RecordingState) => {
 			return "Mocksi Recording";
 		case RecordingState.ANALYZING:
 			return "Analyzing...";
+		case RecordingState.UNAUTHORIZED:
+			return "Login to record";
 		default:
 			return "Record your app";
 	}
 };
 
-export default function ContentApp({ isOpen }: ContentProps) {
+export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 	const [isdialogOpen, setIsDialogOpen] = useState(isOpen || false);
-	const [state, setState] = useState<RecordingState>(RecordingState.READY);
+	const [state, setState] = useState<RecordingState>(
+		sessionCookie ? RecordingState.READY : RecordingState.UNAUTHORIZED,
+	);
 
 	if (!isdialogOpen) return null;
 	return (
@@ -41,7 +46,7 @@ export default function ContentApp({ isOpen }: ContentProps) {
 					{recordingLabel(state)}
 				</span>
 			</div>
-			<RecordButton onRecordChange={setState} />
+			{sessionCookie && <RecordButton onRecordChange={setState} />}
 		</div>
 	);
 }

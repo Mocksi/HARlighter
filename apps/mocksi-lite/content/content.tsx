@@ -4,9 +4,6 @@ import("./base.css");
 import("./content.css");
 import("./spinner.css");
 
-import("./base.css");
-import("./content.css");
-
 setTimeout(initial, 1000);
 
 let root: ReactDOM.Root;
@@ -15,7 +12,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		const extensionRoot = document.getElementById("extension-root");
 		if (extensionRoot?.firstChild === null) {
 			root = ReactDOM.createRoot(extensionRoot);
-			root.render(<ContentApp isOpen={true} />);
+			root.render(<ContentApp isOpen={true} sessionCookie={msg.loginToken} />);
 		} else {
 			root.unmount();
 		}

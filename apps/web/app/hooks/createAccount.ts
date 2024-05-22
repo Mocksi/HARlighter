@@ -37,8 +37,9 @@ export const useConfirmAccount = (
   const callSendCode = (email: string, code: string) => {
     setIsLoading(true)
     sendCode(email, code)
-      .then(() => {
+      .then((response) => {
         setIsLoading(false)
+        manageCookies(`${response.token_type} ${response.access_token}`, response.expires_in)
         onSuccess()
       })
       .catch(() => {
@@ -54,3 +55,6 @@ export const useConfirmAccount = (
 }
 
 const sendCode = (email: string, code: string) => apiCall('auth/email/complete', { email, code })
+
+// TODO see ways to make more secure this cookie...
+const manageCookies = (token: string, expires: number) => document.cookie = `sessionid=${token}; max-age=${expires}`

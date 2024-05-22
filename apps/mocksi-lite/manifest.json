@@ -20,9 +20,10 @@
 		"downloads",
 		"storage",
 		"background",
-		"tabs"
+		"tabs",
+		"cookies"
 	],
-	"host_permissions": ["<all_urls>"],
+	"host_permissions": ["https://*/*", "<all_urls>"],
 	"icons": {
 		"16": "public/icon/icon_16.png",
 		"48": "public/icon/icon_48.png"

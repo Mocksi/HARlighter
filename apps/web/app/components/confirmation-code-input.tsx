@@ -63,6 +63,7 @@ export const ConfirmationCodeInput = ({ submittedEmail, onSuccess }: Confirmatio
               } 
               value={value} 
               onChange={({ target, nativeEvent }) => {
+                // TODO Find a better way to implement this!
                 nativeEvent.inputType === "insertFromPaste" ? 
                   onPastedValue(target.value) :
                   onChangedValue(nativeEvent.data, index)
@@ -74,12 +75,14 @@ export const ConfirmationCodeInput = ({ submittedEmail, onSuccess }: Confirmatio
                       styles.middleInput
                     )
                 }
+              errorMessage={errorMessage}
+              showErrorMessage={false}
             />
           ))
         }
       </div>
       {isLoading && <h2>Validating Code...</h2>}
-      {errorMessage && <h3>{errorMessage}</h3>}
+      {errorMessage && <span style={{marginLeft: '8px', fontSize: '14px', color: '#B8293D'}}>{errorMessage}</span>}
     </>
   )
 }
