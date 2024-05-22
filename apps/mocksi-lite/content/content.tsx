@@ -1,8 +1,7 @@
 import ReactDOM from "react-dom/client";
 import ContentApp from "./ContentApp";
-import("./base.css");
-import("./content.css");
-import("./spinner.css");
+
+// IMPORTANT! Add css files to manifest.json!!
 
 setTimeout(initial, 1000);
 
