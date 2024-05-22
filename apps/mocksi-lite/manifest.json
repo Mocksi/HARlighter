@@ -25,7 +25,8 @@
 	],
 	"host_permissions": ["https://*/*", "<all_urls>"],
 	"icons": {
-		"16": "public/icon/icon_16.png",
-		"48": "public/icon/icon_48.png"
+		"16": "public/icon/icon16.png",
+		"48": "public/icon/icon48.png",
+		"128": "public/icon/icon128.png"
 	}
 }
