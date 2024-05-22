@@ -55,7 +55,6 @@ export const SubmitEmail = ({ setSubmittedEmail }: SubmitEmailProps) => {
         <Button
           type="submit"
           className={styles.button}
-          onClick={() => submitSignIn()}
         >Sign in with Email</Button>
       </form>
       {isLoading && <h2>Sending...</h2>}

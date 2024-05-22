@@ -5,7 +5,7 @@ import { ReactNode, useState } from "react";
 interface ButtonProps {
   children: ReactNode;
   className?: string;
-  onClick: () => any;
+  onClick?: () => any;
   type: "submit" | "button" | undefined
 }
 
@@ -27,7 +27,7 @@ export const Button = ({ children, type, className, onClick }: ButtonProps) => {
       }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      onClick={onClick}
+      onClick={onClick ? onClick : () => undefined}
     >
       {children}
     </button>
