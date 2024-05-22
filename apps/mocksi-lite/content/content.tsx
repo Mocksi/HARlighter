@@ -3,7 +3,7 @@ import ContentApp from "./ContentApp";
 
 // IMPORTANT! Add css files to manifest.json!!
 
-setTimeout(initial, 2000);
+setTimeout(initial, 1000);
 
 let root: ReactDOM.Root;
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
