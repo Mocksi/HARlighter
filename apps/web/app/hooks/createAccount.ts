@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { apiCall } from "../utils"
 
 export const useCreateAccount = (
@@ -56,5 +56,16 @@ export const useConfirmAccount = (
 
 const sendCode = (email: string, code: string) => apiCall('auth/email/complete', { email, code })
 
+const COOKIE_NAME = 'sessionid'
 // TODO see ways to make more secure this cookie...
-const manageCookies = (token: string, expires: number) => document.cookie = `sessionid=${token}; max-age=${expires}`
+const manageCookies = (token: string, expires: number) => document.cookie = `${COOKIE_NAME}=${token}; max-age=${expires}`
+
+
+export const useGetCookies = () => {
+
+  const getIsLoggedIn = () => {
+    return document.cookie.split(';').filter(cookie => cookie.indexOf(`${COOKIE_NAME}=`) > 0).length > 0
+  }
+
+  return { getIsLoggedIn }
+}
