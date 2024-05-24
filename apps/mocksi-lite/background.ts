@@ -7,7 +7,6 @@ addEventListener("install", () => {
 });
 
 // TODO The same login URL should be the cookie URL
-// TODO2 What should we do if user is not logged in?
 chrome.action.onClicked.addListener((tab) => {
 	chrome.cookies.get(
 		{ url: "https://mocksi-auth.onrender.com/", name: "sessionid" },
