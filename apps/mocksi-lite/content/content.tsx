@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 function decorate(text: string) {
 	// TODO! Detect if parent node was a plain text or a h1,h2,h3,h4,etc. To keep the previous element 
-	let newSpan = document.createElement("span");
+	const newSpan = document.createElement("span");
     newSpan.style.border = "3px orange solid";
 	newSpan.id = 'mocksiSelectedText'
     newSpan.appendChild(document.createTextNode(text));
@@ -29,7 +29,7 @@ function decorate(text: string) {
 }
 
 function decorateTextTag(text: string, {startOffset, endOffset}: {startOffset: number, endOffset: number}) {
-	let fragment = document.createDocumentFragment();
+	const fragment = document.createDocumentFragment();
 	if(startOffset > 0) fragment.appendChild(document.createTextNode(text.substring(0, startOffset)));
 	fragment.appendChild(decorate(text.substring(startOffset, endOffset)));
 	if(endOffset < text.length) fragment.appendChild(document.createTextNode(text.substring(endOffset, text.length)));
@@ -40,17 +40,18 @@ function decorateTextTag(text: string, {startOffset, endOffset}: {startOffset: n
 function applyHighlight2(targetedElement: HTMLElement, selectedRange: any) {
 	targetedElement.childNodes.forEach((node) => {
 		if (node === selectedRange.anchorNode) {
-			debugger
 			//@ts-ignore
 			if (node.innerHTML) {
-				const appliedHigh = decorateTextTag(selectedRange.anchorNode.textContent, selectedRange.getRangeAt(0))
+				// I don't know which case can enter here, made it just in case. Probably this get removed
 				//@ts-ignore
-				node.innerHTML = appliedHigh
+				node.innerHTML = decorateTextTag(selectedRange.anchorNode.textContent, selectedRange.getRangeAt(0))
 			}
 			else {
 				// @ts-ignore
-				let fragment = decorateTextTag(selectedRange.anchorNode.textContent, selectedRange.getRangeAt(0))
-				targetedElement.replaceChild(fragment, node)
+				targetedElement.replaceChild(
+					decorateTextTag(selectedRange.anchorNode.textContent, selectedRange.getRangeAt(0)), // new node
+					node
+				)
 			}
 			
 		}
