@@ -2,7 +2,7 @@
 	"manifest_version": 3,
 	"version": "1.0",
 	"name": "mocksi-lite",
-	"description": "An extension template using React and TypeScript. This template includes a content script using Tailwind.css. To see it in action, visit https://extension.js.org.",
+	"description": "Mocksi Lite",
 	"background": {
 		"service_worker": "./background.ts"
 	},
@@ -10,7 +10,6 @@
 	"content_scripts": [
 		{
 			"matches": ["<all_urls>"],
-			"run_at": "document_start",
 			"js": ["./content/content.tsx"],
 			"css": [
 				"./content/base.css",
@@ -21,14 +20,22 @@
 	],
 	"permissions": [
 		"activeTab",
-		"webRequest",
-		"downloads",
-		"storage",
 		"background",
+		"cookies",
+		"downloads",
+		"scripting",
+		"storage",
 		"tabs",
-		"cookies"
+		"webNavigation",
+		"webRequest"
 	],
-	"host_permissions": ["https://*/*", "<all_urls>"],
+	"host_permissions": ["https://*/*", "<all_urls>", "http://*/*"],
+	"web_accessible_resources": [
+		{
+			"resources": ["./content/content.tsx"],
+			"matches": ["<all_urls>"]
+		}
+	],
 	"icons": {
 		"16": "public/icon/icon16.png",
 		"48": "public/icon/icon48.png",

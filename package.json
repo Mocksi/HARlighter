@@ -20,6 +20,7 @@
   "dependencies": {
     "capturer": "workspace:^",
     "owlserver-chrome": "workspace:^",
-    "rag": "workspace:^"
+    "rag": "workspace:^",
+    "@repo/harlight": "workspace:*"
   }
 }

@@ -23,7 +23,7 @@ interface Browser {
     comment?: string;
 }
 
-interface Page {
+export interface Page {
     startedDateTime: string;
     id: string;
     title: string;
@@ -37,7 +37,7 @@ interface PageTimings {
     comment?: string;
 }
 
-interface Entry {
+export interface Entry {
     pageref?: string;
     startedDateTime: string;
     time: number;
@@ -50,7 +50,7 @@ interface Entry {
     comment?: string;
 }
 
-interface Request {
+export interface Request {
     method: string;
     url: string;
     httpVersion: string;
@@ -63,7 +63,7 @@ interface Request {
     comment?: string;
 }
 
-interface Response {
+export interface Response {
     status: number;
     statusText: string;
     httpVersion: string;
@@ -76,7 +76,7 @@ interface Response {
     comment?: string;
 }
 
-interface Cookie {
+export interface Cookie {
     name: string;
     value: string;
     path?: string;
@@ -87,7 +87,7 @@ interface Cookie {
     comment?: string;
 }
 
-interface Header {
+export interface Header {
     name: string;
     value: string;
     comment?: string;
@@ -99,7 +99,7 @@ interface QueryString {
     comment?: string;
 }
 
-interface PostData {
+export interface PostData {
     mimeType: string;
     params?: Param[];
     text?: string;
