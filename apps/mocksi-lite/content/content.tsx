@@ -44,7 +44,7 @@ function decorateTextTag(
 	return fragment;
 }
 
-function applyHighlight2(
+function applyHighlight(
 	targetedElement: HTMLElement,
 	selectedRange: Selection | null,
 ) {
@@ -84,7 +84,7 @@ function onDoubleClickText(event: MouseEvent) {
 	}
 	const { startOffset, endOffset } = window.getSelection()?.getRangeAt(0) || {};
 	if (startOffset !== undefined && endOffset !== undefined) {
-		applyHighlight2(targetedElement, window.getSelection());
+		applyHighlight(targetedElement, window.getSelection());
 	} else {
 		console.log("ERROR! no offset detected", targetedElement);
 	}
