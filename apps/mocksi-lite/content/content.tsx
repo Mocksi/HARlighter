@@ -16,15 +16,10 @@ chrome.runtime.sendMessage({ message: "getCurrentTabId" }, (response: TabIdRespo
   }
 });
 
-
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-chrome.runtime.sendMessage({ message: "blah" }, (response: any) => {
-  console.log('Received response:', response);
-});
-
 let root: ReactDOM.Root;
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.text === "clickedIcon") {
+  const selectedTabId = localStorage.getItem("selected-tabId") || null;
+  if (selectedTabId && msg.text === "clickedIcon") {
     const extensionRoot = document.getElementById("extension-root");
     if (extensionRoot) {
       if (root) {

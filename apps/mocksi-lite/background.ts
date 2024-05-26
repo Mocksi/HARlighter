@@ -3,7 +3,7 @@ import { ChromeMessageNames } from "./content/constants";
 interface ChromeMessage {
   message: string;
   status?: string;
-  tabId?: number;
+  tabId?: string;
 }
 
 interface ChromeMessageWithData extends ChromeMessage {
@@ -22,6 +22,93 @@ chrome.action.onClicked.addListener((tab) => {
   );
 });
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+function sendData(request: Map<string, any>) {
+  const data = {
+    request: request.get("request"),
+    response: request.get("response"),
+    response_body: request.get("response_body"),
+    cookies: request.get("cookies"),
+  };
+  webSocket?.send(btoa(JSON.stringify(data)));
+}
+
+function onAttach(tabId: number) {
+  chrome.debugger.sendCommand({ tabId: tabId }, "Network.enable");
+  chrome.debugger.onEvent.addListener(allEventHandler);
+}
+
+function debuggerDetachHandler() {
+  console.log("detach");
+  requests.clear();
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const requests = new Map<string, Map<string, any>>();
+
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+function allEventHandler(debuggeeId: chrome.debugger.Debuggee, message: string, params: any) {
+  if (currentTabId !== debuggeeId.tabId) {
+      return;
+  }
+
+  if (message === "Network.requestWillBeSent") {
+      if (params.request) {
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+          const detail = new Map<string, any>();
+          detail.set('request', params.request);
+          requests.set(params.requestId, detail);
+      }
+  }
+
+  if (message === "Network.responseReceived") {
+      if (params.response) {
+          const request = requests.get(params.requestId);
+          if (request === undefined) {
+              console.log(params.requestId, "#not found request");
+              return;
+          }
+          request.set("response", params.response);
+          chrome.debugger.sendCommand({
+              tabId: debuggeeId.tabId
+          }, "Network.getCookies", {
+              urls: [params.response.url]
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+          }, (response: any) => {
+            if (response?.cookies) {
+              request.set("cookies", response.cookies);
+            }
+          });
+          requests.set(params.requestId, request);
+      }
+  }
+
+  if (message === "Network.loadingFinished") {
+      const request = requests.get(params.requestId);
+      if (request === undefined) {
+          console.log(params.requestId, "#not found request");
+          return;
+      }
+
+      chrome.debugger.sendCommand({
+          tabId: debuggeeId.tabId
+      }, "Network.getResponseBody", {
+          requestId: params.requestId
+      }, (response) => {
+          if (response) {
+              request.set("response_body", response);
+              requests.set(params.requestId, request);
+              sendData(request);
+              requests.delete(params.requestId);
+          } else {
+              console.log("empty");
+          }
+      });
+  }
+}
+
+let currentTabId: number | undefined;
 chrome.runtime.onMessage.addListener(
   (
     request: ChromeMessageWithData,
@@ -29,6 +116,31 @@ chrome.runtime.onMessage.addListener(
     sendResponse: (response: ChromeMessage) => void
   ): boolean => {
     console.log('Received message:', request);
+    if (request.message === "tabSelected") {
+      console.log('Received tabSelected message:', request);
+
+      if (currentTabId) {
+        chrome.debugger.detach({ tabId: currentTabId });
+      }
+      if (request.tabId !== undefined) {
+        currentTabId = Number.parseInt(request.tabId, 10);
+      }
+
+      if (currentTabId && currentTabId < 0) {
+          return false;
+      }
+      console.log('Attaching debugger to tab:', currentTabId);
+      const version = "1.0";
+      if (currentTabId) {
+        chrome.debugger.attach({ tabId: currentTabId }, version, onAttach.bind(null, currentTabId));
+        chrome.debugger.onDetach.addListener(debuggerDetachHandler);
+      }
+
+
+      sendResponse({ message: request.message, status: "success" });
+      return true; // Indicate that the response is sent asynchronously
+    }
+    // FIXME: this is probably not needed anymore
     if (request.message === "getCurrentTabId") {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs.length === 0) {
@@ -50,7 +162,7 @@ chrome.runtime.onMessage.addListener(
             console.log('added yellow background');
           }
         });
-        sendResponse({ message: request.message, status: "ok", tabId });
+        sendResponse({ message: request.message, status: "ok", tabId: tabId.toString()});
       });
       return true; // Indicate that the response is sent asynchronously
     }

@@ -6,7 +6,9 @@
 	"background": {
 		"service_worker": "./background.ts"
 	},
-	"action": {},
+	"action": {
+		"default_popup": "pages/pop-up.html"
+	},
 	"content_scripts": [
 		{
 			"matches": ["<all_urls>"],
@@ -23,6 +25,7 @@
 		"background",
 		"cookies",
 		"downloads",
+		"debugger",
 		"scripting",
 		"storage",
 		"tabs",
