@@ -18,17 +18,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	}
 });
 
-function decorate(text: string) {
-	// TODO! Detect if parent node was a plain text or a h1,h2,h3,h4,etc. To keep the previous element
+function decorate(text: string, width: string, shiftMode: boolean) {
 	const newSpan = document.createElement("span");
-	newSpan.style.border = "3px orange solid";
+	newSpan.style.position = 'relative'
+	newSpan.style.fontWeight = '600'
 	newSpan.id = "mocksiSelectedText";
 	newSpan.appendChild(document.createTextNode(text));
+	newSpan.appendChild(elementWithBorder('div', shiftMode ? width: undefined))
 	return newSpan;
 }
 
 function decorateTextTag(
 	text: string,
+	width: string,
+	shiftMode: boolean,
 	{ startOffset, endOffset }: { startOffset: number; endOffset: number },
 ) {
 	const fragment = document.createDocumentFragment();
@@ -36,7 +39,11 @@ function decorateTextTag(
 		fragment.appendChild(
 			document.createTextNode(text.substring(0, startOffset)),
 		);
-	fragment.appendChild(decorate(text.substring(startOffset, endOffset)));
+	fragment.appendChild(decorate(
+		text.substring(startOffset, endOffset),
+		width,
+		shiftMode
+	));
 	if (endOffset < text.length)
 		fragment.appendChild(
 			document.createTextNode(text.substring(endOffset, text.length)),
@@ -47,6 +54,7 @@ function decorateTextTag(
 function applyHighlight(
 	targetedElement: HTMLElement,
 	selectedRange: Selection | null,
+	shiftMode: boolean
 ) {
 	if (selectedRange === null) return;
 	for (const node of targetedElement.childNodes) {
@@ -57,6 +65,8 @@ function applyHighlight(
 				//@ts-ignore
 				node.innerHTML = decorateTextTag(
 					selectedRange.anchorNode?.textContent || "",
+					targetedElement.clientWidth?.toString() || '',
+					shiftMode,
 					selectedRange.getRangeAt(0),
 				);
 			} else {
@@ -64,6 +74,8 @@ function applyHighlight(
 				targetedElement.replaceChild(
 					decorateTextTag(
 						selectedRange.anchorNode?.textContent || "",
+						targetedElement.clientWidth?.toString() || '',
+						shiftMode,
 						selectedRange.getRangeAt(0),
 					), // new node
 					node,
@@ -71,6 +83,21 @@ function applyHighlight(
 			}
 		}
 	}
+}
+
+function elementWithBorder(elementType: string, width: string | undefined) {
+	const ndiv = document.createElement(elementType || "div");
+	ndiv.classList.add("bar");
+	ndiv.setAttribute("tabindex", "-1");
+	ndiv.style.width = width ? `${width}px` : '100%'
+	ndiv.style.height = '100%'
+	ndiv.style.border = '1px solid red'
+	ndiv.style.position = 'absolute'
+	ndiv.style.top = '0'
+	ndiv.style.left = width ? 'unset' : '0'
+	ndiv.style.zIndex = '999'
+	ndiv.style.background = 'transparent'
+	return ndiv
 }
 
 function onDoubleClickText(event: MouseEvent) {
@@ -84,7 +111,7 @@ function onDoubleClickText(event: MouseEvent) {
 	}
 	const { startOffset, endOffset } = window.getSelection()?.getRangeAt(0) || {};
 	if (startOffset !== undefined && endOffset !== undefined) {
-		applyHighlight(targetedElement, window.getSelection());
+		applyHighlight(targetedElement, window.getSelection(), event.shiftKey);
 	} else {
 		console.log("ERROR! no offset detected", targetedElement);
 	}
