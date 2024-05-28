@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "./LoadingSpinner";
+import recordIcon from "../public/record-icon.png";
+import {MOCKSI_RECORDING_STATE, RecordingState} from "./consts";
 
 interface RecordButtonProps {
 	onRecordChange: (status: RecordingState) => void;
-}
-const MOCKSI_RECORDING_STATE = "mocksi-recordingState";
-
-export enum RecordingState {
-	UNAUTHORIZED = "UNAUTHORIZED",
-	READY = "READY",
-	RECORDING = "RECORDING",
-	ANALYZING = "ANALYZING",
 }
 
 const recordingColorAndLabel = (currentStatus: RecordingState) => {
@@ -47,12 +41,23 @@ export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
 		const storageState =
 			(localStorage.getItem(MOCKSI_RECORDING_STATE) as RecordingState) ||
 			RecordingState.READY;
+
+    // Sets extension current position
+    const extensionRoot = document.getElementById("extension-root");
+    if (extensionRoot) {
+      extensionRoot.className = storageState === RecordingState.READY ? 'bottom-extension' : 'top-extension';
+    }
+
 		setStatus(storageState);
 		onRecordChange(storageState);
 		// THIS IS FOR DEMO PURPOSES
 		if (storageState === RecordingState.ANALYZING) {
 			setTimeout(() => {
+        if (extensionRoot) {
+          extensionRoot.className = 'bottom-extension'
+        }
 				setStatus(RecordingState.READY);
+        onRecordChange(RecordingState.READY);
 				localStorage.setItem(
 					MOCKSI_RECORDING_STATE,
 					RecordingState.READY.toString(),
@@ -80,6 +85,13 @@ export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
 	};
 
 	const { color, label } = recordingColorAndLabel(status);
+  if (status === RecordingState.READY) {
+    return (
+      <div className={'cursor-pointer'} onClick={handleToggleRecording}>
+        <img src={recordIcon} alt={'recordIcon'} />
+      </div>
+    )
+  }
 	return (
 		<button
 			className={`h-full w-[56px] border-r-2 text-center ${color} text-white`}
