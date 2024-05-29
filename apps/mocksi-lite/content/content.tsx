@@ -10,7 +10,7 @@ function initial() {
 	document.body.appendChild(rootDiv);
 }
 
-setTimeout(initial, 200);
+document.addEventListener("DOMContentLoaded", initial);
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	const extensionRoot = document.getElementById("extension-root");
