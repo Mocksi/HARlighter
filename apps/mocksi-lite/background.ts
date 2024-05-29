@@ -18,10 +18,13 @@ addEventListener("install", () => {
 	});
 });
 
+let loginToken = "";
 chrome.action.onClicked.addListener((tab) => {
 	chrome.cookies.get(
 		{ url: "https://mocksi-auth.onrender.com/", name: "sessionid" },
 		(cookie) => {
+			// TODO: this is insecure AF, but good enough for now
+			loginToken = cookie?.value || "";
 			chrome.tabs.sendMessage(tab.id || 0, {
 				text: "clickedIcon",
 				loginToken: cookie?.value || "",
@@ -30,13 +33,16 @@ chrome.action.onClicked.addListener((tab) => {
 	);
 });
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// TODO: create a type for the request
+// biome-ignore lint/suspicious/noExplicitAny: this is hard to type
 function sendData(request: Map<string, any>) {
 	const data = {
 		request: request.get("request"),
 		response: request.get("response"),
 		response_body: request.get("response_body"),
 		cookies: request.get("cookies"),
+		currentTabId: currentTabId?.toString() || "0",
+		loginToken,
 	};
 	webSocket?.send(btoa(JSON.stringify(data)));
 }
@@ -51,13 +57,15 @@ function debuggerDetachHandler() {
 	requests.clear();
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// TODO: create a type for the params
+// biome-ignore lint/suspicious/noExplicitAny: also hard to type
 const requests = new Map<string, Map<string, any>>();
 
 function allEventHandler(
 	debuggeeId: chrome.debugger.Debuggee,
 	message: string,
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	// TODO: create a type for the params
+	// biome-ignore lint/suspicious/noExplicitAny: params is a generic object
 	params: any,
 ) {
 	if (currentTabId !== debuggeeId.tabId) {
@@ -66,7 +74,8 @@ function allEventHandler(
 
 	if (message === "Network.requestWillBeSent") {
 		if (params.request) {
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			// TODO: create a type for the detail
+			// biome-ignore lint/suspicious/noExplicitAny: same as above
 			const detail = new Map<string, any>();
 			detail.set("request", params.request);
 			requests.set(params.requestId, detail);
@@ -77,7 +86,7 @@ function allEventHandler(
 		if (params.response) {
 			const request = requests.get(params.requestId);
 			if (request === undefined) {
-				console.log(params.requestId, "#not found request");
+				console.log("couldn't find request: ", params.requestId);
 				return;
 			}
 			request.set("response", params.response);
@@ -89,7 +98,7 @@ function allEventHandler(
 				{
 					urls: [params.response.url],
 				},
-				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				// biome-ignore lint/suspicious/noExplicitAny: Reading from a generic object
 				(response: any) => {
 					if (response?.cookies) {
 						request.set("cookies", response.cookies);
@@ -103,7 +112,11 @@ function allEventHandler(
 	if (message === "Network.loadingFinished") {
 		const request = requests.get(params.requestId);
 		if (request === undefined) {
-			console.log(params.requestId, "#not found request");
+			console.log(
+				params.requestId,
+				"couldn't find request for loadingFinished: ",
+				params.requestId,
+			);
 			return;
 		}
 
