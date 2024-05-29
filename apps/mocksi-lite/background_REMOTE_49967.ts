@@ -1,4 +1,3 @@
-import { COOKIE_NAME } from "./consts";
 import { WebSocketURL } from "./content/constants";
 
 interface ChromeMessage {
@@ -19,7 +18,20 @@ addEventListener("install", () => {
 	});
 });
 
-
+let loginToken = "";
+chrome.action.onClicked.addListener((tab) => {
+	chrome.cookies.get(
+		{ url: "https://mocksi-auth.onrender.com/", name: "sessionid" },
+		(cookie) => {
+			// TODO: this is insecure AF, but good enough for now
+			loginToken = cookie?.value || "";
+			chrome.tabs.sendMessage(tab.id || 0, {
+				text: "clickedIcon",
+				loginToken: cookie?.value || "",
+			});
+		},
+	);
+});
 
 interface DataPayload {
 	request: string;
@@ -51,8 +63,8 @@ function sendData(request: Map<string, any>) {
 			response: request.get("response"),
 			response_body: request.get("response_body"),
 			cookies: request.get("cookies"),
-		currentTabId: currentTabId?.toString() || "0",
-		loginToken,
+			currentTabId: currentTabId?.toString() || "unknown",
+			loginToken,
 		};
 
 		if (tabMetadata) {
@@ -191,17 +203,6 @@ chrome.runtime.onMessage.addListener(
 			}
 
 			sendResponse({ message: request.message, status: "success" });
-			chrome.cookies.get(
-				{ url: "https://mocksi-auth.onrender.com/", name: COOKIE_NAME },
-				(cookie) => {
-					// TODO: this is insecure AF, but good enough for now
-					loginToken = cookie?.value || "";
-					chrome.tabs.sendMessage(currentTabId || 0, {
-						text: "clickedIcon",
-						loginToken,
-					});
-				},
-			);
 			return true; // Indicate that the response is sent asynchronously
 		}
 
@@ -225,8 +226,7 @@ webSocket.onmessage = (event) => {
 webSocket.onclose = () => {
 	console.log("websocket connection closed");
 	const reconnectInterval = 5000; // 5 seconds
-	// biome-ignore lint/suspicious/noExplicitAny: tried to add NodeJS.Timeout type but is breaking on prod build leaving as any for now.
-	let reconnectTimeout: any;
+	let reconnectTimeout = 10000;
 
 	function reconnectWebSocket() {
 		if (reconnectTimeout) {

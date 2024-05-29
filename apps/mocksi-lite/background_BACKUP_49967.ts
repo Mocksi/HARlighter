@@ -19,7 +19,37 @@ addEventListener("install", () => {
 	});
 });
 
+<<<<<<< HEAD
+// To Remove since the action.onClicked has been overwrited
+let loginToken = "";
 
+// TODO: create a type for the request
+// biome-ignore lint/suspicious/noExplicitAny: this is hard to type
+function sendData(request: Map<string, any>) {
+	const data = {
+		request: request.get("request"),
+		response: request.get("response"),
+		response_body: request.get("response_body"),
+		cookies: request.get("cookies"),
+		currentTabId: currentTabId?.toString() || "0",
+		loginToken,
+	};
+	webSocket?.send(btoa(JSON.stringify(data)));
+=======
+let loginToken = "";
+chrome.action.onClicked.addListener((tab) => {
+	chrome.cookies.get(
+		{ url: "https://mocksi-auth.onrender.com/", name: "sessionid" },
+		(cookie) => {
+			// TODO: this is insecure AF, but good enough for now
+			loginToken = cookie?.value || "";
+			chrome.tabs.sendMessage(tab.id || 0, {
+				text: "clickedIcon",
+				loginToken: cookie?.value || "",
+			});
+		},
+	);
+});
 
 interface DataPayload {
 	request: string;
@@ -51,8 +81,8 @@ function sendData(request: Map<string, any>) {
 			response: request.get("response"),
 			response_body: request.get("response_body"),
 			cookies: request.get("cookies"),
-		currentTabId: currentTabId?.toString() || "0",
-		loginToken,
+			currentTabId: currentTabId?.toString() || "unknown",
+			loginToken,
 		};
 
 		if (tabMetadata) {
@@ -62,6 +92,7 @@ function sendData(request: Map<string, any>) {
 
 		webSocket?.send(btoa(JSON.stringify(data)));
 	});
+>>>>>>> e4936a4 (Add currentTabId and loginToken to the ws payload (#18))
 }
 
 function onAttach(tabId: number) {

@@ -1,4 +1,3 @@
-import { COOKIE_NAME } from "./consts";
 import { WebSocketURL } from "./content/constants";
 
 interface ChromeMessage {
@@ -19,49 +18,27 @@ addEventListener("install", () => {
 	});
 });
 
+chrome.action.onClicked.addListener((tab) => {
+	chrome.cookies.get(
+		{ url: "https://mocksi-auth.onrender.com/", name: "sessionid" },
+		(cookie) => {
+			chrome.tabs.sendMessage(tab.id || 0, {
+				text: "clickedIcon",
+				loginToken: cookie?.value || "",
+			});
+		},
+	);
+});
 
-
-interface DataPayload {
-	request: string;
-	response: string;
-	response_body: string;
-	cookies: string;
-	currentTabId?: string;
-	loginToken: string;
-	tabMetadata?: chrome.tabs.Tab;
-	sessionID?: string;
-	currentURL?: string;
-}
-
-// TODO: create a type for the request
-// biome-ignore lint/suspicious/noExplicitAny: this is hard to type
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 function sendData(request: Map<string, any>) {
-	if (!currentTabId) {
-		return;
-	}
-
-	let tabMetadata: chrome.tabs.Tab | undefined = undefined;
-	let sessionID: string | undefined = undefined;
-	chrome.tabs.get(currentTabId, (tab) => {
-		tabMetadata = tab as chrome.tabs.Tab;
-		sessionID = tab.sessionId;
-		currentTabId = tab.id;
-		const data: DataPayload = {
-			request: request.get("request"),
-			response: request.get("response"),
-			response_body: request.get("response_body"),
-			cookies: request.get("cookies"),
-		currentTabId: currentTabId?.toString() || "0",
-		loginToken,
-		};
-
-		if (tabMetadata) {
-			data.tabMetadata = tabMetadata;
-			data.sessionID = sessionID;
-		}
-
-		webSocket?.send(btoa(JSON.stringify(data)));
-	});
+	const data = {
+		request: request.get("request"),
+		response: request.get("response"),
+		response_body: request.get("response_body"),
+		cookies: request.get("cookies"),
+	};
+	webSocket?.send(btoa(JSON.stringify(data)));
 }
 
 function onAttach(tabId: number) {
@@ -74,15 +51,13 @@ function debuggerDetachHandler() {
 	requests.clear();
 }
 
-// TODO: create a type for the params
-// biome-ignore lint/suspicious/noExplicitAny: also hard to type
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 const requests = new Map<string, Map<string, any>>();
 
 function allEventHandler(
 	debuggeeId: chrome.debugger.Debuggee,
 	message: string,
-	// TODO: create a type for the params
-	// biome-ignore lint/suspicious/noExplicitAny: params is a generic object
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	params: any,
 ) {
 	if (currentTabId !== debuggeeId.tabId) {
@@ -91,8 +66,7 @@ function allEventHandler(
 
 	if (message === "Network.requestWillBeSent") {
 		if (params.request) {
-			// TODO: create a type for the detail
-			// biome-ignore lint/suspicious/noExplicitAny: same as above
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			const detail = new Map<string, any>();
 			detail.set("request", params.request);
 			requests.set(params.requestId, detail);
@@ -103,7 +77,7 @@ function allEventHandler(
 		if (params.response) {
 			const request = requests.get(params.requestId);
 			if (request === undefined) {
-				console.log("couldn't find request: ", params.requestId);
+				console.log(params.requestId, "#not found request");
 				return;
 			}
 			request.set("response", params.response);
@@ -115,7 +89,7 @@ function allEventHandler(
 				{
 					urls: [params.response.url],
 				},
-				// biome-ignore lint/suspicious/noExplicitAny: Reading from a generic object
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				(response: any) => {
 					if (response?.cookies) {
 						request.set("cookies", response.cookies);
@@ -129,11 +103,7 @@ function allEventHandler(
 	if (message === "Network.loadingFinished") {
 		const request = requests.get(params.requestId);
 		if (request === undefined) {
-			console.log(
-				params.requestId,
-				"couldn't find request for loadingFinished: ",
-				params.requestId,
-			);
+			console.log(params.requestId, "#not found request");
 			return;
 		}
 
@@ -191,17 +161,6 @@ chrome.runtime.onMessage.addListener(
 			}
 
 			sendResponse({ message: request.message, status: "success" });
-			chrome.cookies.get(
-				{ url: "https://mocksi-auth.onrender.com/", name: COOKIE_NAME },
-				(cookie) => {
-					// TODO: this is insecure AF, but good enough for now
-					loginToken = cookie?.value || "";
-					chrome.tabs.sendMessage(currentTabId || 0, {
-						text: "clickedIcon",
-						loginToken,
-					});
-				},
-			);
 			return true; // Indicate that the response is sent asynchronously
 		}
 
@@ -225,8 +184,7 @@ webSocket.onmessage = (event) => {
 webSocket.onclose = () => {
 	console.log("websocket connection closed");
 	const reconnectInterval = 5000; // 5 seconds
-	// biome-ignore lint/suspicious/noExplicitAny: tried to add NodeJS.Timeout type but is breaking on prod build leaving as any for now.
-	let reconnectTimeout: any;
+	let reconnectTimeout = 10000;
 
 	function reconnectWebSocket() {
 		if (reconnectTimeout) {
