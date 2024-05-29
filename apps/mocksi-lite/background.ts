@@ -19,6 +19,7 @@ addEventListener("install", () => {
 	});
 });
 
+// To Remove since the action.onClicked has been overwrited 
 let loginToken = "";
 chrome.action.onClicked.addListener((tab) => {
 	chrome.cookies.get(
@@ -175,6 +176,18 @@ chrome.runtime.onMessage.addListener(
 			}
 
 			sendResponse({ message: request.message, status: "success" });
+			chrome.tabs.sendMessage(currentTabId || 0, {
+				text: "clickedIcon",
+				loginToken: "",
+			});
+			// chrome.cookies.get(
+			// 	{ url: "https://mocksi-auth.onrender.com/", name: COOKIE_NAME },
+			// 	(cookie) => {
+			// 		// TODO: this is insecure AF, but good enough for now
+			// 		loginToken = cookie?.value || "";
+					
+			// 	},
+			// );
 			return true; // Indicate that the response is sent asynchronously
 		}
 
