@@ -1,14 +1,15 @@
 {
 	"devDependencies": {
 		"@biomejs/biome": "1.7.2",
+		"@types/chrome": "^0.0.259",
 		"@types/react": "^18.0.9",
 		"@types/react-dom": "^18.0.5",
-		"@types/chrome": "^0.0.259",
+		"@types/uuid": "^9.0.8",
+		"extension": "1.6.0-beta.1",
 		"react": "^18.1.0",
 		"react-dom": "^18.1.0",
 		"tailwindcss": "^3.4.1",
-		"typescript": "5.3.3",
-		"extension": "1.5.0"
+		"typescript": "5.3.3"
 	},
 	"scripts": {
 		"dev": "extension dev",
@@ -17,7 +18,10 @@
 		"lint": "biome ci .",
 		"format": "biome check --apply . && biome lint --apply ."
 	},
-	"dependencies": {},
+	"dependencies": {
+		"@repo/harlight": "workspace:*",
+		"uuid": "^9.0.1"
+	},
 	"name": "mocksi-lite",
 	"private": true,
 	"version": "0.0.0"

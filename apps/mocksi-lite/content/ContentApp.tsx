@@ -41,7 +41,10 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
   }
 
 	return (
-		<div className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center">
+		<div
+			className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center"
+			style={{ marginTop: "90px" }}
+		>
 			<div className="flex flex-row w-[80%] gap-2">
 				<div
 					className="ml-2 cursor-pointer"
