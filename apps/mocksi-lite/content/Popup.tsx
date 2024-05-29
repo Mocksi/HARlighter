@@ -66,7 +66,7 @@ const Popup = ({email, label, close, setState, state}: PopupProps) => {
         <div className={'text-[13px] text-[#5E5E5E] mr-2'}>
           {email}
         </div>
-        <div id={'remove-cookies'} className={'text-[13px] text-[#006C52] underline cursor-pointer'} onClick={logout}>
+        <div className={'text-[13px] text-[#006C52] underline cursor-pointer'} onClick={logout}>
           Sign Out
         </div>
       </div>
