@@ -23,7 +23,7 @@ const Popup = ({email, label, close, setState, state}: PopupProps) => {
           className="cursor-pointer absolute left-6"
           onClick={close}
           onKeyUp={(event) => {
-            event.key === "esc" && close();
+            event.key === "Escape" && close();
           }}
         >
           <img src={closeIcon} alt="closeIcon" />
