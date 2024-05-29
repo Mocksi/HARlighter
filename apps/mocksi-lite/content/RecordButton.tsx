@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import recordIcon from "../public/record-icon.png";
-import {MOCKSI_RECORDING_STATE, RecordingState} from "./consts";
+import {MOCKSI_RECORDING_STATE, RecordingState} from "../consts";
 
 interface RecordButtonProps {
 	onRecordChange: (status: RecordingState) => void;
+  state: RecordingState
 }
 
 const recordingColorAndLabel = (currentStatus: RecordingState) => {
@@ -33,8 +34,7 @@ const nextRecordingState = (currentStatus: RecordingState) => {
 	}
 };
 
-export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
-	const [status, setStatus] = useState<RecordingState>(RecordingState.READY);
+export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: hook will only run once
 	useEffect(() => {
@@ -42,21 +42,15 @@ export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
 			(localStorage.getItem(MOCKSI_RECORDING_STATE) as RecordingState) ||
 			RecordingState.READY;
 
-    // Sets extension current position
-    const extensionRoot = document.getElementById("extension-root");
-    if (extensionRoot) {
-      extensionRoot.className = storageState === RecordingState.READY ? 'bottom-extension' : 'top-extension';
-    }
-
-		setStatus(storageState);
 		onRecordChange(storageState);
 		// THIS IS FOR DEMO PURPOSES
 		if (storageState === RecordingState.ANALYZING) {
+      // // Sets extension current position
+      // const extensionRoot = document.getElementById("extension-root");
 			setTimeout(() => {
-        if (extensionRoot) {
-          extensionRoot.className = 'bottom-extension'
-        }
-				setStatus(RecordingState.READY);
+      //   if (extensionRoot) {
+      //     extensionRoot.className = 'bottom-extension'
+      //   }
         onRecordChange(RecordingState.READY);
 				localStorage.setItem(
 					MOCKSI_RECORDING_STATE,
@@ -67,14 +61,12 @@ export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
 	}, []);
 
 	const handleToggleRecording = () => {
-		const newRecordState = nextRecordingState(status);
+		const newRecordState = nextRecordingState(state);
 		onRecordChange(newRecordState);
-		setStatus(newRecordState);
 		localStorage.setItem(MOCKSI_RECORDING_STATE, newRecordState.toString());
 		// THIS IS FOR DEMO PURPOSES
 		if (newRecordState === RecordingState.ANALYZING) {
 			setTimeout(() => {
-				setStatus(RecordingState.READY);
 				onRecordChange(RecordingState.READY);
 				localStorage.setItem(
 					MOCKSI_RECORDING_STATE,
@@ -84,8 +76,8 @@ export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
 		}
 	};
 
-	const { color, label } = recordingColorAndLabel(status);
-  if (status === RecordingState.READY) {
+	const { color, label } = recordingColorAndLabel(state);
+  if (state === RecordingState.READY) {
     return (
       <div className={'cursor-pointer'} onClick={handleToggleRecording}>
         <img src={recordIcon} alt={'recordIcon'} />
@@ -97,12 +89,12 @@ export const RecordButton = ({ onRecordChange }: RecordButtonProps) => {
 			className={`h-full w-[56px] border-r-2 text-center ${color} text-white`}
 			type="button"
 			onClick={
-				status !== RecordingState.ANALYZING
+				state !== RecordingState.ANALYZING
 					? () => handleToggleRecording()
 					: () => undefined
 			}
 		>
-			{status !== RecordingState.ANALYZING ? label : <LoadingSpinner />}
+			{state !== RecordingState.ANALYZING ? label : <LoadingSpinner />}
 		</button>
 	);
 };

@@ -2,20 +2,19 @@ import closeIcon from "../public/close-icon.png";
 import menuIcon from "../public/menu-icon.png";
 import labeledIcon from "../public/labeled-icon.png";
 import {RecordButton} from "./RecordButton";
-import {COOKIE_NAME, popupContent, popupTitle, RecordingState} from "./consts";
+import {popupContent, popupTitle, RecordingState} from "../consts";
+import {logout} from "../utils";
 
 
 interface PopupProps {
   close: () => void;
   label: string;
   email: string;
-  setState: (r: RecordingState) => void
+  setState: (r: RecordingState) => void;
+  state: RecordingState
 }
 
-const Popup = ({email, label, close, setState}: PopupProps) => {
-  const loggedIn = document.cookie.split(';').filter(cookie => cookie.indexOf(`${COOKIE_NAME}=`) > 0).length > 0
-
-  console.log({loggedIn})
+const Popup = ({email, label, close, setState, state}: PopupProps) => {
   return (
     <div className={'max-w-[375px] shadow-lg rounded-lg m-4 bg-white'}>
       {/* HEADER */}
@@ -37,7 +36,7 @@ const Popup = ({email, label, close, setState}: PopupProps) => {
       {/* RECORD BUTTON */}
       <div className={'flex flex-col justify-center items-center gap-6 mt-5'}>
         <img src={labeledIcon} alt={'labeledIcon'} className={'mb-12'} />
-        <RecordButton onRecordChange={setState} />
+        <RecordButton state={state} onRecordChange={setState} />
         <div className={'text-[15px]'}>{label}</div>
       </div>
 
@@ -67,7 +66,7 @@ const Popup = ({email, label, close, setState}: PopupProps) => {
         <div className={'text-[13px] text-[#5E5E5E] mr-2'}>
           {email}
         </div>
-        <div className={'text-[13px] text-[#006C52] underline cursor-pointer'}>
+        <div id={'remove-cookies'} className={'text-[13px] text-[#006C52] underline cursor-pointer'} onClick={logout}>
           Sign Out
         </div>
       </div>

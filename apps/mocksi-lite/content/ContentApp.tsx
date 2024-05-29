@@ -1,9 +1,10 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
 import {RecordButton} from "./RecordButton";
 import Popup from "./Popup";
-import {RecordingState} from "./consts";
+import {RecordingState} from "../consts";
+import {setRootPosition} from "../utils";
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -30,10 +31,15 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 		sessionCookie ? RecordingState.READY : RecordingState.UNAUTHORIZED,
 	);
 
+  useEffect(() => {
+    setRootPosition();
+  }, [state]);
+
 	if (!isDialogOpen) return null;
   if (state === RecordingState.READY) {
-    return <Popup label={recordingLabel(state)} email={'jana@mocoso.com'} close={() => setIsDialogOpen(false)} setState={setState} />
+    return <Popup state={state} label={recordingLabel(state)} email={'jana@mocoso.com'} close={() => setIsDialogOpen(false)} setState={setState} />
   }
+
 	return (
 		<div className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center">
 			<div className="flex flex-row w-[80%] gap-2">
@@ -51,7 +57,7 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 					{recordingLabel(state)}
 				</span>
 			</div>
-			{sessionCookie && <RecordButton onRecordChange={setState} />}
+			{sessionCookie && <RecordButton state={state} onRecordChange={setState} />}
 		</div>
 	);
 }
