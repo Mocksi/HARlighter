@@ -1,4 +1,4 @@
-import { ChromeMessageNames } from "./content/constants";
+import { WebSocketURL } from "./content/constants";
 
 interface ChromeMessage {
 	message: string;
@@ -9,6 +9,14 @@ interface ChromeMessage {
 interface ChromeMessageWithData extends ChromeMessage {
 	data: string;
 }
+
+addEventListener("install", () => {
+	// TODO test if this works on other browsers
+	// TODO2 Read from environment variable the correct URL to redirect after install
+	chrome.tabs.create({
+		url: "https://mocksi-auth.onrender.com/",
+	});
+});
 
 chrome.action.onClicked.addListener((tab) => {
 	chrome.cookies.get(
@@ -131,7 +139,6 @@ chrome.runtime.onMessage.addListener(
 		console.log("Received message:", request);
 		if (request.message === "tabSelected") {
 			console.log("Received tabSelected message:", request);
-
 			if (currentTabId) {
 				chrome.debugger.detach({ tabId: currentTabId });
 			}
@@ -156,58 +163,15 @@ chrome.runtime.onMessage.addListener(
 			sendResponse({ message: request.message, status: "success" });
 			return true; // Indicate that the response is sent asynchronously
 		}
-		// FIXME: this is probably not needed anymore
-		if (request.message === "getCurrentTabId") {
-			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-				if (tabs.length === 0) {
-					console.error("No active tabs found");
-					sendResponse({
-						message: request.message,
-						status: "error",
-						tabId: undefined,
-					});
-					return;
-				}
-				const currentTab = tabs[0];
-				console.log("Current tab:", currentTab.id);
-				if (currentTab.id === undefined) {
-					console.error("Current tab ID is undefined");
-					sendResponse({
-						message: request.message,
-						status: "error",
-						tabId: undefined,
-					});
-					return;
-				}
-				const tabId = currentTab.id;
-				chrome.scripting.executeScript({
-					target: { tabId },
-					func: () => {
-						console.log("added yellow background");
-					},
-				});
-				sendResponse({
-					message: request.message,
-					status: "ok",
-					tabId: tabId.toString(),
-				});
-			});
-			return true; // Indicate that the response is sent asynchronously
-		}
 
-		if (request.message === ChromeMessageNames.SEND_RECORDING_PACKET) {
-			webSocket?.send(request.data);
-			sendResponse({ message: request.message, status: "ok" });
-			return true; // Indicate that the response is sent asynchronously
-		}
+		sendResponse({ message: request.message, status: "fail" });
 		return false; // No async response for other messages
 	},
 );
 
-console.log("background script loaded");
+console.log("background script loaded 1");
 
-const wsUrl = "ws://localhost:8090/ws";
-const webSocket = new WebSocket(wsUrl);
+let webSocket = new WebSocket(WebSocketURL);
 
 webSocket.onopen = () => {
 	keepAlive();
@@ -219,6 +183,30 @@ webSocket.onmessage = (event) => {
 
 webSocket.onclose = () => {
 	console.log("websocket connection closed");
+	const reconnectInterval = 5000; // 5 seconds
+	let reconnectTimeout = 10000;
+
+	function reconnectWebSocket() {
+		if (reconnectTimeout) {
+			clearTimeout(reconnectTimeout);
+		}
+		reconnectTimeout = setTimeout(() => {
+			console.log("Reconnecting websocket...");
+			webSocket = new WebSocket(WebSocketURL);
+			webSocket.onopen = () => {
+				console.log("Websocket reconnected");
+				keepAlive();
+			};
+			webSocket.onmessage = (event) => {
+				console.log(`Websocket received message: ${event.data}`);
+			};
+			webSocket.onclose = () => {
+				reconnectWebSocket();
+			};
+		}, reconnectInterval);
+	}
+
+	reconnectWebSocket();
 };
 
 function disconnect() {

@@ -1,9 +1,3 @@
-enum EventNames {
-	RECORDING_DATA_CAPTURED = "recordingDataCaptured",
-}
+const WebSocketURL = "wss://crowllectordb.onrender.com/ws";
 
-enum ChromeMessageNames {
-	SEND_RECORDING_PACKET = "sendRecordingPacket",
-}
-
-export { EventNames, ChromeMessageNames };
+export { WebSocketURL };

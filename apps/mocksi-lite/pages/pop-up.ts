@@ -1,15 +1,14 @@
-const tabs: chrome.tabs.Tab[] = await chrome.tabs.query({});
-const tabsSelectDom = document.getElementById("tabs") as HTMLSelectElement;
+chrome.tabs.query({}, (tabs: chrome.tabs.Tab[]) => {
+	const tabsSelectDom = document.getElementById("tabs") as HTMLSelectElement;
 
-for (const tab of tabs) {
-	const option = document.createElement("option");
-	option.text = tab.title || "No Title";
-	option.value = tab.id?.toString() || "";
-	tabsSelectDom.add(option);
-}
+	for (const tab of tabs) {
+		const option = document.createElement("option");
+		option.text = tab.title || "Unknown";
+		option.value = tab.id?.toString() || "";
+		tabsSelectDom.add(option);
+	}
 
-tabsSelectDom.addEventListener("change", (e) => {
-	(async () => {
+	tabsSelectDom.addEventListener("change", (e) => {
 		if (!(e.target instanceof HTMLSelectElement)) {
 			console.error("Not an instance of HTMLSelectElement: ", e.target);
 			return;
@@ -18,16 +17,17 @@ tabsSelectDom.addEventListener("change", (e) => {
 			console.error("No tab selected. ", e.target);
 			return;
 		}
-		const tabId = e.target.value;
+		const tabIdValue = e.target.value;
+		const tabId = Number.parseInt(tabIdValue, 10);
 		const message = "tabSelected";
-		const response = await chrome.runtime.sendMessage({ tabId, message });
-		if (response?.status !== "success") {
-			console.error("Failed to send message to background script");
-			return;
-		}
-		// FIXME: pick a better key and store the key name in a constant
-		localStorage.setItem("selected-tabId", tabId);
-	})();
+
+		chrome.runtime.sendMessage({ tabId, message }, (response) => {
+			if (response?.status !== "success") {
+				console.error("Failed to send message to background script");
+				return;
+			}
+		});
+	});
 });
 
 export type {};
