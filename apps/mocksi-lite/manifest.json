@@ -13,7 +13,7 @@
 		{
 			"matches": ["<all_urls>"],
 			"js": ["./content/content.tsx"],
-			"run_at": "document_idle",
+			"run_at": "document_start",
 			"css": [
 				"./content/base.css",
 				"./content/content.css",

@@ -9,7 +9,7 @@ function decorate(text: string, width: string, shiftMode: boolean) {
 	newSpan.style.fontWeight = "600";
 	newSpan.id = "mocksiSelectedText";
 	newSpan.appendChild(document.createTextNode(text));
-	newSpan.appendChild(elementWithBorder("div", shiftMode ? width : undefined));
+	newSpan.appendChild(elementWithBorder("textarea", shiftMode ? width : undefined, text));
 	return newSpan;
 }
 
@@ -68,18 +68,26 @@ function applyHighlight(
 	}
 }
 
-function elementWithBorder(elementType: string, width: string | undefined) {
+function elementWithBorder(elementType: string, width: string | undefined, value: string) {
 	const ndiv = document.createElement(elementType || "div");
 	ndiv.classList.add("bar");
 	ndiv.setAttribute("tabindex", "-1");
-	ndiv.style.width = width ? `${width}px` : "100%";
+	// ndiv.style.width = width ? `${width}px` : "100%";
 	ndiv.style.height = "100%";
 	ndiv.style.border = "1px solid red";
 	ndiv.style.position = "absolute";
 	ndiv.style.top = "0";
-	ndiv.style.left = width ? "unset" : "0";
+	ndiv.style.left = "0";
 	ndiv.style.zIndex = "999";
-	ndiv.style.background = "transparent";
+	ndiv.style.background = "#f0f8ffa8";
+	//@ts-ignore
+	ndiv.value = value
+	// ndiv.style.textAlign = "center";
+	// const input = document.createElement("input")
+	// input.style.backgroundColor = '#f0f8ffa8'
+	// input.setAttribute('type', 'text');
+	// input.setAttribute('value', value);
+	// ndiv.appendChild(input)
 	return ndiv;
 }
 
