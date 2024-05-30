@@ -197,7 +197,7 @@ webSocket.onmessage = (event) => {
 webSocket.onclose = () => {
 	console.log("websocket connection closed");
 	const reconnectInterval = 5000; // 5 seconds
-	let reconnectTimeout = 10000;
+	let reconnectTimeout: NodeJS.Timeout;
 
 	function reconnectWebSocket() {
 		if (reconnectTimeout) {
