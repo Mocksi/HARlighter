@@ -198,7 +198,7 @@ webSocket.onclose = () => {
 	console.log("websocket connection closed");
 	const reconnectInterval = 5000; // 5 seconds
 	// biome-ignore lint/suspicious/noExplicitAny: tried to add NodeJS.Timeout type but is breaking on prod build leaving as any for now.
-	let reconnectTimeout: any; 
+	let reconnectTimeout: any;
 
 	function reconnectWebSocket() {
 		if (reconnectTimeout) {
