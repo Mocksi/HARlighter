@@ -4,6 +4,7 @@ import backIcon from "../../public/back-icon.png";
 import labeledIcon from "../../public/labeled-icon.png";
 import trashIcon from "../../public/trash-icon.png";
 import Divider from "./Divider";
+import TextField from "../../common/TextField";
 
 interface HeaderProps {
   close: () => void;
@@ -37,9 +38,9 @@ const Header = ({close, onDelete, onGoBack}: HeaderProps) => {
         }
         <div className={'flex flex-col justify-center gap-[5px]'}>
           <img src={labeledIcon} alt={"labeledIcon"} />
-          <div className={"text-[15px] leading-[18px]"}>
+          <TextField>
             Create New Demo
-          </div>
+          </TextField>
         </div>
         {
           onDelete &&
