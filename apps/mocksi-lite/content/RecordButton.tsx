@@ -1,11 +1,11 @@
 import { useEffect } from "react";
-import { LoadingSpinner } from "./LoadingSpinner";
+import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
 import recordIcon from "../public/record-icon.png";
-import {MOCKSI_RECORDING_STATE, RecordingState} from "../consts";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 interface RecordButtonProps {
 	onRecordChange: (status: RecordingState) => void;
-  state: RecordingState
+	state: RecordingState;
 }
 
 const recordingColorAndLabel = (currentStatus: RecordingState) => {
@@ -35,7 +35,6 @@ const nextRecordingState = (currentStatus: RecordingState) => {
 };
 
 export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
-
 	// biome-ignore lint/correctness/useExhaustiveDependencies: hook will only run once
 	useEffect(() => {
 		const storageState =
@@ -46,7 +45,7 @@ export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 		// THIS IS FOR DEMO PURPOSES
 		if (storageState === RecordingState.ANALYZING) {
 			setTimeout(() => {
-        onRecordChange(RecordingState.READY);
+				onRecordChange(RecordingState.READY);
 				localStorage.setItem(
 					MOCKSI_RECORDING_STATE,
 					RecordingState.READY.toString(),
@@ -72,13 +71,19 @@ export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 	};
 
 	const { color, label } = recordingColorAndLabel(state);
-  if (state === RecordingState.READY) {
-    return (
-      <div className={'cursor-pointer'} onClick={handleToggleRecording}>
-        <img src={recordIcon} alt={'recordIcon'} />
-      </div>
-    )
-  }
+	if (state === RecordingState.READY) {
+		return (
+			<div
+				className={"cursor-pointer"}
+				onClick={handleToggleRecording}
+				onKeyUp={(event) => {
+					event.key === "Enter" && handleToggleRecording();
+				}}
+			>
+				<img src={recordIcon} alt={"recordIcon"} />
+			</div>
+		);
+	}
 	return (
 		<button
 			className={`h-full w-[56px] border-r-2 text-center ${color} text-white`}
@@ -88,6 +93,12 @@ export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 					? () => handleToggleRecording()
 					: () => undefined
 			}
+			onKeyUp={(event) => {
+				event.key === "Escape" &&
+					(state !== RecordingState.ANALYZING
+						? () => handleToggleRecording()
+						: () => undefined);
+			}}
 		>
 			{state !== RecordingState.ANALYZING ? label : <LoadingSpinner />}
 		</button>

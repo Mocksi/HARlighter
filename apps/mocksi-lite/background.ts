@@ -1,4 +1,4 @@
-import {COOKIE_NAME} from "./consts";
+import { COOKIE_NAME } from "./consts";
 import { WebSocketURL } from "./content/constants";
 
 interface ChromeMessage {
@@ -19,7 +19,7 @@ addEventListener("install", () => {
 	});
 });
 
-// To Remove since the action.onClicked has been overwrited 
+// To Remove since the action.onClicked has been overwrited
 let loginToken = "";
 
 // TODO: create a type for the request
@@ -172,7 +172,6 @@ chrome.runtime.onMessage.addListener(
 						text: "clickedIcon",
 						loginToken,
 					});
-					
 				},
 			);
 			return true; // Indicate that the response is sent asynchronously

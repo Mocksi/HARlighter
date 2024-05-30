@@ -1,10 +1,10 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
+import { RecordingState } from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
-import {RecordButton} from "./RecordButton";
+import { setRootPosition } from "../utils";
 import Popup from "./Popup";
-import {RecordingState} from "../consts";
-import {setRootPosition} from "../utils";
+import { RecordButton } from "./RecordButton";
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -31,18 +31,26 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 		sessionCookie ? RecordingState.ANALYZING : RecordingState.UNAUTHORIZED,
 	);
 
-	useEffect(() => {
-		setRootPosition();
-	}, [state]);
+	const onChangeState = (newState: RecordingState) => {
+		setState(newState);
+		setRootPosition(newState);
+	};
 
 	if (!isDialogOpen) return null;
 	if (state === RecordingState.READY) {
-		return <Popup state={state} label={recordingLabel(state)} email={'jana@mocoso.com'} close={() => setIsDialogOpen(false)} setState={setState} />
+		return (
+			<Popup
+				state={state}
+				label={recordingLabel(state)}
+				email={"jana@mocoso.com"}
+				close={() => setIsDialogOpen(false)}
+				setState={setState}
+			/>
+		);
 	}
 
 	return (
-		<div
-			className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center justify-between">
+		<div className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center justify-between">
 			<div className="flex flex-row gap-2 items-center">
 				<div
 					className="ml-2 cursor-pointer"
@@ -58,7 +66,9 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 					{recordingLabel(state)}
 				</span>
 			</div>
-			{sessionCookie && <RecordButton state={state} onRecordChange={setState} />}
+			{sessionCookie && (
+				<RecordButton state={state} onRecordChange={onChangeState} />
+			)}
 		</div>
 	);
 }
