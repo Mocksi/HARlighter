@@ -8,3 +8,10 @@ declare module "*.png" {
 	const value: any;
 	export default value;
 }
+
+// workaround with NodeJS not found when building prod mode
+declare namespace NodeJS {
+	export interface ReadableStream {
+  
+	}
+}
