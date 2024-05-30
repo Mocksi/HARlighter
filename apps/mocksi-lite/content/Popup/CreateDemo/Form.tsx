@@ -1,5 +1,5 @@
 import Divider from "../Divider";
-import Button from "../../../common/Button";
+import Button, {Variant} from "../../../common/Button";
 import expandIcon from "../../../public/expand-icon.png";
 import TextField from "../../../common/TextField";
 
@@ -26,7 +26,7 @@ const Form = ({setCreateForm}: FormProps) => {
             <input className={"border rounded-lg h-11 px-3 w-full"} />
           </div>
           <div className={"mt-[42px] flex justify-end gap-4"}>
-            <Button  onClick={() => setCreateForm(false)} variant={'secondary'}>
+            <Button  onClick={() => setCreateForm(false)} variant={Variant.secondary}>
               Cancel
             </Button>
             <Button onClick={() => setCreateForm(false)}>
