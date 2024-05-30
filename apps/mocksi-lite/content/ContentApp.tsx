@@ -28,29 +28,27 @@ const recordingLabel = (currentStatus: RecordingState) => {
 export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 	const [state, setState] = useState<RecordingState>(
-		sessionCookie ? RecordingState.READY : RecordingState.UNAUTHORIZED,
+		sessionCookie ? RecordingState.ANALYZING : RecordingState.UNAUTHORIZED,
 	);
 
-  useEffect(() => {
-    setRootPosition();
-  }, [state]);
+	useEffect(() => {
+		setRootPosition();
+	}, [state]);
 
 	if (!isDialogOpen) return null;
-  if (state === RecordingState.READY) {
-    return <Popup state={state} label={recordingLabel(state)} email={'jana@mocoso.com'} close={() => setIsDialogOpen(false)} setState={setState} />
-  }
+	if (state === RecordingState.READY) {
+		return <Popup state={state} label={recordingLabel(state)} email={'jana@mocoso.com'} close={() => setIsDialogOpen(false)} setState={setState} />
+	}
 
 	return (
 		<div
-			className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center"
-			style={{ marginTop: "90px" }}
-		>
-			<div className="flex flex-row w-[80%] gap-2">
+			className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center justify-between">
+			<div className="flex flex-row gap-2 items-center">
 				<div
 					className="ml-2 cursor-pointer"
 					onClick={() => setIsDialogOpen(false)}
 					onKeyUp={(event) => {
-						event.key === "esc" && setIsDialogOpen(false);
+						event.key === "Escape" && setIsDialogOpen(false);
 					}}
 				>
 					<img src={closeIcon} alt="closeIcon" />

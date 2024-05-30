@@ -45,12 +45,7 @@ export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 		onRecordChange(storageState);
 		// THIS IS FOR DEMO PURPOSES
 		if (storageState === RecordingState.ANALYZING) {
-      // // Sets extension current position
-      // const extensionRoot = document.getElementById("extension-root");
 			setTimeout(() => {
-      //   if (extensionRoot) {
-      //     extensionRoot.className = 'bottom-extension'
-      //   }
         onRecordChange(RecordingState.READY);
 				localStorage.setItem(
 					MOCKSI_RECORDING_STATE,
