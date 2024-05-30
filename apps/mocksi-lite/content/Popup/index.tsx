@@ -1,20 +1,19 @@
 import { RecordingState } from "../../consts";
-import { logout } from "../../utils";
 import RecordDemo from "./RecordDemo";
 import CreateDemo from "./CreateDemo";
 import {useState} from "react";
 import Header from "./Header";
 import Divider from "./Divider";
+import Footer from "./Footer";
 
 interface PopupProps {
 	close: () => void;
 	label: string;
-	email: string;
 	setState: (r: RecordingState) => void;
 	state: RecordingState;
 }
 
-const Popup = ({ email, label, close, setState, state }: PopupProps) => {
+const Popup = ({ label, close, setState, state }: PopupProps) => {
   const [createForm, setCreateForm] = useState<boolean>(false);
   const [editForm, setEditForm] = useState<boolean>(false);
   const renderContent = () => {
@@ -35,23 +34,13 @@ const Popup = ({ email, label, close, setState, state }: PopupProps) => {
       {renderContent()}
 
       {/* FOOTER */}
-      <div>
-        <Divider />
-
-        <div className={"h-[36px] flex items-center justify-end pr-3"}>
-          <div className={"text-[13px] text-[#5E5E5E] mr-2"}>{email}</div>
-          <div
-            className={"text-[13px] text-[#006C52] underline cursor-pointer"}
-            onClick={logout}
-            onKeyUp={(event) => {
-              // todo think something better here
-              event.key === "Enter" && (() => undefined);
-            }}
-          >
-            Sign Out
-          </div>
+      {
+        !createForm &&
+        <div>
+          <Divider />
+          <Footer />
         </div>
-      </div>
+      }
 		</div>
 	);
 };

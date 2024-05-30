@@ -42,7 +42,6 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 			<Popup
 				state={state}
 				label={recordingLabel(state)}
-				email={"jana@mocoso.com"}
 				close={() => setIsDialogOpen(false)}
 				setState={setState}
 			/>
