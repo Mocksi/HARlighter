@@ -1,3 +1,4 @@
+import { COOKIE_NAME } from "./consts";
 import { WebSocketURL } from "./content/constants";
 
 interface ChromeMessage {
@@ -18,20 +19,8 @@ addEventListener("install", () => {
 	});
 });
 
+// To Remove since the action.onClicked has been overwrited
 let loginToken = "";
-chrome.action.onClicked.addListener((tab) => {
-	chrome.cookies.get(
-		{ url: "https://mocksi-auth.onrender.com/", name: "sessionid" },
-		(cookie) => {
-			// TODO: this is insecure AF, but good enough for now
-			loginToken = cookie?.value || "";
-			chrome.tabs.sendMessage(tab.id || 0, {
-				text: "clickedIcon",
-				loginToken: cookie?.value || "",
-			});
-		},
-	);
-});
 
 // TODO: create a type for the request
 // biome-ignore lint/suspicious/noExplicitAny: this is hard to type
@@ -174,6 +163,17 @@ chrome.runtime.onMessage.addListener(
 			}
 
 			sendResponse({ message: request.message, status: "success" });
+			chrome.cookies.get(
+				{ url: "https://mocksi-auth.onrender.com/", name: COOKIE_NAME },
+				(cookie) => {
+					// TODO: this is insecure AF, but good enough for now
+					loginToken = cookie?.value || "";
+					chrome.tabs.sendMessage(currentTabId || 0, {
+						text: "clickedIcon",
+						loginToken,
+					});
+				},
+			);
 			return true; // Indicate that the response is sent asynchronously
 		}
 
