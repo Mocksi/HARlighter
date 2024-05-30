@@ -8,9 +8,3 @@ declare module "*.png" {
 	const value: any;
 	export default value;
 }
-
-// workaround with NodeJS not found when building prod mode
-declare namespace NodeJS {
-	// biome-ignore lint/suspicious/noEmptyInterface: Just a workaround with production build not working when typing NodeJS objects
-	export interface Timeout {}
-}
