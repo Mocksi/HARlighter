@@ -17,7 +17,7 @@
 		"skipLibCheck": false,
 		"target": "esnext",
 		"typeRoots": ["node_modules/@types", "node_modules/@chrome"],
-		"types": ["chrome"]
+		"types": ["chrome", "node"]
 	},
 	"include": ["./", "typings.d.ts"],
 	"exclude": ["node_modules", "dist", "./**/*.test.ts"]
