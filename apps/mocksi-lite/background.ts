@@ -7,10 +7,18 @@ interface ChromeMessage {
 	tabId?: string;
 }
 
+interface RequestInterception {
+	type: string;
+	url: string;
+	method: string;
+	payload: string;
+}
+
 interface ChromeMessageWithData extends ChromeMessage {
 	data: string;
 }
 
+const requestInterceptions: Map<string, RequestInterception> = new Map();
 addEventListener("install", () => {
 	// TODO test if this works on other browsers
 	// TODO2 Read from environment variable the correct URL to redirect after install
@@ -18,8 +26,6 @@ addEventListener("install", () => {
 		url: "https://mocksi-auth.onrender.com/",
 	});
 });
-
-
 
 interface DataPayload {
 	request: string;
@@ -32,6 +38,8 @@ interface DataPayload {
 	sessionID?: string;
 	currentURL?: string;
 }
+
+let loginToken = "";
 
 // TODO: create a type for the request
 // biome-ignore lint/suspicious/noExplicitAny: this is hard to type
@@ -51,8 +59,8 @@ function sendData(request: Map<string, any>) {
 			response: request.get("response"),
 			response_body: request.get("response_body"),
 			cookies: request.get("cookies"),
-		currentTabId: currentTabId?.toString() || "0",
-		loginToken,
+			currentTabId: currentTabId?.toString() || "0",
+			loginToken,
 		};
 
 		if (tabMetadata) {
@@ -96,6 +104,31 @@ function allEventHandler(
 			const detail = new Map<string, any>();
 			detail.set("request", params.request);
 			requests.set(params.requestId, detail);
+		}
+	}
+
+	if (message === "Network.requestIntercepted") {
+		console.log("requestIntercepted params", params);
+		const url = params.request.url;
+		console.log("requestWillBeSent", url);
+		if (requestInterceptions.has(url)) {
+			console.log("intercepting request", url);
+			const interception = requestInterceptions.get(url);
+			if (interception && params.request.method === interception.method) {
+				chrome.debugger.sendCommand(
+					{
+						tabId: debuggeeId.tabId,
+					},
+					"Network.continueInterceptedRequest",
+					{
+						interceptionId: params.interceptionId,
+						rawResponse: btoa(interception.payload),
+					},
+					(response) => {
+						console.log("intercepted request", response);
+					},
+				);
+			}
 		}
 	}
 
@@ -210,7 +243,7 @@ chrome.runtime.onMessage.addListener(
 	},
 );
 
-console.log("background script loaded 1");
+console.log("background script loaded");
 
 let webSocket = new WebSocket(WebSocketURL);
 
@@ -220,6 +253,47 @@ webSocket.onopen = () => {
 
 webSocket.onmessage = (event) => {
 	console.log(`websocket received message: ${event.data}`);
+	let command: RequestInterception | null = null;
+	try {
+		const parsed = JSON.parse(event.data);
+		command = parsed as RequestInterception;
+	} catch (e) {
+		return;
+	}
+
+	if (command?.type === "RequestInterception") {
+		const interceptData = atob(command.payload);
+		const interception: RequestInterception = {
+			type: command.type,
+			url: command.url,
+			method: command.method,
+			payload: interceptData,
+		};
+		requestInterceptions.set(command.url, interception);
+		console.log("Will intercept request", command.url);
+
+		if (!currentTabId) {
+			return;
+		}
+
+		chrome.debugger.sendCommand(
+			{ tabId: currentTabId },
+			"Network.setRequestInterception",
+			{
+				patterns: [
+					{
+						urlPattern: command.url,
+						resourceType: "XHR",
+						interceptionStage: "HeadersReceived",
+					},
+				],
+			},
+			(response) => {
+				console.log("requested", response);
+			},
+		);
+		chrome.debugger.onEvent.addListener(allEventHandler);
+	}
 };
 
 webSocket.onclose = () => {
@@ -265,5 +339,5 @@ function keepAlive() {
 		} else {
 			clearInterval(keepAliveIntervalId);
 		}
-	}, 20 * 1000);
+	}, 5 * 1000);
 }
