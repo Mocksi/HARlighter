@@ -28,7 +28,7 @@ const nextRecordingState = (currentStatus: RecordingState) => {
 		case RecordingState.RECORDING:
 			return RecordingState.ANALYZING;
 		case RecordingState.ANALYZING:
-			return RecordingState.READY;
+			return RecordingState.CREATE;
 		default:
 			return RecordingState.READY;
 	}
@@ -45,10 +45,10 @@ export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 		// THIS IS FOR DEMO PURPOSES
 		if (storageState === RecordingState.ANALYZING) {
 			setTimeout(() => {
-				onRecordChange(RecordingState.READY);
+				onRecordChange(RecordingState.CREATE);
 				localStorage.setItem(
 					MOCKSI_RECORDING_STATE,
-					RecordingState.READY.toString(),
+					RecordingState.CREATE.toString(),
 				);
 			}, 3000);
 		}
@@ -61,10 +61,10 @@ export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 		// THIS IS FOR DEMO PURPOSES
 		if (newRecordState === RecordingState.ANALYZING) {
 			setTimeout(() => {
-				onRecordChange(RecordingState.READY);
+				onRecordChange(RecordingState.CREATE);
 				localStorage.setItem(
 					MOCKSI_RECORDING_STATE,
-					RecordingState.READY.toString(),
+					RecordingState.CREATE.toString(),
 				);
 			}, 10000);
 		}

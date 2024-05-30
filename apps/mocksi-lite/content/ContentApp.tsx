@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { RecordingState } from "../consts";
+import {useState} from "react";
+import {RecordingState} from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
-import { setRootPosition } from "../utils";
+import {setRootPosition} from "../utils";
 import Popup from "./Popup";
-import { RecordButton } from "./RecordButton";
+import {RecordButton} from "./RecordButton";
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -37,7 +37,7 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 	};
 
 	if (!isDialogOpen) return null;
-	if (state === RecordingState.READY) {
+	if (state === RecordingState.READY || state === RecordingState.CREATE) {
 		return (
 			<Popup
 				state={state}
