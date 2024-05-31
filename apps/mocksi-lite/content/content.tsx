@@ -121,13 +121,13 @@ function elementWithBorder(elementType: string, width: string | undefined, value
 		)
 		// TODO Should we need to append all textNodes after replacing child? or is easier to handle multiple selected nodes?
 	}
-	ndiv.onblur = () => {
-		const selectedText = document.getElementById("mocksiSelectedText")
-		selectedText?.parentElement?.replaceChild(
-			document.createTextNode(value),
-			selectedText
-		)
-	}
+	// ndiv.onblur = () => {
+	// 	const selectedText = document.getElementById("mocksiSelectedText")
+	// 	selectedText?.parentElement?.replaceChild(
+	// 		document.createTextNode(value),
+	// 		selectedText
+	// 	)
+	// }
 
 	//@ts-ignore
 	ndiv.value = value
@@ -175,4 +175,5 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 	- Support multiple selected nodes (when user selects text and involves more than one node)
 	- Autofocus when displaying new textarea!!! Only works on the first one ever.
+	- Remove previous textarea when doubleclicking other text or on blur
 */
