@@ -6,7 +6,6 @@ let root: ReactDOM.Root;
 function decorate(text: string, width: string, shiftMode: boolean) {
 	const newSpan = document.createElement("span");
 	newSpan.style.position = "relative";
-	// newSpan.style.fontWeight = "600";
 	newSpan.id = "mocksiSelectedText";
 	newSpan.appendChild(document.createTextNode(text));
 	const textArea = elementWithBorder("textarea", shiftMode ? width : undefined, text)
@@ -41,38 +40,43 @@ function applyHighlight(
 	selectedRange: Selection | null,
 	shiftMode: boolean,
 ) {
-	if (selectedRange === null) return;
-	for (const node of targetedElement.childNodes) {
-		if (node === selectedRange.anchorNode) {
-			//@ts-ignore
-			if (node.innerHTML) {
-				// I don't know which case can enter here, made it just in case. Probably this get removed
+	if (selectedRange === null || selectedRange.anchorNode === null) return;
+	// this case is if the beggining node is the same as the finished one.
+	// this can happen while selecting text, there are more than one different node involved.
+	if (selectedRange.anchorNode === selectedRange.focusNode) {
+		for (const node of targetedElement.childNodes) {
+			if (node === selectedRange.anchorNode || [...node.childNodes].includes(selectedRange.anchorNode as ChildNode)) {
 				//@ts-ignore
-				node.innerHTML = decorateTextTag(
-					selectedRange.anchorNode?.textContent || "",
-					targetedElement.clientWidth?.toString() || "",
-					shiftMode,
-					selectedRange.getRangeAt(0),
-				);
-			} else {
-				// @ts-ignore
-				targetedElement.replaceChild(
-					decorateTextTag(
+				if (node.innerHTML) {
+					// I don't know which case can enter here, made it just in case. Probably this get removed
+					//@ts-ignore
+					node.innerHTML = decorateTextTag(
 						selectedRange.anchorNode?.textContent || "",
 						targetedElement.clientWidth?.toString() || "",
 						shiftMode,
 						selectedRange.getRangeAt(0),
-					), // new node
-					node,
-				);
+					);
+				} else {
+					// @ts-ignore
+					targetedElement.replaceChild(
+						decorateTextTag(
+							selectedRange.anchorNode?.textContent || "",
+							targetedElement.clientWidth?.toString() || "",
+							shiftMode,
+							selectedRange.getRangeAt(0),
+						), // new node
+						node,
+					);
+				}
 			}
 		}
+	} else {
+		// TODO
 	}
 }
 
 function elementWithBorder(elementType: string, width: string | undefined, value: string) {
 	const ndiv = document.createElement(elementType || "div");
-	ndiv.classList.add("bar");
 	ndiv.setAttribute("tabindex", "-1");
 	const elementStyle = {
 		width: width ? "120%" : "150%",
@@ -99,8 +103,7 @@ function elementWithBorder(elementType: string, width: string | undefined, value
 				event.target?.dispatchEvent(newEvent);
 			}
 			event.preventDefault(); // Prevents the addition of a new line in the text field
-		}
-		if (event.key === "Escape") {
+		} else if (event.key === "Escape") {
 			const selectedText = document.getElementById("mocksiSelectedText")
 			selectedText?.parentElement?.replaceChild(
 				document.createTextNode(value),
@@ -116,6 +119,14 @@ function elementWithBorder(elementType: string, width: string | undefined, value
 			document.createTextNode(newValue),
 			selectedText
 		)
+		// TODO Should we need to append all textNodes after replacing child? or is easier to handle multiple selected nodes?
+	}
+	ndiv.onblur = () => {
+		const selectedText = document.getElementById("mocksiSelectedText")
+		selectedText?.parentElement?.replaceChild(
+			document.createTextNode(value),
+			selectedText
+		)
 	}
 
 	//@ts-ignore
@@ -128,6 +139,7 @@ function onDoubleClickText(event: MouseEvent) {
 	// const previousSelectedText = document.getElementById("mocksiSelectedText");
 	const targetedElement: HTMLElement = event.target as HTMLElement;
 	const { startOffset, endOffset } = window.getSelection()?.getRangeAt(0) || {};
+	debugger
 	if (startOffset !== undefined && endOffset !== undefined) {
 		applyHighlight(targetedElement, window.getSelection(), event.shiftKey);
 	} else {
@@ -156,3 +168,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	}
 	sendResponse({ status: "success" });
 });
+
+
+/* 
+	TODO TEXT REPLACER:
+
+	- Support multiple selected nodes (when user selects text and involves more than one node)
+	- Autofocus when displaying new textarea!!! Only works on the first one ever.
+*/
