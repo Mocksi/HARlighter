@@ -6,10 +6,12 @@ let root: ReactDOM.Root;
 function decorate(text: string, width: string, shiftMode: boolean) {
 	const newSpan = document.createElement("span");
 	newSpan.style.position = "relative";
-	newSpan.style.fontWeight = "600";
+	// newSpan.style.fontWeight = "600";
 	newSpan.id = "mocksiSelectedText";
 	newSpan.appendChild(document.createTextNode(text));
-	newSpan.appendChild(elementWithBorder("textarea", shiftMode ? width : undefined, text));
+	const textArea = elementWithBorder("textarea", shiftMode ? width : undefined, text)
+	newSpan.appendChild(textArea);
+	textArea.focus()
 	return newSpan;
 }
 
@@ -72,34 +74,59 @@ function elementWithBorder(elementType: string, width: string | undefined, value
 	const ndiv = document.createElement(elementType || "div");
 	ndiv.classList.add("bar");
 	ndiv.setAttribute("tabindex", "-1");
-	// ndiv.style.width = width ? `${width}px` : "100%";
-	ndiv.style.height = "100%";
-	ndiv.style.border = "1px solid red";
-	ndiv.style.position = "absolute";
-	ndiv.style.top = "0";
-	ndiv.style.left = "0";
-	ndiv.style.zIndex = "999";
-	ndiv.style.background = "#f0f8ffa8";
+	const elementStyle = {
+		width: width ? "120%" : "150%",
+		height: "100%",
+		border: "1px solid red",
+		position: "absolute",
+		top: "0",
+		left: "0",
+		zIndex: "999",
+		background: "#f0f8ffa8"
+	}
+	ndiv.style.width = elementStyle.width;
+	ndiv.style.height = elementStyle.height;
+	ndiv.style.border = elementStyle.border;
+	ndiv.style.position = elementStyle.position;
+	ndiv.style.top = elementStyle.top;
+	ndiv.style.left = elementStyle.left;
+	ndiv.style.zIndex = elementStyle.zIndex;
+	ndiv.style.background = elementStyle.background;
+	ndiv.onkeydown = (event: KeyboardEvent) => {
+		if (event.key === "Enter" && !event.shiftKey) {
+			if (!event.repeat) {
+				const newEvent = new Event("submit", {cancelable: true});
+				event.target?.dispatchEvent(newEvent);
+			}
+			event.preventDefault(); // Prevents the addition of a new line in the text field
+		}
+		if (event.key === "Escape") {
+			const selectedText = document.getElementById("mocksiSelectedText")
+			selectedText?.parentElement?.replaceChild(
+				document.createTextNode(value),
+				selectedText
+			)
+		}
+	}
+	ndiv.onsubmit = (event: SubmitEvent) => {
+		const selectedText = document.getElementById("mocksiSelectedText")
+		// @ts-ignore I don't know why the value property is no inside the target object
+		const newValue = event.target?.value
+		selectedText?.parentElement?.replaceChild(
+			document.createTextNode(newValue),
+			selectedText
+		)
+	}
+
 	//@ts-ignore
 	ndiv.value = value
-	// ndiv.style.textAlign = "center";
-	// const input = document.createElement("input")
-	// input.style.backgroundColor = '#f0f8ffa8'
-	// input.setAttribute('type', 'text');
-	// input.setAttribute('value', value);
-	// ndiv.appendChild(input)
+	ndiv.autofocus = true
 	return ndiv;
 }
 
 function onDoubleClickText(event: MouseEvent) {
-	const previousSelectedText = document.getElementById("mocksiSelectedText");
+	// const previousSelectedText = document.getElementById("mocksiSelectedText");
 	const targetedElement: HTMLElement = event.target as HTMLElement;
-	// TODO if user selected a space text, break
-	// TODO2 if user the previously selected text, break
-	if (previousSelectedText) {
-		previousSelectedText.style.border = "";
-		previousSelectedText.id = ""; // see if there's a better way to do this
-	}
 	const { startOffset, endOffset } = window.getSelection()?.getRangeAt(0) || {};
 	if (startOffset !== undefined && endOffset !== undefined) {
 		applyHighlight(targetedElement, window.getSelection(), event.shiftKey);
