@@ -39,7 +39,6 @@ export const useConfirmAccount = (
     sendCode(email, code)
       .then((response) => {
         setIsLoading(false)
-        localStorage.setItem("mocksi-recordingState", "READY");
         manageCookies(`${response.token_type} ${response.access_token}`, response.expires_in)
         onSuccess()
       })
