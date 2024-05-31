@@ -7,12 +7,13 @@ import Divider from "./Divider";
 import TextField from "../../common/TextField";
 
 interface HeaderProps {
+  createForm: boolean;
   close: () => void;
   onGoBack?: () => void;
   onDelete?: () => void;
 }
 
-const Header = ({close, onDelete, onGoBack}: HeaderProps) => {
+const Header = ({createForm, close, onDelete, onGoBack}: HeaderProps) => {
   return (
     <div>
       <div className={"h-[36px] flex items-center justify-center flex-row"}>
@@ -29,18 +30,23 @@ const Header = ({close, onDelete, onGoBack}: HeaderProps) => {
       </div>
 
       <Divider />
-      <div className={"flex justify-center items-center mt-5 mb-[13px]"}>
+      <div className={"flex justify-center items-center mt-5"}>
         {
           onGoBack &&
           <div className={"absolute left-9 cursor-pointer"} onClick={onGoBack}>
-            <img src={backIcon} alt={"backIcon"} />
+            <img src={backIcon} alt={"backIcon"} className={"w-[94px]"} />
           </div>
         }
-        <div className={'flex flex-col justify-center gap-[5px]'}>
-          <img src={labeledIcon} alt={"labeledIcon"} />
-          <TextField>
-            Create New Demo
-          </TextField>
+        <div className={'flex flex-col justify-center items-center gap-[5px]'}>
+          <div>
+            <img src={labeledIcon} alt={"labeledIcon"} />
+          </div>
+          {
+            createForm &&
+            <TextField variant={'title'}>
+              Create New Demo
+            </TextField>
+          }
         </div>
         {
           onDelete &&

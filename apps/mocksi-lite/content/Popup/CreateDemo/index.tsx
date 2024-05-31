@@ -26,14 +26,17 @@ const CreateDemo = ({createForm, setCreateForm}: CreateDemoProps) => {
   const [demos, setDemos] = useState<Demo[]>([mockedDemo]);
   if (createForm) return <Form setCreateForm={setCreateForm} />
   return (
-    <div className={"flex-1 flex flex-col items-center"}>
+    <div className={"flex-1 flex flex-col items-center pt-8"}>
       {
         demos.map((demo) => <DemoItem key={`demo-item-${demo.id}`} {...demo} />)
       }
-      <div className={'px-3 w-full mt-6'}>
-        <Divider />
-      </div>
-      <Button onClick={() => setCreateForm(true)} className={"mt-[30px]"}>
+      {
+        demos.length ?
+        <div className={'px-3 w-full mt-6'}>
+          <Divider />
+        </div> : null
+      }
+      <Button onClick={() => setCreateForm(true)} className={!demos.length ? "mt-3" : "mt-8"}>
         Create New Demo
       </Button>
     </div>

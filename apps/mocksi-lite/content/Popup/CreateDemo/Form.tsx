@@ -9,7 +9,7 @@ interface FormProps {
 
 const Form = ({setCreateForm}: FormProps) => {
   return (
-    <div className={"flex-1"}>
+    <div className={"flex-1 mt-3"}>
       <Divider />
       <div className={'flex h-full flex-col justify-between'}>
         <div className={"p-4"}>
