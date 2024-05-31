@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { RecordingState } from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
@@ -37,12 +37,11 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 	};
 
 	if (!isDialogOpen) return null;
-	if (state === RecordingState.READY) {
+	if (state === RecordingState.READY || state === RecordingState.CREATE) {
 		return (
 			<Popup
 				state={state}
 				label={recordingLabel(state)}
-				email={"jana@mocoso.com"}
 				close={() => setIsDialogOpen(false)}
 				setState={setState}
 			/>
