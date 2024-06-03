@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { RecordingState } from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
-import { RecordButton, RecordingState } from "./RecordButton";
+import { setRootPosition } from "../utils";
+import Popup from "./Popup";
+import { RecordButton } from "./RecordButton";
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -10,7 +13,7 @@ interface ContentProps {
 const recordingLabel = (currentStatus: RecordingState) => {
 	switch (currentStatus) {
 		case RecordingState.READY:
-			return "Record your app";
+			return "Start recording";
 		case RecordingState.RECORDING:
 			return "Mocksi Recording";
 		case RecordingState.ANALYZING:
@@ -18,28 +21,41 @@ const recordingLabel = (currentStatus: RecordingState) => {
 		case RecordingState.UNAUTHORIZED:
 			return "Login to record";
 		default:
-			return "Record your app";
+			return "Start recording";
 	}
 };
 
 export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
-	const [isdialogOpen, setIsDialogOpen] = useState(isOpen || false);
+	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 	const [state, setState] = useState<RecordingState>(
-		sessionCookie ? RecordingState.READY : RecordingState.UNAUTHORIZED,
+		sessionCookie ? RecordingState.ANALYZING : RecordingState.UNAUTHORIZED,
 	);
 
-	if (!isdialogOpen) return null;
+	const onChangeState = (newState: RecordingState) => {
+		setState(newState);
+		setRootPosition(newState);
+	};
+
+	if (!isDialogOpen) return null;
+	if (state === RecordingState.READY || state === RecordingState.CREATE) {
+		return (
+			<Popup
+				state={state}
+				label={recordingLabel(state)}
+				close={() => setIsDialogOpen(false)}
+				setState={setState}
+			/>
+		);
+	}
+
 	return (
-		<div
-			className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center"
-			style={{ marginTop: "90px" }}
-		>
-			<div className="flex flex-row w-[80%] gap-2">
+		<div className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center justify-between">
+			<div className="flex flex-row gap-2 items-center">
 				<div
 					className="ml-2 cursor-pointer"
 					onClick={() => setIsDialogOpen(false)}
 					onKeyUp={(event) => {
-						event.key === "esc" && setIsDialogOpen(false);
+						event.key === "Escape" && setIsDialogOpen(false);
 					}}
 				>
 					<img src={closeIcon} alt="closeIcon" />
@@ -49,7 +65,9 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 					{recordingLabel(state)}
 				</span>
 			</div>
-			{sessionCookie && <RecordButton onRecordChange={setState} />}
+			{sessionCookie && (
+				<RecordButton state={state} onRecordChange={onChangeState} />
+			)}
 		</div>
 	);
 }

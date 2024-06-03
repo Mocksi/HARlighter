@@ -1,6 +1,13 @@
 #extension-root {
   position: fixed;
-  top: 0;
   right: 0;
   z-index: 99999;
+}
+
+.top-extension {
+  top: 0;
+}
+
+.bottom-extension {
+  bottom: 0;
 }
