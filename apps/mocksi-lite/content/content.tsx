@@ -143,7 +143,6 @@ function elementWithBorder(
 }
 
 function onDoubleClickText(event: MouseEvent) {
-	console.log(event);
 	const previousSelectedText = document.getElementById("mocksiSelectedText");
 	// @ts-ignore MouseEvent typing seems incomplete
 	if (event?.toElement?.nodeName !== "TEXTAREA") {
@@ -173,10 +172,17 @@ function initial() {
 		document.getElementById("extension-root") || document.createElement("div");
 	rootDiv.id = "extension-root";
 	document.body.appendChild(rootDiv);
-	document.body.addEventListener("dblclick", onDoubleClickText);
 }
 
 document.addEventListener("DOMContentLoaded", initial);
+
+export const setEditorMode = (turnOn: boolean) => {
+	if (turnOn) {
+		document.body.addEventListener("dblclick", onDoubleClickText);
+	} else {
+		document.body.removeEventListener("dblclick", onDoubleClickText);
+	}
+}
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	const extensionRoot = document.getElementById("extension-root");
@@ -185,13 +191,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			root.unmount();
 		}
 		root = ReactDOM.createRoot(extensionRoot);
-		root.render(<ContentApp isOpen={true} sessionCookie={msg.loginToken} />);
+		root.render(<ContentApp 
+			isOpen={true} 
+			sessionCookie={msg.loginToken}
+			/>
+		);
 	}
 	sendResponse({ status: "success" });
 });
-
-/* 
-	TODO TEXT REPLACER:
-
-	- Support multiple selected nodes (when user selects text and involves more than one node)
-*/
