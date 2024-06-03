@@ -182,7 +182,7 @@ export const setEditorMode = (turnOn: boolean) => {
 	} else {
 		document.body.removeEventListener("dblclick", onDoubleClickText);
 	}
-}
+};
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	const extensionRoot = document.getElementById("extension-root");
@@ -191,11 +191,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			root.unmount();
 		}
 		root = ReactDOM.createRoot(extensionRoot);
-		root.render(<ContentApp 
-			isOpen={true} 
-			sessionCookie={msg.loginToken}
-			/>
-		);
+		root.render(<ContentApp isOpen={true} sessionCookie={msg.loginToken} />);
 	}
 	sendResponse({ status: "success" });
 });
