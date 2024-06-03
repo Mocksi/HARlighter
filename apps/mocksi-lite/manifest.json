@@ -7,7 +7,7 @@
 		"service_worker": "./background.ts"
 	},
 	"action": {
-		"default_popup": "pages/pop-up.html"
+		"default_popup": "pages/tab-selector.html"
 	},
 	"content_scripts": [
 		{

@@ -1,0 +1,56 @@
+
+html {
+  background-color: transparent;
+  border: 1px solid white;
+  border-radius: 16px;
+  padding: 0;
+  display: flex;
+  width: 300px;
+}
+.tab-selector-container {
+  border: 1px solid #81959066;
+  border-radius: 4px;
+  width: 100%;
+  margin: 0;
+}
+
+.tab-selector-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 34px;
+  width: 100%;
+  border-bottom: 1px solid #E5E2E1;
+}
+.tab-selector-content {
+  padding: 12px;
+}
+.close-button {
+  cursor: pointer;
+  position: absolute;
+  left: 8px;
+}
+.localize {
+  display: flex;
+  flex-direction: column;
+  font-weight: 550;
+  font-size: 15px;
+  line-height: 18px;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+select {
+  height: 44px;
+  border: 1px solid #ABABAB;
+  border-radius: 8px;
+  padding: 0 12px;
+  appearance: none;
+}
+
+
+.tab-selector-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
