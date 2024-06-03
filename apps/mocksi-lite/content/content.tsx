@@ -10,7 +10,6 @@ function decorate(text: string, width: string, shiftMode: boolean) {
 	newSpan.appendChild(document.createTextNode(text));
 	const textArea = elementWithBorder("textarea", shiftMode ? width : undefined, text)
 	newSpan.appendChild(textArea);
-	textArea.focus()
 	return newSpan;
 }
 
@@ -35,7 +34,7 @@ function decorateTextTag(
 	return fragment;
 }
 
-function applyHighlight(
+function applyEditor(
 	targetedElement: HTMLElement,
 	selectedRange: Selection | null,
 	shiftMode: boolean,
@@ -105,45 +104,55 @@ function elementWithBorder(elementType: string, width: string | undefined, value
 			event.preventDefault(); // Prevents the addition of a new line in the text field
 		} else if (event.key === "Escape") {
 			const selectedText = document.getElementById("mocksiSelectedText")
+			const parentElement = selectedText?.parentElement
 			selectedText?.parentElement?.replaceChild(
 				document.createTextNode(value),
 				selectedText
 			)
+			parentElement?.normalize()
 		}
 	}
 	ndiv.onsubmit = (event: SubmitEvent) => {
 		const selectedText = document.getElementById("mocksiSelectedText")
 		// @ts-ignore I don't know why the value property is no inside the target object
 		const newValue = event.target?.value
+		const parentElement = selectedText?.parentElement
 		selectedText?.parentElement?.replaceChild(
 			document.createTextNode(newValue),
 			selectedText
 		)
-		// TODO Should we need to append all textNodes after replacing child? or is easier to handle multiple selected nodes?
+		parentElement?.normalize()
 	}
-	// ndiv.onblur = () => {
-	// 	const selectedText = document.getElementById("mocksiSelectedText")
-	// 	selectedText?.parentElement?.replaceChild(
-	// 		document.createTextNode(value),
-	// 		selectedText
-	// 	)
-	// }
 
 	//@ts-ignore
 	ndiv.value = value
+	ndiv.id = 'mocksiTextArea'
 	ndiv.autofocus = true
 	return ndiv;
 }
 
 function onDoubleClickText(event: MouseEvent) {
-	// const previousSelectedText = document.getElementById("mocksiSelectedText");
-	const targetedElement: HTMLElement = event.target as HTMLElement;
-	const { startOffset, endOffset } = window.getSelection()?.getRangeAt(0) || {};
-	debugger
-	if (startOffset !== undefined && endOffset !== undefined) {
-		applyHighlight(targetedElement, window.getSelection(), event.shiftKey);
-	} else {
-		console.log("ERROR! no offset detected", targetedElement);
+	console.log(event)
+	const previousSelectedText = document.getElementById("mocksiSelectedText");
+	// @ts-ignore MouseEvent typing seems incomplete
+	if (event?.toElement?.nodeName !== "TEXTAREA") {
+		if (previousSelectedText) {
+			const parentElement = previousSelectedText?.parentElement
+			// cancel previous input.
+			previousSelectedText?.parentElement?.replaceChild(
+				document.createTextNode(previousSelectedText.innerText),
+				previousSelectedText
+			)
+			parentElement?.normalize()
+		}
+		const targetedElement: HTMLElement = event.target as HTMLElement;
+		const { startOffset, endOffset } = window.getSelection()?.getRangeAt(0) || {};
+		if (startOffset !== undefined && endOffset !== undefined) {
+			applyEditor(targetedElement, window.getSelection(), event.shiftKey);
+			document.getElementById('mocksiTextArea')?.focus()
+		} else {
+			console.log("ERROR! no offset detected", targetedElement);
+		}
 	}
 }
 
@@ -174,6 +183,4 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	TODO TEXT REPLACER:
 
 	- Support multiple selected nodes (when user selects text and involves more than one node)
-	- Autofocus when displaying new textarea!!! Only works on the first one ever.
-	- Remove previous textarea when doubleclicking other text or on blur
 */
