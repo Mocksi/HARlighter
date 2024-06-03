@@ -8,7 +8,11 @@ function decorate(text: string, width: string, shiftMode: boolean) {
 	newSpan.style.position = "relative";
 	newSpan.id = "mocksiSelectedText";
 	newSpan.appendChild(document.createTextNode(text));
-	const textArea = elementWithBorder("textarea", shiftMode ? width : undefined, text)
+	const textArea = elementWithBorder(
+		"textarea",
+		shiftMode ? width : undefined,
+		text,
+	);
 	newSpan.appendChild(textArea);
 	return newSpan;
 }
@@ -44,7 +48,10 @@ function applyEditor(
 	// this can happen while selecting text, there are more than one different node involved.
 	if (selectedRange.anchorNode === selectedRange.focusNode) {
 		for (const node of targetedElement.childNodes) {
-			if (node === selectedRange.anchorNode || [...node.childNodes].includes(selectedRange.anchorNode as ChildNode)) {
+			if (
+				node === selectedRange.anchorNode ||
+				[...node.childNodes].includes(selectedRange.anchorNode as ChildNode)
+			) {
 				//@ts-ignore
 				if (node.innerHTML) {
 					// I don't know which case can enter here, made it just in case. Probably this get removed
@@ -74,7 +81,11 @@ function applyEditor(
 	}
 }
 
-function elementWithBorder(elementType: string, width: string | undefined, value: string) {
+function elementWithBorder(
+	elementType: string,
+	width: string | undefined,
+	value: string,
+) {
 	const ndiv = document.createElement(elementType || "div");
 	ndiv.setAttribute("tabindex", "-1");
 	const elementStyle = {
@@ -85,8 +96,8 @@ function elementWithBorder(elementType: string, width: string | undefined, value
 		top: "0",
 		left: "0",
 		zIndex: "999",
-		background: "#f0f8ffa8"
-	}
+		background: "#f0f8ffa8",
+	};
 	ndiv.style.width = elementStyle.width;
 	ndiv.style.height = elementStyle.height;
 	ndiv.style.border = elementStyle.border;
@@ -98,58 +109,59 @@ function elementWithBorder(elementType: string, width: string | undefined, value
 	ndiv.onkeydown = (event: KeyboardEvent) => {
 		if (event.key === "Enter" && !event.shiftKey) {
 			if (!event.repeat) {
-				const newEvent = new Event("submit", {cancelable: true});
+				const newEvent = new Event("submit", { cancelable: true });
 				event.target?.dispatchEvent(newEvent);
 			}
 			event.preventDefault(); // Prevents the addition of a new line in the text field
 		} else if (event.key === "Escape") {
-			const selectedText = document.getElementById("mocksiSelectedText")
-			const parentElement = selectedText?.parentElement
+			const selectedText = document.getElementById("mocksiSelectedText");
+			const parentElement = selectedText?.parentElement;
 			selectedText?.parentElement?.replaceChild(
 				document.createTextNode(value),
-				selectedText
-			)
-			parentElement?.normalize()
+				selectedText,
+			);
+			parentElement?.normalize();
 		}
-	}
+	};
 	ndiv.onsubmit = (event: SubmitEvent) => {
-		const selectedText = document.getElementById("mocksiSelectedText")
+		const selectedText = document.getElementById("mocksiSelectedText");
 		// @ts-ignore I don't know why the value property is no inside the target object
-		const newValue = event.target?.value
-		const parentElement = selectedText?.parentElement
+		const newValue = event.target?.value;
+		const parentElement = selectedText?.parentElement;
 		selectedText?.parentElement?.replaceChild(
 			document.createTextNode(newValue),
-			selectedText
-		)
-		parentElement?.normalize()
-	}
+			selectedText,
+		);
+		parentElement?.normalize();
+	};
 
 	//@ts-ignore
-	ndiv.value = value
-	ndiv.id = 'mocksiTextArea'
-	ndiv.autofocus = true
+	ndiv.value = value;
+	ndiv.id = "mocksiTextArea";
+	ndiv.autofocus = true;
 	return ndiv;
 }
 
 function onDoubleClickText(event: MouseEvent) {
-	console.log(event)
+	console.log(event);
 	const previousSelectedText = document.getElementById("mocksiSelectedText");
 	// @ts-ignore MouseEvent typing seems incomplete
 	if (event?.toElement?.nodeName !== "TEXTAREA") {
 		if (previousSelectedText) {
-			const parentElement = previousSelectedText?.parentElement
+			const parentElement = previousSelectedText?.parentElement;
 			// cancel previous input.
 			previousSelectedText?.parentElement?.replaceChild(
 				document.createTextNode(previousSelectedText.innerText),
-				previousSelectedText
-			)
-			parentElement?.normalize()
+				previousSelectedText,
+			);
+			parentElement?.normalize();
 		}
 		const targetedElement: HTMLElement = event.target as HTMLElement;
-		const { startOffset, endOffset } = window.getSelection()?.getRangeAt(0) || {};
+		const { startOffset, endOffset } =
+			window.getSelection()?.getRangeAt(0) || {};
 		if (startOffset !== undefined && endOffset !== undefined) {
 			applyEditor(targetedElement, window.getSelection(), event.shiftKey);
-			document.getElementById('mocksiTextArea')?.focus()
+			document.getElementById("mocksiTextArea")?.focus();
 		} else {
 			console.log("ERROR! no offset detected", targetedElement);
 		}
@@ -177,7 +189,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	}
 	sendResponse({ status: "success" });
 });
-
 
 /* 
 	TODO TEXT REPLACER:
