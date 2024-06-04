@@ -33,14 +33,15 @@ export const saveModification = (
 	if (parentElement.className) {
 		keyToSave += `.${parentElement.className}`;
 	}
+	// here we check if the key we built is sufficient to get an unique element when querying
 	const elements = document.querySelectorAll(keyToSave);
 	if (elements.length === 1) {
-		console.log(keyToSave, newText);
 		localStorage.setItem(
 			MOCKSI_MODIFICATIONS,
 			JSON.stringify({ ...prevModifications, [keyToSave]: newText }),
 		);
 	} else {
+		// if not unique, we search for the index and put it on the key.
 		keyToSave += `[${[...elements].indexOf(parentElement)}]`;
 		localStorage.setItem(
 			MOCKSI_MODIFICATIONS,
