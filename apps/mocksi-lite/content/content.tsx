@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
-import ContentApp from "./ContentApp";
 import { loadModifications, saveModification } from "../utils";
+import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
 
@@ -133,7 +133,10 @@ function elementWithBorder(
 			document.createTextNode(newValue),
 			selectedText,
 		);
-		saveModification(parentElement, parentElement?.innerHTML || parentElement?.innerText)
+		saveModification(
+			parentElement as HTMLElement,
+			parentElement?.innerHTML || parentElement?.innerText || "",
+		);
 		parentElement?.normalize();
 	};
 
@@ -180,7 +183,7 @@ document.addEventListener("DOMContentLoaded", initial);
 
 export const setEditorMode = (turnOn: boolean) => {
 	if (turnOn) {
-		loadModifications()
+		loadModifications();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
 		document.body.removeEventListener("dblclick", onDoubleClickText);
