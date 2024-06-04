@@ -1,5 +1,6 @@
 import ReactDOM from "react-dom/client";
 import ContentApp from "./ContentApp";
+import { loadModifications, saveModification } from "../utils";
 
 let root: ReactDOM.Root;
 
@@ -127,11 +128,14 @@ function elementWithBorder(
 		const selectedText = document.getElementById("mocksiSelectedText");
 		// @ts-ignore I don't know why the value property is no inside the target object
 		const newValue = event.target?.value;
+		debugger
 		const parentElement = selectedText?.parentElement;
+		const previousText = selectedText?.parentElement?.innerText
 		selectedText?.parentElement?.replaceChild(
 			document.createTextNode(newValue),
 			selectedText,
 		);
+		saveModification(parentElement, parentElement?.innerHTML || parentElement?.innerText)
 		parentElement?.normalize();
 	};
 
@@ -178,6 +182,7 @@ document.addEventListener("DOMContentLoaded", initial);
 
 export const setEditorMode = (turnOn: boolean) => {
 	if (turnOn) {
+		loadModifications()
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
 		document.body.removeEventListener("dblclick", onDoubleClickText);
