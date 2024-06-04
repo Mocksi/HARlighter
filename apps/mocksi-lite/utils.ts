@@ -55,6 +55,7 @@ export const loadModifications = () => {
 		localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
 	);
 	for (const modification of Object.entries(modifications)) {
+		// value here is encoded, SHOULD NOT be a security risk to put it in the innerHTML
 		const [querySelector, value] = modification;
 		const hasIndex = querySelector.match(/\[+[0-9]\]/);
 		if (hasIndex) {
@@ -62,11 +63,11 @@ export const loadModifications = () => {
 			const elemToModify = document.querySelectorAll(
 				querySelector.replace(hasIndex[0], ""),
 			)[index];
-			//@ts-ignore EXTREMELY INSECURE!!!!!!!!
+			//@ts-ignore
 			elemToModify.innerHTML = value;
 		} else {
 			const [elemToModify] = document.querySelectorAll(querySelector);
-			//@ts-ignore EXTREMELY INSECURE!!!!!!!!
+			//@ts-ignore
 			elemToModify.innerHTML = value;
 		}
 	}
