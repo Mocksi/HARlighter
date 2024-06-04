@@ -161,13 +161,12 @@ function onDoubleClickText(event: MouseEvent) {
 			parentElement?.normalize();
 		}
 		const targetedElement: HTMLElement = event.target as HTMLElement;
-		const { startOffset, endOffset } =
-			window.getSelection()?.getRangeAt(0) || {};
-		if (startOffset !== undefined && endOffset !== undefined) {
-			applyEditor(targetedElement, window.getSelection(), event.shiftKey);
+		const selection = window.getSelection();
+		if (selection?.toString()) {
+			applyEditor(targetedElement, selection, event.shiftKey);
 			document.getElementById("mocksiTextArea")?.focus();
 		} else {
-			console.log("ERROR! no offset detected", targetedElement);
+			console.log("ERROR! no selection detected", targetedElement);
 		}
 	}
 }
