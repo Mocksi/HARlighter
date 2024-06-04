@@ -19,7 +19,6 @@ export const logout = () => {
 	localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.UNAUTHORIZED);
 };
 
-//@ts-ignore
 export const saveModification = (
 	parentElement: HTMLElement,
 	newText: string,
@@ -36,14 +35,12 @@ export const saveModification = (
 	}
 	const elements = document.querySelectorAll(keyToSave);
 	if (elements.length === 1) {
-		// keyToSave += `-${previousText}`
 		console.log(keyToSave, newText);
 		localStorage.setItem(
 			MOCKSI_MODIFICATIONS,
 			JSON.stringify({ ...prevModifications, [keyToSave]: newText }),
 		);
 	} else {
-		// const elementIndex = [...elements].indexOf(parentElement)
 		keyToSave += `[${[...elements].indexOf(parentElement)}]`;
 		localStorage.setItem(
 			MOCKSI_MODIFICATIONS,
