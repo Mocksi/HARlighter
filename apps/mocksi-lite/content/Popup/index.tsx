@@ -15,12 +15,15 @@ interface PopupProps {
 
 const Popup = ({ label, close, setState, state }: PopupProps) => {
 	const [createForm, setCreateForm] = useState<boolean>(false);
-	const [editForm, setEditForm] = useState<boolean>(false);
 	const renderContent = () => {
 		switch (state) {
 			case RecordingState.CREATE:
 				return (
-					<CreateDemo createForm={createForm} setCreateForm={setCreateForm} />
+					<CreateDemo
+						createForm={createForm}
+						setCreateForm={setCreateForm}
+						setState={setState}
+					/>
 				);
 			default:
 				return <RecordDemo label={label} state={state} setState={setState} />;
@@ -33,11 +36,7 @@ const Popup = ({ label, close, setState, state }: PopupProps) => {
 				"w-[375px] h-[596px] shadow-lg rounded-lg m-4 bg-white flex flex-col justify-between"
 			}
 		>
-			<Header
-				createForm={createForm}
-				close={close}
-				onDelete={editForm ? () => {} : undefined}
-			/>
+			<Header createForm={createForm} close={close} />
 
 			{/* CONTENT */}
 			{renderContent()}
