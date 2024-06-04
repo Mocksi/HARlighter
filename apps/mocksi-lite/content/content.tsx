@@ -182,7 +182,6 @@ document.addEventListener("DOMContentLoaded", initial);
 
 export const setEditorMode = (turnOn: boolean) => {
 	if (turnOn) {
-		loadModifications();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
 		document.body.removeEventListener("dblclick", onDoubleClickText);
