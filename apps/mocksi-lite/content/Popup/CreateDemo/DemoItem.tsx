@@ -2,8 +2,8 @@ import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
 import editIcon from "../../../public/edit-icon.png";
 import exportIcon from "../../../public/export-icon.png";
-import { setEditorMode } from "../../content";
 import { loadModifications } from "../../../utils";
+import { setEditorMode } from "../../content";
 import type { Demo } from "./index";
 
 const DemoItem = ({ name, customer }: Demo) => {
