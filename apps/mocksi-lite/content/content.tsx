@@ -128,9 +128,7 @@ function elementWithBorder(
 		const selectedText = document.getElementById("mocksiSelectedText");
 		// @ts-ignore I don't know why the value property is no inside the target object
 		const newValue = event.target?.value;
-		debugger
 		const parentElement = selectedText?.parentElement;
-		const previousText = selectedText?.parentElement?.innerText
 		selectedText?.parentElement?.replaceChild(
 			document.createTextNode(newValue),
 			selectedText,
