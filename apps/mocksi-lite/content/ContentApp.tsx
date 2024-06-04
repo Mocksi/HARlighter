@@ -1,12 +1,12 @@
-import {useState} from "react";
-import {RecordingState} from "../consts";
+import { useState } from "react";
+import TextField from "../common/TextField";
+import { RecordingState } from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
-import {setRootPosition} from "../utils";
+import { setRootPosition } from "../utils";
 import Popup from "./Popup";
-import {RecordButton} from "./RecordButton";
-import {setEditorMode} from "./content";
-import TextField from "../common/TextField";
+import { RecordButton } from "./RecordButton";
+import { setEditorMode } from "./content";
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -52,59 +52,57 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 		);
 	}
 
-  if (state === RecordingState.EDITING) {
-    return (
-      <div className="border border-grey/40 rounded-l bg-white mt-3 min-w-64 p-3 flex flex-row items-center gap-6">
-        <div
-          className="cursor-pointer"
-          onClick={() => {
-            onChangeState(RecordingState.CREATE);
-            setEditorMode(false);
-          }}
-          onKeyUp={(event) => {
-            if (event.key === "Escape") {
-              onChangeState(RecordingState.CREATE);
-              setEditorMode(false);
-            }
-          }}
-        >
-          <img src={closeIcon} alt="closeIcon" />
-        </div>
-        <div className={"flex flex-col gap-2"}>
-          <TextField variant={"title"}>
-            {recordingLabel(state)}
-          </TextField>
-          <div className="flex gap-2 items-center">
-            <input type="checkbox" className="h-5 w-5 !rounded-lg" />
-            <div className={"text-[13px] leading-[15px]"}>
-              Highlight All Previous Changes
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+	if (state === RecordingState.EDITING) {
+		return (
+			<div className="border border-grey/40 rounded-l bg-white mt-3 min-w-64 p-3 flex flex-row items-center gap-6">
+				<div
+					className="cursor-pointer"
+					onClick={() => {
+						onChangeState(RecordingState.CREATE);
+						setEditorMode(false);
+					}}
+					onKeyUp={(event) => {
+						if (event.key === "Escape") {
+							onChangeState(RecordingState.CREATE);
+							setEditorMode(false);
+						}
+					}}
+				>
+					<img src={closeIcon} alt="closeIcon" />
+				</div>
+				<div className={"flex flex-col gap-2"}>
+					<TextField variant={"title"}>{recordingLabel(state)}</TextField>
+					<div className="flex gap-2 items-center">
+						<input type="checkbox" className="h-5 w-5 !rounded-lg" />
+						<div className={"text-[13px] leading-[15px]"}>
+							Highlight All Previous Changes
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
-    <div className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center justify-between">
-      <div className="flex flex-row gap-2 items-center">
-        <div
-          className="ml-2 cursor-pointer"
-          onClick={() => setIsDialogOpen(false)}
-          onKeyUp={(event) => {
-            event.key === "Escape" && setIsDialogOpen(false);
-          }}
-        >
-          <img src={closeIcon} alt="closeIcon" />
-        </div>
-        <img className="w-[30px] h-[20px]" src={mocksiLogo} alt="mocksiLogo" />
-        <span className="font-medium text-[#000F0C] text-sm">
+		<div className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center justify-between">
+			<div className="flex flex-row gap-2 items-center">
+				<div
+					className="ml-2 cursor-pointer"
+					onClick={() => setIsDialogOpen(false)}
+					onKeyUp={(event) => {
+						event.key === "Escape" && setIsDialogOpen(false);
+					}}
+				>
+					<img src={closeIcon} alt="closeIcon" />
+				</div>
+				<img className="w-[30px] h-[20px]" src={mocksiLogo} alt="mocksiLogo" />
+				<span className="font-medium text-[#000F0C] text-sm">
 					{recordingLabel(state)}
 				</span>
-      </div>
-      {sessionCookie && (
-        <RecordButton state={state} onRecordChange={onChangeState} />
-      )}
-    </div>
+			</div>
+			{sessionCookie && (
+				<RecordButton state={state} onRecordChange={onChangeState} />
+			)}
+		</div>
 	);
 }

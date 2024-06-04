@@ -19,7 +19,11 @@ const Popup = ({ label, close, setState, state }: PopupProps) => {
 		switch (state) {
 			case RecordingState.CREATE:
 				return (
-					<CreateDemo createForm={createForm} setCreateForm={setCreateForm} setState={setState} />
+					<CreateDemo
+						createForm={createForm}
+						setCreateForm={setCreateForm}
+						setState={setState}
+					/>
 				);
 			default:
 				return <RecordDemo label={label} state={state} setState={setState} />;
@@ -32,10 +36,7 @@ const Popup = ({ label, close, setState, state }: PopupProps) => {
 				"w-[375px] h-[596px] shadow-lg rounded-lg m-4 bg-white flex flex-col justify-between"
 			}
 		>
-			<Header
-				createForm={createForm}
-				close={close}
-			/>
+			<Header createForm={createForm} close={close} />
 
 			{/* CONTENT */}
 			{renderContent()}

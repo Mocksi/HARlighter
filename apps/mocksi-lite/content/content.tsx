@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
+import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
 import ContentApp from "./ContentApp";
-import {MOCKSI_RECORDING_STATE, RecordingState} from "../consts";
 
 let root: ReactDOM.Root;
 
@@ -179,21 +179,21 @@ document.addEventListener("DOMContentLoaded", initial);
 
 export const setEditorMode = (turnOn: boolean) => {
 	if (turnOn) {
-    localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
+		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
-    localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
+		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
-    const previousSelectedText = document.getElementById("mocksiSelectedText");
-    if (previousSelectedText) {
-        const parentElement = previousSelectedText?.parentElement;
-        // cancel previous input.
-        previousSelectedText?.parentElement?.replaceChild(
-          document.createTextNode(previousSelectedText.innerText),
-          previousSelectedText,
-        );
-        parentElement?.normalize();
-      }
+		const previousSelectedText = document.getElementById("mocksiSelectedText");
+		if (previousSelectedText) {
+			const parentElement = previousSelectedText?.parentElement;
+			// cancel previous input.
+			previousSelectedText?.parentElement?.replaceChild(
+				document.createTextNode(previousSelectedText.innerText),
+				previousSelectedText,
+			);
+			parentElement?.normalize();
+		}
 	}
 };
 
