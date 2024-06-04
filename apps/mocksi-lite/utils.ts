@@ -57,7 +57,7 @@ export const loadModifications = () => {
 	for (const modification of Object.entries(modifications)) {
 		// value here is encoded, SHOULD NOT be a security risk to put it in the innerHTML
 		const [querySelector, value] = modification;
-		const hasIndex = querySelector.match(/\[+[0-9]\]/);
+		const hasIndex = querySelector.match(/\[[0-9]+\]/);
 		if (hasIndex) {
 			const index: number = +hasIndex[0].replace("[", "").replace("]", "");
 			const elemToModify = document.querySelectorAll(
@@ -71,5 +71,4 @@ export const loadModifications = () => {
 			elemToModify.innerHTML = value;
 		}
 	}
-	console.log("loadedModifications!", modifications);
 };
