@@ -18,7 +18,11 @@ export interface Demo {
 	url?: string;
 }
 
-const CreateDemo = ({ createForm, setCreateForm, setState }: CreateDemoProps) => {
+const CreateDemo = ({
+	createForm,
+	setCreateForm,
+	setState,
+}: CreateDemoProps) => {
 	const [demos, setDemos] = useState<Demo[]>([]);
 	if (createForm) return <Form setCreateForm={setCreateForm} />;
 	return (
