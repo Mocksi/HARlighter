@@ -18,18 +18,12 @@ export interface Demo {
 	url?: string;
 }
 
-const mockedDemo = {
-	id: 1,
-	name: "chatwoot.com - 1/27/24",
-	customer: "WealthWave Financial",
-};
-
 const CreateDemo = ({
 	createForm,
 	setCreateForm,
 	setState,
 }: CreateDemoProps) => {
-	const [demos, setDemos] = useState<Demo[]>([mockedDemo]);
+	const [demos, setDemos] = useState<Demo[]>([]);
 	if (createForm) return <Form setCreateForm={setCreateForm} />;
 	return (
 		<div className={"flex-1 flex flex-col items-center pt-8"}>
