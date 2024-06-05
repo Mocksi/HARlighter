@@ -8,6 +8,7 @@ export enum RecordingState {
 	RECORDING = "RECORDING",
 	ANALYZING = "ANALYZING",
 	CREATE = "CREATE",
+	EDITING = "EDITING",
 }
 
 export const popupTitle = "Tip & Tricks";

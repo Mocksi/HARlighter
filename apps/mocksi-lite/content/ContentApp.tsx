@@ -1,10 +1,12 @@
 import { useState } from "react";
+import TextField from "../common/TextField";
 import { RecordingState } from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
 import { setRootPosition } from "../utils";
 import Popup from "./Popup";
 import { RecordButton } from "./RecordButton";
+import { setEditorMode } from "./content";
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -16,6 +18,8 @@ const recordingLabel = (currentStatus: RecordingState) => {
 			return "Start recording";
 		case RecordingState.RECORDING:
 			return "Mocksi Recording";
+		case RecordingState.EDITING:
+			return "Editing Template";
 		case RecordingState.ANALYZING:
 			return "Analyzing...";
 		case RecordingState.UNAUTHORIZED:
@@ -43,8 +47,39 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 				state={state}
 				label={recordingLabel(state)}
 				close={() => setIsDialogOpen(false)}
-				setState={setState}
+				setState={onChangeState}
 			/>
+		);
+	}
+
+	if (state === RecordingState.EDITING) {
+		return (
+			<div className="border border-grey/40 rounded-l bg-white mt-3 min-w-64 p-3 flex flex-row items-center gap-6">
+				<div
+					className="cursor-pointer"
+					onClick={() => {
+						onChangeState(RecordingState.CREATE);
+						setEditorMode(false);
+					}}
+					onKeyUp={(event) => {
+						if (event.key === "Escape") {
+							onChangeState(RecordingState.CREATE);
+							setEditorMode(false);
+						}
+					}}
+				>
+					<img src={closeIcon} alt="closeIcon" />
+				</div>
+				<div className={"flex flex-col gap-2"}>
+					<TextField variant={"title"}>{recordingLabel(state)}</TextField>
+					<div className="flex gap-2 items-center">
+						<input type="checkbox" className="h-5 w-5 !rounded-lg" />
+						<div className={"text-[13px] leading-[15px]"}>
+							Highlight All Previous Changes
+						</div>
+					</div>
+				</div>
+			</div>
 		);
 	}
 
