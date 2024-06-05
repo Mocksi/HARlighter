@@ -24,7 +24,12 @@ const CreateDemo = ({
 	setState,
 }: CreateDemoProps) => {
 	const [demos, setDemos] = useState<Demo[]>([]);
-	if (createForm) return <Form setCreateForm={setCreateForm} />;
+
+  const handleSubmit = (demo: Demo) => {
+    setDemos(prevState => prevState.concat(demo))
+    setCreateForm(false);
+  }
+	if (createForm) return <Form onSubmit={handleSubmit} onCancel={() => setCreateForm(false)} />;
 	return (
 		<div className={"flex-1 flex flex-col items-center pt-8"}>
 			{demos.map((demo) => (
