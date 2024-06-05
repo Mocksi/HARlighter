@@ -1,27 +1,26 @@
-import {Dispatch, SetStateAction} from "react";
+import type { Dispatch, SetStateAction } from "react";
 import Button from "../../../common/Button";
 import type { RecordingState } from "../../../consts";
+import type { Demo } from "../../ContentApp";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
-import {Demo} from "../../ContentApp";
 
 interface CreateDemoProps {
-  createForm: boolean;
-  setCreateForm: (value: boolean) => void;
-  setState: (r: RecordingState) => void;
-  demos: Demo[];
-  setDemos: Dispatch<SetStateAction<Demo[]>>
+	createForm: boolean;
+	setCreateForm: (value: boolean) => void;
+	setState: (r: RecordingState) => void;
+	demos: Demo[];
+	setDemos: Dispatch<SetStateAction<Demo[]>>;
 }
 
 const CreateDemo = ({
-  demos,
-  setDemos,
+	demos,
+	setDemos,
 	createForm,
 	setCreateForm,
 	setState,
 }: CreateDemoProps) => {
-
 	const handleSubmit = (demo: Demo) => {
 		setDemos((prevState: Demo[]) => prevState.concat(demo));
 		setCreateForm(false);
