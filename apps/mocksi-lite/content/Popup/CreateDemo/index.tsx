@@ -1,32 +1,29 @@
-import { useState } from "react";
+import {Dispatch, SetStateAction} from "react";
 import Button from "../../../common/Button";
 import type { RecordingState } from "../../../consts";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
+import {Demo} from "../../ContentApp";
 
 interface CreateDemoProps {
-	createForm: boolean;
-	setCreateForm: (value: boolean) => void;
-	setState: (r: RecordingState) => void;
-}
-
-export interface Demo {
-	id: number;
-	name: string;
-	customer: string;
-	url?: string;
+  createForm: boolean;
+  setCreateForm: (value: boolean) => void;
+  setState: (r: RecordingState) => void;
+  demos: Demo[];
+  setDemos: Dispatch<SetStateAction<Demo[]>>
 }
 
 const CreateDemo = ({
+  demos,
+  setDemos,
 	createForm,
 	setCreateForm,
 	setState,
 }: CreateDemoProps) => {
-	const [demos, setDemos] = useState<Demo[]>([]);
 
 	const handleSubmit = (demo: Demo) => {
-		setDemos((prevState) => prevState.concat(demo));
+		setDemos((prevState: Demo[]) => prevState.concat(demo));
 		setCreateForm(false);
 	};
 	if (createForm)

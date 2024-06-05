@@ -3,7 +3,7 @@ import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
 import expandIcon from "../../../public/expand-icon.png";
 import Divider from "../Divider";
-import type { Demo } from "./index";
+import {Demo} from "../../ContentApp";
 
 interface FormProps {
 	onSubmit: (d: Demo) => void;

@@ -12,6 +12,13 @@ interface ContentProps {
 	isOpen?: boolean;
 	sessionCookie?: string | null;
 }
+
+export interface Demo {
+  id: number;
+  name: string;
+  customer: string;
+  url?: string;
+}
 const recordingLabel = (currentStatus: RecordingState) => {
 	switch (currentStatus) {
 		case RecordingState.READY:
@@ -30,6 +37,7 @@ const recordingLabel = (currentStatus: RecordingState) => {
 };
 
 export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
+  const [demos, setDemos] = useState<Demo[]>([]);
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 	const [state, setState] = useState<RecordingState>(
 		sessionCookie ? RecordingState.ANALYZING : RecordingState.UNAUTHORIZED,
@@ -48,6 +56,8 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 				label={recordingLabel(state)}
 				close={() => setIsDialogOpen(false)}
 				setState={onChangeState}
+        demos={demos}
+        setDemos={setDemos}
 			/>
 		);
 	}

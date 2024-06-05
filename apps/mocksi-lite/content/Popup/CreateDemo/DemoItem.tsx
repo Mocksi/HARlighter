@@ -5,7 +5,7 @@ import editIcon from "../../../public/edit-icon.png";
 import exportIcon from "../../../public/export-icon.png";
 import { loadModifications } from "../../../utils";
 import { setEditorMode } from "../../content";
-import type { Demo } from "./index";
+import {Demo} from "../../ContentApp";
 
 interface DemoItemProps extends Demo {
 	setState: (r: RecordingState) => void;
