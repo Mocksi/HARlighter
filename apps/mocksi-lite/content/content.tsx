@@ -1,5 +1,6 @@
 import ReactDOM from "react-dom/client";
 import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
+import { saveModification } from "../utils";
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
@@ -133,6 +134,10 @@ function elementWithBorder(
 			document.createTextNode(newValue),
 			selectedText,
 		);
+		saveModification(
+			parentElement as HTMLElement,
+			parentElement?.innerHTML || parentElement?.innerText || "",
+		);
 		parentElement?.normalize();
 	};
 
@@ -157,13 +162,12 @@ function onDoubleClickText(event: MouseEvent) {
 			parentElement?.normalize();
 		}
 		const targetedElement: HTMLElement = event.target as HTMLElement;
-		const { startOffset, endOffset } =
-			window.getSelection()?.getRangeAt(0) || {};
-		if (startOffset !== undefined && endOffset !== undefined) {
-			applyEditor(targetedElement, window.getSelection(), event.shiftKey);
+		const selection = window.getSelection();
+		if (selection?.toString()) {
+			applyEditor(targetedElement, selection, event.shiftKey);
 			document.getElementById("mocksiTextArea")?.focus();
 		} else {
-			console.log("ERROR! no offset detected", targetedElement);
+			console.log("ERROR! no selection detected", targetedElement);
 		}
 	}
 }

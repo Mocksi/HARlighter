@@ -3,6 +3,7 @@ import TextField from "../../../common/TextField";
 import { RecordingState } from "../../../consts";
 import editIcon from "../../../public/edit-icon.png";
 import exportIcon from "../../../public/export-icon.png";
+import { loadModifications } from "../../../utils";
 import { setEditorMode } from "../../content";
 import type { Demo } from "./index";
 
@@ -26,7 +27,7 @@ const DemoItem = ({ name, customer, setState }: DemoItemProps) => {
 				<Button variant={Variant.icon} onClick={() => handleEdit()}>
 					<img src={editIcon} alt={"editIcon"} />
 				</Button>
-				<Button variant={Variant.icon} onClick={() => {}}>
+				<Button variant={Variant.icon} onClick={() => loadModifications()}>
 					<img src={exportIcon} alt={"exportIcon"} />
 				</Button>
 			</div>
