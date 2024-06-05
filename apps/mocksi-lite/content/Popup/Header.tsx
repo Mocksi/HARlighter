@@ -26,9 +26,9 @@ const Header = ({ createForm, close, onDelete, onGoBack }: HeaderProps) => {
 				>
 					<img src={closeIcon} alt="closeIcon" />
 				</div>
-        <div className={'w-full mr-[20px] flex justify-center'}>
-          <img src={menuIcon} alt="menuIcon" />
-        </div>
+				<div className={"w-full mr-[20px] flex justify-center"}>
+					<img src={menuIcon} alt="menuIcon" />
+				</div>
 			</div>
 
 			<Divider />

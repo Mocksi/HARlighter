@@ -19,7 +19,9 @@ const RecordDemo = ({ label, state, setState }: RecordDemoProps) => {
 			</div>
 
 			<div className={"flex flex-col p-6 gap-4"}>
-				<TextField className={"text-[17px] font-medium leading-5"}>{popupTitle}</TextField>
+				<TextField className={"text-[17px] font-medium leading-5"}>
+					{popupTitle}
+				</TextField>
 				{popupContent.map(({ title, text }) => (
 					<div key={`text-item-${title}`}>
 						<TextField variant={"title"} className={"mb-1"}>
