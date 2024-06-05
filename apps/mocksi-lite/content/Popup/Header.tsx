@@ -16,9 +16,9 @@ interface HeaderProps {
 const Header = ({ createForm, close, onDelete, onGoBack }: HeaderProps) => {
 	return (
 		<div>
-			<div className={"h-[36px] flex items-center justify-center flex-row"}>
+			<div className={"h-[36px] flex items-center flex-row px-2"}>
 				<div
-					className="cursor-pointer absolute left-6"
+					className="cursor-pointer"
 					onClick={close}
 					onKeyUp={(event) => {
 						event.key === "Escape" && close();
@@ -26,7 +26,9 @@ const Header = ({ createForm, close, onDelete, onGoBack }: HeaderProps) => {
 				>
 					<img src={closeIcon} alt="closeIcon" />
 				</div>
-				<img src={menuIcon} alt="menuIcon" />
+				<div className={"w-full mr-[20px] flex justify-center"}>
+					<img src={menuIcon} alt="menuIcon" />
+				</div>
 			</div>
 
 			<Divider />
