@@ -2,8 +2,8 @@ import { useState } from "react";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
 import expandIcon from "../../../public/expand-icon.png";
+import type { Demo } from "../../ContentApp";
 import Divider from "../Divider";
-import type { Demo } from "./index";
 
 interface FormProps {
 	onSubmit: (d: Demo) => void;

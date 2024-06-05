@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { type Dispatch, type SetStateAction, useState } from "react";
 import { RecordingState } from "../../consts";
+import type { Demo } from "../ContentApp";
 import CreateDemo from "./CreateDemo";
 import Divider from "./Divider";
 import Footer from "./Footer";
@@ -11,15 +12,26 @@ interface PopupProps {
 	label: string;
 	setState: (r: RecordingState) => void;
 	state: RecordingState;
+	demos: Demo[];
+	setDemos: Dispatch<SetStateAction<Demo[]>>;
 }
 
-const Popup = ({ label, close, setState, state }: PopupProps) => {
+const Popup = ({
+	label,
+	close,
+	setState,
+	state,
+	demos,
+	setDemos,
+}: PopupProps) => {
 	const [createForm, setCreateForm] = useState<boolean>(false);
 	const renderContent = () => {
 		switch (state) {
 			case RecordingState.CREATE:
 				return (
 					<CreateDemo
+						demos={demos}
+						setDemos={setDemos}
 						createForm={createForm}
 						setCreateForm={setCreateForm}
 						setState={setState}
