@@ -1,11 +1,11 @@
 import type { Dispatch, SetStateAction } from "react";
+import { Fragment } from "react";
 import Button from "../../../common/Button";
 import type { RecordingState } from "../../../consts";
 import type { Demo } from "../../ContentApp";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
-import {Fragment} from "react";
 
 interface CreateDemoProps {
 	createForm: boolean;
@@ -33,12 +33,12 @@ const CreateDemo = ({
 	return (
 		<div className={"flex-1 flex flex-col items-center pt-8"}>
 			{demos.map((demo) => (
-        <Fragment key={`demo-item-${demo.id}`}>
-          <DemoItem setState={setState} {...demo} />
-          <div className={"px-3 w-full my-6"}>
-            <Divider />
-          </div>
-        </Fragment>
+				<Fragment key={`demo-item-${demo.id}`}>
+					<DemoItem setState={setState} {...demo} />
+					<div className={"px-3 w-full my-6"}>
+						<Divider />
+					</div>
+				</Fragment>
 			))}
 			<Button
 				onClick={() => setCreateForm(true)}
