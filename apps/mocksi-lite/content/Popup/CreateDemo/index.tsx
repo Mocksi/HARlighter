@@ -31,7 +31,7 @@ const CreateDemo = ({
 			<Form onSubmit={handleSubmit} onCancel={() => setCreateForm(false)} />
 		);
 	return (
-		<div className={"flex-1 flex flex-col items-center pt-8"}>
+		<div className={"flex-1 flex flex-col items-center py-8 overflow-y-scroll no-scrollbar"}>
 			{demos.map((demo) => (
 				<Fragment key={`demo-item-${demo.id}`}>
 					<DemoItem setState={setState} {...demo} />
