@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
-import { saveModification } from "../utils";
 import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
+import { saveModification } from "../utils";
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
