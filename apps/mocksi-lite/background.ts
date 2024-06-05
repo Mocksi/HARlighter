@@ -68,6 +68,8 @@ function sendData(request: Map<string, any>) {
 			data.sessionID = sessionID;
 		}
 
+		// uri encode the data before sending to prevent
+		// problems with unicode data
 		const dataStr = JSON.stringify(data);
 		const encodedDataStr = encodeURIComponent(dataStr);
 		webSocket?.send(btoa(encodedDataStr));
@@ -264,6 +266,7 @@ webSocket.onmessage = (event) => {
 	}
 
 	if (command?.type === "RequestInterception") {
+		// data will be uri encoded to prevent issues with unicode
 		const interceptDataEncoded = atob(command.payload);
 		const interceptData = decodeURIComponent(interceptDataEncoded);
 		const interception: RequestInterception = {
