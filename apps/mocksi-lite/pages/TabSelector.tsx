@@ -1,16 +1,22 @@
 import "./tab-selector.css";
 import {useEffect, useState} from "react";
+import chevronDown from "../public/chevron-down.png";
 
 const TabSelector = () => {
   const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
+  const [selected, setSelected] = useState<string>('Select');
+  const [open, setOpen] = useState(false);
   // const activeTab = tabs.find(t => t.active);
 
   useEffect(() => {
     chrome.tabs.query({}, (result) => setTabs(result));
   }, []);
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const tabIdValue = event.target.value;
+  const handleChange = (tab: chrome.tabs.Tab) => {
+    setSelected(tab.title ?? 'Select');
+    setOpen(false);
+
+    const tabIdValue = tab.id?.toString() ?? '';
     const tabId = Number.parseInt(tabIdValue, 10);
     const message = "tabSelected";
 
@@ -32,13 +38,27 @@ const TabSelector = () => {
         <img src="../public/menu-icon.png" alt="menu-icon"/>
       </div>
       <div className="tab-selector-content">
-        <label className="localize" data-localize="selectTabs">
+        <label className="localize">
           Select a Tab to Use With Mocksi
-          <select name="tabs" id="tabs" onChange={handleChange}>
-            <option value="-1">Select</option>
-            {tabs.map(tab => <option value={tab.id?.toString() ?? ""}>{tab.title}</option>)}
-          </select>
         </label>
+        <div className={'dropdown'} onClick={() => setOpen(!open)}>
+          {selected}
+          <img src={chevronDown} alt={"chevronDown"} />
+        </div>
+        {
+          open &&
+          <div className={"dropdown-menu"}>
+            {
+              tabs.map(tab =>
+                <>
+                  <div className={"dropdown-item"} onClick={() => handleChange(tab)}>
+                    /{tab.title}
+                  </div>
+                  <div className={'separator'} />
+                </>
+              )}
+          </div>
+        }
       </div>
     </>
   )

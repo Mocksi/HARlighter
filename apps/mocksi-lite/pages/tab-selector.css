@@ -37,13 +37,40 @@ body {
   font-weight: 550;
   font-size: 15px;
   line-height: 18px;
-  gap: 8px;
 }
 
-select {
+.dropdown {
   height: 44px;
   border: 1px solid #ABABAB;
   border-radius: 8px;
   padding: 0 12px;
-  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  line-height: 16px;
+  font-size: 13px;
+  margin-top: 8px;
+  margin-bottom: 2px;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  border: 1px solid #ABABAB;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  cursor: pointer;
+  padding: 12px;
+}
+
+.dropdown-item:hover {
+  background-color: #E5E2E1;
+}
+
+.separator {
+  height: 1px;
+  background-color: #E5E2E1;
+  margin: 0 12px
 }
