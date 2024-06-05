@@ -68,7 +68,11 @@ function sendData(request: Map<string, any>) {
 			data.sessionID = sessionID;
 		}
 
-		webSocket?.send(btoa(JSON.stringify(data)));
+		// uri encode the data before sending to prevent
+		// problems with unicode data
+		const dataStr = JSON.stringify(data);
+		const encodedDataStr = encodeURIComponent(dataStr);
+		webSocket?.send(btoa(encodedDataStr));
 	});
 }
 
@@ -262,7 +266,9 @@ webSocket.onmessage = (event) => {
 	}
 
 	if (command?.type === "RequestInterception") {
-		const interceptData = atob(command.payload);
+		// data will be uri encoded to prevent issues with unicode
+		const interceptDataEncoded = atob(command.payload);
+		const interceptData = decodeURIComponent(interceptDataEncoded);
 		const interception: RequestInterception = {
 			type: command.type,
 			url: command.url,
