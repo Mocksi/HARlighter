@@ -38,7 +38,6 @@ body {
   font-size: 15px;
   line-height: 18px;
   gap: 8px;
-  margin-bottom: 24px;
 }
 
 select {
@@ -47,11 +46,4 @@ select {
   border-radius: 8px;
   padding: 0 12px;
   appearance: none;
-}
-
-
-.tab-selector-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }

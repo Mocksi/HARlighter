@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 
 const TabSelector = () => {
   const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
-  const activeTab = tabs.find(t => t.active);
+  // const activeTab = tabs.find(t => t.active);
 
   useEffect(() => {
     chrome.tabs.query({}, (result) => setTabs(result));
@@ -33,16 +33,12 @@ const TabSelector = () => {
       </div>
       <div className="tab-selector-content">
         <label className="localize" data-localize="selectTabs">
-          Editing {activeTab?.title ?? ''}
+          Select a Tab to Use With Mocksi
           <select name="tabs" id="tabs" onChange={handleChange}>
             <option value="-1">Select</option>
             {tabs.map(tab => <option value={tab.id?.toString() ?? ""}>{tab.title}</option>)}
           </select>
         </label>
-        <div className="tab-selector-checkbox">
-          <input type="checkbox"/>
-          <div>Highlight All Previous Changes</div>
-        </div>
       </div>
     </>
   )
