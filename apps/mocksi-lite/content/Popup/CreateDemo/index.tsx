@@ -14,34 +14,15 @@ interface CreateDemoProps {
 	setState: (r: RecordingState) => void;
 	demos: Demo[];
 	setDemos: Dispatch<SetStateAction<Demo[]>>;
-  cookie?: string | null;
-}
-const example = {
-  "created_timestamp": "2023-05-25T12:34:56Z",
-  "updated_timestamp": "2023-05-25T12:34:56Z",
-  "creator": "example_creator",
-  "tabID": "tab123",
-  "sessionID": "session456",
-  "dom_before": "base64_encoded_json_string",
-  "alterations": [
-    {
-      "selector": ".example-class",
-      "action": "added",
-      "dom_before": "",
-      "dom_after": "<div class='example-class'>New Content</div>"
-    }
-  ]
 }
 const CreateDemo = ({
 	demos,
 	setDemos,
 	createForm,
 	setCreateForm,
-	setState,
-                      cookie
+	setState
 }: CreateDemoProps) => {
 	const handleSubmit = (demo: Demo) => {
-    apiCall('recordings', {}, {Authorization: cookie}).then(res => console.log({res}))
 		setDemos((prevState: Demo[]) => prevState.concat(demo));
 		setCreateForm(false);
 	};

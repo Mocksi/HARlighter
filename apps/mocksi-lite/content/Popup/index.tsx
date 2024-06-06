@@ -14,7 +14,6 @@ interface PopupProps {
 	state: RecordingState;
 	demos: Demo[];
 	setDemos: Dispatch<SetStateAction<Demo[]>>;
-  cookie?: string | null;
 }
 
 const Popup = ({
@@ -23,8 +22,7 @@ const Popup = ({
 	setState,
 	state,
 	demos,
-	setDemos,
-  cookie
+	setDemos
 }: PopupProps) => {
 	const [createForm, setCreateForm] = useState<boolean>(false);
 	const renderContent = () => {
@@ -37,7 +35,6 @@ const Popup = ({
 						createForm={createForm}
 						setCreateForm={setCreateForm}
 						setState={setState}
-            cookie={cookie}
 					/>
 				);
 			default:

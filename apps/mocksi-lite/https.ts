@@ -1,16 +1,14 @@
-const API_URL = 'http://localhost:8080'
+const API_URL = 'http://localhost:8090/api'
 export const apiCall = async (
   url: string,
-  body: any,
-  options: any
+  body: any
 ) => {
   try {
     const res = await fetch(`${API_URL}/v1/${url}` , {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Accepts-Version": "v1",
-          ...options
+          "Accepts-Version": "v1"
         },
         body: JSON.stringify(body),
       }

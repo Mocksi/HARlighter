@@ -13,6 +13,15 @@ interface FormProps {
 const Form = ({ onSubmit, onCancel }: FormProps) => {
 	const [name, setName] = useState("");
 	const [customer, setCustomer] = useState("");
+
+  const handleSubmit = () => {
+    chrome.runtime.sendMessage({ message: "createDemo", body: {name, customer} }, (response) => {
+      if (response?.status !== "success") {
+        console.error("Failed to send message to background script");
+        return;
+      }
+    });
+  }
 	return (
 		<div className={"flex-1 mt-3"}>
 			<Divider />

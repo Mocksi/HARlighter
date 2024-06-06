@@ -1,10 +1,12 @@
-import { COOKIE_NAME } from "./consts";
+import {COOKIE_NAME} from "./consts";
 import { WebSocketURL } from "./content/constants";
+import {apiCall} from "./https";
 
 interface ChromeMessage {
 	message: string;
 	status?: string;
 	tabId?: string;
+  body?: Record<string, any>
 }
 
 interface RequestInterception {
@@ -241,6 +243,20 @@ chrome.runtime.onMessage.addListener(
 			);
 			return true; // Indicate that the response is sent asynchronously
 		}
+
+    if (request.message === 'createDemo') {
+      const defaultBody = {
+        created_timestamp: new Date(),
+        updated_timestamp: new Date(),
+        "creator": "example_creator",
+        "sessionID": "session456",
+        "dom_before": "base64_encoded_json_string",
+      }
+      chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([result]) => {
+        apiCall('recordings', {...request.body, ...defaultBody, tabID: result.id}).then(res => console.log({res}))
+      })
+      return true;
+    }
 
 		sendResponse({ message: request.message, status: "fail" });
 		return false; // No async response for other messages

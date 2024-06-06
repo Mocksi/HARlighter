@@ -58,7 +58,6 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 				setState={onChangeState}
 				demos={demos}
 				setDemos={setDemos}
-        cookie={sessionCookie}
 			/>
 		);
 	}
