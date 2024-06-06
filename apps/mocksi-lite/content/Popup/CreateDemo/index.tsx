@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
+import { Fragment } from "react";
 import Button from "../../../common/Button";
 import type { RecordingState } from "../../../consts";
 import type { Demo } from "../../ContentApp";
@@ -30,18 +31,22 @@ const CreateDemo = ({
 			<Form onSubmit={handleSubmit} onCancel={() => setCreateForm(false)} />
 		);
 	return (
-		<div className={"flex-1 flex flex-col items-center pt-8"}>
+		<div
+			className={
+				"flex-1 flex flex-col items-center py-8 overflow-y-scroll no-scrollbar"
+			}
+		>
 			{demos.map((demo) => (
-				<DemoItem key={`demo-item-${demo.id}`} setState={setState} {...demo} />
+				<Fragment key={`demo-item-${demo.id}`}>
+					<DemoItem setState={setState} {...demo} />
+					<div className={"px-3 w-full my-6"}>
+						<Divider />
+					</div>
+				</Fragment>
 			))}
-			{demos.length ? (
-				<div className={"px-3 w-full mt-6"}>
-					<Divider />
-				</div>
-			) : null}
 			<Button
 				onClick={() => setCreateForm(true)}
-				className={!demos.length ? "mt-3" : "mt-8"}
+				className={!demos.length ? "mt-3" : ""}
 			>
 				Create New Demo
 			</Button>
