@@ -1,29 +1,34 @@
-import {Dispatch, SetStateAction, useState} from "react";
+import { type Dispatch, type SetStateAction, useState } from "react";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
 import expandIcon from "../../../public/expand-icon.png";
+import type { Demo } from "../../ContentApp";
 import Divider from "../Divider";
-import {Demo} from "../../ContentApp";
 
 interface FormProps {
 	onCancel: () => void;
-  setDemos: Dispatch<SetStateAction<Demo[]>>;
+	setDemos: Dispatch<SetStateAction<Demo[]>>;
 }
 
 const Form = ({ setDemos, onCancel }: FormProps) => {
 	const [name, setName] = useState("");
 	const [customer, setCustomer] = useState("");
 
-  const handleSubmit = () => {
-    onCancel();
-    setDemos(prevState => prevState.concat({ id: Math.floor(Math.random()), name, customer }))
-    chrome.runtime.sendMessage({ message: "createDemo", body: {name, customer} }, (response) => {
-      if (response?.status !== "success") {
-        console.error("Failed to send message to background script");
-        return;
-      }
-    });
-  }
+	const handleSubmit = () => {
+		onCancel();
+		setDemos((prevState) =>
+			prevState.concat({ id: Math.floor(Math.random()), name, customer }),
+		);
+		chrome.runtime.sendMessage(
+			{ message: "createDemo", body: { name, customer } },
+			(response) => {
+				if (response?.status !== "success") {
+					console.error("Failed to send message to background script");
+					return;
+				}
+			},
+		);
+	};
 	return (
 		<div className={"flex-1 mt-3"}>
 			<Divider />
@@ -53,11 +58,7 @@ const Form = ({ setDemos, onCancel }: FormProps) => {
 						<Button onClick={() => onCancel()} variant={Variant.secondary}>
 							Cancel
 						</Button>
-						<Button
-							onClick={handleSubmit}
-						>
-							Save Demo
-						</Button>
+						<Button onClick={handleSubmit}>Save Demo</Button>
 					</div>
 				</div>
 				<div className={"flex self-end p-2"}>

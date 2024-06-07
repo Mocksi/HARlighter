@@ -22,7 +22,7 @@ const Popup = ({
 	setState,
 	state,
 	demos,
-	setDemos
+	setDemos,
 }: PopupProps) => {
 	const [createForm, setCreateForm] = useState<boolean>(false);
 	const renderContent = () => {
