@@ -1,6 +1,6 @@
 import { COOKIE_NAME } from "./consts";
 import { WebSocketURL } from "./content/constants";
-import { apiCall } from "./https";
+import { apiCall } from "./networking";
 
 interface Alteration {
 	selector: string;
