@@ -2,7 +2,6 @@ import type { Dispatch, SetStateAction } from "react";
 import { Fragment } from "react";
 import Button from "../../../common/Button";
 import type { RecordingState } from "../../../consts";
-import { apiCall } from "../../../https";
 import type { Demo } from "../../ContentApp";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";

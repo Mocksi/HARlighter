@@ -1,4 +1,6 @@
 const API_URL = "http://localhost:8090/api";
+
+// biome-ignore lint/suspicious/noExplicitAny: this is hard to type
 export const apiCall = async (url: string, body: any) => {
 	try {
 		const res = await fetch(`${API_URL}/v1/${url}`, {
@@ -13,7 +15,7 @@ export const apiCall = async (url: string, body: any) => {
 		if (res.ok) {
 			return response;
 		}
-		throw new Error(response.error_description || response.error);
+		throw new Error(`API call failed: ${response.error_description || response.error || 'Unknown error'}`);
 	} catch (err) {
 		throw err;
 	}
