@@ -15,8 +15,12 @@ export const apiCall = async (url: string, body: any) => {
 		if (res.ok) {
 			return response;
 		}
-		throw new Error(`API call failed: ${response.error_description || response.error || 'Unknown error'}`);
+		throw new Error(
+			`API call failed: ${
+				response.error_description || response.error || "Unknown error"
+			}`,
+		);
 	} catch (err) {
-		throw err;
+		throw new Error(`API call failed: ${err ?? "Unknown error"}`);
 	}
 };
