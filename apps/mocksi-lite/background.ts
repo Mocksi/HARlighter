@@ -87,6 +87,15 @@ function debuggerDetachHandler() {
 	console.log("detach");
 	requests.clear();
 }
+function createDemo(body: Record<string, any>) {
+  const defaultBody = {
+    created_timestamp: new Date(),
+    updated_timestamp: new Date(),
+  }
+  chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([result]) => {
+    apiCall('recordings', {...body, ...defaultBody, tab_id: result.id?.toString() ?? ""}).then(res => console.log({res}))
+  })
+}
 
 // TODO: create a type for the params
 // biome-ignore lint/suspicious/noExplicitAny: also hard to type
@@ -245,16 +254,8 @@ chrome.runtime.onMessage.addListener(
 		}
 
     if (request.message === 'createDemo') {
-      const defaultBody = {
-        created_timestamp: new Date(),
-        updated_timestamp: new Date(),
-        "creator": "example_creator",
-        "sessionID": "session456",
-        "dom_before": "base64_encoded_json_string",
-      }
-      chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([result]) => {
-        apiCall('recordings', {...request.body, ...defaultBody, tabID: result.id}).then(res => console.log({res}))
-      })
+      if (!request.body) return false;
+      createDemo(request.body)
       return true;
     }
 

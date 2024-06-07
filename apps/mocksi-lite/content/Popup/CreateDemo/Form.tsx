@@ -1,20 +1,22 @@
-import { useState } from "react";
+import {Dispatch, SetStateAction, useState} from "react";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
 import expandIcon from "../../../public/expand-icon.png";
-import type { Demo } from "../../ContentApp";
 import Divider from "../Divider";
+import {Demo} from "../../ContentApp";
 
 interface FormProps {
-	onSubmit: (d: Demo) => void;
 	onCancel: () => void;
+  setDemos: Dispatch<SetStateAction<Demo[]>>;
 }
 
-const Form = ({ onSubmit, onCancel }: FormProps) => {
+const Form = ({ setDemos, onCancel }: FormProps) => {
 	const [name, setName] = useState("");
 	const [customer, setCustomer] = useState("");
 
   const handleSubmit = () => {
+    onCancel();
+    setDemos(prevState => prevState.concat({ id: Math.floor(Math.random()), name, customer }))
     chrome.runtime.sendMessage({ message: "createDemo", body: {name, customer} }, (response) => {
       if (response?.status !== "success") {
         console.error("Failed to send message to background script");
@@ -52,9 +54,7 @@ const Form = ({ onSubmit, onCancel }: FormProps) => {
 							Cancel
 						</Button>
 						<Button
-							onClick={() =>
-								onSubmit({ id: Math.floor(Math.random()), name, customer })
-							}
+							onClick={handleSubmit}
 						>
 							Save Demo
 						</Button>
