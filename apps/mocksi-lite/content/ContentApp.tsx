@@ -64,7 +64,7 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 
 	if (state === RecordingState.EDITING) {
 		return (
-			<div className="border border-grey/40 rounded-l bg-white mt-3 min-w-64 p-3 flex flex-row items-center gap-6">
+			<div className="border border-solid border-grey/40 rounded-l bg-white mt-3 min-w-64 p-3 flex flex-row items-center gap-6">
 				<div
 					className="cursor-pointer"
 					onClick={() => {
@@ -94,7 +94,7 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 	}
 
 	return (
-		<div className="border border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center justify-between">
+		<div className="border border-solid border-grey/40 rounded bg-white h-11 w-64 mt-4 mr-8 flex flex-row items-center justify-between">
 			<div className="flex flex-row gap-2 items-center">
 				<div
 					className="ml-2 cursor-pointer"
