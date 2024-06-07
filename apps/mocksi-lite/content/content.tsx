@@ -184,6 +184,14 @@ document.addEventListener("DOMContentLoaded", initial);
 export const setEditorMode = (turnOn: boolean) => {
 	if (turnOn) {
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
+		const aElements = document.querySelectorAll('a')
+		const buttonElements = document.querySelectorAll('button')
+		for (let clickableElement of [...aElements, ...buttonElements]) {
+			clickableElement.onclick = (event) => {
+				event.stopPropagation()
+				console.log('BLOCKED!')
+			}
+		}
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
