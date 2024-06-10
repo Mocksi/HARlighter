@@ -1,34 +1,27 @@
-import { type Dispatch, type SetStateAction, useState } from "react";
+import { useState } from "react";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
 import expandIcon from "../../../public/expand-icon.png";
-import type { Demo } from "../../ContentApp";
 import Divider from "../Divider";
+import {sendMessage} from "../../../utils";
+import {Recording} from "../../../typings";
 
 interface FormProps {
-	onCancel: () => void;
-	setDemos: Dispatch<SetStateAction<Demo[]>>;
+	onCancel: (recordings?: Recording[]) => void;
 }
 
-const Form = ({ setDemos, onCancel }: FormProps) => {
+const Form = ({ onCancel }: FormProps) => {
 	const [name, setName] = useState("");
 	const [customer, setCustomer] = useState("");
 
 	const handleSubmit = () => {
-		onCancel();
-		setDemos((prevState) =>
-			prevState.concat({ id: Math.floor(Math.random()), name, customer }),
-		);
-		chrome.runtime.sendMessage(
-			{ message: "createDemo", body: { name, customer } },
-			(response) => {
-				if (response?.status !== "success") {
-					console.error("Failed to send message to background script");
-					return;
-				}
-			},
-		);
-	};
+    sendMessage("createDemo", { demo_name: name, customer_name: customer });
+    setTimeout(() => {
+      chrome.storage.local.get(['recordings'], results => {
+        onCancel(JSON.parse(results.recordings));
+      })
+    }, 1000);
+  };
 	return (
 		<div className={"flex-1 mt-3"}>
 			<Divider />
@@ -55,10 +48,10 @@ const Form = ({ setDemos, onCancel }: FormProps) => {
 						/>
 					</div>
 					<div className={"mt-[42px] flex justify-end gap-4"}>
-						<Button onClick={() => onCancel()} variant={Variant.secondary}>
+						<Button onClick={onCancel} variant={Variant.secondary}>
 							Cancel
 						</Button>
-						<Button onClick={handleSubmit}>Save Demo</Button>
+						<Button disabled={!name.length} onClick={handleSubmit}>Save Demo</Button>
 					</div>
 				</div>
 				<div className={"flex self-end p-2"}>

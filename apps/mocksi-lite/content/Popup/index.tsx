@@ -1,19 +1,17 @@
-import { type Dispatch, type SetStateAction, useState } from "react";
+import {useEffect, useState} from "react";
 import { RecordingState } from "../../consts";
-import type { Demo } from "../ContentApp";
 import CreateDemo from "./CreateDemo";
 import Divider from "./Divider";
 import Footer from "./Footer";
 import Header from "./Header";
 import RecordDemo from "./RecordDemo";
+import {sendMessage} from "../../utils";
 
 interface PopupProps {
 	close: () => void;
 	label: string;
 	setState: (r: RecordingState) => void;
 	state: RecordingState;
-	demos: Demo[];
-	setDemos: Dispatch<SetStateAction<Demo[]>>;
 }
 
 const Popup = ({
@@ -21,17 +19,17 @@ const Popup = ({
 	close,
 	setState,
 	state,
-	demos,
-	setDemos,
 }: PopupProps) => {
 	const [createForm, setCreateForm] = useState<boolean>(false);
+
+  useEffect(() => {
+    sendMessage("getRecordings")
+  }, []);
 	const renderContent = () => {
 		switch (state) {
 			case RecordingState.CREATE:
 				return (
 					<CreateDemo
-						demos={demos}
-						setDemos={setDemos}
 						createForm={createForm}
 						setCreateForm={setCreateForm}
 						setState={setState}

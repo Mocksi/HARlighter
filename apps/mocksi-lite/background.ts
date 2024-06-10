@@ -1,13 +1,8 @@
-import { COOKIE_NAME } from "./consts";
+import {COOKIE_NAME} from "./consts";
 import { WebSocketURL } from "./content/constants";
 import { apiCall } from "./networking";
+import {Alteration, Recording} from "./typings";
 
-interface Alteration {
-	selector: string;
-	action: string;
-	dom_before: string;
-	dom_after: string;
-}
 interface DemoBody {
 	created_timestamp: Date;
 	updated_timestamp: Date;
@@ -109,12 +104,19 @@ function createDemo(body: DemoBody) {
 		updated_timestamp: new Date(),
 	};
 	chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([result]) => {
-		apiCall("recordings", {
+		apiCall("recordings", "PUT", {
 			...body,
 			...defaultBody,
 			tab_id: result.id?.toString() ?? "",
-		}).then((res) => console.log({ res }));
+		}).then(() => getRecordings());
 	});
+}
+
+async function getRecordings() {
+  const response = await apiCall("recordings");
+  const sorted = response.sort((a: Recording, b: Recording) => a.updated_timestamp > b.updated_timestamp ? -1 : 0);
+  const recordings = JSON.stringify(sorted);
+  chrome.storage.local.set({recordings})
 }
 
 // TODO: create a type for the params
@@ -237,6 +239,7 @@ chrome.runtime.onMessage.addListener(
 		console.log("Received message:", request);
 		if (request.message === "tabSelected") {
 			console.log("Received tabSelected message:", request);
+      // getRecordings();
 			if (currentTabId) {
 				chrome.debugger.detach({ tabId: currentTabId });
 			}
@@ -276,6 +279,11 @@ chrome.runtime.onMessage.addListener(
 		if (request.message === "createDemo") {
 			if (!request.body) return false;
 			createDemo(request.body);
+			return true;
+		}
+
+		if (request.message === "getRecordings") {
+      getRecordings();
 			return true;
 		}
 

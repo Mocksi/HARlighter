@@ -1,10 +1,10 @@
-const API_URL = "http://localhost:8090/api";
+const API_URL = "https://crowllectordb.onrender.com/api";
 
 // biome-ignore lint/suspicious/noExplicitAny: this is hard to type
-export const apiCall = async (url: string, body: any) => {
+export const apiCall = async (url: string, method: "GET"|"PUT"|"POST" = "GET", body?: any) => {
 	try {
 		const res = await fetch(`${API_URL}/v1/${url}`, {
-			method: "PUT",
+			method,
 			headers: {
 				"Content-Type": "application/json",
 				"Accepts-Version": "v1",

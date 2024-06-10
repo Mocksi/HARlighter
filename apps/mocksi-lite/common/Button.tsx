@@ -10,6 +10,7 @@ interface ButtonProps {
 	onClick: () => void;
 	variant?: Variant;
 	className?: string;
+  disabled?: boolean
 }
 
 const getButtonStyles = (variant: Variant) => {
@@ -29,12 +30,13 @@ const Button = ({
 	onClick,
 	variant = Variant.primary,
 	className,
+  disabled
 }: ButtonProps) => {
 	const styles = getButtonStyles(variant);
 	return (
 		<div
-			className={`border text-[#009875] w-fit h-[42px] rounded-full flex items-center justify-center cursor-pointer ${styles} ${className}`}
-			onClick={onClick}
+			className={`border text-[#009875] w-fit min-h-[42px] rounded-full flex items-center justify-center ${disabled ? 'cursor-not-allowed': 'cursor-pointer'} ${styles} ${className}`}
+			onClick={!disabled ? onClick : undefined}
 			onKeyUp={(event) => {
 				event.key === "Enter" && onClick();
 			}}
