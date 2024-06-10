@@ -3,9 +3,9 @@ import TextField from "../../../common/TextField";
 import { RecordingState } from "../../../consts";
 import editIcon from "../../../public/edit-icon.png";
 import exportIcon from "../../../public/export-icon.png";
+import type { Recording } from "../../../typings";
 import { loadModifications } from "../../../utils";
 import { setEditorMode } from "../../content";
-import {Recording} from "../../../typings";
 
 interface DemoItemProps extends Recording {
 	setState: (r: RecordingState) => void;

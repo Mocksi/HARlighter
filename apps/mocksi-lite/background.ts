@@ -1,7 +1,7 @@
-import {COOKIE_NAME} from "./consts";
+import { COOKIE_NAME } from "./consts";
 import { WebSocketURL } from "./content/constants";
 import { apiCall } from "./networking";
-import {Alteration, Recording} from "./typings";
+import type { Alteration, Recording } from "./typings";
 
 interface DemoBody {
 	created_timestamp: Date;
@@ -113,10 +113,12 @@ function createDemo(body: DemoBody) {
 }
 
 async function getRecordings() {
-  const response = await apiCall("recordings");
-  const sorted = response.sort((a: Recording, b: Recording) => a.updated_timestamp > b.updated_timestamp ? -1 : 0);
-  const recordings = JSON.stringify(sorted);
-  chrome.storage.local.set({recordings})
+	const response = await apiCall("recordings");
+	const sorted = response.sort((a: Recording, b: Recording) =>
+		a.updated_timestamp > b.updated_timestamp ? -1 : 0,
+	);
+	const recordings = JSON.stringify(sorted);
+	chrome.storage.local.set({ recordings });
 }
 
 // TODO: create a type for the params
@@ -239,7 +241,7 @@ chrome.runtime.onMessage.addListener(
 		console.log("Received message:", request);
 		if (request.message === "tabSelected") {
 			console.log("Received tabSelected message:", request);
-      // getRecordings();
+			// getRecordings();
 			if (currentTabId) {
 				chrome.debugger.detach({ tabId: currentTabId });
 			}
@@ -283,7 +285,7 @@ chrome.runtime.onMessage.addListener(
 		}
 
 		if (request.message === "getRecordings") {
-      getRecordings();
+			getRecordings();
 			return true;
 		}
 

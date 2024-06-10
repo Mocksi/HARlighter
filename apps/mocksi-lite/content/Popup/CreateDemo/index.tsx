@@ -1,10 +1,10 @@
-import {Fragment, useEffect, useState} from "react";
+import { Fragment, useEffect, useState } from "react";
 import Button from "../../../common/Button";
 import type { RecordingState } from "../../../consts";
+import type { Recording } from "../../../typings";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
-import {Recording} from "../../../typings";
 
 interface CreateDemoProps {
 	createForm: boolean;
@@ -17,17 +17,17 @@ const CreateDemo = ({
 	setCreateForm,
 	setState,
 }: CreateDemoProps) => {
-  const [recordings, setRecordings] = useState<Recording[]>([]);
-  useEffect(() => {
-    chrome.storage.local.get(['recordings'], results =>
-      setRecordings(JSON.parse(results.recordings))
-    )
-  }, []);
+	const [recordings, setRecordings] = useState<Recording[]>([]);
+	useEffect(() => {
+		chrome.storage.local.get(["recordings"], (results) =>
+			setRecordings(JSON.parse(results.recordings)),
+		);
+	}, []);
 
-  const handleCancelClick = (recordings?: Recording[]) => {
-    if (recordings) setRecordings(recordings);
-    setCreateForm(false);
-  };
+	const handleCancelClick = (recordings?: Recording[]) => {
+		if (recordings) setRecordings(recordings);
+		setCreateForm(false);
+	};
 
 	if (createForm) return <Form onCancel={handleCancelClick} />;
 	return (

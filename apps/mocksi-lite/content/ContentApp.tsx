@@ -47,7 +47,8 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 				state={state}
 				label={recordingLabel(state)}
 				close={() => setIsDialogOpen(false)}
-				setState={onChangeState}			/>
+				setState={onChangeState}
+			/>
 		);
 	}
 

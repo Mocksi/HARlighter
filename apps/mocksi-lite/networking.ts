@@ -1,7 +1,11 @@
 const API_URL = "https://crowllectordb.onrender.com/api";
 
-// biome-ignore lint/suspicious/noExplicitAny: this is hard to type
-export const apiCall = async (url: string, method: "GET"|"PUT"|"POST" = "GET", body?: any) => {
+export const apiCall = async (
+	url: string,
+	method: "GET" | "PUT" | "POST" = "GET",
+	// biome-ignore lint/suspicious/noExplicitAny: this is hard to type
+	body?: any,
+) => {
 	try {
 		const res = await fetch(`${API_URL}/v1/${url}`, {
 			method,

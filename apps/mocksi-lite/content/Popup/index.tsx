@@ -1,11 +1,11 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import { RecordingState } from "../../consts";
+import { sendMessage } from "../../utils";
 import CreateDemo from "./CreateDemo";
 import Divider from "./Divider";
 import Footer from "./Footer";
 import Header from "./Header";
 import RecordDemo from "./RecordDemo";
-import {sendMessage} from "../../utils";
 
 interface PopupProps {
 	close: () => void;
@@ -14,17 +14,12 @@ interface PopupProps {
 	state: RecordingState;
 }
 
-const Popup = ({
-	label,
-	close,
-	setState,
-	state,
-}: PopupProps) => {
+const Popup = ({ label, close, setState, state }: PopupProps) => {
 	const [createForm, setCreateForm] = useState<boolean>(false);
 
-  useEffect(() => {
-    sendMessage("getRecordings")
-  }, []);
+	useEffect(() => {
+		sendMessage("getRecordings");
+	}, []);
 	const renderContent = () => {
 		switch (state) {
 			case RecordingState.CREATE:
