@@ -1,10 +1,28 @@
 import { COOKIE_NAME } from "./consts";
 import { WebSocketURL } from "./content/constants";
+import { apiCall } from "./networking";
+
+interface Alteration {
+	selector: string;
+	action: string;
+	dom_before: string;
+	dom_after: string;
+}
+interface DemoBody {
+	created_timestamp: Date;
+	updated_timestamp: Date;
+	creator: string;
+	tabID: string;
+	sessionID: string;
+	dom_before: string;
+	alterations: Alteration[];
+}
 
 interface ChromeMessage {
 	message: string;
 	status?: string;
 	tabId?: string;
+	body?: DemoBody;
 }
 
 interface RequestInterception {
@@ -84,6 +102,19 @@ function onAttach(tabId: number) {
 function debuggerDetachHandler() {
 	console.log("detach");
 	requests.clear();
+}
+function createDemo(body: DemoBody) {
+	const defaultBody = {
+		created_timestamp: new Date(),
+		updated_timestamp: new Date(),
+	};
+	chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([result]) => {
+		apiCall("recordings", {
+			...body,
+			...defaultBody,
+			tab_id: result.id?.toString() ?? "",
+		}).then((res) => console.log({ res }));
+	});
 }
 
 // TODO: create a type for the params
@@ -240,6 +271,12 @@ chrome.runtime.onMessage.addListener(
 				},
 			);
 			return true; // Indicate that the response is sent asynchronously
+		}
+
+		if (request.message === "createDemo") {
+			if (!request.body) return false;
+			createDemo(request.body);
+			return true;
 		}
 
 		sendResponse({ message: request.message, status: "fail" });

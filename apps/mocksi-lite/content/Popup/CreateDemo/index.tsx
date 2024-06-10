@@ -14,7 +14,6 @@ interface CreateDemoProps {
 	demos: Demo[];
 	setDemos: Dispatch<SetStateAction<Demo[]>>;
 }
-
 const CreateDemo = ({
 	demos,
 	setDemos,
@@ -22,14 +21,8 @@ const CreateDemo = ({
 	setCreateForm,
 	setState,
 }: CreateDemoProps) => {
-	const handleSubmit = (demo: Demo) => {
-		setDemos((prevState: Demo[]) => prevState.concat(demo));
-		setCreateForm(false);
-	};
 	if (createForm)
-		return (
-			<Form onSubmit={handleSubmit} onCancel={() => setCreateForm(false)} />
-		);
+		return <Form setDemos={setDemos} onCancel={() => setCreateForm(false)} />;
 	return (
 		<div
 			className={
