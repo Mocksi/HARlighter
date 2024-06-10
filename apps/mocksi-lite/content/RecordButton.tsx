@@ -86,7 +86,7 @@ export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 	}
 	return (
 		<button
-			className={`h-full w-[56px] border-r-2 text-center ${color} text-white`}
+			className={`h-full w-[56px] border-0 text-center ${color} text-white`}
 			type="button"
 			onClick={
 				state !== RecordingState.ANALYZING
