@@ -23,18 +23,20 @@ const blockNodes = () => {
 }
 
 const restoreNodes = () => {
-    const aElements = document.querySelectorAll('a')
-    const buttonElements = document.querySelectorAll('button')
-    let index = 0
-    for (let readonlyElem of [...aElements, ...buttonElements]) {
-        const {href, style, onclick} = blockedNodes[index]
-        //@ts-ignore
-        readonlyElem.href = href
-        //@ts-ignore
-        readonlyElem.style.cursor = style.cursor
-        //@ts-ignore
-        readonlyElem.onclick = onclick
-        index++
+    if (blockedNodes.length > 0) {
+        const aElements = document.querySelectorAll('a')
+        const buttonElements = document.querySelectorAll('button')
+        let index = 0
+        for (let readonlyElem of [...aElements, ...buttonElements]) {
+            const {href, style, onclick} = blockedNodes[index]
+            //@ts-ignore
+            readonlyElem.href = href
+            //@ts-ignore
+            readonlyElem.style.cursor = style.cursor
+            //@ts-ignore
+            readonlyElem.onclick = onclick
+            index++
+        }
     }
 }
 
@@ -63,7 +65,7 @@ function onDoubleClickText(event: MouseEvent) {
 			document.getElementById("mocksiTextArea")?.focus();
 		} else {
             decorateClickable(targetedElement)
-			console.log("ERROR! no selection detected", targetedElement);
+            document.getElementById("mocksiTextArea")?.focus();
 		}
 	}
 }
@@ -71,8 +73,11 @@ function onDoubleClickText(event: MouseEvent) {
 function decorateClickable(
     targetedElement: HTMLElement,
 ) {
-    targetedElement.appendChild(
-        decorate(targetedElement.innerText, '', false)
+    const [textNode] = targetedElement.childNodes
+    debugger
+    targetedElement.replaceChild(
+        decorate(textNode.textContent || '', ''+targetedElement.clientWidth, false),
+        textNode
     )
 }
 
@@ -111,28 +116,16 @@ function applyEditor(
 				node === selectedRange.anchorNode ||
 				[...node.childNodes].includes(selectedRange.anchorNode as ChildNode)
 			) {
-				//@ts-ignore
-				if (node.innerHTML) {
-					// I don't know which case can enter here, made it just in case. Probably this get removed
-					//@ts-ignore
-					node.innerHTML = decorateTextTag(
-						selectedRange.anchorNode?.textContent || "",
-						targetedElement.clientWidth?.toString() || "",
-						shiftMode,
-						selectedRange.getRangeAt(0),
-					);
-				} else {
-					// @ts-ignore
-					targetedElement.replaceChild(
-						decorateTextTag(
-							selectedRange.anchorNode?.textContent || "",
-							targetedElement.clientWidth?.toString() || "",
-							shiftMode,
-							selectedRange.getRangeAt(0),
-						), // new node
-						node,
-					);
-				}
+				// @ts-ignore
+                targetedElement.replaceChild(
+                    decorateTextTag(
+                        selectedRange.anchorNode?.textContent || "",
+                        targetedElement.clientWidth?.toString() || "",
+                        shiftMode,
+                        selectedRange.getRangeAt(0),
+                    ), // new node
+                    node,
+                );
 			}
 		}
 	} else {
