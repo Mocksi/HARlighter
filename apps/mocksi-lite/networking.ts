@@ -1,3 +1,5 @@
+import { COOKIE_NAME } from "./consts";
+
 const API_URL = "https://crowllectordb.onrender.com/api";
 
 export const apiCall = async (
@@ -6,6 +8,9 @@ export const apiCall = async (
 	// biome-ignore lint/suspicious/noExplicitAny: this is hard to type
 	body?: any,
 ) => {
+	// const cookies = await chrome.cookies.get(
+	// 	{ url: "https://mocksi-auth.onrender.com/", name: COOKIE_NAME })
+	
 	try {
 		const res = await fetch(`${API_URL}/v1/${url}`, {
 			method,

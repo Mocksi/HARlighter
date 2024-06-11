@@ -129,6 +129,19 @@ function createDemo(body: DemoBody) {
 	});
 }
 
+function updateDemo(body: DemoBody) {
+	const defaultBody = {
+		updated_timestamp: new Date(),
+	}
+	chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([result]) => {
+		apiCall("recordings", "POST", {
+			...body,
+			...defaultBody,
+			tab_id: result.id?.toString() ?? "",
+		}).then(() => getRecordings());
+	});
+}
+
 async function getRecordings() {
 	const response = await apiCall("recordings");
 	const sorted = response.sort((a: Recording, b: Recording) =>
@@ -298,6 +311,12 @@ chrome.runtime.onMessage.addListener(
 		if (request.message === "createDemo") {
 			if (!request.body) return false;
 			createDemo(request.body);
+			return true;
+		}
+
+		if (request.message === "updateDemo") {
+			if (!request.body) return false;
+			updateDemo(request.body);
 			return true;
 		}
 
