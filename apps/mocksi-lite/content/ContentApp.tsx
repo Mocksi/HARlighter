@@ -1,12 +1,12 @@
-import {useState} from "react";
+import { useState } from "react";
 import TextField from "../common/TextField";
-import {RecordingState} from "../consts";
+import { RecordingState } from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
-import {setRootPosition} from "../utils";
-import {setEditorMode} from "./EditMode/editMode";
+import { setRootPosition } from "../utils";
+import { setEditorMode } from "./EditMode/editMode";
 import Popup from "./Popup";
-import {RecordButton} from "./RecordButton";
+import { RecordButton } from "./RecordButton";
 
 interface ContentProps {
 	isOpen?: boolean;
