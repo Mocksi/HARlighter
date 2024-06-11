@@ -1,10 +1,40 @@
 import { COOKIE_NAME } from "./consts";
 import { WebSocketURL } from "./content/constants";
+import { apiCall } from "./networking";
+
+export interface Alteration {
+	selector: string;
+	action: string;
+	dom_before: string;
+	dom_after: string;
+}
+
+export interface Recording {
+	updated_timestamp: Date;
+	alterations: Alteration[];
+	creator: string;
+	customer_name: string;
+	demo_name: string;
+	dom_before: string;
+	tab_id: string;
+	uuid: string;
+}
+
+interface DemoBody {
+	created_timestamp: Date;
+	updated_timestamp: Date;
+	creator: string;
+	tabID: string;
+	sessionID: string;
+	dom_before: string;
+	alterations: Alteration[];
+}
 
 interface ChromeMessage {
 	message: string;
 	status?: string;
 	tabId?: string;
+	body?: DemoBody;
 }
 
 interface RequestInterception {
@@ -84,6 +114,28 @@ function onAttach(tabId: number) {
 function debuggerDetachHandler() {
 	console.log("detach");
 	requests.clear();
+}
+function createDemo(body: DemoBody) {
+	const defaultBody = {
+		created_timestamp: new Date(),
+		updated_timestamp: new Date(),
+	};
+	chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([result]) => {
+		apiCall("recordings", "PUT", {
+			...body,
+			...defaultBody,
+			tab_id: result.id?.toString() ?? "",
+		}).then(() => getRecordings());
+	});
+}
+
+async function getRecordings() {
+	const response = await apiCall("recordings");
+	const sorted = response.sort((a: Recording, b: Recording) =>
+		a.updated_timestamp > b.updated_timestamp ? -1 : 0,
+	);
+	const recordings = JSON.stringify(sorted);
+	chrome.storage.local.set({ recordings });
 }
 
 // TODO: create a type for the params
@@ -206,6 +258,7 @@ chrome.runtime.onMessage.addListener(
 		console.log("Received message:", request);
 		if (request.message === "tabSelected") {
 			console.log("Received tabSelected message:", request);
+			// getRecordings();
 			if (currentTabId) {
 				chrome.debugger.detach({ tabId: currentTabId });
 			}
@@ -240,6 +293,17 @@ chrome.runtime.onMessage.addListener(
 				},
 			);
 			return true; // Indicate that the response is sent asynchronously
+		}
+
+		if (request.message === "createDemo") {
+			if (!request.body) return false;
+			createDemo(request.body);
+			return true;
+		}
+
+		if (request.message === "getRecordings") {
+			getRecordings();
+			return true;
 		}
 
 		sendResponse({ message: request.message, status: "fail" });

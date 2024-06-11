@@ -1,18 +1,28 @@
 import { useState } from "react";
+import type { Recording } from "../../../background";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
 import expandIcon from "../../../public/expand-icon.png";
-import type { Demo } from "../../ContentApp";
+import { sendMessage } from "../../../utils";
 import Divider from "../Divider";
 
 interface FormProps {
-	onSubmit: (d: Demo) => void;
-	onCancel: () => void;
+	onCancel: (recordings?: Recording[]) => void;
 }
 
-const Form = ({ onSubmit, onCancel }: FormProps) => {
+const Form = ({ onCancel }: FormProps) => {
 	const [name, setName] = useState("");
 	const [customer, setCustomer] = useState("");
+
+	const handleSubmit = () => {
+		sendMessage("createDemo", { demo_name: name, customer_name: customer });
+		// this is needed to wait until the new data is established
+		setTimeout(() => {
+			chrome.storage.local.get(["recordings"], (results) => {
+				onCancel(JSON.parse(results.recordings));
+			});
+		}, 1000);
+	};
 	return (
 		<div className={"flex-1 mt-3"}>
 			<Divider />
@@ -39,14 +49,10 @@ const Form = ({ onSubmit, onCancel }: FormProps) => {
 						/>
 					</div>
 					<div className={"mt-[42px] flex justify-end gap-4"}>
-						<Button onClick={() => onCancel()} variant={Variant.secondary}>
+						<Button onClick={onCancel} variant={Variant.secondary}>
 							Cancel
 						</Button>
-						<Button
-							onClick={() =>
-								onSubmit({ id: Math.floor(Math.random()), name, customer })
-							}
-						>
+						<Button disabled={!name.length} onClick={handleSubmit}>
 							Save Demo
 						</Button>
 					</div>

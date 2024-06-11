@@ -1,17 +1,17 @@
+import type { Recording } from "../../../background";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
 import { RecordingState } from "../../../consts";
 import editIcon from "../../../public/edit-icon.png";
 import exportIcon from "../../../public/export-icon.png";
 import { loadModifications } from "../../../utils";
-import type { Demo } from "../../ContentApp";
 import { setEditorMode } from "../../EditMode/editMode";
 
-interface DemoItemProps extends Demo {
+interface DemoItemProps extends Recording {
 	setState: (r: RecordingState) => void;
 }
 
-const DemoItem = ({ name, customer, setState }: DemoItemProps) => {
+const DemoItem = ({ demo_name, customer_name, setState }: DemoItemProps) => {
 	const handleEdit = () => {
 		setEditorMode(true);
 		setState(RecordingState.EDITING);
@@ -20,8 +20,8 @@ const DemoItem = ({ name, customer, setState }: DemoItemProps) => {
 	return (
 		<div className={"flex justify-between w-full px-6"}>
 			<div>
-				<TextField variant={"title"}>{name}</TextField>
-				<TextField>{customer}</TextField>
+				<TextField variant={"title"}>{demo_name}</TextField>
+				<TextField>{customer_name}</TextField>
 			</div>
 			<div className={"flex gap-3"}>
 				<Button variant={Variant.icon} onClick={() => handleEdit()}>
