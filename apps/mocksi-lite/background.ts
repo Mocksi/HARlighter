@@ -43,7 +43,7 @@ addEventListener("install", () => {
 	// TODO test if this works on other browsers
 	// TODO2 Read from environment variable the correct URL to redirect after install
 	chrome.tabs.create({
-		url: "https://mocksi-auth.onrender.com/",
+		url: "https://nest-auth-ts-merge.onrender.com/",
 	});
 });
 
@@ -253,7 +253,6 @@ chrome.runtime.onMessage.addListener(
 		console.log("Received message:", request);
 		if (request.message === "tabSelected") {
 			console.log("Received tabSelected message:", request);
-			// getRecordings();
 			if (currentTabId) {
 				chrome.debugger.detach({ tabId: currentTabId });
 			}

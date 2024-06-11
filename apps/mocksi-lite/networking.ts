@@ -2,8 +2,6 @@ import {COOKIE_NAME} from "./consts";
 
 const API_URL = "https://crowllectordb.onrender.com/api";
 
-let loginToken: string|null = null
-
 export const apiCall = async (
 	url: string,
 	method: "GET" | "PUT" | "POST" = "GET",
