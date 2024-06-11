@@ -17,6 +17,7 @@ export const setRootPosition = (state: RecordingState) => {
 export const logout = () => {
 	document.cookie = `${COOKIE_NAME}=`;
 	localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.UNAUTHORIZED);
+	window.open("https://nest-auth-ts-merge.onrender.com/");
 };
 
 export const saveModification = (

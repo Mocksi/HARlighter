@@ -50,7 +50,7 @@ const Popup = ({ label, close, setState, state }: PopupProps) => {
 			{!createForm && (
 				<div>
 					<Divider />
-					<Footer />
+					<Footer close={close} />
 				</div>
 			)}
 		</div>
