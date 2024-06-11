@@ -5,19 +5,13 @@ export function decorate(text: string, width: string, shiftMode: boolean) {
 	newSpan.style.position = "relative";
 	newSpan.id = "mocksiSelectedText";
 	newSpan.appendChild(document.createTextNode(text));
-	const textArea = injectTextArea(
-		shiftMode ? width : undefined,
-		text,
-	);
+	const textArea = injectTextArea(shiftMode ? width : undefined, text);
 	newSpan.appendChild(textArea);
 	return newSpan;
 }
 
-function injectTextArea(
-	width: string | undefined,
-	value: string,
-) {
-	const ndiv = document.createElement('textarea');
+function injectTextArea(width: string | undefined, value: string) {
+	const ndiv = document.createElement("textarea");
 	ndiv.setAttribute("tabindex", "-1");
 	const elementStyle = {
 		width: width ? "120%" : "150%",
@@ -45,14 +39,14 @@ function injectTextArea(
 			}
 			event.preventDefault(); // Prevents the addition of a new line in the text field
 		} else if (event.key === "Escape") {
-            cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"))
+			cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 		}
 	};
 	ndiv.onsubmit = (event: SubmitEvent) => {
 		const selectedText = document.getElementById("mocksiSelectedText");
 		// @ts-ignore I don't know why the value property is no inside the target object
 		const newValue = event.target?.value;
-		applyChanges(selectedText, newValue)
+		applyChanges(selectedText, newValue);
 	};
 	//@ts-ignore
 	ndiv.value = value;
