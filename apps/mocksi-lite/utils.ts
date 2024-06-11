@@ -73,7 +73,10 @@ export const loadModifications = () => {
 	}
 };
 
-export const sendMessage = (message: string, body?: Record<string, unknown> | null) =>
+export const sendMessage = (
+	message: string,
+	body?: Record<string, unknown> | null,
+) =>
 	chrome.runtime.sendMessage({ message, body }, (response) => {
 		if (response?.status !== "success") {
 			console.error("Failed to send message to background script");
