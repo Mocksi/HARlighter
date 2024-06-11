@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client";
-import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
+import {MOCKSI_RECORDING_ID, MOCKSI_RECORDING_STATE, RecordingState} from "../consts";
 import { saveModification } from "../utils";
 import ContentApp from "./ContentApp";
 
@@ -181,11 +181,13 @@ function initial() {
 
 document.addEventListener("DOMContentLoaded", initial);
 
-export const setEditorMode = (turnOn: boolean) => {
+export const setEditorMode = (turnOn: boolean, recordId?: string) => {
 	if (turnOn) {
-		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
+    recordId && localStorage.setItem(MOCKSI_RECORDING_ID, recordId);
+    localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
+    localStorage.removeItem(MOCKSI_RECORDING_ID);
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
 		const previousSelectedText = document.getElementById("mocksiSelectedText");

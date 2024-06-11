@@ -20,7 +20,7 @@ const CreateDemo = ({
 	const [recordings, setRecordings] = useState<Recording[]>([]);
 	useEffect(() => {
 		chrome.storage.local.get(["recordings"], (results) =>
-			setRecordings(JSON.parse(results.recordings)),
+			setRecordings(JSON.parse(results.recordings) ?? []),
 		);
 	}, []);
 

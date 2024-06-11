@@ -20,21 +20,11 @@ export interface Recording {
 	uuid: string;
 }
 
-interface DemoBody {
-	created_timestamp: Date;
-	updated_timestamp: Date;
-	creator: string;
-	tabID: string;
-	sessionID: string;
-	dom_before: string;
-	alterations: Alteration[];
-}
-
 interface ChromeMessage {
 	message: string;
 	status?: string;
 	tabId?: string;
-	body?: DemoBody;
+	body?: Record<string, unknown>;
 }
 
 interface RequestInterception {
@@ -115,7 +105,7 @@ function debuggerDetachHandler() {
 	console.log("detach");
 	requests.clear();
 }
-function createDemo(body: DemoBody) {
+function createDemo(body: Record<string, unknown>) {
 	const defaultBody = {
 		created_timestamp: new Date(),
 		updated_timestamp: new Date(),
@@ -127,6 +117,11 @@ function createDemo(body: DemoBody) {
 			tab_id: result.id?.toString() ?? "",
 		}).then(() => getRecordings());
 	});
+}
+
+function updateDemo(data: Record<string, unknown>) {
+  const {id} = data;
+  apiCall(`recordings/${id}`, "POST", data).then(() => getRecordings());
 }
 
 async function getRecordings() {
@@ -298,6 +293,12 @@ chrome.runtime.onMessage.addListener(
 		if (request.message === "createDemo") {
 			if (!request.body) return false;
 			createDemo(request.body);
+			return true;
+		}
+
+		if (request.message === "updateDemo") {
+			if (!request.body) return false;
+      updateDemo(request.body);
 			return true;
 		}
 

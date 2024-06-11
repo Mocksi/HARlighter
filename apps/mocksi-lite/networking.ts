@@ -1,4 +1,8 @@
+import {COOKIE_NAME} from "./consts";
+
 const API_URL = "https://crowllectordb.onrender.com/api";
+
+let loginToken: string|null = null
 
 export const apiCall = async (
 	url: string,
@@ -7,11 +11,16 @@ export const apiCall = async (
 	body?: any,
 ) => {
 	try {
+    const cookie = await chrome.cookies.get(
+      { url: "https://mocksi-auth.onrender.com/", name: COOKIE_NAME }
+    );
+
 		const res = await fetch(`${API_URL}/v1/${url}`, {
 			method,
 			headers: {
 				"Content-Type": "application/json",
 				"Accepts-Version": "v1",
+        "Authorization": cookie?.value ?? ""
 			},
 			body: JSON.stringify(body),
 		});

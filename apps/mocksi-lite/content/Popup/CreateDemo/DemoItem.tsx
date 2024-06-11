@@ -11,9 +11,9 @@ interface DemoItemProps extends Recording {
 	setState: (r: RecordingState) => void;
 }
 
-const DemoItem = ({ demo_name, customer_name, setState }: DemoItemProps) => {
+const DemoItem = ({ uuid, demo_name, customer_name, setState }: DemoItemProps) => {
 	const handleEdit = () => {
-		setEditorMode(true);
+		setEditorMode(true, uuid);
 		setState(RecordingState.EDITING);
 	};
 
@@ -24,7 +24,7 @@ const DemoItem = ({ demo_name, customer_name, setState }: DemoItemProps) => {
 				<TextField>{customer_name}</TextField>
 			</div>
 			<div className={"flex gap-3"}>
-				<Button variant={Variant.icon} onClick={() => handleEdit()}>
+				<Button variant={Variant.icon} onClick={handleEdit}>
 					<img src={editIcon} alt={"editIcon"} />
 				</Button>
 				<Button variant={Variant.icon} onClick={() => loadModifications()}>

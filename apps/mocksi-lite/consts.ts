@@ -1,4 +1,5 @@
 export const MOCKSI_RECORDING_STATE = "mocksi-recordingState";
+export const MOCKSI_RECORDING_ID = "mocksi-recordingId";
 export const MOCKSI_MODIFICATIONS = "mocksi-modifications";
 export const COOKIE_NAME = "sessionid";
 

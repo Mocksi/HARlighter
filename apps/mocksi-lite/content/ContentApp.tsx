@@ -1,9 +1,9 @@
 import { useState } from "react";
 import TextField from "../common/TextField";
-import { RecordingState } from "../consts";
+import {MOCKSI_RECORDING_ID, RecordingState} from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
-import { setRootPosition } from "../utils";
+import {sendMessage, setRootPosition} from "../utils";
 import Popup from "./Popup";
 import { RecordButton } from "./RecordButton";
 import { setEditorMode } from "./content";
@@ -39,6 +39,11 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 		setState(newState);
 		setRootPosition(newState);
 	};
+
+  const handleUpdate = () => {
+    const id = localStorage.getItem(MOCKSI_RECORDING_ID)
+    sendMessage("updateDemo", {id});
+  };
 
 	if (!isDialogOpen) return null;
 	if (state === RecordingState.READY || state === RecordingState.CREATE) {
@@ -79,6 +84,9 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 						</div>
 					</div>
 				</div>
+        <div className="cursor-pointer text-[#009875]" onClick={handleUpdate}>
+          Done
+        </div>
 			</div>
 		);
 	}
