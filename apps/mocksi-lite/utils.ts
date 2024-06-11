@@ -4,6 +4,7 @@ import {
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
 } from "./consts";
+import { Command, SaveModificationCommand, buildQuerySelector } from "./commands/Command";
 
 export const setRootPosition = (state: RecordingState) => {
 	const extensionRoot = document.getElementById("extension-root");
@@ -19,35 +20,23 @@ export const logout = () => {
 	localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.UNAUTHORIZED);
 };
 
+const commandsExecuted: Command[] = []
+
 export const saveModification = (
 	parentElement: HTMLElement,
 	newText: string,
 ) => {
-	const prevModifications = JSON.parse(
-		localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
-	);
-	let keyToSave = parentElement.localName;
-	if (parentElement.id) {
-		keyToSave += `#${parentElement.id}`;
-	}
-	if (parentElement.className) {
-		keyToSave += `.${parentElement.className}`;
-	}
-	// here we check if the key we built is sufficient to get an unique element when querying
-	const elements = document.querySelectorAll(keyToSave);
-	if (elements.length === 1) {
-		localStorage.setItem(
-			MOCKSI_MODIFICATIONS,
-			JSON.stringify({ ...prevModifications, [keyToSave]: newText }),
-		);
-	} else {
-		// if not unique, we search for the index and put it on the key.
-		keyToSave += `[${[...elements].indexOf(parentElement)}]`;
-		localStorage.setItem(
-			MOCKSI_MODIFICATIONS,
-			JSON.stringify({ ...prevModifications, [keyToSave]: newText }),
-		);
-	}
+	// to successfully implement the do/undo commands, we must save somewhere in memory all commands being executed.
+	const saveModificationCommand = new SaveModificationCommand(
+		localStorage,
+		{
+			keyToSave: buildQuerySelector(parentElement),
+			nextText: newText,
+			previousText: parentElement.innerHTML // todo test previous
+		}
+	)
+	commandsExecuted.push(saveModificationCommand)
+	saveModificationCommand.execute();
 };
 
 export const loadModifications = () => {
