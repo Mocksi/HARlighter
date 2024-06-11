@@ -1,6 +1,6 @@
 import { useState } from "react";
 import TextField from "../common/TextField";
-import {MOCKSI_RECORDING_STATE, RecordingState} from "../consts";
+import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
 import { setRootPosition } from "../utils";
@@ -37,7 +37,7 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 
 	const onChangeState = (newState: RecordingState) => {
 		setState(newState);
-    localStorage.setItem(MOCKSI_RECORDING_STATE, newState);
+		localStorage.setItem(MOCKSI_RECORDING_STATE, newState);
 		setRootPosition(newState);
 	};
 
