@@ -72,3 +72,12 @@ export const loadModifications = () => {
 		}
 	}
 };
+
+// biome-ignore lint/suspicious/noExplicitAny: this is hard to type
+export const sendMessage = (message: string, body?: any) =>
+	chrome.runtime.sendMessage({ message, body }, (response) => {
+		if (response?.status !== "success") {
+			console.error("Failed to send message to background script");
+			return;
+		}
+	});
