@@ -6,7 +6,7 @@ import mocksiLogo from "../public/mocksi-logo.png";
 import { setRootPosition } from "../utils";
 import Popup from "./Popup";
 import { RecordButton } from "./RecordButton";
-import { setEditorMode } from "./content";
+import { setEditorMode } from "./EditMode/editMode";
 
 interface ContentProps {
 	isOpen?: boolean;
