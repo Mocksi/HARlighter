@@ -1,7 +1,7 @@
-import { Fragment, useEffect, useState } from "react";
-import type { Recording } from "../../../background";
+import {Fragment, useEffect, useState} from "react";
+import type {Recording} from "../../../background";
 import Button from "../../../common/Button";
-import type { RecordingState } from "../../../consts";
+import {RecordingState} from "../../../consts";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
@@ -24,12 +24,10 @@ const CreateDemo = ({
 		);
 	}, []);
 
-	const handleCancelClick = (recordings?: Recording[]) => {
-		if (recordings) setRecordings(recordings);
-		setCreateForm(false);
-	};
-
-	if (createForm) return <Form onCancel={handleCancelClick} />;
+	if (createForm) return <Form onCancel={() => setCreateForm(false)} onSubmit={() => {
+    setState(RecordingState.READY);
+    setCreateForm(false);
+  }} />;
 	return (
 		<div
 			className={
