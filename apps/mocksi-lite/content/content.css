@@ -4,6 +4,10 @@
   z-index: 99999;
 }
 
+#extension-root * {
+  box-sizing: border-box;
+}
+
 .top-extension {
   top: 0;
 }
