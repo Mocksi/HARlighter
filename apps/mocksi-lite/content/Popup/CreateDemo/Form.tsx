@@ -1,8 +1,8 @@
 import { useState } from "react";
+import type { Recording } from "../../../background";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
 import expandIcon from "../../../public/expand-icon.png";
-import type { Recording } from "../../../typings";
 import { sendMessage } from "../../../utils";
 import Divider from "../Divider";
 

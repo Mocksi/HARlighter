@@ -1,7 +1,24 @@
 import { COOKIE_NAME } from "./consts";
 import { WebSocketURL } from "./content/constants";
 import { apiCall } from "./networking";
-import type { Alteration, Recording } from "./typings";
+
+export interface Alteration {
+	selector: string;
+	action: string;
+	dom_before: string;
+	dom_after: string;
+}
+
+export interface Recording {
+	updated_timestamp: Date;
+	alterations: Alteration[];
+	creator: string;
+	customer_name: string;
+	demo_name: string;
+	dom_before: string;
+	tab_id: string;
+	uuid: string;
+}
 
 interface DemoBody {
 	created_timestamp: Date;

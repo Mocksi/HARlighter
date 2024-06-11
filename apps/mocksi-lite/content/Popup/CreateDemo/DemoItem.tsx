@@ -1,9 +1,9 @@
+import type { Recording } from "../../../background";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
 import { RecordingState } from "../../../consts";
 import editIcon from "../../../public/edit-icon.png";
 import exportIcon from "../../../public/export-icon.png";
-import type { Recording } from "../../../typings";
 import { loadModifications } from "../../../utils";
 import { setEditorMode } from "../../content";
 

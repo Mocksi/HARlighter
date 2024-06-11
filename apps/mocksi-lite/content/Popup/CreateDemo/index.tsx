@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
+import type { Recording } from "../../../background";
 import Button from "../../../common/Button";
 import type { RecordingState } from "../../../consts";
-import type { Recording } from "../../../typings";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
