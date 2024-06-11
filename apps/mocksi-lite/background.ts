@@ -53,7 +53,7 @@ addEventListener("install", () => {
 	// TODO test if this works on other browsers
 	// TODO2 Read from environment variable the correct URL to redirect after install
 	chrome.tabs.create({
-		url: "https://mocksi-auth.onrender.com/",
+		url: "http://localhost:3030",
 	});
 });
 
@@ -102,7 +102,7 @@ function sendData(request: Map<string, any>) {
 		// problems with unicode data
 		const dataStr = JSON.stringify(data);
 		const encodedDataStr = encodeURIComponent(dataStr);
-		webSocket?.send(btoa(encodedDataStr));
+		// webSocket?.send(btoa(encodedDataStr));
 	});
 }
 
@@ -306,6 +306,13 @@ chrome.runtime.onMessage.addListener(
 			return true;
 		}
 
+		if (request.message === "AuthEvent") {
+			chrome.storage.local.get(["mocksi-auth"], (result) => {
+				const parsed = JSON.parse(result["mocksi-auth"]);
+				console.log("Auth Credentials:", parsed);
+			});
+		}
+
 		sendResponse({ message: request.message, status: "fail" });
 		return false; // No async response for other messages
 	},
@@ -313,6 +320,7 @@ chrome.runtime.onMessage.addListener(
 
 console.log("background script loaded");
 
+/*
 let webSocket = new WebSocket(WebSocketURL);
 
 webSocket.onopen = () => {
@@ -411,3 +419,4 @@ function keepAlive() {
 		}
 	}, 5 * 1000);
 }
+*/
