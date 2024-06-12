@@ -106,7 +106,7 @@ export default function ContentApp({
 					{recordingLabel(state)}
 				</span>
 			</div>
-			{sessionCookie && (
+			{sessionCookie && state !== RecordingState.UNAUTHORIZED && (
 				<RecordButton state={state} onRecordChange={onChangeState} />
 			)}
 		</div>

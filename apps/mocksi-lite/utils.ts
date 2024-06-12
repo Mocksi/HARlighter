@@ -1,8 +1,8 @@
 import {
-	COOKIE_NAME,
 	MOCKSI_MODIFICATIONS,
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
+	SignupURL,
 } from "./consts";
 
 export const setRootPosition = (state: RecordingState) => {
@@ -15,8 +15,10 @@ export const setRootPosition = (state: RecordingState) => {
 };
 
 export const logout = () => {
-	document.cookie = `${COOKIE_NAME}=`;
+	localStorage.clear();
+	chrome.storage.local.clear();
 	localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.UNAUTHORIZED);
+	window.open(SignupURL);
 };
 
 export const saveModification = (

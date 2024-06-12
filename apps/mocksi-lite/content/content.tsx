@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
+import { STORAGE_CHANGE_EVENT, STORAGE_KEY } from "../consts";
 import ContentApp from "./ContentApp";
-import { STORAGE_CHANGE_EVENT, STORAGE_KEY } from "./constants";
 
 let root: ReactDOM.Root;
 
