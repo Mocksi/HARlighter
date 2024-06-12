@@ -1,9 +1,6 @@
 import {
-	MOCKSI_ACCESS_TOKEN,
 	MOCKSI_MODIFICATIONS,
 	MOCKSI_RECORDING_STATE,
-	MOCKSI_SESSION_ID,
-	MOCKSI_USER_ID,
 	RecordingState,
 	SignupURL,
 } from "./consts";
@@ -18,11 +15,9 @@ export const setRootPosition = (state: RecordingState) => {
 };
 
 export const logout = () => {
-	localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.UNAUTHORIZED);
-	localStorage.removeItem(MOCKSI_ACCESS_TOKEN);
-	localStorage.removeItem(MOCKSI_USER_ID);
-	localStorage.removeItem(MOCKSI_SESSION_ID);
+	localStorage.clear();
 	chrome.storage.local.clear();
+	localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.UNAUTHORIZED);
 	window.open(SignupURL);
 };
 
