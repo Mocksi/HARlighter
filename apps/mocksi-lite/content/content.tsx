@@ -25,7 +25,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			root.render(
 				<ContentApp
 					isOpen={true}
-					sessionCookie={email || ""}
 					email={email || ""}
 				/>,
 			);
