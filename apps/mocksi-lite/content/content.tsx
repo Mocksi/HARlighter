@@ -25,6 +25,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	sendResponse({ status: "success" });
 });
 
+// LocalStorageChangeEventData defines the structure for local storage change events.
 interface LocalStorageChangeEventData {
 	type: string;
 	key: string;
@@ -40,13 +41,11 @@ window.addEventListener("message", (event: MessageEvent) => {
 	}
 
 	console.log("Content script received message: ", eventData);
-	if (eventData.type === STORAGE_CHANGE_EVENT) {
-		chrome.storage.local
-			.set({[eventData.key]: eventData.value })
-			.then(() => {
-				console.log(eventData.key, " set.");
-			});
-		chrome.runtime.sendMessage({ message: "AuthEvent"});
+	if (eventData.type.toUpperCase() === STORAGE_CHANGE_EVENT.toUpperCase()) {
+		chrome.storage.local.set({ [eventData.key]: eventData.value }).then(() => {
+			console.log(eventData.key, " set.");
+		});
+		chrome.runtime.sendMessage({ message: "AuthEvent" });
 	}
 });
 
