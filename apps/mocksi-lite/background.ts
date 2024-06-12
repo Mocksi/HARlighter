@@ -62,13 +62,11 @@ interface DataPayload {
 	response_body: string;
 	cookies: string;
 	currentTabId?: string;
-	loginToken: string;
 	tabMetadata?: chrome.tabs.Tab;
 	sessionID?: string;
 	currentURL?: string;
 }
 
-let loginToken = "";
 let credsJson = "";
 
 // TODO: create a type for the request
@@ -90,7 +88,6 @@ function sendData(request: Map<string, any>) {
 			response_body: request.get("response_body"),
 			cookies: request.get("cookies"),
 			currentTabId: currentTabId?.toString() || "0",
-			loginToken,
 		};
 
 		if (tabMetadata) {
@@ -281,17 +278,11 @@ chrome.runtime.onMessage.addListener(
 			}
 
 			sendResponse({ message: request.message, status: "success" });
-			chrome.cookies.get(
-				{ url: "https://mocksi-auth.onrender.com/", name: COOKIE_NAME },
-				(cookie) => {
-					// TODO: this is insecure AF, but good enough for now
-					loginToken = cookie?.value || "";
-					chrome.tabs.sendMessage(currentTabId || 0, {
-						text: "clickedIcon",
-						loginToken,
-					});
-				},
-			);
+
+			chrome.tabs.sendMessage(currentTabId || 0, {
+				text: "clickedIcon",
+			});
+
 			return true; // Indicate that the response is sent asynchronously
 		}
 

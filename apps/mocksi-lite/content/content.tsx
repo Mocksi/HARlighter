@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			root.unmount();
 		}
 		root = ReactDOM.createRoot(extensionRoot);
-		root.render(<ContentApp isOpen={true} sessionCookie={msg.loginToken} />);
+		root.render(<ContentApp isOpen={true} />);
 	}
 	sendResponse({ status: "success" });
 });
