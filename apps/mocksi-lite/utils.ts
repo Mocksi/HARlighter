@@ -1,8 +1,8 @@
 import {
-	COOKIE_NAME,
-	MOCKSI_MODIFICATIONS,
-	MOCKSI_RECORDING_STATE,
-	RecordingState,
+  COOKIE_NAME, MOCKSI_ACCESS_TOKEN,
+  MOCKSI_MODIFICATIONS,
+  MOCKSI_RECORDING_STATE, MOCKSI_SESSION_ID, MOCKSI_USER_ID,
+  RecordingState,
 } from "./consts";
 
 export const setRootPosition = (state: RecordingState) => {
@@ -15,8 +15,10 @@ export const setRootPosition = (state: RecordingState) => {
 };
 
 export const logout = () => {
-	document.cookie = `${COOKIE_NAME}=`;
 	localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.UNAUTHORIZED);
+	localStorage.removeItem(MOCKSI_ACCESS_TOKEN);
+	localStorage.removeItem(MOCKSI_USER_ID);
+	localStorage.removeItem(MOCKSI_SESSION_ID);
 	window.open("https://nest-auth-ts-merge.onrender.com/");
 };
 
