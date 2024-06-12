@@ -3,7 +3,7 @@ export const MOCKSI_MODIFICATIONS = "mocksi-modifications";
 export const COOKIE_NAME = "sessionid";
 export const MOCKSI_ACCESS_TOKEN = "mocksi-accessToken";
 export const MOCKSI_USER_ID = "mocksi-userId";
-export const MOCKSI_SESSION_ID = "mocksi-userId";
+export const MOCKSI_SESSION_ID = "mocksi-sessionId";
 
 export enum RecordingState {
 	UNAUTHORIZED = "UNAUTHORIZED",
