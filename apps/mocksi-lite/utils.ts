@@ -5,6 +5,7 @@ import {
 	MOCKSI_SESSION_ID,
 	MOCKSI_USER_ID,
 	RecordingState,
+	SignupURL,
 } from "./consts";
 
 export const setRootPosition = (state: RecordingState) => {
@@ -21,7 +22,7 @@ export const logout = () => {
 	localStorage.removeItem(MOCKSI_ACCESS_TOKEN);
 	localStorage.removeItem(MOCKSI_USER_ID);
 	localStorage.removeItem(MOCKSI_SESSION_ID);
-	window.open("https://nest-auth-ts-merge.onrender.com/");
+	window.open(SignupURL);
 };
 
 export const saveModification = (

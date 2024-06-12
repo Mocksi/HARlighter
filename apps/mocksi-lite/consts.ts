@@ -3,7 +3,11 @@ export const MOCKSI_MODIFICATIONS = "mocksi-modifications";
 export const COOKIE_NAME = "sessionid";
 export const MOCKSI_ACCESS_TOKEN = "mocksi-accessToken";
 export const MOCKSI_USER_ID = "mocksi-userId";
-export const MOCKSI_SESSION_ID = "mocksi-sessionId";
+export const MOCKSI_SESSION_ID = "mocksi-sessionId"; // FIXME: Move to an environment variable
+export const STORAGE_CHANGE_EVENT = "MOCKSI_STORAGE_CHANGE";
+export const WebSocketURL = "wss://crowllectordb.onrender.com/ws";
+// FIXME: Move to an environment variable
+export const SignupURL = "https://nest-auth-ts-merge.onrender.com";
 
 export enum RecordingState {
 	UNAUTHORIZED = "UNAUTHORIZED",
