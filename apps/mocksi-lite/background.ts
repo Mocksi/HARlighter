@@ -1,4 +1,3 @@
-import { COOKIE_NAME } from "./consts";
 import { SignupURL, WebSocketURL } from "./consts";
 import { apiCall } from "./networking";
 
