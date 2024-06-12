@@ -1,5 +1,5 @@
 import { COOKIE_NAME } from "./consts";
-import { WebSocketURL } from "./content/constants";
+import { SignupURL, WebSocketURL } from "./content/constants";
 import { apiCall } from "./networking";
 
 export interface Alteration {
@@ -51,9 +51,8 @@ interface ChromeMessageWithData extends ChromeMessage {
 const requestInterceptions: Map<string, RequestInterception> = new Map();
 addEventListener("install", () => {
 	// TODO test if this works on other browsers
-	// TODO2 Read from environment variable the correct URL to redirect after install
 	chrome.tabs.create({
-		url: "https://mocksi-auth.onrender.com/",
+		url: SignupURL,
 	});
 });
 
@@ -70,6 +69,7 @@ interface DataPayload {
 }
 
 let loginToken = "";
+let credsJson = "";
 
 // TODO: create a type for the request
 // biome-ignore lint/suspicious/noExplicitAny: this is hard to type
@@ -304,6 +304,17 @@ chrome.runtime.onMessage.addListener(
 		if (request.message === "getRecordings") {
 			getRecordings();
 			return true;
+		}
+
+		if (request.message === "AuthEvent") {
+			chrome.storage.local.get(["mocksi-auth"], (result) => {
+				credsJson = result["mocksi-auth"];
+				// TODO: uncomment and store these credentials in a secure way
+				/*
+				const parsed = JSON.parse(result["mocksi-auth"]);
+				console.log("Auth Credentials:", parsed);
+				*/
+			});
 		}
 
 		sendResponse({ message: request.message, status: "fail" });

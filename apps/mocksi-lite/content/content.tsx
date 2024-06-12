@@ -1,5 +1,6 @@
 import ReactDOM from "react-dom/client";
 import ContentApp from "./ContentApp";
+import { STORAGE_CHANGE_EVENT } from "./constants";
 
 let root: ReactDOM.Root;
 
@@ -23,3 +24,29 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	}
 	sendResponse({ status: "success" });
 });
+
+// LocalStorageChangeEventData defines the structure for local storage change events.
+interface LocalStorageChangeEventData {
+	type: string;
+	key: string;
+	value: string;
+}
+
+// Listen for custom events from the web page
+window.addEventListener("message", (event: MessageEvent) => {
+	const eventData = event.data as LocalStorageChangeEventData;
+
+	if (event.source !== window || !eventData || !eventData.type) {
+		return;
+	}
+
+	console.log("Content script received message: ", eventData);
+	if (eventData.type.toUpperCase() === STORAGE_CHANGE_EVENT.toUpperCase()) {
+		chrome.storage.local.set({ [eventData.key]: eventData.value }).then(() => {
+			console.log(eventData.key, " set.");
+		});
+		chrome.runtime.sendMessage({ message: "AuthEvent" });
+	}
+});
+
+console.log("Content script loaded.");
