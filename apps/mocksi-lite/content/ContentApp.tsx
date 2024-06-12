@@ -11,7 +11,7 @@ import { RecordButton } from "./RecordButton";
 interface ContentProps {
 	isOpen?: boolean;
 	sessionCookie?: string | null;
-	email: string | null
+	email: string | null;
 }
 const recordingLabel = (currentStatus: RecordingState) => {
 	switch (currentStatus) {
@@ -30,7 +30,11 @@ const recordingLabel = (currentStatus: RecordingState) => {
 	}
 };
 
-export default function ContentApp({ isOpen, sessionCookie, email }: ContentProps) {
+export default function ContentApp({
+	isOpen,
+	sessionCookie,
+	email,
+}: ContentProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 	const [state, setState] = useState<RecordingState>(
 		sessionCookie ? RecordingState.ANALYZING : RecordingState.UNAUTHORIZED,

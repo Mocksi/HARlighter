@@ -1,6 +1,6 @@
 import { logout } from "../../utils";
 
-const Footer = ({email}: {email: string | null}) => {
+const Footer = ({ email }: { email: string | null }) => {
 	return (
 		<div className={"h-[36px] flex items-center justify-end pr-3"}>
 			<div className={"text-[13px] text-[#5E5E5E] mr-2"}>{email}</div>

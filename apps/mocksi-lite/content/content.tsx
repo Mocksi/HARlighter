@@ -21,9 +21,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		}
 		root = ReactDOM.createRoot(extensionRoot);
 		chrome.storage.local.get(STORAGE_KEY).then((value) => {
-			const { email } = JSON.parse(value[STORAGE_KEY] || {})
-			root.render(<ContentApp isOpen={true} sessionCookie={email || ''} email={email || ''} />);
-		})
+			const { email } = JSON.parse(value[STORAGE_KEY] || {});
+			root.render(
+				<ContentApp
+					isOpen={true}
+					sessionCookie={email || ""}
+					email={email || ""}
+				/>,
+			);
+		});
 	}
 	sendResponse({ status: "success" });
 });

@@ -12,7 +12,7 @@ interface PopupProps {
 	label: string;
 	setState: (r: RecordingState) => void;
 	state: RecordingState;
-	email: string | null
+	email: string | null;
 }
 
 const Popup = ({ label, close, setState, state, email }: PopupProps) => {
