@@ -1,3 +1,8 @@
+// FIXME: Move to an environment variable
 const WebSocketURL = "wss://crowllectordb.onrender.com/ws";
+// FIXME: Move to an environment variable
+const SignupURL = "https://nest-auth-ts-merge.onrender.com";
 
-export { WebSocketURL };
+const STORAGE_CHANGE_EVENT = "MOCKSI_STORAGE_CHANGE";
+
+export { WebSocketURL, STORAGE_CHANGE_EVENT, SignupURL };

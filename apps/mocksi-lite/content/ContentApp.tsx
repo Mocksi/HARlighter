@@ -4,9 +4,9 @@ import {MOCKSI_RECORDING_ID, RecordingState} from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
 import {sendMessage, setRootPosition} from "../utils";
+import { setEditorMode } from "./EditMode/editMode";
 import Popup from "./Popup";
 import { RecordButton } from "./RecordButton";
-import { setEditorMode } from "./content";
 
 interface ContentProps {
 	isOpen?: boolean;

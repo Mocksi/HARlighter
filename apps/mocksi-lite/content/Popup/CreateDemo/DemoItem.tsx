@@ -5,7 +5,7 @@ import { RecordingState } from "../../../consts";
 import editIcon from "../../../public/edit-icon.png";
 import exportIcon from "../../../public/export-icon.png";
 import { loadModifications } from "../../../utils";
-import { setEditorMode } from "../../content";
+import { setEditorMode } from "../../EditMode/editMode";
 
 interface DemoItemProps extends Recording {
 	setState: (r: RecordingState) => void;
