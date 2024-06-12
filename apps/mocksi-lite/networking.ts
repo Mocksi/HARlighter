@@ -1,4 +1,4 @@
-import {MOCKSI_AUTH} from "./consts";
+import { MOCKSI_AUTH } from "./consts";
 
 const API_URL = "https://crowllectordb.onrender.com/api";
 
@@ -9,15 +9,15 @@ export const apiCall = async (
 	body?: any,
 ) => {
 	try {
-    const storageAuth = await chrome.storage.local.get(MOCKSI_AUTH);
-    const mocksiAuth = JSON.parse(storageAuth[MOCKSI_AUTH]);
+		const storageAuth = await chrome.storage.local.get(MOCKSI_AUTH);
+		const mocksiAuth = JSON.parse(storageAuth[MOCKSI_AUTH]);
 
 		const res = await fetch(`${API_URL}/v1/${url}`, {
 			method,
 			headers: {
 				"Content-Type": "application/json",
 				"Accepts-Version": "v1",
-        Authorization: `Bearer ${mocksiAuth.accessToken ?? ""}`
+				Authorization: `Bearer ${mocksiAuth.accessToken ?? ""}`,
 			},
 			body: JSON.stringify(body),
 		});
