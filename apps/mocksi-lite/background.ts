@@ -127,6 +127,9 @@ function createDemo(body: DemoBody) {
 
 async function getRecordings() {
 	const response = await apiCall("recordings");
+	if (!response || response.length === 0) {
+		return;
+	}
 	const sorted = response.sort((a: Recording, b: Recording) =>
 		a.updated_timestamp > b.updated_timestamp ? -1 : 0,
 	);
