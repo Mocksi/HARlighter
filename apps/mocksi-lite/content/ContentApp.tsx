@@ -29,10 +29,7 @@ const recordingLabel = (currentStatus: RecordingState) => {
 	}
 };
 
-export default function ContentApp({
-	isOpen,
-	email,
-}: ContentProps) {
+export default function ContentApp({ isOpen, email }: ContentProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 	const initialState = localStorage.getItem(
 		MOCKSI_RECORDING_STATE,
