@@ -22,6 +22,7 @@ export const logout = () => {
 	localStorage.removeItem(MOCKSI_ACCESS_TOKEN);
 	localStorage.removeItem(MOCKSI_USER_ID);
 	localStorage.removeItem(MOCKSI_SESSION_ID);
+  chrome.storage.local.clear()
 	window.open(SignupURL);
 };
 
