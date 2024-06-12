@@ -51,7 +51,7 @@ const Popup = ({ label, close, setState, state, email }: PopupProps) => {
 			{!createForm && (
 				<div>
 					<Divider />
-					<Footer />
+					<Footer email={email}/>
 				</div>
 			)}
 		</div>
