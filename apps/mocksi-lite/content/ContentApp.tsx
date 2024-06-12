@@ -1,6 +1,6 @@
 import { useState } from "react";
 import TextField from "../common/TextField";
-import { RecordingState } from "../consts";
+import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
 import { setRootPosition } from "../utils";
@@ -10,7 +10,6 @@ import { RecordButton } from "./RecordButton";
 
 interface ContentProps {
 	isOpen?: boolean;
-	sessionCookie?: string | null;
 }
 const recordingLabel = (currentStatus: RecordingState) => {
 	switch (currentStatus) {
@@ -29,10 +28,13 @@ const recordingLabel = (currentStatus: RecordingState) => {
 	}
 };
 
-export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
+export default function ContentApp({ isOpen }: ContentProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
+	const initialState = localStorage.getItem(
+		MOCKSI_RECORDING_STATE,
+	) as RecordingState | null;
 	const [state, setState] = useState<RecordingState>(
-		sessionCookie ? RecordingState.ANALYZING : RecordingState.UNAUTHORIZED,
+		initialState ?? RecordingState.UNAUTHORIZED,
 	);
 
 	const onChangeState = (newState: RecordingState) => {
@@ -100,7 +102,7 @@ export default function ContentApp({ isOpen, sessionCookie }: ContentProps) {
 					{recordingLabel(state)}
 				</span>
 			</div>
-			{sessionCookie && state !== RecordingState.UNAUTHORIZED && (
+			{state !== RecordingState.UNAUTHORIZED && (
 				<RecordButton state={state} onRecordChange={onChangeState} />
 			)}
 		</div>
