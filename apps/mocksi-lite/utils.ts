@@ -1,8 +1,10 @@
 import {
-  COOKIE_NAME, MOCKSI_ACCESS_TOKEN,
-  MOCKSI_MODIFICATIONS,
-  MOCKSI_RECORDING_STATE, MOCKSI_SESSION_ID, MOCKSI_USER_ID,
-  RecordingState,
+	MOCKSI_ACCESS_TOKEN,
+	MOCKSI_MODIFICATIONS,
+	MOCKSI_RECORDING_STATE,
+	MOCKSI_SESSION_ID,
+	MOCKSI_USER_ID,
+	RecordingState,
 } from "./consts";
 
 export const setRootPosition = (state: RecordingState) => {
