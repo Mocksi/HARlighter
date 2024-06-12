@@ -1,4 +1,4 @@
-import { MOCKSI_RECORDING_STATE, RecordingState } from "../../consts";
+import {MOCKSI_RECORDING_ID, MOCKSI_RECORDING_STATE, RecordingState} from "../../consts";
 import { cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
 
@@ -41,12 +41,16 @@ const restoreNodes = () => {
 	}
 };
 
-export const setEditorMode = (turnOn: boolean) => {
+export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
+    if (recordingId) {
+      localStorage.setItem(MOCKSI_RECORDING_ID, recordingId);
+    }
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
 		blockNodes();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
+    localStorage.removeItem(MOCKSI_RECORDING_ID)
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
 		restoreNodes();
