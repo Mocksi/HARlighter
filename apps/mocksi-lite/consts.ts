@@ -10,6 +10,7 @@ export const MOCKSI_AUTH = "mocksi-auth";
 export const WebSocketURL = "wss://crowllectordb.onrender.com/ws";
 // FIXME: Move to an environment variable
 export const SignupURL = "https://nest-auth-ts-merge.onrender.com";
+export const STORAGE_KEY = "mocksi-auth";
 
 export enum RecordingState {
 	UNAUTHORIZED = "UNAUTHORIZED",

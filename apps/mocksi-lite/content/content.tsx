@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client";
-import { STORAGE_CHANGE_EVENT } from "../consts";
+import { STORAGE_CHANGE_EVENT, STORAGE_KEY } from "../consts";
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
@@ -20,7 +20,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			root.unmount();
 		}
 		root = ReactDOM.createRoot(extensionRoot);
-		root.render(<ContentApp isOpen={true} />);
+		chrome.storage.local.get(STORAGE_KEY).then((value) => {
+			const { email } = JSON.parse(value[STORAGE_KEY] || {});
+			root.render(<ContentApp isOpen={true} email={email || ""} />);
+		});
 	}
 	sendResponse({ status: "success" });
 });

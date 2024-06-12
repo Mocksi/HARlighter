@@ -10,6 +10,7 @@ import { RecordButton } from "./RecordButton";
 
 interface ContentProps {
 	isOpen?: boolean;
+	email: string | null;
 }
 const recordingLabel = (currentStatus: RecordingState) => {
 	switch (currentStatus) {
@@ -28,7 +29,7 @@ const recordingLabel = (currentStatus: RecordingState) => {
 	}
 };
 
-export default function ContentApp({ isOpen }: ContentProps) {
+export default function ContentApp({ isOpen, email }: ContentProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 	const initialState = localStorage.getItem(
 		MOCKSI_RECORDING_STATE,
@@ -50,6 +51,7 @@ export default function ContentApp({ isOpen }: ContentProps) {
 				label={recordingLabel(state)}
 				close={() => setIsDialogOpen(false)}
 				setState={onChangeState}
+				email={email}
 			/>
 		);
 	}

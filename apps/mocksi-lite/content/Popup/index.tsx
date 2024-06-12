@@ -12,9 +12,10 @@ interface PopupProps {
 	label: string;
 	setState: (r: RecordingState) => void;
 	state: RecordingState;
+	email: string | null;
 }
 
-const Popup = ({ label, close, setState, state }: PopupProps) => {
+const Popup = ({ label, close, setState, state, email }: PopupProps) => {
 	const [createForm, setCreateForm] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -50,7 +51,7 @@ const Popup = ({ label, close, setState, state }: PopupProps) => {
 			{!createForm && (
 				<div>
 					<Divider />
-					<Footer close={close} />
+					<Footer close={close} email={email} />
 				</div>
 			)}
 		</div>
