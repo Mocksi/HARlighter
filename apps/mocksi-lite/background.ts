@@ -1,3 +1,4 @@
+import MocksiRollbar from "./MocksiRollbar";
 import { SignupURL, WebSocketURL } from "./consts";
 import { apiCall } from "./networking";
 
@@ -53,6 +54,7 @@ addEventListener("install", () => {
 	chrome.tabs.create({
 		url: SignupURL,
 	});
+	MocksiRollbar.info("Extension installed");
 });
 
 chrome.action.onClicked.addListener((activeTab) => {
@@ -309,7 +311,7 @@ chrome.runtime.onMessage.addListener(
 	},
 );
 
-console.log("background script loaded");
+MocksiRollbar.info("background script loaded");
 
 let webSocket = new WebSocket(WebSocketURL);
 

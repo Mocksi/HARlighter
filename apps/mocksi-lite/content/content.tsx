@@ -1,4 +1,5 @@
 import ReactDOM from "react-dom/client";
+import MocksiRollbar from "../MocksiRollbar";
 import { STORAGE_CHANGE_EVENT, STORAGE_KEY } from "../consts";
 import ContentApp from "./ContentApp";
 
@@ -9,6 +10,7 @@ function initial() {
 		document.getElementById("extension-root") || document.createElement("div");
 	rootDiv.id = "extension-root";
 	document.body.appendChild(rootDiv);
+	MocksiRollbar.info("Content script loaded.");
 }
 
 document.addEventListener("DOMContentLoaded", initial);
@@ -56,5 +58,3 @@ window.addEventListener("message", (event: MessageEvent) => {
 		chrome.runtime.sendMessage({ message: "AuthEvent" });
 	}
 });
-
-console.log("Content script loaded.");
