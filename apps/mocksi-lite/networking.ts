@@ -1,4 +1,4 @@
-import {COOKIE_NAME} from "./consts";
+import { MOCKSI_AUTH } from "./consts";
 
 const API_URL = "https://crowllectordb.onrender.com/api";
 
@@ -9,16 +9,15 @@ export const apiCall = async (
 	body?: any,
 ) => {
 	try {
-    const cookie = await chrome.cookies.get(
-      { url: "https://mocksi-auth.onrender.com/", name: COOKIE_NAME }
-    );
+		const storageAuth = await chrome.storage.local.get(MOCKSI_AUTH);
+		const mocksiAuth = JSON.parse(storageAuth[MOCKSI_AUTH]);
 
 		const res = await fetch(`${API_URL}/v1/${url}`, {
 			method,
 			headers: {
 				"Content-Type": "application/json",
 				"Accepts-Version": "v1",
-        "Authorization": cookie?.value ?? ""
+				Authorization: `Bearer ${mocksiAuth.accessToken ?? ""}`,
 			},
 			body: JSON.stringify(body),
 		});
