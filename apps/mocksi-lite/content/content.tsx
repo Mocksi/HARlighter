@@ -1,7 +1,8 @@
 import ReactDOM from "react-dom/client";
 import MocksiRollbar from "../MocksiRollbar";
-import { STORAGE_CHANGE_EVENT, STORAGE_KEY } from "../consts";
+import {MOCKSI_RECORDING_STATE, RecordingState, STORAGE_CHANGE_EVENT, STORAGE_KEY} from "../consts";
 import ContentApp from "./ContentApp";
+import {setRootPosition} from "../utils";
 
 let root: ReactDOM.Root;
 
@@ -25,11 +26,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		chrome.storage.local.get(STORAGE_KEY).then((value) => {
 			const { email } = JSON.parse(value[STORAGE_KEY] || {});
 			if (email) {
-				// we need to initialize recordingState if there's none.
-				!localStorage.getItem("mocksi-recordingState") &&
-					localStorage.setItem("mocksi-recordingState", "READY");
-				root.render(<ContentApp isOpen={true} email={email || ""} />);
+        const recordingState = localStorage.getItem(MOCKSI_RECORDING_STATE) as RecordingState|null;
+        if (recordingState) {
+          setRootPosition(recordingState);
+        } else {
+          // we need to initialize recordingState if there's none.
+          localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.READY);
+        }
 			}
+      root.render(<ContentApp isOpen={true} email={email || ""} />);
 		});
 	}
 	sendResponse({ status: "success" });
