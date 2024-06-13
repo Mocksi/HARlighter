@@ -285,7 +285,7 @@ chrome.runtime.onMessage.addListener(
 
 		if (request.message === "updateDemo") {
 			if (!request.body) return false;
-      updateDemo(request.body);
+      		updateDemo(request.body);
 			return true;
 		}
 

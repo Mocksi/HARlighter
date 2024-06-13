@@ -55,13 +55,12 @@ export const persistModifications = (
 		([querySelector, {nextText, previousText}]) => ({
 			selector: querySelector,
 			action: previousText ? 'modified' : 'added',
-			dom_before: previousText,
+			dom_before: previousText || '',
 			dom_after: nextText
 		})
 	)
-	console.log(alterations)
 	const updated_timestamp = new Date()
-	// sendMessage('updateDemo', {id: recordingId, recording: { uuid: recordingId, updated_timestamp, alterations }})
+	sendMessage('updateDemo', {id: recordingId, recording: { updated_timestamp, alterations }})
 	
 }
 

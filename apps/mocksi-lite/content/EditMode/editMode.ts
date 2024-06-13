@@ -1,4 +1,4 @@
-import {MOCKSI_RECORDING_ID, MOCKSI_RECORDING_STATE, RecordingState} from "../../consts";
+import {MOCKSI_MODIFICATIONS, MOCKSI_RECORDING_ID, MOCKSI_RECORDING_STATE, RecordingState} from "../../consts";
 import { persistModifications } from "../../utils";
 import { cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
@@ -44,15 +44,16 @@ const restoreNodes = () => {
 
 export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
-		if (recordingId) {
-		localStorage.setItem(MOCKSI_RECORDING_ID, recordingId);
-		}
+		if (recordingId) localStorage.setItem(MOCKSI_RECORDING_ID, recordingId);
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
 		blockNodes();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
 		if (recordingId) {
 			persistModifications(recordingId)
+		} else {
+			// If canceled we have to delete and then undo the modifications.
+			localStorage.removeItem(MOCKSI_MODIFICATIONS)
 		}
     	localStorage.removeItem(MOCKSI_RECORDING_ID)
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
