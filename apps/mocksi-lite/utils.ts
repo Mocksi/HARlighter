@@ -38,11 +38,10 @@ export const saveModification = (
 	newText: string,
 	previousText: string,
 ) => {
-	// to successfully implement the do/undo commands, we must save somewhere in memory all commands being executed.
 	const saveModificationCommand = new SaveModificationCommand(localStorage, {
 		keyToSave: buildQuerySelector(parentElement),
 		nextText: newText,
-		previousText, // todo test previous
+		previousText,
 	});
 	commandsExecuted.push(saveModificationCommand);
 	saveModificationCommand.execute();
@@ -65,16 +64,12 @@ export const persistModifications = (recordingId: string) => {
 		id: recordingId,
 		recording: { updated_timestamp, alterations },
 	});
-	localStorage.removeItem(MOCKSI_MODIFICATIONS);
+	// localStorage.removeItem(MOCKSI_MODIFICATIONS);
 };
 
 export const undoModifications = () => {
-	// for (const command of commandsExecuted) {
-	// 	command.undo()
-	// }
-	console.log(commandsExecuted);
-	// loadModifications()
-	// localStorage.removeItem(MOCKSI_MODIFICATIONS)
+	loadModifications()
+	localStorage.removeItem(MOCKSI_MODIFICATIONS)
 };
 
 // v2 of loading alterations, this is from backend
@@ -93,6 +88,30 @@ export const loadAlterations = (alterations: Alteration[]) => {
 			const [elemToModify] = document.querySelectorAll(selector);
 			//@ts-ignore
 			elemToModify.innerHTML = dom_after;
+		}
+	}
+};
+
+// This is from localStorage
+export const loadModifications = () => {
+	const modifications: DOMModifcationsType = JSON.parse(
+		localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
+	);
+	for (const modification of Object.entries(modifications)) {
+		// value here is encoded, SHOULD NOT be a security risk to put it in the innerHTML
+		const [querySelector, { previousText }] = modification;
+		const hasIndex = querySelector.match(/\[[0-9]+\]/);
+		if (hasIndex) {
+			const index: number = +hasIndex[0].replace("[", "").replace("]", "");
+			const elemToModify = document.querySelectorAll(
+				querySelector.replace(hasIndex[0], ""),
+			)[index];
+			//@ts-ignore
+			elemToModify.innerHTML = previousText;
+		} else {
+			const [elemToModify] = document.querySelectorAll(querySelector);
+			//@ts-ignore
+			elemToModify.innerHTML = previousText;
 		}
 	}
 };

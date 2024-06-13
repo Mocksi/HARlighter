@@ -18,13 +18,8 @@ export function applyChanges(
 	oldValue: string,
 ) {
 	if (nodeWithTextArea) {
-		// const previousNode = nodeWithTextArea?.cloneNode(true)
-		// const asd = previousNode?.parentElement?.replaceChild(
-		// 	document.createTextNode(oldValue),
-		// 	previousNode
-		// )
 		const parentElement = nodeWithTextArea?.parentElement;
-		const previousText = nodeWithTextArea?.parentElement?.innerText || "";
+		const previousText = getPreviousNodeValue(nodeWithTextArea, oldValue)
 		nodeWithTextArea?.parentElement?.replaceChild(
 			document.createTextNode(newValue),
 			nodeWithTextArea,
@@ -35,5 +30,30 @@ export function applyChanges(
 			previousText,
 		);
 		parentElement?.normalize();
+	}
+}
+
+
+function getPreviousNodeValue(
+	nodeWithTextArea: HTMLElement | null,
+	oldValue: string
+) {
+	if (nodeWithTextArea) {
+		const ttt = nodeWithTextArea.parentElement?.cloneNode(true) as HTMLElement
+		for (const node of (ttt?.childNodes || [])) {
+			// @ts-ignore
+			if (node?.id === 'mocksiSelectedText') {
+				ttt?.replaceChild(
+					document.createTextNode(oldValue),
+					node
+				)
+				ttt?.normalize()
+				break;
+			}
+		}
+
+		return ttt.innerHTML || ""
+	} else {
+		return ""
 	}
 }

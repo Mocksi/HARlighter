@@ -1,10 +1,9 @@
 import {
-	MOCKSI_MODIFICATIONS,
 	MOCKSI_RECORDING_ID,
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
 } from "../../consts";
-import { persistModifications } from "../../utils";
+import { persistModifications, undoModifications } from "../../utils";
 import { cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
 
@@ -56,10 +55,8 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 	} else {
 		if (recordingId) {
 			persistModifications(recordingId);
-		} else {
-			localStorage.removeItem(MOCKSI_MODIFICATIONS);
-			// undoModifications()
 		}
+		undoModifications()
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
 		localStorage.removeItem(MOCKSI_RECORDING_ID);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
