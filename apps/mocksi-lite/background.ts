@@ -141,8 +141,8 @@ function createDemo(body: Record<string, unknown>) {
 }
 
 function updateDemo(data: Record<string, unknown>) {
-  const {id, recording} = data;
-  apiCall(`recordings/${id}`, "POST", recording).then(() => getRecordings());
+	const { id, recording } = data;
+	apiCall(`recordings/${id}`, "POST", recording).then(() => getRecordings());
 }
 
 async function getRecordings() {
@@ -284,7 +284,7 @@ chrome.runtime.onMessage.addListener(
 
 		if (request.message === "updateDemo") {
 			if (!request.body) return false;
-      		updateDemo(request.body);
+			updateDemo(request.body);
 			return true;
 		}
 

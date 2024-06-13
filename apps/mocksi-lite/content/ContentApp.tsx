@@ -1,9 +1,13 @@
 import { useState } from "react";
 import TextField from "../common/TextField";
-import {MOCKSI_RECORDING_ID, MOCKSI_RECORDING_STATE, RecordingState} from "../consts";
+import {
+	MOCKSI_RECORDING_ID,
+	MOCKSI_RECORDING_STATE,
+	RecordingState,
+} from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
-import {sendMessage, setRootPosition} from "../utils";
+import { sendMessage, setRootPosition } from "../utils";
 import { setEditorMode } from "./EditMode/editMode";
 import Popup from "./Popup";
 import { RecordButton } from "./RecordButton";
@@ -43,10 +47,10 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 		setRootPosition(newState);
 	};
 
-  const handleUpdate = () => {
-    const id = localStorage.getItem(MOCKSI_RECORDING_ID)
-    sendMessage("updateDemo", {id});
-  };
+	const handleUpdate = () => {
+		const id = localStorage.getItem(MOCKSI_RECORDING_ID);
+		sendMessage("updateDemo", { id });
+	};
 
 	if (!isDialogOpen) return null;
 	if (state === RecordingState.READY || state === RecordingState.CREATE) {
@@ -88,9 +92,17 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 						</div>
 					</div>
 				</div>
-        <div className="cursor-pointer text-[#009875]" onClick={() => setEditorMode(false, localStorage.getItem(MOCKSI_RECORDING_ID) || undefined)}>
-          Done
-        </div>
+				<div
+					className="cursor-pointer text-[#009875]"
+					onClick={() =>
+						setEditorMode(
+							false,
+							localStorage.getItem(MOCKSI_RECORDING_ID) || undefined,
+						)
+					}
+				>
+					Done
+				</div>
 			</div>
 		);
 	}

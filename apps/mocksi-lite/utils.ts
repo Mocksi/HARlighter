@@ -1,13 +1,19 @@
+import type { Alteration } from "./background";
+import {
+	type Command,
+	SaveModificationCommand,
+	buildQuerySelector,
+} from "./commands/Command";
 import {
 	MOCKSI_MODIFICATIONS,
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
 	SignupURL,
 } from "./consts";
-import { Command, SaveModificationCommand, buildQuerySelector } from "./commands/Command";
-import { Alteration } from "./background";
 
-type DOMModifcationsType = {[querySelector: string]: {nextText: string, previousText: string}}
+type DOMModifcationsType = {
+	[querySelector: string]: { nextText: string; previousText: string };
+};
 
 export const setRootPosition = (state: RecordingState) => {
 	const extensionRoot = document.getElementById("extension-root");
@@ -25,53 +31,50 @@ export const logout = () => {
 	window.open(SignupURL);
 };
 
-const commandsExecuted: Command[] = []
+const commandsExecuted: Command[] = [];
 
 export const saveModification = (
 	parentElement: HTMLElement,
 	newText: string,
-	previousText: string
+	previousText: string,
 ) => {
 	// to successfully implement the do/undo commands, we must save somewhere in memory all commands being executed.
-	const saveModificationCommand = new SaveModificationCommand(
-		localStorage,
-		{
-			keyToSave: buildQuerySelector(parentElement),
-			nextText: newText,
-			previousText // todo test previous
-		}
-	)
-	commandsExecuted.push(saveModificationCommand)
+	const saveModificationCommand = new SaveModificationCommand(localStorage, {
+		keyToSave: buildQuerySelector(parentElement),
+		nextText: newText,
+		previousText, // todo test previous
+	});
+	commandsExecuted.push(saveModificationCommand);
 	saveModificationCommand.execute();
 };
 
-export const persistModifications = (
-	recordingId: string
-) => {
-	const alterations: Alteration[] = Object.entries<{nextText: string, previousText: string}>(
-		JSON.parse(
-			localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
-		)
-	).map(
-		([querySelector, {nextText, previousText}]) => ({
+export const persistModifications = (recordingId: string) => {
+	const alterations: Alteration[] = Object.entries<{
+		nextText: string;
+		previousText: string;
+	}>(JSON.parse(localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}")).map(
+		([querySelector, { nextText, previousText }]) => ({
 			selector: querySelector,
-			action: previousText ? 'modified' : 'added',
-			dom_before: previousText || '',
-			dom_after: nextText
-		})
-	)
-	const updated_timestamp = new Date()
-	sendMessage('updateDemo', {id: recordingId, recording: { updated_timestamp, alterations }})
-}
+			action: previousText ? "modified" : "added",
+			dom_before: previousText || "",
+			dom_after: nextText,
+		}),
+	);
+	const updated_timestamp = new Date();
+	sendMessage("updateDemo", {
+		id: recordingId,
+		recording: { updated_timestamp, alterations },
+	});
+};
 
 export const undoModifications = () => {
 	// for (const command of commandsExecuted) {
 	// 	command.undo()
 	// }
-	console.log(commandsExecuted)
+	console.log(commandsExecuted);
 	// loadModifications()
 	// localStorage.removeItem(MOCKSI_MODIFICATIONS)
-}
+};
 
 export const loadModifications = () => {
 	const modifications: DOMModifcationsType = JSON.parse(

@@ -15,16 +15,16 @@ export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 export function applyChanges(
 	nodeWithTextArea: HTMLElement | null,
 	newValue: string,
-	oldValue: string
+	oldValue: string,
 ) {
 	if (nodeWithTextArea) {
 		// const previousNode = nodeWithTextArea?.cloneNode(true)
 		// const asd = previousNode?.parentElement?.replaceChild(
-			// 	document.createTextNode(oldValue),
-			// 	previousNode
-			// )
+		// 	document.createTextNode(oldValue),
+		// 	previousNode
+		// )
 		const parentElement = nodeWithTextArea?.parentElement;
-		const previousText = nodeWithTextArea?.parentElement?.innerText || ""
+		const previousText = nodeWithTextArea?.parentElement?.innerText || "";
 		nodeWithTextArea?.parentElement?.replaceChild(
 			document.createTextNode(newValue),
 			nodeWithTextArea,
@@ -32,7 +32,7 @@ export function applyChanges(
 		saveModification(
 			parentElement as HTMLElement,
 			parentElement?.innerHTML || parentElement?.innerText || "",
-			previousText
+			previousText,
 		);
 		parentElement?.normalize();
 	}

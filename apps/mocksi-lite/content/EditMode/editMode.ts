@@ -1,4 +1,9 @@
-import {MOCKSI_MODIFICATIONS, MOCKSI_RECORDING_ID, MOCKSI_RECORDING_STATE, RecordingState} from "../../consts";
+import {
+	MOCKSI_MODIFICATIONS,
+	MOCKSI_RECORDING_ID,
+	MOCKSI_RECORDING_STATE,
+	RecordingState,
+} from "../../consts";
 import { persistModifications } from "../../utils";
 import { cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
@@ -50,15 +55,15 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
 		if (recordingId) {
-			persistModifications(recordingId)
+			persistModifications(recordingId);
 		} else {
-			localStorage.removeItem(MOCKSI_MODIFICATIONS)
+			localStorage.removeItem(MOCKSI_MODIFICATIONS);
 			// undoModifications()
 		}
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
 		restoreNodes();
-		localStorage.removeItem(MOCKSI_RECORDING_ID)
+		localStorage.removeItem(MOCKSI_RECORDING_ID);
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 	}
 };

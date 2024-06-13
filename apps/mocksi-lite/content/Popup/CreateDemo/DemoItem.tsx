@@ -11,7 +11,12 @@ interface DemoItemProps extends Recording {
 	setState: (r: RecordingState) => void;
 }
 
-const DemoItem = ({ uuid, demo_name, customer_name, setState }: DemoItemProps) => {
+const DemoItem = ({
+	uuid,
+	demo_name,
+	customer_name,
+	setState,
+}: DemoItemProps) => {
 	const handleEdit = () => {
 		setEditorMode(true, uuid);
 		setState(RecordingState.EDITING);
