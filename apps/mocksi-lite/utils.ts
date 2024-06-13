@@ -68,8 +68,8 @@ export const persistModifications = (recordingId: string) => {
 };
 
 export const undoModifications = () => {
-	loadModifications()
-	localStorage.removeItem(MOCKSI_MODIFICATIONS)
+	loadModifications();
+	localStorage.removeItem(MOCKSI_MODIFICATIONS);
 };
 
 // v2 of loading alterations, this is from backend

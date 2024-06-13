@@ -56,7 +56,7 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 		if (recordingId) {
 			persistModifications(recordingId);
 		}
-		undoModifications()
+		undoModifications();
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
 		localStorage.removeItem(MOCKSI_RECORDING_ID);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
