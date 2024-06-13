@@ -5,6 +5,7 @@ import {
 	SignupURL,
 } from "./consts";
 import { Command, SaveModificationCommand, buildQuerySelector } from "./commands/Command";
+import { Alteration } from "./background";
 
 type DOMModifcationsType = {[querySelector: string]: {nextText: string, previousText: string}}
 
@@ -46,10 +47,22 @@ export const saveModification = (
 export const persistModifications = (
 	recordingId: string
 ) => {
-	const modifications: DOMModifcationsType = JSON.parse(
-		localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
+	const alterations: Alteration[] = Object.entries<{nextText: string, previousText: string}>(
+		JSON.parse(
+			localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
+		)
+	).map(
+		([querySelector, {nextText, previousText}]) => ({
+			selector: querySelector,
+			action: previousText ? 'modified' : 'added',
+			dom_before: previousText,
+			dom_after: nextText
+		})
 	)
-
+	console.log(alterations)
+	const updated_timestamp = new Date()
+	// sendMessage('updateDemo', {id: recordingId, recording: { uuid: recordingId, updated_timestamp, alterations }})
+	
 }
 
 export const loadModifications = () => {

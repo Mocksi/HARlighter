@@ -88,7 +88,7 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 						</div>
 					</div>
 				</div>
-        <div className="cursor-pointer text-[#009875]" onClick={handleUpdate}>
+        <div className="cursor-pointer text-[#009875]" onClick={() => setEditorMode(false, localStorage.getItem(MOCKSI_RECORDING_ID) || undefined)}>
           Done
         </div>
 			</div>
