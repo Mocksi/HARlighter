@@ -99,7 +99,7 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 						setEditorMode(
 							false,
 							localStorage.getItem(MOCKSI_RECORDING_ID) || undefined,
-						)
+						);
 					}}
 					onKeyUp={(event) => {
 						if (event.key === "Enter") {
@@ -107,7 +107,7 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 							setEditorMode(
 								false,
 								localStorage.getItem(MOCKSI_RECORDING_ID) || undefined,
-							)
+							);
 						}
 					}}
 				>
