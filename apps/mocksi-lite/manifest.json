@@ -6,9 +6,7 @@
 	"background": {
 		"service_worker": "./background.ts"
 	},
-	"action": {
-		"default_popup": "pages/tab-selector.html"
-	},
+	"action": {},
 	"content_scripts": [
 		{
 			"matches": ["<all_urls>"],

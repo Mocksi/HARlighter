@@ -45,6 +45,32 @@ addEventListener("install", () => {
 	});
 });
 
+chrome.action.onClicked.addListener((activeTab) => {
+	const message = "tabSelected";
+	const { id: currentTabId } = activeTab;
+	if (currentTabId) {
+		chrome.debugger.detach({ tabId: currentTabId });
+	}
+
+	if (currentTabId && currentTabId < 0) {
+		return false;
+	}
+	console.log("Attaching debugger to tab:", currentTabId);
+	const version = "1.0";
+	if (currentTabId) {
+		chrome.debugger.attach(
+			{ tabId: currentTabId },
+			version,
+			onAttach.bind(null, currentTabId),
+		);
+		chrome.debugger.onDetach.addListener(debuggerDetachHandler);
+	}
+
+	chrome.tabs.sendMessage(currentTabId || 0, {
+		text: "clickedIcon",
+	});
+});
+
 interface DataPayload {
 	request: string;
 	response: string;
@@ -122,6 +148,9 @@ function updateDemo(data: Record<string, unknown>) {
 
 async function getRecordings() {
 	const response = await apiCall("recordings");
+	if (!response || response.length === 0) {
+		return;
+	}
 	const sorted = response.sort((a: Recording, b: Recording) =>
 		a.updated_timestamp > b.updated_timestamp ? -1 : 0,
 	);
@@ -247,37 +276,6 @@ chrome.runtime.onMessage.addListener(
 		sendResponse: (response: ChromeMessage) => void,
 	): boolean => {
 		console.log("Received message:", request);
-		if (request.message === "tabSelected") {
-			console.log("Received tabSelected message:", request);
-			if (currentTabId) {
-				chrome.debugger.detach({ tabId: currentTabId });
-			}
-			if (request.tabId !== undefined) {
-				currentTabId = Number.parseInt(request.tabId, 10);
-			}
-
-			if (currentTabId && currentTabId < 0) {
-				return false;
-			}
-			console.log("Attaching debugger to tab:", currentTabId);
-			const version = "1.0";
-			if (currentTabId) {
-				chrome.debugger.attach(
-					{ tabId: currentTabId },
-					version,
-					onAttach.bind(null, currentTabId),
-				);
-				chrome.debugger.onDetach.addListener(debuggerDetachHandler);
-			}
-
-			sendResponse({ message: request.message, status: "success" });
-
-			chrome.tabs.sendMessage(currentTabId || 0, {
-				text: "clickedIcon",
-			});
-
-			return true; // Indicate that the response is sent asynchronously
-		}
 
 		if (request.message === "createDemo") {
 			if (!request.body) return false;
