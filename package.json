@@ -18,9 +18,6 @@
     "node": ">=18"
   },
   "dependencies": {
-    "capturer": "workspace:^",
-    "owlserver-chrome": "workspace:^",
-    "rag": "workspace:^",
     "@repo/harlight": "workspace:*"
   }
 }
