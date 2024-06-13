@@ -22,7 +22,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		root = ReactDOM.createRoot(extensionRoot);
 		chrome.storage.local.get(STORAGE_KEY).then((value) => {
 			const { email } = JSON.parse(value[STORAGE_KEY] || {});
-			root.render(<ContentApp isOpen={true} email={email || ""} />);
+			if (email) {
+				// we need to initialize recordingState if there's none.
+				!localStorage.getItem("mocksi-recordingState") &&
+					localStorage.setItem("mocksi-recordingState", "READY");
+				root.render(<ContentApp isOpen={true} email={email || ""} />);
+			}
 		});
 	}
 	sendResponse({ status: "success" });
