@@ -76,28 +76,25 @@ export const undoModifications = () => {
 	// localStorage.removeItem(MOCKSI_MODIFICATIONS)
 };
 
-export const loadModifications = () => {
-	const modifications: DOMModifcationsType = JSON.parse(
-		localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
-	);
-	for (const modification of Object.entries(modifications)) {
-		// value here is encoded, SHOULD NOT be a security risk to put it in the innerHTML
-		const [querySelector, { nextText }] = modification;
-		const hasIndex = querySelector.match(/\[[0-9]+\]/);
+// v2 of loading alterations, this is from backend
+export const loadAlterations = (alterations: Alteration[]) => {
+	for(const alteration of alterations) {
+		const {selector, dom_after} = alteration
+		const hasIndex = selector.match(/\[[0-9]+\]/);
 		if (hasIndex) {
 			const index: number = +hasIndex[0].replace("[", "").replace("]", "");
 			const elemToModify = document.querySelectorAll(
-				querySelector.replace(hasIndex[0], ""),
+				selector.replace(hasIndex[0], ""),
 			)[index];
 			//@ts-ignore
-			elemToModify.innerHTML = nextText;
+			elemToModify.innerHTML = dom_after;
 		} else {
-			const [elemToModify] = document.querySelectorAll(querySelector);
+			const [elemToModify] = document.querySelectorAll(selector);
 			//@ts-ignore
-			elemToModify.innerHTML = nextText;
+			elemToModify.innerHTML = dom_after;
 		}
 	}
-};
+}
 
 export const sendMessage = (
 	message: string,

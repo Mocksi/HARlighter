@@ -4,7 +4,7 @@ import TextField from "../../../common/TextField";
 import { RecordingState } from "../../../consts";
 import editIcon from "../../../public/edit-icon.png";
 import exportIcon from "../../../public/export-icon.png";
-import { loadModifications } from "../../../utils";
+import { loadAlterations } from "../../../utils";
 import { setEditorMode } from "../../EditMode/editMode";
 
 interface DemoItemProps extends Recording {
@@ -16,6 +16,7 @@ const DemoItem = ({
 	demo_name,
 	customer_name,
 	setState,
+	alterations
 }: DemoItemProps) => {
 	const handleEdit = () => {
 		setEditorMode(true, uuid);
@@ -32,7 +33,7 @@ const DemoItem = ({
 				<Button variant={Variant.icon} onClick={handleEdit}>
 					<img src={editIcon} alt={"editIcon"} />
 				</Button>
-				<Button variant={Variant.icon} onClick={() => loadModifications()}>
+				<Button variant={Variant.icon} onClick={() => loadAlterations(alterations)}>
 					<img src={exportIcon} alt={"exportIcon"} />
 				</Button>
 			</div>
