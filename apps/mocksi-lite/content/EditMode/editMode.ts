@@ -50,7 +50,7 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 		blockNodes();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
-    localStorage.removeItem(MOCKSI_RECORDING_ID)
+    	localStorage.removeItem(MOCKSI_RECORDING_ID)
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
 		restoreNodes();

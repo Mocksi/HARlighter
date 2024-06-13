@@ -4,6 +4,9 @@ import {
 	RecordingState,
 	SignupURL,
 } from "./consts";
+import { Command, SaveModificationCommand, buildQuerySelector } from "./commands/Command";
+
+type DOMModifcationsType = {[querySelector: string]: {nextText: string, previousText: string}}
 
 export const setRootPosition = (state: RecordingState) => {
 	const extensionRoot = document.getElementById("extension-root");
@@ -21,44 +24,41 @@ export const logout = () => {
 	window.open(SignupURL);
 };
 
+const commandsExecuted: Command[] = []
+
 export const saveModification = (
 	parentElement: HTMLElement,
 	newText: string,
 ) => {
-	const prevModifications = JSON.parse(
-		localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
-	);
-	let keyToSave = parentElement.localName;
-	if (parentElement.id) {
-		keyToSave += `#${parentElement.id}`;
-	}
-	if (parentElement.className) {
-		keyToSave += `.${parentElement.className}`;
-	}
-	// here we check if the key we built is sufficient to get an unique element when querying
-	const elements = document.querySelectorAll(keyToSave);
-	if (elements.length === 1) {
-		localStorage.setItem(
-			MOCKSI_MODIFICATIONS,
-			JSON.stringify({ ...prevModifications, [keyToSave]: newText }),
-		);
-	} else {
-		// if not unique, we search for the index and put it on the key.
-		keyToSave += `[${[...elements].indexOf(parentElement)}]`;
-		localStorage.setItem(
-			MOCKSI_MODIFICATIONS,
-			JSON.stringify({ ...prevModifications, [keyToSave]: newText }),
-		);
-	}
+	// to successfully implement the do/undo commands, we must save somewhere in memory all commands being executed.
+	const saveModificationCommand = new SaveModificationCommand(
+		localStorage,
+		{
+			keyToSave: buildQuerySelector(parentElement),
+			nextText: newText,
+			previousText: parentElement.innerHTML // todo test previous
+		}
+	)
+	commandsExecuted.push(saveModificationCommand)
+	saveModificationCommand.execute();
 };
 
+export const persistModifications = (
+	recordingId: string
+) => {
+	const modifications: DOMModifcationsType = JSON.parse(
+		localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
+	)
+
+}
+
 export const loadModifications = () => {
-	const modifications = JSON.parse(
+	const modifications: DOMModifcationsType = JSON.parse(
 		localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
 	);
 	for (const modification of Object.entries(modifications)) {
 		// value here is encoded, SHOULD NOT be a security risk to put it in the innerHTML
-		const [querySelector, value] = modification;
+		const [querySelector, { nextText }] = modification;
 		const hasIndex = querySelector.match(/\[[0-9]+\]/);
 		if (hasIndex) {
 			const index: number = +hasIndex[0].replace("[", "").replace("]", "");
@@ -66,11 +66,11 @@ export const loadModifications = () => {
 				querySelector.replace(hasIndex[0], ""),
 			)[index];
 			//@ts-ignore
-			elemToModify.innerHTML = value;
+			elemToModify.innerHTML = nextText;
 		} else {
 			const [elemToModify] = document.querySelectorAll(querySelector);
 			//@ts-ignore
-			elemToModify.innerHTML = value;
+			elemToModify.innerHTML = nextText;
 		}
 	}
 };
