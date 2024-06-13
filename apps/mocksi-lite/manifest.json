@@ -31,7 +31,12 @@
 		"webNavigation",
 		"webRequest"
 	],
-	"host_permissions": ["https://*/*", "<all_urls>", "http://*/*"],
+	"host_permissions": [
+		"https://*/*",
+		"<all_urls>",
+		"http://*/*",
+		"https://api.rollbar.com/"
+	],
 	"web_accessible_resources": [
 		{
 			"resources": ["./content/content.tsx"],
