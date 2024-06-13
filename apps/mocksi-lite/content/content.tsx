@@ -24,7 +24,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			const { email } = JSON.parse(value[STORAGE_KEY] || {});
 			if (email) {
 				// we need to initialize recordingState if there's none.
-				!localStorage.getItem('mocksi-recordingState') && localStorage.setItem('mocksi-recordingState', 'READY')
+				!localStorage.getItem("mocksi-recordingState") &&
+					localStorage.setItem("mocksi-recordingState", "READY");
 				root.render(<ContentApp isOpen={true} email={email || ""} />);
 			}
 		});

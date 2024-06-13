@@ -57,7 +57,7 @@ addEventListener("install", () => {
 
 chrome.action.onClicked.addListener((activeTab) => {
 	const message = "tabSelected";
-	const {id: currentTabId} = activeTab
+	const { id: currentTabId } = activeTab;
 	if (currentTabId) {
 		chrome.debugger.detach({ tabId: currentTabId });
 	}
@@ -79,7 +79,7 @@ chrome.action.onClicked.addListener((activeTab) => {
 	chrome.tabs.sendMessage(currentTabId || 0, {
 		text: "clickedIcon",
 	});
-})
+});
 
 interface DataPayload {
 	request: string;
