@@ -46,7 +46,7 @@ function injectTextArea(width: string | undefined, value: string) {
 		const selectedText = document.getElementById("mocksiSelectedText");
 		// @ts-ignore I don't know why the value property is no inside the target object
 		const newValue = event.target?.value;
-		applyChanges(selectedText, newValue);
+		applyChanges(selectedText, newValue, value);
 	};
 	//@ts-ignore
 	ndiv.value = value;

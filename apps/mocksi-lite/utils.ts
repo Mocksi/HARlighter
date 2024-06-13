@@ -30,6 +30,7 @@ const commandsExecuted: Command[] = []
 export const saveModification = (
 	parentElement: HTMLElement,
 	newText: string,
+	previousText: string
 ) => {
 	// to successfully implement the do/undo commands, we must save somewhere in memory all commands being executed.
 	const saveModificationCommand = new SaveModificationCommand(
@@ -37,7 +38,7 @@ export const saveModification = (
 		{
 			keyToSave: buildQuerySelector(parentElement),
 			nextText: newText,
-			previousText: parentElement.innerHTML // todo test previous
+			previousText // todo test previous
 		}
 	)
 	commandsExecuted.push(saveModificationCommand)
@@ -61,7 +62,15 @@ export const persistModifications = (
 	)
 	const updated_timestamp = new Date()
 	sendMessage('updateDemo', {id: recordingId, recording: { updated_timestamp, alterations }})
-	
+}
+
+export const undoModifications = () => {
+	// for (const command of commandsExecuted) {
+	// 	command.undo()
+	// }
+	console.log(commandsExecuted)
+	// loadModifications()
+	// localStorage.removeItem(MOCKSI_MODIFICATIONS)
 }
 
 export const loadModifications = () => {

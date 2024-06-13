@@ -53,7 +53,7 @@ export class SaveModificationCommand implements Command {
         const {keyToSave, previousText} = this.modification
         this.localStorage.setItem(
             MOCKSI_MODIFICATIONS,
-            JSON.stringify({...this.prevModifications, [keyToSave]: {previousText} || undefined})
+            JSON.stringify({...this.prevModifications, [keyToSave]: {previousText}})
         )
     }
 }

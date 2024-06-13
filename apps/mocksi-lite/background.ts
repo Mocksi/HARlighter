@@ -46,7 +46,6 @@ addEventListener("install", () => {
 });
 
 chrome.action.onClicked.addListener((activeTab) => {
-	const message = "tabSelected";
 	const { id: currentTabId } = activeTab;
 	if (currentTabId) {
 		chrome.debugger.detach({ tabId: currentTabId });

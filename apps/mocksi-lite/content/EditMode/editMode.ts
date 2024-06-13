@@ -52,13 +52,13 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 		if (recordingId) {
 			persistModifications(recordingId)
 		} else {
-			// If canceled we have to delete and then undo the modifications.
 			localStorage.removeItem(MOCKSI_MODIFICATIONS)
+			// undoModifications()
 		}
-    	localStorage.removeItem(MOCKSI_RECORDING_ID)
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
 		restoreNodes();
+		localStorage.removeItem(MOCKSI_RECORDING_ID)
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 	}
 };
