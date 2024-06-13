@@ -18,7 +18,7 @@ export interface Recording {
 	dom_before: string;
 	tab_id: string;
 	uuid: string;
-  url: string;
+	url: string;
 }
 
 interface ChromeMessage {
@@ -139,7 +139,7 @@ function createDemo(body: Record<string, unknown>) {
 			...body,
 			...defaultBody,
 			tab_id: result.id?.toString() ?? "",
-      url: result.url
+			url: result.url,
 		}).then(() => getRecordings());
 	});
 }

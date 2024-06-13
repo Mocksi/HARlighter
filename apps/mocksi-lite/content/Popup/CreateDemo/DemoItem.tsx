@@ -17,7 +17,7 @@ const DemoItem = ({
 	customer_name,
 	setState,
 	alterations,
-  url
+	url,
 }: DemoItemProps) => {
 	const handleEdit = () => {
 		setEditorMode(true, uuid);
@@ -31,13 +31,17 @@ const DemoItem = ({
 				<TextField>{customer_name}</TextField>
 			</div>
 			<div className={"flex gap-3"}>
-				<Button variant={Variant.icon} onClick={handleEdit} disabled={!url.includes(window.location.hostname)}>
+				<Button
+					variant={Variant.icon}
+					onClick={handleEdit}
+					disabled={!url.includes(window.location.hostname)}
+				>
 					<img src={editIcon} alt={"editIcon"} />
 				</Button>
 				<Button
 					variant={Variant.icon}
 					onClick={() => loadAlterations(alterations)}
-          disabled={!url.includes(window.location.hostname)}
+					disabled={!url.includes(window.location.hostname)}
 				>
 					<img src={exportIcon} alt={"exportIcon"} />
 				</Button>
