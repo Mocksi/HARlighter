@@ -16,7 +16,7 @@ const DemoItem = ({
 	demo_name,
 	customer_name,
 	setState,
-	alterations
+	alterations,
 }: DemoItemProps) => {
 	const handleEdit = () => {
 		setEditorMode(true, uuid);
@@ -33,7 +33,10 @@ const DemoItem = ({
 				<Button variant={Variant.icon} onClick={handleEdit}>
 					<img src={editIcon} alt={"editIcon"} />
 				</Button>
-				<Button variant={Variant.icon} onClick={() => loadAlterations(alterations)}>
+				<Button
+					variant={Variant.icon}
+					onClick={() => loadAlterations(alterations)}
+				>
 					<img src={exportIcon} alt={"exportIcon"} />
 				</Button>
 			</div>

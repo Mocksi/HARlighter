@@ -61,9 +61,9 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 			// undoModifications()
 		}
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
+		localStorage.removeItem(MOCKSI_RECORDING_ID);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
 		restoreNodes();
-		localStorage.removeItem(MOCKSI_RECORDING_ID);
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 	}
 };

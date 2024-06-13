@@ -94,12 +94,22 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 				</div>
 				<div
 					className="cursor-pointer text-[#009875]"
-					onClick={() =>
+					onClick={() => {
+						onChangeState(RecordingState.CREATE);
 						setEditorMode(
 							false,
 							localStorage.getItem(MOCKSI_RECORDING_ID) || undefined,
 						)
-					}
+					}}
+					onKeyUp={(event) => {
+						if (event.key === "Enter") {
+							onChangeState(RecordingState.CREATE);
+							setEditorMode(
+								false,
+								localStorage.getItem(MOCKSI_RECORDING_ID) || undefined,
+							)
+						}
+					}}
 				>
 					Done
 				</div>

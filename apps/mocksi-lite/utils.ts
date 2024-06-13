@@ -65,6 +65,7 @@ export const persistModifications = (recordingId: string) => {
 		id: recordingId,
 		recording: { updated_timestamp, alterations },
 	});
+	localStorage.removeItem(MOCKSI_MODIFICATIONS);
 };
 
 export const undoModifications = () => {
@@ -78,8 +79,8 @@ export const undoModifications = () => {
 
 // v2 of loading alterations, this is from backend
 export const loadAlterations = (alterations: Alteration[]) => {
-	for(const alteration of alterations) {
-		const {selector, dom_after} = alteration
+	for (const alteration of alterations) {
+		const { selector, dom_after } = alteration;
 		const hasIndex = selector.match(/\[[0-9]+\]/);
 		if (hasIndex) {
 			const index: number = +hasIndex[0].replace("[", "").replace("]", "");
@@ -94,7 +95,7 @@ export const loadAlterations = (alterations: Alteration[]) => {
 			elemToModify.innerHTML = dom_after;
 		}
 	}
-}
+};
 
 export const sendMessage = (
 	message: string,
