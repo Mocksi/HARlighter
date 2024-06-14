@@ -1,6 +1,4 @@
-import { MOCKSI_AUTH } from "./consts";
-
-const API_URL = "https://crowllectordb.onrender.com/api";
+import { API_URL, MOCKSI_AUTH } from "./consts";
 
 export const apiCall = async (
 	url: string,
