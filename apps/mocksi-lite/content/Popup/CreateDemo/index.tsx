@@ -25,7 +25,9 @@ const CreateDemo = ({
 	}, []);
 
 	const handleCancelClick = (recordings?: Recording[]) => {
-		if (recordings) setRecordings(recordings);
+		if (recordings) {
+			setRecordings(recordings || []);
+		}
 		setCreateForm(false);
 	};
 
