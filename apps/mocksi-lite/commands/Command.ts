@@ -40,12 +40,16 @@ export class SaveModificationCommand implements Command {
 
 	execute(): void {
 		const { keyToSave, nextText, previousText } = this.modification;
-        const { previousText: previousTextFromStorage} = this.prevModifications[keyToSave] || {}
+		const { previousText: previousTextFromStorage } =
+			this.prevModifications[keyToSave] || {};
 		this.localStorage.setItem(
 			MOCKSI_MODIFICATIONS,
 			JSON.stringify({
 				...this.prevModifications,
-				[keyToSave]: { nextText, previousText: previousTextFromStorage || previousText },
+				[keyToSave]: {
+					nextText,
+					previousText: previousTextFromStorage || previousText,
+				},
 			}),
 		);
 	}

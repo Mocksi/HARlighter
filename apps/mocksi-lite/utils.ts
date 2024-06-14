@@ -11,7 +11,7 @@ import {
 	SignupURL,
 } from "./consts";
 
-type DOMModifcationsType = {
+type DOMModificationsType = {
 	[querySelector: string]: { nextText: string; previousText: string };
 };
 
@@ -48,10 +48,11 @@ export const saveModification = (
 };
 
 export const persistModifications = (recordingId: string) => {
+	const modificationsFromStorage = getModificationsFromStorage()
 	const alterations: Alteration[] = Object.entries<{
 		nextText: string;
 		previousText: string;
-	}>(JSON.parse(localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}")).map(
+	}>(modificationsFromStorage).map(
 		([querySelector, { nextText, previousText }]) => ({
 			selector: querySelector,
 			action: previousText ? "modified" : "added",
@@ -94,9 +95,7 @@ export const loadAlterations = (alterations: Alteration[]) => {
 
 // This is from localStorage
 export const loadModifications = () => {
-	const modifications: DOMModifcationsType = JSON.parse(
-		localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
-	);
+	const modifications: DOMModificationsType = getModificationsFromStorage()
 	for (const modification of Object.entries(modifications)) {
 		// value here is encoded, SHOULD NOT be a security risk to put it in the innerHTML
 		const [querySelector, { previousText }] = modification;
@@ -115,6 +114,14 @@ export const loadModifications = () => {
 		}
 	}
 };
+
+const getModificationsFromStorage = () => {
+	try {
+		return JSON.parse(localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}");
+		} catch (error) {
+		console.error("Error parsing modifications:", error);
+	}
+}
 
 export const sendMessage = (
 	message: string,
