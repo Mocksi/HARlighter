@@ -49,7 +49,7 @@ const Form = ({ onCancel }: FormProps) => {
 						/>
 					</div>
 					<div className={"mt-[42px] flex justify-end gap-4"}>
-						<Button onClick={onCancel} variant={Variant.secondary}>
+						<Button onClick={() => onCancel()} variant={Variant.secondary}>
 							Cancel
 						</Button>
 						<Button disabled={!name.length} onClick={handleSubmit}>
