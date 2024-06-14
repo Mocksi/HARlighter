@@ -18,11 +18,22 @@ const CreateDemo = ({
 	setState,
 }: CreateDemoProps) => {
 	const [recordings, setRecordings] = useState<Recording[]>([]);
+
+	const getRecordings = async () => {
+		const results = await chrome.storage.local.get(["recordings"]);
+		const newRecordings = JSON.parse(results.recordings);
+		if (newRecordings.length === recordings.length) {
+			getRecordings();
+		} else {
+			setRecordings(newRecordings);
+		}
+	};
+
 	useEffect(() => {
-		chrome.storage.local.get(["recordings"], (results) =>
-			setRecordings(JSON.parse(results.recordings) ?? []),
-		);
-	}, []);
+		if (!createForm) {
+			getRecordings();
+		}
+	}, [createForm, getRecordings]);
 
 	const handleCancelClick = (recordings?: Recording[]) => {
 		if (recordings) setRecordings(recordings);
