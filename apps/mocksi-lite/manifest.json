@@ -39,7 +39,10 @@
 	],
 	"web_accessible_resources": [
 		{
-			"resources": ["./content/content.tsx"],
+			"resources": [
+				"./content/content.tsx",
+				"/*.map"
+			],
 			"matches": ["<all_urls>"]
 		}
 	],
