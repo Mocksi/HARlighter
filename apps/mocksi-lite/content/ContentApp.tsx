@@ -1,9 +1,13 @@
 import { useState } from "react";
 import TextField from "../common/TextField";
-import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
+import {
+	MOCKSI_RECORDING_ID,
+	MOCKSI_RECORDING_STATE,
+	RecordingState,
+} from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
-import { setRootPosition } from "../utils";
+import { sendMessage, setRootPosition } from "../utils";
 import { setEditorMode } from "./EditMode/editMode";
 import Popup from "./Popup";
 import { RecordButton } from "./RecordButton";
@@ -41,6 +45,11 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 	const onChangeState = (newState: RecordingState) => {
 		setState(newState);
 		setRootPosition(newState);
+	};
+
+	const handleUpdate = () => {
+		const id = localStorage.getItem(MOCKSI_RECORDING_ID);
+		sendMessage("updateDemo", { id });
 	};
 
 	if (!isDialogOpen) return null;
@@ -82,6 +91,27 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 							Highlight All Previous Changes
 						</div>
 					</div>
+				</div>
+				<div
+					className="cursor-pointer text-[#009875]"
+					onClick={() => {
+						onChangeState(RecordingState.CREATE);
+						setEditorMode(
+							false,
+							localStorage.getItem(MOCKSI_RECORDING_ID) || undefined,
+						);
+					}}
+					onKeyUp={(event) => {
+						if (event.key === "Enter") {
+							onChangeState(RecordingState.CREATE);
+							setEditorMode(
+								false,
+								localStorage.getItem(MOCKSI_RECORDING_ID) || undefined,
+							);
+						}
+					}}
+				>
+					Done
 				</div>
 			</div>
 		);

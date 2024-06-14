@@ -18,23 +18,14 @@ export interface Recording {
 	dom_before: string;
 	tab_id: string;
 	uuid: string;
-}
-
-interface DemoBody {
-	created_timestamp: Date;
-	updated_timestamp: Date;
-	creator: string;
-	tabID: string;
-	sessionID: string;
-	dom_before: string;
-	alterations: Alteration[];
+	url: string;
 }
 
 interface ChromeMessage {
 	message: string;
 	status?: string;
 	tabId?: string;
-	body?: DemoBody;
+	body?: Record<string, unknown>;
 }
 
 interface RequestInterception {
@@ -58,7 +49,6 @@ addEventListener("install", () => {
 });
 
 chrome.action.onClicked.addListener((activeTab) => {
-	const message = "tabSelected";
 	const { id: currentTabId } = activeTab;
 	if (currentTabId) {
 		chrome.debugger.detach({ tabId: currentTabId });
@@ -139,7 +129,7 @@ function debuggerDetachHandler() {
 	console.log("detach");
 	requests.clear();
 }
-function createDemo(body: DemoBody) {
+function createDemo(body: Record<string, unknown>) {
 	const defaultBody = {
 		created_timestamp: new Date(),
 		updated_timestamp: new Date(),
@@ -149,8 +139,14 @@ function createDemo(body: DemoBody) {
 			...body,
 			...defaultBody,
 			tab_id: result.id?.toString() ?? "",
+			url: result.url,
 		}).then(() => getRecordings());
 	});
+}
+
+function updateDemo(data: Record<string, unknown>) {
+	const { id, recording } = data;
+	apiCall(`recordings/${id}`, "POST", recording).then(() => getRecordings());
 }
 
 async function getRecordings() {
@@ -287,6 +283,12 @@ chrome.runtime.onMessage.addListener(
 		if (request.message === "createDemo") {
 			if (!request.body) return false;
 			createDemo(request.body);
+			return true;
+		}
+
+		if (request.message === "updateDemo") {
+			if (!request.body) return false;
+			updateDemo(request.body);
 			return true;
 		}
 
