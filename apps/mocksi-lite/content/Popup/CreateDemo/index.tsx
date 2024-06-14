@@ -20,12 +20,16 @@ const CreateDemo = ({
 	const [recordings, setRecordings] = useState<Recording[]>([]);
 
 	const getRecordings = async () => {
-		const results = await chrome.storage.local.get(["recordings"]);
-		const newRecordings = JSON.parse(results.recordings);
-		if (newRecordings.length === recordings.length) {
-			getRecordings();
-		} else {
-			setRecordings(newRecordings);
+		try {
+			const results = await chrome.storage.local.get(["recordings"]);
+			const newRecordings = JSON.parse(results.recordings ?? "{}");
+			if (newRecordings.length === recordings.length) {
+				getRecordings();
+			} else {
+				setRecordings(newRecordings);
+			}
+		} catch (error) {
+			return;
 		}
 	};
 
