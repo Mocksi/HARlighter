@@ -19,9 +19,13 @@ const CreateDemo = ({
 }: CreateDemoProps) => {
 	const [recordings, setRecordings] = useState<Recording[]>([]);
 	useEffect(() => {
-		chrome.storage.local.get(["recordings"], (results) =>
-			setRecordings(JSON.parse(results.recordings) ?? []),
-		);
+		try {
+			chrome.storage.local.get(["recordings"], (results) =>
+				setRecordings(JSON.parse(results.recordings) ?? []),
+			);
+		} catch (error) {
+			console.error("Error retrieving recordings from storage:", error);
+		}
 	}, []);
 
 	const handleCancelClick = (recordings?: Recording[]) => {

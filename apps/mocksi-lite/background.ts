@@ -312,8 +312,6 @@ chrome.runtime.onMessage.addListener(
 	},
 );
 
-MocksiRollbar.info("background script loaded");
-
 let webSocket = new WebSocket(WebSocketURL);
 
 webSocket.onopen = () => {
@@ -327,6 +325,7 @@ webSocket.onmessage = (event) => {
 		const parsed = JSON.parse(event.data);
 		command = parsed as RequestInterception;
 	} catch (e) {
+		console.error("Error parsing websocket message", e);
 		return;
 	}
 
@@ -379,29 +378,17 @@ webSocket.onclose = () => {
 		}
 		reconnectTimeout = setTimeout(() => {
 			console.log("Reconnecting websocket...");
+			const oldWebSocket = webSocket;
 			webSocket = new WebSocket(WebSocketURL);
-			webSocket.onopen = () => {
-				console.log("Websocket reconnected");
-				keepAlive();
-			};
-			webSocket.onmessage = (event) => {
-				console.log(`Websocket received message: ${event.data}`);
-			};
-			webSocket.onclose = () => {
-				reconnectWebSocket();
-			};
+			// FIXME: this is nasty, but it works
+			webSocket.onopen = oldWebSocket.onopen;
+			webSocket.onmessage = oldWebSocket.onmessage;
+			webSocket.onclose = oldWebSocket.onclose;
 		}, reconnectInterval);
 	}
 
 	reconnectWebSocket();
 };
-
-function disconnect() {
-	if (webSocket == null) {
-		return;
-	}
-	webSocket.close();
-}
 
 function keepAlive() {
 	const keepAliveIntervalId = setInterval(() => {

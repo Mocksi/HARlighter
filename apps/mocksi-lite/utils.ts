@@ -73,23 +73,29 @@ export const undoModifications = () => {
 	localStorage.removeItem(MOCKSI_MODIFICATIONS);
 };
 
+const modifyElementInnerHTML = (selector: string, content: string) => {
+	const hasIndex = selector.match(/\[[0-9]+\]/);
+	let elemToModify: Element | null;
+
+	if (hasIndex) {
+		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
+		elemToModify =
+			document.querySelectorAll(selector.replace(hasIndex[0], ""))[index] ||
+			null;
+	} else {
+		elemToModify = document.querySelector(selector) || null;
+	}
+
+	if (elemToModify !== null) {
+		elemToModify.innerHTML = content;
+	}
+};
+
 // v2 of loading alterations, this is from backend
 export const loadAlterations = (alterations: Alteration[]) => {
 	for (const alteration of alterations) {
 		const { selector, dom_after } = alteration;
-		const hasIndex = selector.match(/\[[0-9]+\]/);
-		if (hasIndex) {
-			const index: number = +hasIndex[0].replace("[", "").replace("]", "");
-			const elemToModify = document.querySelectorAll(
-				selector.replace(hasIndex[0], ""),
-			)[index];
-			//@ts-ignore
-			elemToModify.innerHTML = dom_after;
-		} else {
-			const [elemToModify] = document.querySelectorAll(selector);
-			//@ts-ignore
-			elemToModify.innerHTML = dom_after;
-		}
+		modifyElementInnerHTML(selector, dom_after);
 	}
 };
 
@@ -97,29 +103,17 @@ export const loadAlterations = (alterations: Alteration[]) => {
 export const loadModifications = () => {
 	const modifications: DOMModificationsType = getModificationsFromStorage();
 	for (const modification of Object.entries(modifications)) {
-		// value here is encoded, SHOULD NOT be a security risk to put it in the innerHTML
 		const [querySelector, { previousText }] = modification;
-		const hasIndex = querySelector.match(/\[[0-9]+\]/);
-		if (hasIndex) {
-			const index: number = +hasIndex[0].replace("[", "").replace("]", "");
-			const elemToModify = document.querySelectorAll(
-				querySelector.replace(hasIndex[0], ""),
-			)[index];
-			//@ts-ignore
-			elemToModify.innerHTML = previousText;
-		} else {
-			const [elemToModify] = document.querySelectorAll(querySelector);
-			//@ts-ignore
-			elemToModify.innerHTML = previousText;
-		}
+		modifyElementInnerHTML(querySelector, previousText);
 	}
 };
 
-const getModificationsFromStorage = () => {
+const getModificationsFromStorage = (): DOMModificationsType => {
 	try {
 		return JSON.parse(localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}");
 	} catch (error) {
 		console.error("Error parsing modifications:", error);
+		return {};
 	}
 };
 
@@ -130,6 +124,5 @@ export const sendMessage = (
 	chrome.runtime.sendMessage({ message, body }, (response) => {
 		if (response?.status !== "success") {
 			console.error("Failed to send message to background script");
-			return;
 		}
 	});
