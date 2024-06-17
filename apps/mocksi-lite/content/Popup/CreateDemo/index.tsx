@@ -19,22 +19,22 @@ const CreateDemo = ({
 }: CreateDemoProps) => {
 	const [recordings, setRecordings] = useState<Recording[]>([]);
 
-  const getRecordings = async () => {
-    let continueFetching = true;
-    while (continueFetching) {
-      try {
-        const results = await chrome.storage.local.get(["recordings"]);
-        const newRecordings = JSON.parse(results.recordings ?? "{}");
-        if (newRecordings.length !== recordings.length) {
-          setRecordings(newRecordings);
-          continueFetching = false; // Stop the loop if recordings have been updated
-        }
-      } catch (error) {
-        continueFetching = false; // Stop the loop in case of an error
-        console.error("Failed to fetch recordings:", error);
-      }
-    }
-  };
+	const getRecordings = async () => {
+		let continueFetching = true;
+		while (continueFetching) {
+			try {
+				const results = await chrome.storage.local.get(["recordings"]);
+				const newRecordings = JSON.parse(results.recordings ?? "{}");
+				if (newRecordings.length !== recordings.length) {
+					setRecordings(newRecordings);
+					continueFetching = false; // Stop the loop if recordings have been updated
+				}
+			} catch (error) {
+				continueFetching = false; // Stop the loop in case of an error
+				console.error("Failed to fetch recordings:", error);
+			}
+		}
+	};
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
