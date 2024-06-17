@@ -16,7 +16,6 @@ function initial() {
 		document.getElementById("extension-root") || document.createElement("div");
 	rootDiv.id = "extension-root";
 	document.body.appendChild(rootDiv);
-	MocksiRollbar.info("Content script loaded.");
 }
 
 document.addEventListener("DOMContentLoaded", initial);
@@ -29,7 +28,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		}
 		root = ReactDOM.createRoot(extensionRoot);
 		chrome.storage.local.get(STORAGE_KEY).then((value) => {
-			const { email } = JSON.parse(value[STORAGE_KEY] || "{}");
+			let parsedData: { email: string } | undefined;
+			try {
+				parsedData = JSON.parse(value[STORAGE_KEY]);
+			} catch (error) {
+				console.error(error);
+				MocksiRollbar.error("Error parsing chrome storage");
+			}
+			const { email } = parsedData || {};
 			const recordingState = localStorage.getItem(
 				MOCKSI_RECORDING_STATE,
 			) as RecordingState | null;
@@ -67,6 +73,5 @@ window.addEventListener("message", (event: MessageEvent) => {
 		chrome.storage.local.set({ [eventData.key]: eventData.value }).then(() => {
 			console.log(eventData.key, " set.");
 		});
-		chrome.runtime.sendMessage({ message: "AuthEvent" });
 	}
 });

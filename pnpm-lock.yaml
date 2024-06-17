@@ -59,8 +59,8 @@ importers:
         specifier: ^9.0.8
         version: 9.0.8
       extension:
-        specifier: 1.6.0-beta.1
-        version: 1.6.0-beta.1(browserslist@4.23.0)(type-fest@0.21.3)(typescript@5.3.3)
+        specifier: 1.7.1
+        version: 1.7.1(browserslist@4.23.0)(type-fest@0.21.3)(typescript@5.3.3)
       react:
         specifier: ^18.1.0
         version: 18.2.0
@@ -3094,8 +3094,8 @@ packages:
     resolution: {integrity: sha512-5T6nhjsT+EOMzuck8JjBHARTHfMht0POzlA60WV2pMD3gyXw2LZnZ+ueGdNxG+0calOJcWKbpFcuzLZ91YWq9Q==}
     engines: {node: '>= 0.10.0'}
 
-  extension@1.6.0-beta.1:
-    resolution: {integrity: sha512-DfcfeVgkzBgIwiJ0pT8qCII5EkiDRKYqkwp1VQ5bZUa1RWvcaBI3wyKSZXGAiULb+oWBiJYVTmBDjJ8bvi3uxw==}
+  extension@1.7.1:
+    resolution: {integrity: sha512-dRocYhnfjQflPVDDsctCN6/jscB4XqZQ1TN8qfl/MSmbqDEFM6Sr0RIHhdeFwNEHYoKsJx9SwnV1qISGhofkTw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -6005,12 +6005,6 @@ packages:
     resolution: {integrity: sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==}
     engines: {node: '>=10.13.0'}
 
-  webpack-target-webextension@1.1.1:
-    resolution: {integrity: sha512-C4h53QxtTgYKHLXof3ZH1zLv3yHjOeLpmiwz9ja6mn+E0Z7Ddc9lMuVC3UKIhnb0hctJvISOTwTXS5RQGdZkoA==}
-    engines: {node: '>=14.17.6'}
-    peerDependencies:
-      webpack: ^5.0.0
-
   webpack-target-webextension@1.1.2:
     resolution: {integrity: sha512-/BwCTlnkq4BmY4pD3HV2tLZVTMJhM+YslbJFi8Yl4GL8FsPsHvg0jcDs/XGtHwm59A9oK3Oiaz+0y1nJNZESrg==}
     engines: {node: '>=14.17.6'}
@@ -6179,7 +6173,7 @@ snapshots:
   '@babel/code-frame@7.24.6':
     dependencies:
       '@babel/highlight': 7.24.6
-      picocolors: 1.0.0
+      picocolors: 1.0.1
 
   '@babel/compat-data@7.23.3': {}
 
@@ -6436,7 +6430,7 @@ snapshots:
       '@babel/helper-validator-identifier': 7.24.6
       chalk: 2.4.2
       js-tokens: 4.0.0
-      picocolors: 1.0.0
+      picocolors: 1.0.1
 
   '@babel/parser@7.23.3':
     dependencies:
@@ -6444,7 +6438,7 @@ snapshots:
 
   '@babel/parser@7.23.6':
     dependencies:
-      '@babel/types': 7.23.6
+      '@babel/types': 7.24.6
 
   '@babel/parser@7.24.6':
     dependencies:
@@ -7006,7 +7000,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
-      '@babel/types': 7.23.3
+      '@babel/types': 7.24.6
       esutils: 2.0.3
 
   '@babel/preset-react@7.24.6(@babel/core@7.24.6)':
@@ -7070,12 +7064,12 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.24.6
       '@babel/generator': 7.24.6
-      '@babel/helper-environment-visitor': 7.22.20
-      '@babel/helper-function-name': 7.23.0
-      '@babel/helper-hoist-variables': 7.22.5
-      '@babel/helper-split-export-declaration': 7.22.6
-      '@babel/parser': 7.23.6
-      '@babel/types': 7.23.6
+      '@babel/helper-environment-visitor': 7.24.6
+      '@babel/helper-function-name': 7.24.6
+      '@babel/helper-hoist-variables': 7.24.6
+      '@babel/helper-split-export-declaration': 7.24.6
+      '@babel/parser': 7.24.6
+      '@babel/types': 7.24.6
       debug: 4.3.4
       globals: 11.12.0
     transitivePeerDependencies:
@@ -7105,7 +7099,7 @@ snapshots:
   '@babel/types@7.23.6':
     dependencies:
       '@babel/helper-string-parser': 7.24.6
-      '@babel/helper-validator-identifier': 7.22.20
+      '@babel/helper-validator-identifier': 7.24.6
       to-fast-properties: 2.0.0
 
   '@babel/types@7.24.6':
@@ -8296,9 +8290,9 @@ snapshots:
       mime-types: 2.1.35
       negotiator: 0.6.3
 
-  acorn-import-assertions@1.9.0(acorn@8.10.0):
+  acorn-import-assertions@1.9.0(acorn@8.11.3):
     dependencies:
-      acorn: 8.10.0
+      acorn: 8.11.3
 
   acorn-jsx@5.3.2(acorn@8.10.0):
     dependencies:
@@ -8474,7 +8468,7 @@ snapshots:
       caniuse-lite: 1.0.30001625
       fraction.js: 4.3.7
       normalize-range: 0.1.2
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       postcss: 8.4.38
       postcss-value-parser: 4.2.0
 
@@ -8931,7 +8925,7 @@ snapshots:
   css-tree@2.3.1:
     dependencies:
       mdn-data: 2.0.30
-      source-map-js: 1.0.2
+      source-map-js: 1.2.0
 
   cssdb@8.0.2: {}
 
@@ -9610,7 +9604,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  extension@1.6.0-beta.1(browserslist@4.23.0)(type-fest@0.21.3)(typescript@5.3.3):
+  extension@1.7.1(browserslist@4.23.0)(type-fest@0.21.3)(typescript@5.3.3):
     dependencies:
       '@colors/colors': 1.6.0
       '@extension-create/create': 1.5.0
@@ -9776,7 +9770,7 @@ snapshots:
 
   fork-ts-checker-webpack-plugin@9.0.2(typescript@5.3.3)(webpack@5.89.0):
     dependencies:
-      '@babel/code-frame': 7.22.13
+      '@babel/code-frame': 7.24.6
       chalk: 4.1.2
       chokidar: 3.6.0
       cosmiconfig: 8.3.6(typescript@5.3.3)
@@ -10091,7 +10085,7 @@ snapshots:
       http-proxy: 1.18.1
       is-glob: 4.0.3
       is-plain-obj: 3.0.0
-      micromatch: 4.0.5
+      micromatch: 4.0.7
     optionalDependencies:
       '@types/express': 4.17.21
     transitivePeerDependencies:
@@ -10530,7 +10524,7 @@ snapshots:
 
   launch-editor@2.6.1:
     dependencies:
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       shell-quote: 1.8.1
 
   less-loader@12.2.0(less@4.2.0)(webpack@5.89.0):
@@ -11740,7 +11734,7 @@ snapshots:
     dependencies:
       chokidar: 3.6.0
       immutable: 4.3.6
-      source-map-js: 1.0.2
+      source-map-js: 1.2.0
 
   sax@1.4.1: {}
 
@@ -12114,7 +12108,7 @@ snapshots:
     dependencies:
       globby: 11.1.0
       jest-worker: 29.7.0
-      micromatch: 4.0.5
+      micromatch: 4.0.7
       normalize-path: 3.0.0
       schema-utils: 4.2.0
       stylelint: 16.6.1(typescript@5.3.3)
@@ -12248,7 +12242,7 @@ snapshots:
 
   terser-webpack-plugin@5.3.10(webpack@5.89.0):
     dependencies:
-      '@jridgewell/trace-mapping': 0.3.20
+      '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
@@ -12258,7 +12252,7 @@ snapshots:
   terser@5.31.0:
     dependencies:
       '@jridgewell/source-map': 0.3.6
-      acorn: 8.10.0
+      acorn: 8.11.3
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -12344,7 +12338,7 @@ snapshots:
     dependencies:
       chalk: 4.1.2
       enhanced-resolve: 5.15.0
-      micromatch: 4.0.5
+      micromatch: 4.0.7
       semver: 7.5.4
       source-map: 0.7.4
       typescript: 5.3.3
@@ -12799,7 +12793,7 @@ snapshots:
       progress: 2.0.3
       schema-utils: 4.2.0
       webpack: 5.89.0
-      webpack-target-webextension: 1.1.1(webpack@5.89.0)
+      webpack-target-webextension: 1.1.2(webpack@5.89.0)
       ws: 8.17.0
     transitivePeerDependencies:
       - bufferutil
@@ -12816,7 +12810,7 @@ snapshots:
       progress: 2.0.3
       schema-utils: 4.2.0
       webpack: 5.89.0
-      webpack-target-webextension: 1.1.1(webpack@5.89.0)
+      webpack-target-webextension: 1.1.2(webpack@5.89.0)
       ws: 8.17.0
     transitivePeerDependencies:
       - bufferutil
@@ -12843,10 +12837,6 @@ snapshots:
 
   webpack-sources@3.2.3: {}
 
-  webpack-target-webextension@1.1.1(webpack@5.89.0):
-    dependencies:
-      webpack: 5.89.0
-
   webpack-target-webextension@1.1.2(webpack@5.89.0):
     dependencies:
       webpack: 5.89.0
@@ -12858,9 +12848,9 @@ snapshots:
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
-      acorn: 8.10.0
-      acorn-import-assertions: 1.9.0(acorn@8.10.0)
-      browserslist: 4.22.1
+      acorn: 8.11.3
+      acorn-import-assertions: 1.9.0(acorn@8.11.3)
+      browserslist: 4.23.0
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.15.0
       es-module-lexer: 1.5.3

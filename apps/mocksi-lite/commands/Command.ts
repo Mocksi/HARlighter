@@ -33,9 +33,14 @@ export class SaveModificationCommand implements Command {
 		private localStorage: Storage,
 		private modification: DOMModification,
 	) {
-		this.prevModifications = JSON.parse(
-			localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
-		);
+		try {
+			this.prevModifications = JSON.parse(
+				localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
+			);
+		} catch (error) {
+			console.error("Error parsing JSON:", error);
+			this.prevModifications = {};
+		}
 	}
 
 	execute(): void {

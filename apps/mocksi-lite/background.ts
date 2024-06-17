@@ -45,7 +45,6 @@ addEventListener("install", () => {
 	chrome.tabs.create({
 		url: SignupURL,
 	});
-	MocksiRollbar.info("Extension installed");
 });
 
 chrome.action.onClicked.addListener((activeTab) => {
@@ -59,18 +58,29 @@ chrome.action.onClicked.addListener((activeTab) => {
 	}
 	console.log("Attaching debugger to tab:", currentTabId);
 	const version = "1.0";
-	if (currentTabId) {
+	if (!currentTabId) {
+		return;
+	}
+
+	try {
 		chrome.debugger.attach(
 			{ tabId: currentTabId },
 			version,
 			onAttach.bind(null, currentTabId),
 		);
 		chrome.debugger.onDetach.addListener(debuggerDetachHandler);
+		chrome.tabs.sendMessage(currentTabId || 0, {
+			text: "clickedIcon",
+		});
+		// biome-ignore lint/suspicious/noExplicitAny: error message
+	} catch (e: any) {
+		console.error("Error attaching debugger", e);
+		if (e.message === "Cannot acces a chrome:// URL") {
+			console.log("Cannot attach to this target");
+			return;
+		}
+		MocksiRollbar.error("Error attaching debugger", e);
 	}
-
-	chrome.tabs.sendMessage(currentTabId || 0, {
-		text: "clickedIcon",
-	});
 });
 
 interface DataPayload {
@@ -84,7 +94,7 @@ interface DataPayload {
 	currentURL?: string;
 }
 
-let credsJson = "";
+const credsJson = "";
 
 // TODO: create a type for the request
 // biome-ignore lint/suspicious/noExplicitAny: this is hard to type
@@ -157,7 +167,7 @@ async function getRecordings() {
 	const sorted = response.sort((a: Recording, b: Recording) =>
 		a.updated_timestamp > b.updated_timestamp ? -1 : 0,
 	);
-	const recordings = JSON.stringify(sorted);
+	const recordings = JSON.stringify(sorted) || "[]";
 	chrome.storage.local.set({ recordings });
 }
 
@@ -297,23 +307,10 @@ chrome.runtime.onMessage.addListener(
 			return true;
 		}
 
-		if (request.message === "AuthEvent") {
-			chrome.storage.local.get(["mocksi-auth"], (result) => {
-				credsJson = result["mocksi-auth"];
-				// TODO: uncomment and store these credentials in a secure way
-				/*
-				const parsed = JSON.parse(result["mocksi-auth"]);
-				console.log("Auth Credentials:", parsed);
-				*/
-			});
-		}
-
 		sendResponse({ message: request.message, status: "fail" });
 		return false; // No async response for other messages
 	},
 );
-
-MocksiRollbar.info("background script loaded");
 
 let webSocket = new WebSocket(WebSocketURL);
 
@@ -328,6 +325,7 @@ webSocket.onmessage = (event) => {
 		const parsed = JSON.parse(event.data);
 		command = parsed as RequestInterception;
 	} catch (e) {
+		console.error("Error parsing websocket message", e);
 		return;
 	}
 
@@ -380,36 +378,27 @@ webSocket.onclose = () => {
 		}
 		reconnectTimeout = setTimeout(() => {
 			console.log("Reconnecting websocket...");
+			const oldWebSocket = webSocket;
 			webSocket = new WebSocket(WebSocketURL);
-			webSocket.onopen = () => {
-				console.log("Websocket reconnected");
-				keepAlive();
-			};
-			webSocket.onmessage = (event) => {
-				console.log(`Websocket received message: ${event.data}`);
-			};
-			webSocket.onclose = () => {
-				reconnectWebSocket();
-			};
+			// FIXME: this is nasty, but it works
+			webSocket.onopen = oldWebSocket.onopen;
+			webSocket.onmessage = oldWebSocket.onmessage;
+			webSocket.onclose = oldWebSocket.onclose;
 		}, reconnectInterval);
 	}
 
 	reconnectWebSocket();
 };
 
-function disconnect() {
-	if (webSocket == null) {
-		return;
-	}
-	webSocket.close();
-}
-
 function keepAlive() {
 	const keepAliveIntervalId = setInterval(() => {
-		if (webSocket) {
-			webSocket.send("keepalive");
-		} else {
+		if (!webSocket) {
 			clearInterval(keepAliveIntervalId);
+		}
+		try {
+			webSocket.send("keepalive");
+		} catch (e) {
+			console.error("Error sending keepalive", e);
 		}
 	}, 5 * 1000);
 }
