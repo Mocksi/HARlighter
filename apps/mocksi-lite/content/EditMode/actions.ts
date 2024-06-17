@@ -20,20 +20,24 @@ export function applyChanges(
 ) {
 	if (nodeWithTextArea) {
 		const parentElement = nodeWithTextArea?.parentElement;
-		const previousText = getPreviousNodeValue(nodeWithTextArea, oldValue);
-		const nodeTextToReplace = document.createTextNode(newValue);
-		nodeWithTextArea?.parentElement?.replaceChild(
-			nodeTextToReplace,
-			nodeWithTextArea,
-		);
-		ContentHighlighter.highlightNode(nodeTextToReplace);
+		replaceValueInDOM(parentElement, nodeWithTextArea, newValue)
 		saveModification(
 			parentElement as HTMLElement,
-			parentElement?.innerHTML || parentElement?.innerText || "",
-			previousText || "",
+			newValue,
+			oldValue
 		);
-		parentElement?.normalize();
 	}
+}
+
+function replaceValueInDOM(parentElement: HTMLElement | null, nodeWithTextArea: HTMLElement, newValue: string) {
+	// const previousText = getPreviousNodeValue(nodeWithTextArea, oldValue);
+	const nodeTextToReplace = document.createTextNode(newValue);
+	parentElement?.replaceChild(
+		nodeTextToReplace,
+		nodeWithTextArea,
+	);
+	ContentHighlighter.highlightNode(nodeTextToReplace);
+	parentElement?.normalize();
 }
 
 function getPreviousNodeValue(
@@ -41,15 +45,14 @@ function getPreviousNodeValue(
 	oldValue: string,
 ) {
 	if (nodeWithTextArea) {
-		const ttt = nodeWithTextArea.parentElement?.cloneNode(true) as HTMLElement;
-		for (const node of ttt?.childNodes || []) {
-			// @ts-ignore
-			if (node?.id === "mocksiSelectedText") {
-				ttt?.replaceChild(document.createTextNode(oldValue), node);
-				ttt?.normalize();
+		const clonedNode = nodeWithTextArea.parentElement?.cloneNode(true) as HTMLElement;
+		for (const node of clonedNode?.childNodes || []) {
+			if ((node as HTMLElement)?.id === "mocksiSelectedText") {
+				clonedNode?.replaceChild(document.createTextNode(oldValue), node);
+				clonedNode?.normalize();
 				break;
 			}
 		}
-		return ttt.innerHTML || "";
+		return clonedNode.innerHTML || "";
 	}
 }

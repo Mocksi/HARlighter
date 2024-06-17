@@ -68,49 +68,26 @@ export const persistModifications = (recordingId: string) => {
 };
 
 export const undoModifications = () => {
-	loadModifications();
+	loadPreviousModifications();
 	localStorage.removeItem(MOCKSI_MODIFICATIONS);
 };
 
 // v2 of loading alterations, this is from backend
 export const loadAlterations = (alterations: Alteration[]) => {
 	for (const alteration of alterations) {
-		const { selector, dom_after } = alteration;
-		const hasIndex = selector.match(/\[[0-9]+\]/);
-		if (hasIndex) {
-			const index: number = +hasIndex[0].replace("[", "").replace("]", "");
-			const elemToModify = document.querySelectorAll(
-				selector.replace(hasIndex[0], ""),
-			)[index];
-			//@ts-ignore
-			elemToModify.innerHTML = dom_after;
-		} else {
-			const [elemToModify] = document.querySelectorAll(selector);
-			//@ts-ignore
-			elemToModify.innerHTML = dom_after;
-		}
+		const { selector, dom_after, dom_before } = alteration;
+		applyChanges(selector, dom_before, dom_after)
 	}
 };
 
 // This is from localStorage
-export const loadModifications = () => {
+export const loadPreviousModifications = () => {
 	const modifications: DOMModificationsType = getModificationsFromStorage();
 	for (const modification of Object.entries(modifications)) {
 		// value here is encoded, SHOULD NOT be a security risk to put it in the innerHTML
-		const [querySelector, { previousText }] = modification;
-		const hasIndex = querySelector.match(/\[[0-9]+\]/);
-		if (hasIndex) {
-			const index: number = +hasIndex[0].replace("[", "").replace("]", "");
-			const elemToModify = document.querySelectorAll(
-				querySelector.replace(hasIndex[0], ""),
-			)[index];
-			//@ts-ignore
-			elemToModify.innerHTML = previousText;
-		} else {
-			const [elemToModify] = document.querySelectorAll(querySelector);
-			//@ts-ignore
-			elemToModify.innerHTML = previousText;
-		}
+		const [querySelector, { previousText, nextText }] = modification;
+		// here newText and previous is in altered order because we want to revert the changes
+		applyChanges(querySelector, nextText, previousText)
 	}
 };
 
@@ -121,6 +98,22 @@ const getModificationsFromStorage = () => {
 		console.error("Error parsing modifications:", error);
 	}
 };
+
+const applyChanges = (querySelector: string, oldValue: string, newValue: string) => {
+	const hasIndex = querySelector.match(/\[[0-9]+\]/);
+	if (hasIndex) {
+		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
+		const elemToModify = document.querySelectorAll(
+			querySelector.replace(hasIndex[0], ""),
+		)[index];
+		//@ts-ignore
+		elemToModify.innerHTML = elemToModify?.innerHTML?.replaceAll(oldValue, newValue) || '';
+	} else {
+		const elemToModify = document.querySelector(querySelector);
+		//@ts-ignore
+		elemToModify.innerHTML = elemToModify?.innerHTML?.replaceAll(oldValue, newValue) || '';
+	}
+}
 
 export const sendMessage = (
 	message: string,
