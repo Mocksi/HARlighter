@@ -6,14 +6,14 @@ import {
 import { persistModifications, undoModifications } from "../../utils";
 import { cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
-import { initHighlighter, ContentHighlighter } from "./highlighter";
+import { ContentHighlighter, initHighlighter } from "./highlighter";
 
 export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
 		if (recordingId) localStorage.setItem(MOCKSI_RECORDING_ID, recordingId);
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
 		blockNodes();
-		initHighlighter()
+		initHighlighter();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
 		if (recordingId) {
@@ -24,7 +24,7 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 		localStorage.removeItem(MOCKSI_RECORDING_ID);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
 		restoreNodes();
-		ContentHighlighter.hideHighlights()
+		ContentHighlighter.hideHighlights();
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 	}
 };
@@ -109,7 +109,6 @@ function applyEditor(
 	}
 }
 
-
 //biome-ignore lint/suspicious/noExplicitAny: need to look after a proper type, but mainly are html nodes
 const blockedNodes: any[] = [];
 
@@ -148,4 +147,3 @@ const restoreNodes = () => {
 		}
 	}
 };
-

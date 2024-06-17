@@ -21,12 +21,12 @@ export function applyChanges(
 	if (nodeWithTextArea) {
 		const parentElement = nodeWithTextArea?.parentElement;
 		const previousText = getPreviousNodeValue(nodeWithTextArea, oldValue);
-		const nodeTextToReplace = document.createTextNode(newValue)
+		const nodeTextToReplace = document.createTextNode(newValue);
 		nodeWithTextArea?.parentElement?.replaceChild(
 			nodeTextToReplace,
 			nodeWithTextArea,
 		);
-		ContentHighlighter.highlightNode(nodeTextToReplace)
+		ContentHighlighter.highlightNode(nodeTextToReplace);
 		saveModification(
 			parentElement as HTMLElement,
 			parentElement?.innerHTML || parentElement?.innerText || "",
