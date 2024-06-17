@@ -65,7 +65,6 @@ export const persistModifications = (recordingId: string) => {
 		id: recordingId,
 		recording: { updated_timestamp, alterations },
 	});
-	// localStorage.removeItem(MOCKSI_MODIFICATIONS);
 };
 
 export const undoModifications = () => {

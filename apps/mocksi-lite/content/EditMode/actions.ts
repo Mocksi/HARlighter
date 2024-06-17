@@ -1,4 +1,5 @@
 import { saveModification } from "../../utils";
+import { ContentHighlighter } from "./highlighter";
 
 export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 	if (nodeWithTextArea) {
@@ -20,10 +21,12 @@ export function applyChanges(
 	if (nodeWithTextArea) {
 		const parentElement = nodeWithTextArea?.parentElement;
 		const previousText = getPreviousNodeValue(nodeWithTextArea, oldValue);
+		const nodeTextToReplace = document.createTextNode(newValue)
 		nodeWithTextArea?.parentElement?.replaceChild(
-			document.createTextNode(newValue),
+			nodeTextToReplace,
 			nodeWithTextArea,
 		);
+		ContentHighlighter.highlightNode(nodeTextToReplace)
 		saveModification(
 			parentElement as HTMLElement,
 			parentElement?.innerHTML || parentElement?.innerText || "",
@@ -32,6 +35,23 @@ export function applyChanges(
 		parentElement?.normalize();
 	}
 }
+
+// IDEAS TO HIGHLIGHT CHANGES
+/* 
+	1st create a div inside the BODY.
+	2nd after change document.createRange() and range.selectNodeContents(changedNode);
+	3rd range.getBoundingClientRect() we obtain the position and the width of the dom
+	4th draw the square with the .getBoundingClientRect() data
+
+
+	ALL OF THIS GETS LOST AFTER ALSO EVEN PERSISTING ON THE BACKEND.
+	
+	Compare prevText with nextText to get the actual modification text
+
+	Things maybe I'd need to take care:
+		window resizes.
+		modifications inside the previous modifications.
+*/
 
 function getPreviousNodeValue(
 	nodeWithTextArea: HTMLElement | null,

@@ -6,51 +6,14 @@ import {
 import { persistModifications, undoModifications } from "../../utils";
 import { cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
-
-//biome-ignore lint/suspicious/noExplicitAny: need to look after a proper type, but mainly are html nodes
-const blockedNodes: any[] = [];
-
-const blockNodes = () => {
-	const aElements = document.querySelectorAll("a");
-	const buttonElements = document.querySelectorAll("button");
-	for (const clickableElement of [...aElements, ...buttonElements]) {
-		//@ts-ignore
-		const { href, className, style, onclick } = clickableElement;
-		blockedNodes.push({ href, className, onclick, style: { ...style } });
-		//@ts-ignore
-		clickableElement.href = "";
-		clickableElement.style.cursor = "text";
-		clickableElement.onclick = (event) => {
-			event.stopPropagation();
-			event.preventDefault();
-			console.log("BLOCKED!");
-		};
-	}
-};
-
-const restoreNodes = () => {
-	if (blockedNodes.length > 0) {
-		const aElements = document.querySelectorAll("a");
-		const buttonElements = document.querySelectorAll("button");
-		let index = 0;
-		for (const readonlyElem of [...aElements, ...buttonElements]) {
-			const { href, style, onclick } = blockedNodes[index];
-			//@ts-ignore
-			readonlyElem.href = href;
-			//@ts-ignore
-			readonlyElem.style.cursor = style.cursor;
-			//@ts-ignore
-			readonlyElem.onclick = onclick;
-			index++;
-		}
-	}
-};
+import { initHighlighter, ContentHighlighter } from "./highlighter";
 
 export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
 		if (recordingId) localStorage.setItem(MOCKSI_RECORDING_ID, recordingId);
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
 		blockNodes();
+		initHighlighter()
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
 		if (recordingId) {
@@ -61,6 +24,7 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 		localStorage.removeItem(MOCKSI_RECORDING_ID);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
 		restoreNodes();
+		// ContentHighlighter.hideHighlights()
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 	}
 };
@@ -144,3 +108,44 @@ function applyEditor(
 		// TODO
 	}
 }
+
+
+//biome-ignore lint/suspicious/noExplicitAny: need to look after a proper type, but mainly are html nodes
+const blockedNodes: any[] = [];
+
+const blockNodes = () => {
+	const aElements = document.querySelectorAll("a");
+	const buttonElements = document.querySelectorAll("button");
+	for (const clickableElement of [...aElements, ...buttonElements]) {
+		//@ts-ignore
+		const { href, className, style, onclick } = clickableElement;
+		blockedNodes.push({ href, className, onclick, style: { ...style } });
+		//@ts-ignore
+		clickableElement.href = "";
+		clickableElement.style.cursor = "text";
+		clickableElement.onclick = (event) => {
+			event.stopPropagation();
+			event.preventDefault();
+			console.log("BLOCKED!");
+		};
+	}
+};
+
+const restoreNodes = () => {
+	if (blockedNodes.length > 0) {
+		const aElements = document.querySelectorAll("a");
+		const buttonElements = document.querySelectorAll("button");
+		let index = 0;
+		for (const readonlyElem of [...aElements, ...buttonElements]) {
+			const { href, style, onclick } = blockedNodes[index];
+			//@ts-ignore
+			readonlyElem.href = href;
+			//@ts-ignore
+			readonlyElem.style.cursor = style.cursor;
+			//@ts-ignore
+			readonlyElem.onclick = onclick;
+			index++;
+		}
+	}
+};
+
