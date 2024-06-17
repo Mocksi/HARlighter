@@ -2,25 +2,26 @@ import { MOCKSI_HIGHLIGHTER_ID } from "../../consts"
 
 class Highlighter {
     private contentRanger = document.createRange()
-    private highlighterContainer;
-    constructor(
-        highlighterContainer: HTMLElement
-    ) {
-        this.highlighterContainer = highlighterContainer
-    }
+    constructor() {}
 
     highlightNode = (elementToHighlight: Text) => {
         this.contentRanger.selectNodeContents(elementToHighlight)
         const {x, y, width, height} = this.contentRanger.getBoundingClientRect() || {}
-        console.log(this.contentRanger.getBoundingClientRect())
+        const textHighlight = highlight({x, y, width, height})
         document.body.appendChild(
-            highlight({x, y, width, height})
+            textHighlight
         )
     }
 
     hideHighlights = () => {
-        for (let node of [...this.highlighterContainer.childNodes]) {
+        for (let node of document.querySelectorAll(`div.${MOCKSI_HIGHLIGHTER_ID}`)) {
             (node as HTMLElement).style.display = 'none'
+        }
+    }
+
+    showHighlights = () => {
+        for (let node of document.querySelectorAll(`div.${MOCKSI_HIGHLIGHTER_ID}`)) {
+            (node as HTMLElement).style.display = 'block'
         }
     }
 }
@@ -29,28 +30,13 @@ export let ContentHighlighter: Highlighter;
 
 export const initHighlighter = () => {
     if (!document.getElementById(MOCKSI_HIGHLIGHTER_ID)) {
-        const highlighterDiv = getHighlighterContainer()
-        document.body.appendChild(
-            highlighterDiv
-        )
-        ContentHighlighter = new Highlighter(highlighterDiv)
+        ContentHighlighter = new Highlighter()
     }
-}
-
-
-const getHighlighterContainer = () => {
-    const highlighterDiv = document.createElement('div')
-    highlighterDiv.id = MOCKSI_HIGHLIGHTER_ID
-    highlighterDiv.style.width = '100%'
-    highlighterDiv.style.height = '100%'
-    highlighterDiv.style.position = 'absolute'
-    highlighterDiv.style.zIndex = '999'
-    return highlighterDiv
-    
 }
 
 const highlight = ({x, y, width, height}: {x: number, y: number, width: number, height: number}) => {
     const highlightDiv = document.createElement('div')
+    highlightDiv.className = MOCKSI_HIGHLIGHTER_ID
     highlightDiv.style.position = 'absolute'
     highlightDiv.style.top = `${window.scrollY + y + -2}px`
     highlightDiv.style.left = `${window.scrollX + x + -2}px`
