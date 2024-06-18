@@ -72,29 +72,12 @@ export const undoModifications = () => {
 	localStorage.removeItem(MOCKSI_MODIFICATIONS);
 };
 
-const modifyElementInnerHTML = (selector: string, content: string) => {
-	const hasIndex = selector.match(/\[[0-9]+\]/);
-	let elemToModify: Element | null;
-
-	if (hasIndex) {
-		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
-		elemToModify =
-			document.querySelectorAll(selector.replace(hasIndex[0], ""))[index] ||
-			null;
-	} else {
-		elemToModify = document.querySelector(selector) || null;
-	}
-
-	if (elemToModify !== null) {
-		elemToModify.innerHTML = content;
-	}
-};
 
 // v2 of loading alterations, this is from backend
 export const loadAlterations = (alterations: Alteration[]) => {
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before } = alteration;
-		applyChanges(selector, dom_before, dom_after);
+		modifyElementInnerHTML(selector, dom_before, dom_after);
 	}
 };
 
@@ -105,7 +88,7 @@ export const loadPreviousModifications = () => {
 		// value here is encoded, SHOULD NOT be a security risk to put it in the innerHTML
 		const [querySelector, { previousText, nextText }] = modification;
 		// here newText and previous is in altered order because we want to revert the changes
-		applyChanges(querySelector, nextText, previousText);
+		modifyElementInnerHTML(querySelector, nextText, previousText);
 	}
 };
 
@@ -118,35 +101,33 @@ const getModificationsFromStorage = (): DOMModificationsType => {
 	}
 };
 
-const applyChanges = (
-	querySelector: string,
-	oldValue: string,
-	newValue: string,
-) => {
-	const hasIndex = querySelector.match(/\[[0-9]+\]/);
-	const valueInQuerySelector = querySelector.match(/\{[a-zA-Z0-9]+\}/);
+const modifyElementInnerHTML = (selector: string, oldContent: string, newContent: string) => {
+	// querySelector format {htmlElementType}#{elementId}.{elementClassnames}[${elementIndexIfPresent}]{{newValue}}
+	const hasIndex = selector.match(/\[[0-9]+\]/);
+	const valueInQuerySelector = selector.match(/\{[a-zA-Z0-9]+\}/);
+	let elemToModify: Element | null;
+
 	if (hasIndex) {
+		// with all this replaces, we should build a formatter
 		const filteredQuerySelector = valueInQuerySelector
-			? querySelector
+			? selector
 					.replace(hasIndex[0], "")
 					.replace(valueInQuerySelector[0], "")
-			: querySelector.replace(hasIndex[0], "");
+			: selector.replace(hasIndex[0], "");
 		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
-		const elemToModify = document.querySelectorAll(filteredQuerySelector)[
-			index
-		];
-		//@ts-ignore
-		elemToModify.innerHTML =
-			elemToModify?.innerHTML?.replaceAll(oldValue, newValue) || "";
+		elemToModify =
+			document.querySelectorAll(filteredQuerySelector.replace(hasIndex[0], ""))[index] ||
+			null;
 	} else {
-		const elemToModify = document.querySelector(
+		elemToModify = document.querySelector(
 			valueInQuerySelector
-				? querySelector.replace(valueInQuerySelector[0], "")
-				: querySelector,
+				? selector.replace(valueInQuerySelector[0], "")
+				: selector,
 		);
-		//@ts-ignore
-		elemToModify.innerHTML =
-			elemToModify?.innerHTML?.replaceAll(oldValue, newValue) || "";
+	}
+
+	if (elemToModify !== null) {
+		elemToModify.innerHTML = elemToModify?.innerHTML?.replaceAll(oldContent, newContent) || "";;
 	}
 };
 
