@@ -16,6 +16,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@repo/harlight": "workspace:*"
+    "@repo/harlight": "workspace:*",
+    "@repo/dodom": "workspace:*"
   }
 }
