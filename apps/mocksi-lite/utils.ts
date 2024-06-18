@@ -10,7 +10,7 @@ import {
   MOCKSI_RECORDING_STATE,
   RecordingState,
   STORAGE_KEY,
-  SignupURL, MOCKSI_AUTH,
+  SignupURL,
 } from "./consts";
 import {Recording} from "./background";
 
@@ -156,6 +156,6 @@ export const getRecordingsStorage = async (): Promise<Recording[]> => {
     return JSON.parse(results.recordings ?? "{}");
   } catch (err) {
     console.error("Failed to retrieve recordings:", err);
-    return [];
+    throw err;
   }
 };
