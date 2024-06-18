@@ -31,7 +31,7 @@ class UniversalReplace {
 			const fragmentsToHighlight: Node[] = [];
 			const replacements: { nodeToReplace: Node; replacement: Node }[] = [];
 			createTreeWalker(body, (textNode) => {
-				if (!textNode.nodeValue) return null
+				if (!textNode.nodeValue) return null;
 				const matches = [...textNode.nodeValue.matchAll(pattern)];
 				if (matches.length > 0) {
 					const fragmentedTextNode = fragmentTextNode(
@@ -71,7 +71,7 @@ class UniversalReplace {
 				if (mutation.addedNodes != null && mutation.addedNodes.length > 0) {
 					for (const node of mutation.addedNodes) {
 						createTreeWalker(node, (textNode) => {
-							if (!textNode.textContent) return null
+							if (!textNode.textContent) return null;
 							const replace = this.matchReplacePattern(textNode.textContent);
 							if (replace) {
 								//@ts-ignore textNode.nodeValue is not null.
