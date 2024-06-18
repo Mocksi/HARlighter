@@ -71,10 +71,9 @@ class UniversalReplace {
 				if (mutation.addedNodes != null && mutation.addedNodes.length > 0) {
 					for (const node of mutation.addedNodes) {
 						createTreeWalker(node, (textNode) => {
-							if (!textNode.textContent) return null;
+							if (!textNode.textContent || !textNode.nodeValue) return null;
 							const replace = this.matchReplacePattern(textNode.textContent);
 							if (replace) {
-								//@ts-ignore textNode.nodeValue is not null.
 								textNode.nodeValue = textNode.nodeValue.replace(
 									replace.pattern,
 									replaceFirstLetterCase(replace.replace),
