@@ -1,3 +1,4 @@
+import UniversalReplace from "../../universalReplace";
 import { saveModification } from "../../utils";
 
 export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
@@ -15,6 +16,7 @@ export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 export function applyChanges(
 	nodeWithTextArea: HTMLElement | null,
 	newValue: string,
+	oldValue: string,
 ) {
 	if (nodeWithTextArea) {
 		const parentElement = nodeWithTextArea?.parentElement;
@@ -22,10 +24,13 @@ export function applyChanges(
 			document.createTextNode(newValue),
 			nodeWithTextArea,
 		);
-		saveModification(
-			parentElement as HTMLElement,
-			parentElement?.innerHTML || parentElement?.innerText || "",
-		);
-		parentElement?.normalize();
+		console.log({ newValue });
+		console.log({ oldValue });
+		UniversalReplace.addPattern(oldValue, newValue);
+		// saveModification(
+		// 	parentElement as HTMLElement,
+		// 	parentElement?.innerHTML || parentElement?.innerText || "",
+		// );
+		// parentElement?.normalize();
 	}
 }
