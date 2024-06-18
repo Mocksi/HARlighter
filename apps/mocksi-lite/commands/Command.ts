@@ -15,13 +15,13 @@ export const buildQuerySelector = (
 	parentElement: HTMLElement,
 	newValue: string,
 ) => {
-	const { localName, id, className } = parentElement;
+	const { localName, id, classList } = parentElement;
 	let keyToSave = localName;
 	if (id) {
 		keyToSave += `#${id}`;
 	}
-	if (className) {
-		keyToSave += `.${className}`;
+	if (classList.length) {
+		keyToSave += `.${[...classList].join('.')}`;
 	}
 	const elements = document.querySelectorAll(keyToSave);
 	if (elements.length > 1) {

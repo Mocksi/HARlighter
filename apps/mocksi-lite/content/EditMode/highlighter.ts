@@ -31,13 +31,7 @@ class Highlighter {
 	};
 }
 
-export let ContentHighlighter: Highlighter;
-
-export const initHighlighter = () => {
-	if (!document.getElementById(MOCKSI_HIGHLIGHTER_ID)) {
-		ContentHighlighter = new Highlighter();
-	}
-};
+export let ContentHighlighter: Highlighter = new Highlighter();
 
 const highlight = ({
 	x,

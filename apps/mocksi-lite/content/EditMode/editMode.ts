@@ -6,19 +6,16 @@ import {
 import { persistModifications, undoModifications } from "../../utils";
 import { cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
-import { ContentHighlighter, initHighlighter } from "./highlighter";
+import { ContentHighlighter } from "./highlighter";
 
 export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
 		if (recordingId) localStorage.setItem(MOCKSI_RECORDING_ID, recordingId);
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
 		blockNodes();
-		initHighlighter();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
-		if (recordingId) {
-			persistModifications(recordingId);
-		}
+		if (recordingId) persistModifications(recordingId)
 		undoModifications();
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
 		localStorage.removeItem(MOCKSI_RECORDING_ID);
@@ -137,14 +134,16 @@ const restoreNodes = () => {
 		const buttonElements = document.querySelectorAll("button");
 		let index = 0;
 		for (const readonlyElem of [...aElements, ...buttonElements]) {
-			const { href, style, onclick } = blockedNodes[index];
-			//@ts-ignore
-			readonlyElem.href = href;
-			//@ts-ignore
-			readonlyElem.style.cursor = style.cursor;
-			//@ts-ignore
-			readonlyElem.onclick = onclick;
-			index++;
+			if (blockedNodes[index]) {
+				const { href, style, onclick } = blockedNodes[index];
+				//@ts-ignore
+				readonlyElem.href = href;
+				//@ts-ignore
+				readonlyElem.style.cursor = style.cursor;
+				//@ts-ignore
+				readonlyElem.onclick = onclick;
+				index++;
+			} else break;
 		}
 	}
 };

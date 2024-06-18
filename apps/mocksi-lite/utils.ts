@@ -107,7 +107,7 @@ const modifyElementInnerHTML = (
 ) => {
 	// querySelector format {htmlElementType}#{elementId}.{elementClassnames}[${elementIndexIfPresent}]{{newValue}}
 	const hasIndex = selector.match(/\[[0-9]+\]/);
-	const valueInQuerySelector = selector.match(/\{[a-zA-Z0-9]+\}/); // add spaces to pattern
+	const valueInQuerySelector = selector.match(/\{[a-zA-Z0-9 ]+\}/); // add spaces to pattern
 	let elemToModify: Element | null;
 	if (hasIndex) {
 		// with all this replaces, we should build a formatter
