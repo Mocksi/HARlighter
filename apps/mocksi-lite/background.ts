@@ -56,7 +56,7 @@ chrome.action.onClicked.addListener((activeTab) => {
 	if (currentTabId && currentTabId < 0) {
 		return false;
 	}
-	let activeTabUrl  = ""
+	let activeTabUrl = "";
 	try {
 		activeTabUrl = activeTab?.url || "";
 	} catch (e) {
@@ -66,7 +66,7 @@ chrome.action.onClicked.addListener((activeTab) => {
 
 	if (activeTabUrl === "" || activeTabUrl.startsWith("chrome://")) {
 		chrome.action.disable();
-		return
+		return;
 	}
 
 	const version = "1.0";
