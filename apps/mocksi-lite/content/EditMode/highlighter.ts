@@ -21,21 +21,14 @@ class Highlighter {
 			(node as HTMLElement).style.display = show ? "block" : "none";
 		}
 	};
-	hideHighlights = () => {
-		for (const node of document.querySelectorAll(
-			`div.${MOCKSI_HIGHLIGHTER_ID}`,
-		)) {
-			(node as HTMLElement).style.display = "none";
-		}
-	};
 
-	showHighlights = () => {
-		for (const node of document.querySelectorAll(
+    removeHighlightNodes = () => {
+        for (const node of document.querySelectorAll(
 			`div.${MOCKSI_HIGHLIGHTER_ID}`,
 		)) {
-			(node as HTMLElement).style.display = "block";
+			(node as HTMLElement).remove()
 		}
-	};
+    }
 }
 
 export let ContentHighlighter: Highlighter;

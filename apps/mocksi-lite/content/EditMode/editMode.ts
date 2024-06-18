@@ -24,7 +24,7 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 		localStorage.removeItem(MOCKSI_RECORDING_ID);
 		document.body.removeEventListener("dblclick", onDoubleClickText);
 		restoreNodes();
-		ContentHighlighter.hideHighlights();
+		ContentHighlighter.removeHighlightNodes();
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 		document.normalize();
 	}
