@@ -152,7 +152,11 @@ export const getEmail = async (): Promise<string | null> => {
 export const getRecordingsStorage = async (): Promise<Recording[]> => {
 	try {
 		const results = await chrome.storage.local.get(["recordings"]);
-		return JSON.parse(results.recordings ?? "{}");
+		console.log(results.recordings);
+		if (results.recordings) {
+			return JSON.parse(results.recordings);
+		}
+		return [];
 	} catch (err) {
 		console.error("Failed to retrieve recordings:", err);
 		throw err;

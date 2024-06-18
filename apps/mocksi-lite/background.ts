@@ -175,15 +175,17 @@ function updateDemo(data: Record<string, unknown>) {
 async function getRecordings() {
 	const email = await getEmail();
 
-	const response = await apiCall(`recordings?creator=${email ?? ""}`);
-	if (!response || response.length === 0) {
-		return;
+	if (email) {
+		const response = await apiCall(`recordings?creator=${email}`);
+		if (!response || response.length === 0) {
+			return;
+		}
+		const sorted = response.sort((a: Recording, b: Recording) =>
+			a.updated_timestamp > b.updated_timestamp ? -1 : 0,
+		);
+		const recordings = JSON.stringify(sorted) || "[]";
+		chrome.storage.local.set({ recordings });
 	}
-	const sorted = response.sort((a: Recording, b: Recording) =>
-		a.updated_timestamp > b.updated_timestamp ? -1 : 0,
-	);
-	const recordings = JSON.stringify(sorted) || "[]";
-	chrome.storage.local.set({ recordings });
 }
 
 // TODO: create a type for the params
