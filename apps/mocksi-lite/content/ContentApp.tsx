@@ -9,9 +9,9 @@ import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
 import { setRootPosition } from "../utils";
 import { setEditorMode } from "./EditMode/editMode";
+import { ContentHighlighter } from "./EditMode/highlighter";
 import Popup from "./Popup";
 import { RecordButton } from "./RecordButton";
-import { ContentHighlighter } from "./EditMode/highlighter";
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -51,11 +51,12 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 
 	const onChecked = () => {
 		setAreChangesHighlighted((prevValue) => {
-			prevValue ? ContentHighlighter.hideHighlights() : ContentHighlighter.showHighlights()
-			return !prevValue
-		})
-	}
-
+			prevValue
+				? ContentHighlighter.hideHighlights()
+				: ContentHighlighter.showHighlights();
+			return !prevValue;
+		});
+	};
 
 	if (!isDialogOpen) return null;
 	if (state === RecordingState.READY || state === RecordingState.CREATE) {
@@ -91,7 +92,12 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 				<div className={"flex flex-col gap-2"}>
 					<TextField variant={"title"}>{recordingLabel(state)}</TextField>
 					<div className="flex gap-2 items-center">
-						<input checked={areChangesHighlighted} onChange={() => onChecked()} type="checkbox" className="h-5 w-5 !rounded-lg" />
+						<input
+							checked={areChangesHighlighted}
+							onChange={() => onChecked()}
+							type="checkbox"
+							className="h-5 w-5 !rounded-lg"
+						/>
 						<div className={"text-[13px] leading-[15px]"}>
 							Highlight All Previous Changes
 						</div>

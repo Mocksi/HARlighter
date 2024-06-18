@@ -76,7 +76,7 @@ export const undoModifications = () => {
 export const loadAlterations = (alterations: Alteration[]) => {
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before } = alteration;
-		applyChanges(selector, dom_before, dom_after)
+		applyChanges(selector, dom_before, dom_after);
 	}
 };
 
@@ -87,7 +87,7 @@ export const loadPreviousModifications = () => {
 		// value here is encoded, SHOULD NOT be a security risk to put it in the innerHTML
 		const [querySelector, { previousText, nextText }] = modification;
 		// here newText and previous is in altered order because we want to revert the changes
-		applyChanges(querySelector, nextText, previousText)
+		applyChanges(querySelector, nextText, previousText);
 	}
 };
 
@@ -99,25 +99,37 @@ const getModificationsFromStorage = () => {
 	}
 };
 
-const applyChanges = (querySelector: string, oldValue: string, newValue: string) => {
+const applyChanges = (
+	querySelector: string,
+	oldValue: string,
+	newValue: string,
+) => {
 	const hasIndex = querySelector.match(/\[[0-9]+\]/);
 	const valueInQuerySelector = querySelector.match(/\{[a-zA-Z0-9]+\}/);
 	if (hasIndex) {
-		const filteredQuerySelector = valueInQuerySelector ? querySelector.replace(hasIndex[0], "").replace(valueInQuerySelector[0], "") : querySelector.replace(hasIndex[0], "")
+		const filteredQuerySelector = valueInQuerySelector
+			? querySelector
+					.replace(hasIndex[0], "")
+					.replace(valueInQuerySelector[0], "")
+			: querySelector.replace(hasIndex[0], "");
 		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
-		const elemToModify = document.querySelectorAll(
-			filteredQuerySelector
-		)[index];
+		const elemToModify = document.querySelectorAll(filteredQuerySelector)[
+			index
+		];
 		//@ts-ignore
-		elemToModify.innerHTML = elemToModify?.innerHTML?.replaceAll(oldValue, newValue) || '';
+		elemToModify.innerHTML =
+			elemToModify?.innerHTML?.replaceAll(oldValue, newValue) || "";
 	} else {
 		const elemToModify = document.querySelector(
-			valueInQuerySelector ? querySelector.replace(valueInQuerySelector[0], "") : querySelector
+			valueInQuerySelector
+				? querySelector.replace(valueInQuerySelector[0], "")
+				: querySelector,
 		);
 		//@ts-ignore
-		elemToModify.innerHTML = elemToModify?.innerHTML?.replaceAll(oldValue, newValue) || '';
+		elemToModify.innerHTML =
+			elemToModify?.innerHTML?.replaceAll(oldValue, newValue) || "";
 	}
-}
+};
 
 export const sendMessage = (
 	message: string,
