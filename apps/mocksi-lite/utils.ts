@@ -72,6 +72,24 @@ export const undoModifications = () => {
 	localStorage.removeItem(MOCKSI_MODIFICATIONS);
 };
 
+const modifyElementInnerHTML = (selector: string, content: string) => {
+	const hasIndex = selector.match(/\[[0-9]+\]/);
+	let elemToModify: Element | null;
+
+	if (hasIndex) {
+		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
+		elemToModify =
+			document.querySelectorAll(selector.replace(hasIndex[0], ""))[index] ||
+			null;
+	} else {
+		elemToModify = document.querySelector(selector) || null;
+	}
+
+	if (elemToModify !== null) {
+		elemToModify.innerHTML = content;
+	}
+};
+
 // v2 of loading alterations, this is from backend
 export const loadAlterations = (alterations: Alteration[]) => {
 	for (const alteration of alterations) {
@@ -91,11 +109,12 @@ export const loadPreviousModifications = () => {
 	}
 };
 
-const getModificationsFromStorage = () => {
+const getModificationsFromStorage = (): DOMModificationsType => {
 	try {
 		return JSON.parse(localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}");
 	} catch (error) {
 		console.error("Error parsing modifications:", error);
+		return {};
 	}
 };
 
@@ -138,6 +157,5 @@ export const sendMessage = (
 	chrome.runtime.sendMessage({ message, body }, (response) => {
 		if (response?.status !== "success") {
 			console.error("Failed to send message to background script");
-			return;
 		}
 	});

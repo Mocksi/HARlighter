@@ -26,9 +26,11 @@ const DemoItem = ({
 
 	return (
 		<div className={"flex justify-between w-full px-6"}>
-			<div>
-				<TextField variant={"title"}>{demo_name}</TextField>
-				<TextField>{customer_name}</TextField>
+			<div className={"w-[200px]"}>
+				<TextField variant={"title"} className={"truncate"}>
+					{demo_name}
+				</TextField>
+				<TextField className={"truncate"}>{customer_name}</TextField>
 			</div>
 			<div className={"flex gap-3"}>
 				<Button

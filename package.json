@@ -3,9 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
-    "navigate": "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-sandbox --incognito",
-    "capture": "pnpm exec node ./apps/capturer/index.mjs"
+    "dev": "turbo dev"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
@@ -18,6 +16,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@repo/harlight": "workspace:*"
+    "@repo/harlight": "workspace:*",
+    "@repo/dodom": "workspace:*"
   }
 }

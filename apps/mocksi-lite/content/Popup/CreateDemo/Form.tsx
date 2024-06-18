@@ -18,9 +18,13 @@ const Form = ({ onCancel }: FormProps) => {
 		sendMessage("createDemo", { demo_name: name, customer_name: customer });
 		// this is needed to wait until the new data is established
 		setTimeout(() => {
-			chrome.storage.local.get(["recordings"], (results) => {
-				onCancel(JSON.parse(results.recordings));
-			});
+			try {
+				chrome.storage.local.get(["recordings"], (results) => {
+					onCancel(JSON.parse(results.recordings));
+				});
+			} catch (error) {
+				console.error("Error retrieving recordings:", error);
+			}
 		}, 1000);
 	};
 	return (
