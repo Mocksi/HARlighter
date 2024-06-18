@@ -22,13 +22,13 @@ class Highlighter {
 		}
 	};
 
-    removeHighlightNodes = () => {
-        for (const node of document.querySelectorAll(
+	removeHighlightNodes = () => {
+		for (const node of document.querySelectorAll(
 			`div.${MOCKSI_HIGHLIGHTER_ID}`,
 		)) {
-			(node as HTMLElement).remove()
+			(node as HTMLElement).remove();
 		}
-    }
+	};
 }
 
 export let ContentHighlighter: Highlighter;
