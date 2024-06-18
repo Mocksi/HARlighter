@@ -6,24 +6,17 @@ import {
 	buildQuerySelector,
 } from "./commands/Command";
 import {
-	MOCKSI_MODIFICATIONS,
-	MOCKSI_RECORDING_STATE,
-	RecordingState,
-	STORAGE_KEY,
-	SignupURL,
+  MOCKSI_MODIFICATIONS,
+  MOCKSI_RECORDING_STATE,
+  RecordingState,
+  STORAGE_KEY,
+  SignupURL, MOCKSI_AUTH,
 } from "./consts";
+import {Recording} from "./background";
 
 type DOMModificationsType = {
 	[querySelector: string]: { nextText: string; previousText: string };
 };
-interface ChromeStorage {
-	accessToken: string;
-	userId: string;
-	sessionId: string;
-	recordingState: RecordingState;
-	refreshToken: string;
-	email: string;
-}
 
 export const setRootPosition = (state: RecordingState) => {
 	const extensionRoot = document.getElementById("extension-root");
@@ -137,7 +130,7 @@ export const sendMessage = (
 		}
 	});
 
-export const getStorage = async (): Promise<ChromeStorage | null> => {
+export const getEmail = async (): Promise<string | null> => {
 	const value = await chrome.storage.local.get(STORAGE_KEY);
 	if (!value) {
 		window.open(SignupURL);
@@ -147,11 +140,22 @@ export const getStorage = async (): Promise<ChromeStorage | null> => {
 	const storedData = value[STORAGE_KEY] || "{}";
 	try {
 		const parsedData = JSON.parse(storedData);
-		return parsedData;
+		return parsedData.email;
 	} catch (error) {
 		console.log("Error parsing data from storage: ", error);
-		MocksiRollbar.log("Error parsing storage data, logging out.");
+		MocksiRollbar.log("Error parsing email data, logging out.");
 		logout();
 		return null;
 	}
+};
+
+
+export const getRecordingsStorage = async (): Promise<Recording[]> => {
+  try {
+    const results = await chrome.storage.local.get(["recordings"]);
+    return JSON.parse(results.recordings ?? "{}");
+  } catch (err) {
+    console.error("Failed to retrieve recordings:", err);
+    return [];
+  }
 };

@@ -5,6 +5,7 @@ import type { RecordingState } from "../../../consts";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
+import {getRecordingsStorage} from "../../../utils";
 
 interface CreateDemoProps {
 	createForm: boolean;
@@ -23,15 +24,13 @@ const CreateDemo = ({
 		let continueFetching = true;
 		while (continueFetching) {
 			try {
-				const results = await chrome.storage.local.get(["recordings"]);
-				const newRecordings = JSON.parse(results.recordings ?? "{}");
+				const newRecordings = await getRecordingsStorage();
 				if (newRecordings.length !== recordings.length) {
 					setRecordings(newRecordings);
 					continueFetching = false; // Stop the loop if recordings have been updated
 				}
 			} catch (error) {
 				continueFetching = false; // Stop the loop in case of an error
-				console.error("Failed to fetch recordings:", error);
 			}
 		}
 	};

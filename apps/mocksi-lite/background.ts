@@ -1,7 +1,7 @@
 import MocksiRollbar from "./MocksiRollbar";
 import { SignupURL, WebSocketURL } from "./consts";
 import { apiCall } from "./networking";
-import { getStorage } from "./utils";
+import {getEmail} from "./utils";
 
 export interface Alteration {
 	selector: string;
@@ -173,9 +173,9 @@ function updateDemo(data: Record<string, unknown>) {
 }
 
 async function getRecordings() {
-	const data = await getStorage();
+	const email = await getEmail();
 
-	const response = await apiCall(`recordings?creator=${data?.email ?? ""}`);
+	const response = await apiCall(`recordings?creator=${email ?? ""}`);
 	if (!response || response.length === 0) {
 		return;
 	}

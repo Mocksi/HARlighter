@@ -3,10 +3,8 @@ import {
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
 	STORAGE_CHANGE_EVENT,
-	STORAGE_KEY,
-	SignupURL,
 } from "../consts";
-import { getStorage, setRootPosition } from "../utils";
+import {getEmail, setRootPosition} from "../utils";
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
@@ -27,11 +25,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			root.unmount();
 		}
 		root = ReactDOM.createRoot(extensionRoot);
-		getStorage().then((data) => {
+		getEmail().then((email) => {
 			const recordingState = localStorage.getItem(
 				MOCKSI_RECORDING_STATE,
 			) as RecordingState | null;
-			if (data?.email) {
+			if (email) {
 				// we need to initialize recordingState if there's none.
 				!recordingState &&
 					localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.READY);
@@ -42,7 +40,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				}
 				setRootPosition(recordingState);
 			}
-			root.render(<ContentApp isOpen={true} email={data?.email || ""} />);
+			root.render(<ContentApp isOpen={true} email={email || ""} />);
 		});
 	}
 	sendResponse({ status: "success" });
