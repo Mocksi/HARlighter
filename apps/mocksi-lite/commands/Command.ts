@@ -21,7 +21,7 @@ export const buildQuerySelector = (
 		keyToSave += `#${id}`;
 	}
 	if (classList.length) {
-		keyToSave += `.${[...classList].join('.')}`;
+		keyToSave += `.${[...classList].join(".")}`;
 	}
 	const elements = document.querySelectorAll(keyToSave);
 	if (elements.length > 1) {
