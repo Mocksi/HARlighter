@@ -28,32 +28,29 @@ class UniversalReplace {
 	seekAndReplace(pattern: RegExp, newText: string) {
 		const body = document.querySelector("body");
 		if (body) {
-            const fragmentsToHighlight: Node[] = [];
+			const fragmentsToHighlight: Node[] = [];
 			const replacements: { nodeToReplace: Node; replacement: Node }[] = [];
-            createTreeWalker(
-                body,
-                (textNode) => {
-                    //@ts-ignore textNode.nodeValue is not null.
-                    const matches = [...textNode.nodeValue.matchAll(pattern)];
-                    if (matches.length > 0) {
-                        const fragmentedTextNode = fragmentTextNode(
-                            fragmentsToHighlight,
-                            matches,
-                            textNode,
-                            newText,
-                        );
-                        replacements.push({
-                            nodeToReplace: textNode,
-                            replacement: fragmentedTextNode,
-                        });
-                        saveModification(
-                            textNode.parentElement as HTMLElement,
-                            newText,
-                            cleanPattern(pattern),
-                        );
-                    }
-                }
-            )
+			createTreeWalker(body, (textNode) => {
+				//@ts-ignore textNode.nodeValue is not null.
+				const matches = [...textNode.nodeValue.matchAll(pattern)];
+				if (matches.length > 0) {
+					const fragmentedTextNode = fragmentTextNode(
+						fragmentsToHighlight,
+						matches,
+						textNode,
+						newText,
+					);
+					replacements.push({
+						nodeToReplace: textNode,
+						replacement: fragmentedTextNode,
+					});
+					saveModification(
+						textNode.parentElement as HTMLElement,
+						newText,
+						cleanPattern(pattern),
+					);
+				}
+			});
 			//biome-ignore lint/complexity/noForEach: I'll replace later
 			replacements.forEach(({ nodeToReplace, replacement }) => {
 				if (nodeToReplace.parentElement)
@@ -73,20 +70,17 @@ class UniversalReplace {
 			for (const mutation of mutations) {
 				if (mutation.addedNodes != null && mutation.addedNodes.length > 0) {
 					for (const node of mutation.addedNodes) {
-                        createTreeWalker(
-                            node,
-                            (textNode) => {
-                                //@ts-ignore textNode.nodeValue is not null.
-                                const replace = this.matchReplacePattern(textNode.textContent);
-                                if (replace) {
-                                    //@ts-ignore textNode.nodeValue is not null.
-                                    textNode.nodeValue = textNode.nodeValue.replace(
-                                        replace.pattern,
-                                        replaceFirstLetterCase(replace.replace),
-                                    );
-                                }
-                            }
-                        )
+						createTreeWalker(node, (textNode) => {
+							//@ts-ignore textNode.nodeValue is not null.
+							const replace = this.matchReplacePattern(textNode.textContent);
+							if (replace) {
+								//@ts-ignore textNode.nodeValue is not null.
+								textNode.nodeValue = textNode.nodeValue.replace(
+									replace.pattern,
+									replaceFirstLetterCase(replace.replace),
+								);
+							}
+						});
 					}
 				}
 			}
@@ -110,26 +104,29 @@ class UniversalReplace {
 const cleanPattern = (pattern: RegExp) =>
 	pattern.toString().replaceAll("/", "").replace("gi", "");
 
-const createTreeWalker = (rootElement: Node, iterator: (textNode: Node) => void) => {
-    const treeWalker = document.createTreeWalker(
-        rootElement,
-        NodeFilter.SHOW_TEXT,
-        (node) => {
-            if (
-                node.parentElement instanceof HTMLScriptElement ||
-                node.parentElement instanceof HTMLStyleElement
-            )
-                return NodeFilter.FILTER_REJECT;
-            return NodeFilter.FILTER_ACCEPT;
-        }
-    )
-    let textNode: Node;
-    do {
-        textNode = treeWalker.currentNode;
-        if (textNode.nodeValue === null || !textNode?.textContent?.trim()) continue;
-        iterator(textNode)
-    } while (treeWalker.nextNode());
-}
+const createTreeWalker = (
+	rootElement: Node,
+	iterator: (textNode: Node) => void,
+) => {
+	const treeWalker = document.createTreeWalker(
+		rootElement,
+		NodeFilter.SHOW_TEXT,
+		(node) => {
+			if (
+				node.parentElement instanceof HTMLScriptElement ||
+				node.parentElement instanceof HTMLStyleElement
+			)
+				return NodeFilter.FILTER_REJECT;
+			return NodeFilter.FILTER_ACCEPT;
+		},
+	);
+	let textNode: Node;
+	do {
+		textNode = treeWalker.currentNode;
+		if (textNode.nodeValue === null || !textNode?.textContent?.trim()) continue;
+		iterator(textNode);
+	} while (treeWalker.nextNode());
+};
 
 const replaceFirstLetterCase = (value: string) => {
 	return (match: string) => {
