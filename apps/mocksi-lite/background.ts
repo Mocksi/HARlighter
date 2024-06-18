@@ -1,6 +1,7 @@
 import MocksiRollbar from "./MocksiRollbar";
 import { STORAGE_KEY, SignupURL, WebSocketURL } from "./consts";
 import { apiCall } from "./networking";
+import {getEmail} from "./utils";
 
 export interface Alteration {
 	selector: string;
@@ -172,21 +173,9 @@ function updateDemo(data: Record<string, unknown>) {
 }
 
 async function getRecordings() {
-	const storage = await chrome.storage.local.get(STORAGE_KEY);
-	const storedData = storage[STORAGE_KEY] || "{}";
+	const email = await getEmail();
 
-	let parsedData: { email: string } | undefined;
-	try {
-		parsedData = JSON.parse(storedData);
-	} catch (error) {
-		console.log("Error parsing data from storage: ", error);
-		throw new Error("could not parse data from storage.");
-	}
-	if (parsedData === undefined || !parsedData.email) {
-		throw new Error("No email found in storage.");
-	}
-
-	const response = await apiCall(`recordings?creator=${parsedData.email}`);
+	const response = await apiCall(`recordings?creator=${email ?? ''}`);
 	if (!response || response.length === 0) {
 		return;
 	}

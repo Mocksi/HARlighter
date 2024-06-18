@@ -5,11 +5,12 @@ import {
 	buildQuerySelector,
 } from "./commands/Command";
 import {
-	MOCKSI_MODIFICATIONS,
-	MOCKSI_RECORDING_STATE,
-	RecordingState,
-	SignupURL,
+  MOCKSI_MODIFICATIONS,
+  MOCKSI_RECORDING_STATE,
+  RecordingState,
+  SignupURL, STORAGE_KEY,
 } from "./consts";
+import MocksiRollbar from "./MocksiRollbar";
 
 type DOMModificationsType = {
 	[querySelector: string]: { nextText: string; previousText: string };
@@ -126,3 +127,22 @@ export const sendMessage = (
 			console.error("Failed to send message to background script");
 		}
 	});
+
+export const getEmail = async(): Promise<string | null> =>  {
+  const value = await chrome.storage.local.get(STORAGE_KEY);
+  if (!value) {
+    window.open(SignupURL);
+    return null;  // Ensure a value is always returned
+  }
+
+  const storedData = value[STORAGE_KEY] || "{}";
+  try {
+    const parsedData: { email: string } = JSON.parse(storedData);
+    return parsedData.email || null;
+  } catch (error) {
+    console.log("Error parsing data from storage: ", error);
+    MocksiRollbar.log("Error parsing email data, logging out.");
+    logout();
+    return null;
+  }
+}
