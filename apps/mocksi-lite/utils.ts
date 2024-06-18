@@ -72,7 +72,6 @@ export const undoModifications = () => {
 	localStorage.removeItem(MOCKSI_MODIFICATIONS);
 };
 
-
 // v2 of loading alterations, this is from backend
 export const loadAlterations = (alterations: Alteration[]) => {
 	for (const alteration of alterations) {
@@ -101,7 +100,11 @@ const getModificationsFromStorage = (): DOMModificationsType => {
 	}
 };
 
-const modifyElementInnerHTML = (selector: string, oldContent: string, newContent: string) => {
+const modifyElementInnerHTML = (
+	selector: string,
+	oldContent: string,
+	newContent: string,
+) => {
 	// querySelector format {htmlElementType}#{elementId}.{elementClassnames}[${elementIndexIfPresent}]{{newValue}}
 	const hasIndex = selector.match(/\[[0-9]+\]/);
 	const valueInQuerySelector = selector.match(/\{[a-zA-Z0-9]+\}/);
@@ -110,14 +113,13 @@ const modifyElementInnerHTML = (selector: string, oldContent: string, newContent
 	if (hasIndex) {
 		// with all this replaces, we should build a formatter
 		const filteredQuerySelector = valueInQuerySelector
-			? selector
-					.replace(hasIndex[0], "")
-					.replace(valueInQuerySelector[0], "")
+			? selector.replace(hasIndex[0], "").replace(valueInQuerySelector[0], "")
 			: selector.replace(hasIndex[0], "");
 		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
 		elemToModify =
-			document.querySelectorAll(filteredQuerySelector.replace(hasIndex[0], ""))[index] ||
-			null;
+			document.querySelectorAll(filteredQuerySelector.replace(hasIndex[0], ""))[
+				index
+			] || null;
 	} else {
 		elemToModify = document.querySelector(
 			valueInQuerySelector
@@ -127,7 +129,8 @@ const modifyElementInnerHTML = (selector: string, oldContent: string, newContent
 	}
 
 	if (elemToModify !== null) {
-		elemToModify.innerHTML = elemToModify?.innerHTML?.replaceAll(oldContent, newContent) || "";;
+		elemToModify.innerHTML =
+			elemToModify?.innerHTML?.replaceAll(oldContent, newContent) || "";
 	}
 };
 
