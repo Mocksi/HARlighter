@@ -1,5 +1,5 @@
 import MocksiRollbar from "./MocksiRollbar";
-import { SignupURL, WebSocketURL } from "./consts";
+import { STORAGE_KEY, SignupURL, WebSocketURL } from "./consts";
 import { apiCall } from "./networking";
 
 export interface Alteration {
@@ -172,7 +172,11 @@ function updateDemo(data: Record<string, unknown>) {
 }
 
 async function getRecordings() {
-	const response = await apiCall("recordings/");
+	const storage = await chrome.storage.local.get(STORAGE_KEY);
+	const storedData = storage[STORAGE_KEY] || "{}";
+	const { email } = JSON.parse(storedData);
+
+	const response = await apiCall(`recordings?creator=${email ?? ""}`);
 	if (!response || response.length === 0) {
 		return;
 	}

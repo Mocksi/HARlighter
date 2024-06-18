@@ -1,5 +1,4 @@
 import ReactDOM from "react-dom/client";
-import MocksiRollbar from "../MocksiRollbar";
 import {
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
@@ -53,6 +52,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 						localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.READY);
 				}
 				if (recordingState) {
+					if (recordingState === RecordingState.EDITING) {
+						localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
+					}
 					setRootPosition(recordingState);
 				}
 				root.render(<ContentApp isOpen={true} email={email || ""} />);

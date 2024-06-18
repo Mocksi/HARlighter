@@ -1,5 +1,4 @@
 import { useState } from "react";
-import type { Recording } from "../../../background";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
 import expandIcon from "../../../public/expand-icon.png";
@@ -7,7 +6,7 @@ import { sendMessage } from "../../../utils";
 import Divider from "../Divider";
 
 interface FormProps {
-	onCancel: (recordings?: Recording[]) => void;
+	onCancel: () => void;
 }
 
 const Form = ({ onCancel }: FormProps) => {
@@ -16,16 +15,7 @@ const Form = ({ onCancel }: FormProps) => {
 
 	const handleSubmit = () => {
 		sendMessage("createDemo", { demo_name: name, customer_name: customer });
-		// this is needed to wait until the new data is established
-		setTimeout(() => {
-			try {
-				chrome.storage.local.get(["recordings"], (results) => {
-					onCancel(JSON.parse(results.recordings));
-				});
-			} catch (error) {
-				console.error("Error retrieving recordings:", error);
-			}
-		}, 1000);
+		onCancel();
 	};
 	return (
 		<div className={"flex-1 mt-3"}>
@@ -53,7 +43,7 @@ const Form = ({ onCancel }: FormProps) => {
 						/>
 					</div>
 					<div className={"mt-[42px] flex justify-end gap-4"}>
-						<Button onClick={() => onCancel()} variant={Variant.secondary}>
+						<Button onClick={onCancel} variant={Variant.secondary}>
 							Cancel
 						</Button>
 						<Button disabled={!name.length} onClick={handleSubmit}>

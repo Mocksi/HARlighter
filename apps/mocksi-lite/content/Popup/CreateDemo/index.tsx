@@ -43,31 +43,24 @@ const CreateDemo = ({
 		}
 	}, [createForm]);
 
-	const handleCancelClick = (recordings?: Recording[]) => {
-		if (recordings) {
-			setRecordings(recordings || []);
-		}
-		setCreateForm(false);
-	};
-
-	if (createForm) return <Form onCancel={handleCancelClick} />;
+	if (createForm) return <Form onCancel={() => setCreateForm(false)} />;
 	return (
-		<div
-			className={
-				"flex-1 flex flex-col items-center py-8 overflow-y-scroll no-scrollbar"
-			}
-		>
-			{recordings.map((record) => (
-				<Fragment key={`demo-item-${record.uuid}`}>
-					<DemoItem setState={setState} {...record} />
-					<div className={"px-3 w-full my-6"}>
-						<Divider />
-					</div>
-				</Fragment>
-			))}
+		<div className={"flex flex-1 flex-col h-[280px]"}>
+			<div
+				className={"flex-1 flex flex-col py-8 overflow-y-scroll no-scrollbar"}
+			>
+				{recordings.map((record) => (
+					<Fragment key={`demo-item-${record.uuid}`}>
+						<DemoItem setState={setState} {...record} />
+						<div className={"px-3 w-full my-6"}>
+							<Divider />
+						</div>
+					</Fragment>
+				))}
+			</div>
 			<Button
 				onClick={() => setCreateForm(true)}
-				className={!recordings.length ? "mt-3" : ""}
+				className={!recordings.length ? "mt-3 self-center" : "my-3 self-center"}
 			>
 				Create New Demo
 			</Button>

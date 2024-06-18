@@ -7,6 +7,7 @@ interface RecordButtonProps {
 	onRecordChange: (status: RecordingState) => void;
 	state: RecordingState;
 }
+const waitTime = 2000; // 2 seconds
 
 const recordingColorAndLabel = (currentStatus: RecordingState) => {
 	switch (currentStatus) {
@@ -42,7 +43,6 @@ export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 			RecordingState.READY;
 
 		onRecordChange(storageState);
-		const waitTime = 2000; // 2 seconds
 		if (storageState === RecordingState.ANALYZING) {
 			setTimeout(() => {
 				onRecordChange(RecordingState.CREATE);
@@ -66,7 +66,7 @@ export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 					MOCKSI_RECORDING_STATE,
 					RecordingState.CREATE.toString(),
 				);
-			}, 10000);
+			}, waitTime);
 		}
 	};
 
