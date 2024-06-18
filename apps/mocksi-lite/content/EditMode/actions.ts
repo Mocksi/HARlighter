@@ -29,6 +29,7 @@ export function fragmentTextNode(
 	textNode: Node,
 	newText: string,
 ) {
+	if (!textNode.nodeValue) return null
 	const baseFragment = document.createDocumentFragment();
 	let cursor = 0;
 	let index = 0;
@@ -41,7 +42,6 @@ export function fragmentTextNode(
 		if (cursor < startOffset) {
 			baseFragment.appendChild(
 				document.createTextNode(
-					//@ts-ignore nodeValue wont be null
 					textNode.nodeValue.substring(cursor, startOffset),
 				),
 			);
@@ -54,7 +54,6 @@ export function fragmentTextNode(
 			// end of matches
 			baseFragment.appendChild(
 				document.createTextNode(
-					//@ts-ignore nodeValue wont be null
 					textNode.nodeValue.substring(endOffset, textNode.nodeValue?.length),
 				),
 			);
