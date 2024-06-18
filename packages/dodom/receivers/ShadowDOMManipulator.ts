@@ -17,6 +17,8 @@ export class ShadowDOMManipulator {
             if (!nodeId) {
                 nodeId = this.uuidGenerator.generate();
                 img.setAttribute('data-mocksi-id', nodeId);
+            } else {
+                img.setAttribute('data-mocksi-id', nodeId);
             }
             this.snapshots.push(this.shadowRoot.innerHTML);
             img.src = newSrc;

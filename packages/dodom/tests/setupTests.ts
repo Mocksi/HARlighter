@@ -13,7 +13,7 @@ function copyProps(src: any, target: any) {
     Object.defineProperties(target, props);
 }
 
-global.window = window;
+global.window = window as unknown as Window & typeof globalThis;
 global.document = window.document;
 global.navigator = {
     userAgent: 'node.js',
