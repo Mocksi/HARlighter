@@ -42,7 +42,7 @@ class UniversalReplace {
 					);
 					replacements.push({
 						nodeToReplace: textNode,
-						replacement: fragmentedTextNode,
+						replacement: fragmentedTextNode as Node,
 					});
 					saveModification(
 						textNode.parentElement as HTMLElement,
