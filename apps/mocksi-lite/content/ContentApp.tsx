@@ -51,9 +51,7 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 
 	const onChecked = () => {
 		setAreChangesHighlighted((prevValue) => {
-			prevValue
-				? ContentHighlighter.hideHighlights()
-				: ContentHighlighter.showHighlights();
+			ContentHighlighter.showHideHighlights(!prevValue)
 			return !prevValue;
 		});
 	};

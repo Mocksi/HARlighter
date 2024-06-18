@@ -2,15 +2,25 @@ import { MOCKSI_HIGHLIGHTER_ID } from "../../consts";
 
 class Highlighter {
 	private contentRanger = document.createRange();
+    private highlightedNodes = []
 
-	highlightNode = (elementToHighlight: Text) => {
+	highlightNode = (elementToHighlight: Node) => {
 		this.contentRanger.selectNodeContents(elementToHighlight);
 		const { x, y, width, height } =
 			this.contentRanger.getBoundingClientRect() || {};
 		const textHighlight = highlight({ x, y, width, height });
 		document.body.appendChild(textHighlight);
+        //@ts-ignore just don't know what is meaning here
+        this.highlightedNodes.push(elementToHighlight)
 	};
 
+    showHideHighlights = (show: boolean) => {
+        for (const node of document.querySelectorAll(
+			`div.${MOCKSI_HIGHLIGHTER_ID}`,
+		)) {
+			(node as HTMLElement).style.display = show ? "block" : "none";
+		}
+    }
 	hideHighlights = () => {
 		for (const node of document.querySelectorAll(
 			`div.${MOCKSI_HIGHLIGHTER_ID}`,

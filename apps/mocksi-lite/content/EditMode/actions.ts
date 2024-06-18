@@ -1,5 +1,4 @@
-import { saveModification } from "../../utils";
-import { ContentHighlighter } from "./highlighter";
+import UniversalReplace from '../../universalReplace'
 
 export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 	if (nodeWithTextArea) {
@@ -19,10 +18,38 @@ export function applyChanges(
 	oldValue: string,
 ) {
 	if (nodeWithTextArea) {
-		const parentElement = nodeWithTextArea?.parentElement;
-		replaceValueInDOM(parentElement, nodeWithTextArea, newValue);
-		saveModification(parentElement as HTMLElement, newValue, oldValue);
+		cancelEditWithoutChanges(nodeWithTextArea)
+		UniversalReplace.addPattern(oldValue, newValue)
 	}
+}
+
+export function fragmentTextNode(fragmentsToHighlight: Node[], matches: RegExpMatchArray[], textNode: Node, newText: string) {
+	const baseFragment = document.createDocumentFragment()
+	let cursor = 0;
+	let index = 0;
+	for (const match of matches) {
+		// match.index may be undefined? in which cases?????
+		const [startOffset, endOffset] = [match.index || 0, (match.index || 0) + match[0].length]
+		if (cursor < startOffset) {
+			baseFragment.appendChild(
+				//@ts-ignore nodeValue wont be null
+				document.createTextNode(textNode.nodeValue.substring(cursor, startOffset)),
+			);
+		}
+		const selectedTextFragment = document.createTextNode(newText);
+		fragmentsToHighlight.push(selectedTextFragment)
+		baseFragment.appendChild(selectedTextFragment)
+		cursor = endOffset
+		if (index === matches.length - 1 && cursor !== textNode.nodeValue?.length) {
+			// end of matches
+			baseFragment.appendChild(
+				//@ts-ignore nodeValue wont be null
+				document.createTextNode(textNode.nodeValue.substring(endOffset, textNode.nodeValue?.length)),
+			);
+		}
+		index++;
+	}
+	return baseFragment
 }
 
 function replaceValueInDOM(
@@ -33,7 +60,6 @@ function replaceValueInDOM(
 	// const previousText = getPreviousNodeValue(nodeWithTextArea, oldValue);
 	const nodeTextToReplace = document.createTextNode(newValue);
 	parentElement?.replaceChild(nodeTextToReplace, nodeWithTextArea);
-	ContentHighlighter.highlightNode(nodeTextToReplace);
 	parentElement?.normalize();
 }
 

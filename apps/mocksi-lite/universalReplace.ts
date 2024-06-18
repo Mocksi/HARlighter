@@ -1,17 +1,15 @@
+import { fragmentTextNode } from "./content/EditMode/actions";
+import { ContentHighlighter } from "./content/EditMode/highlighter";
+import { saveModification } from "./utils";
 
 class UniversalReplace {
     observer: MutationObserver | undefined;
     patterns: { pattern: RegExp, replace: string }[] = [];
 
-    constructor() {
-    }
-
     addPattern(pattern: string | RegExp, replace: string) {
-        this.patterns.push({ pattern: toRegExpPattern(pattern), replace });
-
-        if (!this.observer) {
-            this.createObserver();
-        }
+        const replacePattern = { pattern: toRegExpPattern(pattern), replace }
+        this.patterns.push(replacePattern);
+        this.seekAndReplace(replacePattern.pattern, replacePattern.replace)
     }
 
     removePattern(pattern: string | RegExp) {
@@ -25,9 +23,50 @@ class UniversalReplace {
        }
     }
 
+    seekAndReplace(pattern: RegExp, newText: string) {
+        const body = document.querySelector('body')
+        if (body) {
+            // TODO createTreeWalker provides a filter function, see if we can filter chunk textNodes 
+            const treeWalker = document.createTreeWalker(
+                body, 
+                NodeFilter.SHOW_TEXT,
+                (node) => {
+                    if ((node.parentElement instanceof HTMLScriptElement || node.parentElement instanceof HTMLStyleElement)) return NodeFilter.FILTER_REJECT
+                    else return NodeFilter.FILTER_ACCEPT
+                }
+            );
+            let textNode: Node
+            const fragmentsToHighlight: Node[] = []
+            const replacements: {nodeToReplace: Node, replacement: Node}[] = []
+            do {
+                textNode = treeWalker.currentNode;
+                if (textNode.nodeValue === null || !textNode?.textContent?.trim()) continue;
+                const matches = [...textNode.nodeValue.matchAll(pattern)]
+                if (matches.length > 0) {     
+                    const fragmentedTextNode = fragmentTextNode(fragmentsToHighlight, matches, textNode, newText)
+                    replacements.push({
+                        nodeToReplace: textNode,
+                        replacement: fragmentedTextNode
+                    })
+                    saveModification(
+                        textNode.parentElement as HTMLElement,
+                        newText,
+                        cleanPattern(pattern)
+                    )
+                }
+            } while (treeWalker.nextNode());
+            replacements.forEach(({nodeToReplace, replacement}) => {
+                if (nodeToReplace.parentElement) nodeToReplace.parentElement.replaceChild(replacement, nodeToReplace)
+                // TODO: see how we should manage if has no parent, couldnt find a case for this.
+            })
+            fragmentsToHighlight.forEach(fragment => ContentHighlighter.highlightNode(fragment))
+        }
+    }
+
+
+    // TODO need to execute this when the user presses "play"
     createObserver() {
-        const this_ = this;
-        this.observer = new MutationObserver(function (mutations) {
+        this.observer = new MutationObserver((mutations) => {
             for (let mutation of mutations) {
                 if (mutation.addedNodes != null && mutation.addedNodes.length > 0) {
                     for (let node of mutation.addedNodes) {
@@ -38,7 +77,7 @@ class UniversalReplace {
                             node.textContent !== null &&
                             !(/^\s*$/.test(node.textContent)))
                         {
-                            const replace = this_.matchReplacePattern(node.textContent);
+                            const replace = this.matchReplacePattern(node.textContent);
                             if (replace) {
                                 const treeWalker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
                                 let textNode: Node
@@ -68,6 +107,8 @@ class UniversalReplace {
     }
 }
 
+const cleanPattern = (pattern: RegExp) => pattern.toString().replaceAll('/', '').replace('gi', '')
+
 const replaceFirstLetterCase = (value: string) => {
     return (match: string) => {
         // Check if the first letter in the match is uppercase
@@ -81,7 +122,7 @@ const replaceFirstLetterCase = (value: string) => {
 
 const toRegExpPattern = (pattern: string | RegExp) => {
     if (typeof pattern === "string") {
-        return new RegExp('\\b' + pattern + '\\b', "ig");
+        return new RegExp(pattern, "ig");
     }
 
     return pattern;

@@ -26,6 +26,7 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 		restoreNodes();
 		ContentHighlighter.hideHighlights();
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
+		document.normalize()
 	}
 };
 
