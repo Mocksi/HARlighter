@@ -10,21 +10,25 @@ import { ContentHighlighter } from "./highlighter";
 
 export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
-		if (recordingId) localStorage.setItem(MOCKSI_RECORDING_ID, recordingId);
+		if (recordingId) {
+			localStorage.setItem(MOCKSI_RECORDING_ID, recordingId);
+		}
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
 		blockClickableElements();
 		document.body.addEventListener("dblclick", onDoubleClickText);
-	} else {
-		if (recordingId) persistModifications(recordingId);
-		undoModifications();
-		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
-		localStorage.removeItem(MOCKSI_RECORDING_ID);
-		document.body.removeEventListener("dblclick", onDoubleClickText);
-		restoreNodes();
-		ContentHighlighter.removeHighlightNodes();
-		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
-		document.normalize();
+		return;
 	}
+	if (recordingId) {
+		persistModifications(recordingId);
+	}
+	undoModifications();
+	localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
+	localStorage.removeItem(MOCKSI_RECORDING_ID);
+	document.body.removeEventListener("dblclick", onDoubleClickText);
+	restoreNodes();
+	ContentHighlighter.removeHighlightNodes();
+	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
+	document.normalize();
 };
 
 function onDoubleClickText(event: MouseEvent) {
@@ -62,17 +66,19 @@ function decorateTextTag(
 	{ startOffset, endOffset }: { startOffset: number; endOffset: number },
 ) {
 	const fragment = document.createDocumentFragment();
-	if (startOffset > 0)
+	if (startOffset > 0) {
 		fragment.appendChild(
 			document.createTextNode(text.substring(0, startOffset)),
 		);
+	}
 	fragment.appendChild(
 		decorate(text.substring(startOffset, endOffset), width, shiftMode),
 	);
-	if (endOffset < text.length)
+	if (endOffset < text.length) {
 		fragment.appendChild(
 			document.createTextNode(text.substring(endOffset, text.length)),
 		);
+	}
 	return fragment;
 }
 
@@ -81,7 +87,9 @@ function applyEditor(
 	selectedRange: Selection | null,
 	shiftMode: boolean,
 ) {
-	if (selectedRange === null || selectedRange.anchorNode === null) return;
+	if (selectedRange === null || selectedRange.anchorNode === null) {
+		return;
+	}
 	// this case is if the beggining node is the same as the finished one.
 	// this can happen while selecting text, there are more than one different node involved.
 	if (selectedRange.anchorNode === selectedRange.focusNode) {
@@ -143,7 +151,9 @@ const restoreNodes = () => {
 				//@ts-ignore
 				readonlyElem.onclick = onclick;
 				index++;
-			} else break;
+			} else {
+				break;
+			}
 		}
 	}
 };

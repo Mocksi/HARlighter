@@ -151,9 +151,35 @@ const formatQuerySelector = (
 export const sendMessage = (
 	message: string,
 	body?: Record<string, unknown> | null,
-) =>
-	chrome.runtime.sendMessage({ message, body }, (response) => {
-		if (response?.status !== "success") {
-			console.error("Failed to send message to background script");
+) => {
+	try {
+		chrome.runtime.sendMessage({ message, body }, (response) => {
+			if (response?.status !== "success") {
+				throw new Error(
+					`Failed to send message to background script. Received response: ${response}`,
+				);
+			}
+		});
+	} catch (error) {
+		console.error("Error sending message to background script:", error);
+		logout();
+	}
+};
+
+// biome-ignore lint/suspicious/noExplicitAny: dynamic arguments
+export function debounce_leading<T extends (...args: any[]) => void>(
+	func: T,
+	timeout = 300,
+): (...args: Parameters<T>) => void {
+	let timer: number | undefined;
+
+	return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+		if (!timer) {
+			func.apply(this, args);
 		}
-	});
+		clearTimeout(timer);
+		timer = window.setTimeout(() => {
+			timer = undefined;
+		}, timeout);
+	};
+}

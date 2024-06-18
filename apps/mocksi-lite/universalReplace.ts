@@ -17,7 +17,9 @@ class UniversalReplace {
 		const idx = this.patterns.findIndex(
 			(p) => p.pattern.source === pattern_.source,
 		);
-		if (idx >= 0) this.patterns.splice(idx, 1);
+		if (idx >= 0) {
+			this.patterns.splice(idx, 1);
+		}
 
 		if (this.patterns.length === 0) {
 			this.observer?.disconnect();
@@ -27,41 +29,49 @@ class UniversalReplace {
 
 	seekAndReplace(pattern: RegExp, newText: string) {
 		const body = document.querySelector("body");
-		if (body) {
-			const fragmentsToHighlight: Node[] = [];
-			const replacements: { nodeToReplace: Node; replacement: Node }[] = [];
-			createTreeWalker(body, (textNode) => {
-				if (!textNode.nodeValue) return null;
-				const matches = [...textNode.nodeValue.matchAll(pattern)];
-				if (matches.length > 0) {
-					const fragmentedTextNode = fragmentTextNode(
-						fragmentsToHighlight,
-						matches,
-						textNode,
-						newText,
-					);
-					replacements.push({
-						nodeToReplace: textNode,
-						replacement: fragmentedTextNode as Node,
-					});
-					saveModification(
-						textNode.parentElement as HTMLElement,
-						newText,
-						cleanPattern(pattern),
-					);
-				}
-			});
-			//biome-ignore lint/complexity/noForEach: I'll replace later
-			replacements.forEach(({ nodeToReplace, replacement }) => {
-				if (nodeToReplace.parentElement)
-					nodeToReplace.parentElement.replaceChild(replacement, nodeToReplace);
-				// TODO: see how we should manage if has no parent, couldnt find a case for this.
-			});
-			//biome-ignore lint/complexity/noForEach: I'll replace later
-			fragmentsToHighlight.forEach((fragment) =>
-				ContentHighlighter.highlightNode(fragment),
-			);
+		if (!body) {
+			console.log("Body not found");
+			return;
 		}
+		const fragmentsToHighlight: Node[] = [];
+		const replacements: { nodeToReplace: Node; replacement: Node }[] = [];
+		createTreeWalker(body, (textNode) => {
+			if (!textNode.nodeValue) {
+				return;
+			}
+			const matches = [...textNode.nodeValue.matchAll(pattern)];
+			if (matches.length > 0) {
+				const fragmentedTextNode = fragmentTextNode(
+					fragmentsToHighlight,
+					matches,
+					textNode,
+					newText,
+				);
+				replacements.push({
+					nodeToReplace: textNode,
+					replacement: fragmentedTextNode as Node,
+				});
+				saveModification(
+					textNode.parentElement as HTMLElement,
+					newText,
+					cleanPattern(pattern),
+				);
+			}
+		});
+
+		for (const { nodeToReplace, replacement } of replacements) {
+			// The only case where the parentElement is null is when a node is removed from the body.
+			// Because of this, it's safe to ignore.
+			if (nodeToReplace.parentElement == null) {
+				continue;
+			}
+
+			nodeToReplace.parentElement.replaceChild(replacement, nodeToReplace);
+		}
+		//biome-ignore lint/complexity/noForEach: I'll replace later
+		fragmentsToHighlight.forEach((fragment) =>
+			ContentHighlighter.highlightNode(fragment),
+		);
 	}
 
 	// TODO need to execute this when the user presses "play"
@@ -71,7 +81,10 @@ class UniversalReplace {
 				if (mutation.addedNodes != null && mutation.addedNodes.length > 0) {
 					for (const node of mutation.addedNodes) {
 						createTreeWalker(node, (textNode) => {
-							if (!textNode.textContent || !textNode.nodeValue) return null;
+							if (!textNode.textContent || !textNode.nodeValue) {
+								return null;
+							}
+
 							const replace = this.matchReplacePattern(textNode.textContent);
 							if (replace) {
 								textNode.nodeValue = textNode.nodeValue.replace(
@@ -114,15 +127,19 @@ const createTreeWalker = (
 			if (
 				node.parentElement instanceof HTMLScriptElement ||
 				node.parentElement instanceof HTMLStyleElement
-			)
+			) {
 				return NodeFilter.FILTER_REJECT;
+			}
 			return NodeFilter.FILTER_ACCEPT;
 		},
 	);
 	let textNode: Node;
 	do {
 		textNode = treeWalker.currentNode;
-		if (textNode.nodeValue === null || !textNode?.textContent?.trim()) continue;
+		if (textNode.nodeValue === null || !textNode?.textContent?.trim()) {
+			continue;
+		}
+
 		iterator(textNode);
 	} while (treeWalker.nextNode());
 };

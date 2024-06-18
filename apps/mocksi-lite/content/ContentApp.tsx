@@ -56,7 +56,9 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 		});
 	};
 
-	if (!isDialogOpen) return null;
+	if (!isDialogOpen) {
+		return null;
+	}
 	if (state === RecordingState.READY || state === RecordingState.CREATE) {
 		return (
 			<Popup
