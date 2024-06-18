@@ -1,3 +1,4 @@
+import MocksiRollbar from "./MocksiRollbar";
 import type { Alteration } from "./background";
 import {
 	type Command,
@@ -5,16 +6,24 @@ import {
 	buildQuerySelector,
 } from "./commands/Command";
 import {
-  MOCKSI_MODIFICATIONS,
-  MOCKSI_RECORDING_STATE,
-  RecordingState,
-  SignupURL, STORAGE_KEY,
+	MOCKSI_MODIFICATIONS,
+	MOCKSI_RECORDING_STATE,
+	RecordingState,
+	STORAGE_KEY,
+	SignupURL,
 } from "./consts";
-import MocksiRollbar from "./MocksiRollbar";
 
 type DOMModificationsType = {
 	[querySelector: string]: { nextText: string; previousText: string };
 };
+interface ChromeStorage {
+	accessToken: string;
+	userId: string;
+	sessionId: string;
+	recordingState: RecordingState;
+	refreshToken: string;
+	email: string;
+}
 
 export const setRootPosition = (state: RecordingState) => {
 	const extensionRoot = document.getElementById("extension-root");
@@ -128,21 +137,21 @@ export const sendMessage = (
 		}
 	});
 
-export const getEmail = async(): Promise<string | null> =>  {
-  const value = await chrome.storage.local.get(STORAGE_KEY);
-  if (!value) {
-    window.open(SignupURL);
-    return null;  // Ensure a value is always returned
-  }
+export const getStorage = async (): Promise<ChromeStorage | null> => {
+	const value = await chrome.storage.local.get(STORAGE_KEY);
+	if (!value) {
+		window.open(SignupURL);
+		return null; // Ensure a value is always returned
+	}
 
-  const storedData = value[STORAGE_KEY] || "{}";
-  try {
-    const parsedData: { email: string } = JSON.parse(storedData);
-    return parsedData.email || null;
-  } catch (error) {
-    console.log("Error parsing data from storage: ", error);
-    MocksiRollbar.log("Error parsing email data, logging out.");
-    logout();
-    return null;
-  }
-}
+	const storedData = value[STORAGE_KEY] || "{}";
+	try {
+		const parsedData = JSON.parse(storedData);
+		return parsedData;
+	} catch (error) {
+		console.log("Error parsing data from storage: ", error);
+		MocksiRollbar.log("Error parsing storage data, logging out.");
+		logout();
+		return null;
+	}
+};

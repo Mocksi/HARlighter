@@ -6,7 +6,7 @@ import {
 	STORAGE_KEY,
 	SignupURL,
 } from "../consts";
-import {getEmail, setRootPosition} from "../utils";
+import { getStorage, setRootPosition } from "../utils";
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
@@ -27,29 +27,23 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			root.unmount();
 		}
 		root = ReactDOM.createRoot(extensionRoot);
-    getEmail()
-      .then((email) => {
-        const recordingState = localStorage.getItem(
-          MOCKSI_RECORDING_STATE,
-        ) as RecordingState | null;
-        if (email) {
-          // we need to initialize recordingState if there's none.
-          !recordingState &&
-          localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.READY);
-        }
-        if (recordingState) {
-          if (recordingState === RecordingState.EDITING) {
-            localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
-          }
-          setRootPosition(recordingState);
-        }
-        root.render(<ContentApp isOpen={true} email={email || ""} />);
-      })
-      .catch((error) => {
-        localStorage.clear();
-        console.log("Error getting data from storage: ", error);
-        window.open(SignupURL);
-      });
+		getStorage().then((data) => {
+			const recordingState = localStorage.getItem(
+				MOCKSI_RECORDING_STATE,
+			) as RecordingState | null;
+			if (data?.email) {
+				// we need to initialize recordingState if there's none.
+				!recordingState &&
+					localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.READY);
+			}
+			if (recordingState) {
+				if (recordingState === RecordingState.EDITING) {
+					localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
+				}
+				setRootPosition(recordingState);
+			}
+			root.render(<ContentApp isOpen={true} email={data?.email || ""} />);
+		});
 	}
 	sendResponse({ status: "success" });
 });
