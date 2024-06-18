@@ -111,26 +111,36 @@ const modifyElementInnerHTML = (
 	let elemToModify: Element | null;
 	if (hasIndex) {
 		// with all this replaces, we should build a formatter
-		const filteredQuerySelector = valueInQuerySelector
-			? selector.replace(hasIndex[0], "").replace(valueInQuerySelector[0], "")
-			: selector.replace(hasIndex[0], "");
+		const filteredQuerySelector = formatQuerySelector(selector, valueInQuerySelector, hasIndex)
 		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
 		elemToModify =
-			document.querySelectorAll(filteredQuerySelector.replace(hasIndex[0], ""))[
+			document.querySelectorAll(filteredQuerySelector)[
 				index
 			] || null;
 	} else {
-		elemToModify = document.querySelector(
-			valueInQuerySelector
-				? selector.replace(valueInQuerySelector[0], "")
-				: selector,
-		);
+		elemToModify = document.querySelector(formatQuerySelector(selector, valueInQuerySelector, null));
 	}
 	if (elemToModify !== null) {
 		elemToModify.innerHTML =
 			elemToModify?.innerHTML?.replaceAll(oldContent, newContent) || "";
 	}
 };
+
+const formatQuerySelector = (rawSelector: string, valueInQuerySelector: RegExpMatchArray | null, hasIndex: RegExpMatchArray | null ) => {
+	if (hasIndex) {
+		return (
+			valueInQuerySelector
+				? rawSelector.replace(hasIndex[0], "").replace(valueInQuerySelector[0], "")
+				: rawSelector.replace(hasIndex[0], "")
+		)
+	} 
+
+	return (
+		valueInQuerySelector
+		? rawSelector.replace(valueInQuerySelector[0], "")
+		: rawSelector
+	)
+}
 
 export const sendMessage = (
 	message: string,

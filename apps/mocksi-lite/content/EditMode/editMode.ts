@@ -12,7 +12,7 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
 		if (recordingId) localStorage.setItem(MOCKSI_RECORDING_ID, recordingId);
 		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
-		blockNodes();
+		blockClickableElements();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 	} else {
 		if (recordingId) persistModifications(recordingId);
@@ -110,7 +110,7 @@ function applyEditor(
 //biome-ignore lint/suspicious/noExplicitAny: need to look after a proper type, but mainly are html nodes
 const blockedNodes: any[] = [];
 
-const blockNodes = () => {
+const blockClickableElements = () => {
 	const aElements = document.querySelectorAll("a");
 	const buttonElements = document.querySelectorAll("button");
 	for (const clickableElement of [...aElements, ...buttonElements]) {
