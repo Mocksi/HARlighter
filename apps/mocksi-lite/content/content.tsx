@@ -3,6 +3,7 @@ import MocksiRollbar from "../MocksiRollbar";
 import {
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
+	SignupURL,
 	STORAGE_CHANGE_EVENT,
 	STORAGE_KEY,
 } from "../consts";
@@ -29,12 +30,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		root = ReactDOM.createRoot(extensionRoot);
 		chrome.storage.local.get(STORAGE_KEY).then((value) => {
 			let parsedData: { email: string } | undefined;
+			const storedData = value[STORAGE_KEY] || "{}";
 			try {
-				parsedData = JSON.parse(value[STORAGE_KEY]);
+				parsedData = JSON.parse(storedData);
 			} catch (error) {
-				console.error(error);
-				MocksiRollbar.error("Error parsing chrome storage");
+				console.log("Error parsing data from storage: ", error);
+				throw new Error("could not parse data from storage.");
 			}
+			if (parsedData === undefined || !parsedData.email) {
+				throw new Error("No email found in storage.");
+			}
+
 			const { email } = parsedData || {};
 			const recordingState = localStorage.getItem(
 				MOCKSI_RECORDING_STATE,
@@ -48,6 +54,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				setRootPosition(recordingState);
 			}
 			root.render(<ContentApp isOpen={true} email={email || ""} />);
+		}).catch((error) => {
+			localStorage.clear();
+			console.log("Error getting data from storage: ", error);
+			window.open(SignupURL);
 		});
 	}
 	sendResponse({ status: "success" });

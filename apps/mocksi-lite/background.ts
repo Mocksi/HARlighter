@@ -56,7 +56,19 @@ chrome.action.onClicked.addListener((activeTab) => {
 	if (currentTabId && currentTabId < 0) {
 		return false;
 	}
-	console.log("Attaching debugger to tab:", currentTabId);
+	let activeTabUrl  = ""
+	try {
+		activeTabUrl = activeTab?.url || "";
+	} catch (e) {
+		console.log("Error getting active tab url", e);
+		activeTabUrl = "";
+	}
+
+	if (activeTabUrl === "" || activeTabUrl.startsWith("chrome://")) {
+		chrome.action.disable();
+		return
+	}
+
 	const version = "1.0";
 	if (!currentTabId) {
 		return;
@@ -160,7 +172,7 @@ function updateDemo(data: Record<string, unknown>) {
 }
 
 async function getRecordings() {
-	const response = await apiCall("recordings");
+	const response = await apiCall("recordings/");
 	if (!response || response.length === 0) {
 		return;
 	}
