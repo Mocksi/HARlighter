@@ -29,7 +29,7 @@ export function fragmentTextNode(
 	textNode: Node,
 	newText: string,
 ) {
-	if (!textNode.nodeValue) return null
+	if (!textNode.nodeValue) return null;
 	const baseFragment = document.createDocumentFragment();
 	let cursor = 0;
 	let index = 0;
