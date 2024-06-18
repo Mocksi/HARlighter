@@ -11,7 +11,7 @@ interface DOMModification {
 	nextText: string;
 }
 
-export const buildQuerySelector = (parentElement: HTMLElement) => {
+export const buildQuerySelector = (parentElement: HTMLElement, newValue: string) => {
 	const { localName, id, className } = parentElement;
 	let keyToSave = localName;
 	if (id) {
@@ -24,6 +24,7 @@ export const buildQuerySelector = (parentElement: HTMLElement) => {
 	if (elements.length > 1) {
 		keyToSave += `[${[...elements].indexOf(parentElement)}]`;
 	}
+	keyToSave += `{${newValue}}`
 	return keyToSave;
 };
 

@@ -39,7 +39,7 @@ export const saveModification = (
 	previousText: string,
 ) => {
 	const saveModificationCommand = new SaveModificationCommand(localStorage, {
-		keyToSave: buildQuerySelector(parentElement),
+		keyToSave: buildQuerySelector(parentElement, newText),
 		nextText: newText,
 		previousText,
 	});
@@ -101,15 +101,19 @@ const getModificationsFromStorage = () => {
 
 const applyChanges = (querySelector: string, oldValue: string, newValue: string) => {
 	const hasIndex = querySelector.match(/\[[0-9]+\]/);
+	const valueInQuerySelector = querySelector.match(/\{[a-zA-Z0-9]+\}/);
 	if (hasIndex) {
+		const filteredQuerySelector = valueInQuerySelector ? querySelector.replace(hasIndex[0], "").replace(valueInQuerySelector[0], "") : querySelector.replace(hasIndex[0], "")
 		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
 		const elemToModify = document.querySelectorAll(
-			querySelector.replace(hasIndex[0], ""),
+			filteredQuerySelector
 		)[index];
 		//@ts-ignore
 		elemToModify.innerHTML = elemToModify?.innerHTML?.replaceAll(oldValue, newValue) || '';
 	} else {
-		const elemToModify = document.querySelector(querySelector);
+		const elemToModify = document.querySelector(
+			valueInQuerySelector ? querySelector.replace(valueInQuerySelector[0], "") : querySelector
+		);
 		//@ts-ignore
 		elemToModify.innerHTML = elemToModify?.innerHTML?.replaceAll(oldValue, newValue) || '';
 	}
