@@ -1,18 +1,18 @@
 import MocksiRollbar from "./MocksiRollbar";
 import type { Alteration } from "./background";
+import type { Recording } from "./background";
 import {
 	type Command,
 	SaveModificationCommand,
 	buildQuerySelector,
 } from "./commands/Command";
 import {
-  MOCKSI_MODIFICATIONS,
-  MOCKSI_RECORDING_STATE,
-  RecordingState,
-  STORAGE_KEY,
-  SignupURL,
+	MOCKSI_MODIFICATIONS,
+	MOCKSI_RECORDING_STATE,
+	RecordingState,
+	STORAGE_KEY,
+	SignupURL,
 } from "./consts";
-import {Recording} from "./background";
 
 type DOMModificationsType = {
 	[querySelector: string]: { nextText: string; previousText: string };
@@ -149,13 +149,12 @@ export const getEmail = async (): Promise<string | null> => {
 	}
 };
 
-
 export const getRecordingsStorage = async (): Promise<Recording[]> => {
-  try {
-    const results = await chrome.storage.local.get(["recordings"]);
-    return JSON.parse(results.recordings ?? "{}");
-  } catch (err) {
-    console.error("Failed to retrieve recordings:", err);
-    throw err;
-  }
+	try {
+		const results = await chrome.storage.local.get(["recordings"]);
+		return JSON.parse(results.recordings ?? "{}");
+	} catch (err) {
+		console.error("Failed to retrieve recordings:", err);
+		throw err;
+	}
 };

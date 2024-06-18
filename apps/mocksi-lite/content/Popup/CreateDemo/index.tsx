@@ -2,10 +2,10 @@ import { Fragment, useEffect, useState } from "react";
 import type { Recording } from "../../../background";
 import Button from "../../../common/Button";
 import type { RecordingState } from "../../../consts";
+import { getRecordingsStorage } from "../../../utils";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
-import {getRecordingsStorage} from "../../../utils";
 
 interface CreateDemoProps {
 	createForm: boolean;

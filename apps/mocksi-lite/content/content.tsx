@@ -4,7 +4,7 @@ import {
 	RecordingState,
 	STORAGE_CHANGE_EVENT,
 } from "../consts";
-import {getEmail, setRootPosition} from "../utils";
+import { getEmail, setRootPosition } from "../utils";
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;

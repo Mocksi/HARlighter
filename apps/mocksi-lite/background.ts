@@ -1,7 +1,7 @@
 import MocksiRollbar from "./MocksiRollbar";
 import { SignupURL, WebSocketURL } from "./consts";
 import { apiCall } from "./networking";
-import {getEmail} from "./utils";
+import { getEmail } from "./utils";
 
 export interface Alteration {
 	selector: string;
