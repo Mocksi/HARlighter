@@ -109,6 +109,7 @@ const modifyElementInnerHTML = (
 	const hasIndex = selector.match(/\[[0-9]+\]/);
 	const valueInQuerySelector = selector.match(/\{[a-zA-Z0-9 ]+\}/); // add spaces to pattern
 	let elemToModify: Element | null;
+	// FIXME: this needs to be refactored
 	if (hasIndex) {
 		// with all this replaces, we should build a formatter
 		const filteredQuerySelector = formatQuerySelector(
@@ -117,12 +118,21 @@ const modifyElementInnerHTML = (
 			hasIndex,
 		);
 		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
-		elemToModify =
-			document.querySelectorAll(filteredQuerySelector)[index] || null;
+		try {
+			elemToModify = document.querySelectorAll(filteredQuerySelector)[index];
+		} catch (error: any) {
+			console.error("Error querying selector:", error);
+			elemToModify = null;
+		}
 	} else {
-		elemToModify = document.querySelector(
-			formatQuerySelector(selector, valueInQuerySelector, null),
-		);
+		// FIXME: lots of duplicated code here
+		try {
+			elemToModify = document.querySelector(
+				formatQuerySelector(selector, valueInQuerySelector, null),
+			);
+		} catch (error: any) {
+			elemToModify = null;
+		}
 	}
 	if (elemToModify !== null) {
 		elemToModify.innerHTML =

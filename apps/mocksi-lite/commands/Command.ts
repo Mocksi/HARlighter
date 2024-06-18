@@ -23,8 +23,15 @@ export const buildQuerySelector = (
 	if (classList.length) {
 		keyToSave += `.${[...classList].join(".")}`;
 	}
-	const elements = document.querySelectorAll(keyToSave);
-	if (elements.length > 1) {
+	let elements;
+	try {
+		elements = document.querySelectorAll(keyToSave);
+	} catch(e: any) {
+		console.error(`Error querying selector ${keyToSave}: ${e}`);
+		elements = [];
+	}
+
+	if (elements.length) {
 		keyToSave += `[${[...elements].indexOf(parentElement)}]`;
 	}
 	keyToSave += `{${newValue}}`;
