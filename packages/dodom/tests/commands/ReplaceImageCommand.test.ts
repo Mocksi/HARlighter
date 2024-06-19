@@ -1,29 +1,55 @@
-import { describe, it, expect } from 'vitest';
-import { ShadowDOMManipulator } from '../../receivers/ShadowDOMManipulator';
-import { ReplaceImageCommand } from '../../commands/ReplaceImageCommand';
-import { UUIDGenerator } from '../../utils/UUIDGenerator';
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { ReplaceImageCommand } from "../../commands/ReplaceImageCommand";
+import { ShadowDOMManipulator } from "../../receivers/ShadowDOMManipulator";
+import type { UUIDGenerator } from "../../utils/UUIDGenerator";
+import { fragmentTextNode } from "../../utils";
 
-describe('ReplaceImageCommand', () => {
-    it('should replace image source and undo the replacement', () => {
-        const shadowHost = document.createElement('div');
-        shadowHost.id = 'my-shadow-root';
-        document.body.appendChild(shadowHost);
+describe("ReplaceImageCommand", () => {
+	let shadowRoot: ShadowRoot;
+	let uuidGenerator: UUIDGenerator;
+	let manipulator: ShadowDOMManipulator;
 
-        const shadowRoot = shadowHost.attachShadow({ mode: 'open' });
-        shadowRoot.innerHTML = '<img src="https://example.com/old.jpg" alt="Old Image 1">';
+	beforeEach(() => {
+		const shadowHost = document.createElement("div");
+		shadowHost.id = "my-shadow-root";
+		document.body.appendChild(shadowHost);
+		shadowRoot = shadowHost.attachShadow({ mode: "open" });
+		uuidGenerator = {
+			generate: () => "mocksi-1234",
+		} as UUIDGenerator;
+        const saveModification = () => {};
+        const contentHighlighter = { highlightNode: () => {}};
+        manipulator = new ShadowDOMManipulator(
+            shadowRoot,
+            fragmentTextNode,
+            saveModification,
+            contentHighlighter,
+            uuidGenerator
+        );
+	});
 
-        const mockUUIDGenerator = {
-            generate: () => 'mocksi-1234'
-        } as UUIDGenerator;
+	afterEach(() => {
+		document.body.innerHTML = "";
+		manipulator.disconnectObserver();
+	});
 
-        const manipulator = new ShadowDOMManipulator(shadowRoot, mockUUIDGenerator);
-        const command = new ReplaceImageCommand(manipulator, 'https://example.com/old.jpg', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...=');
+	it("should replace image source and undo the replacement", () => {
+		shadowRoot.innerHTML =
+			'<img src="https://example.com/old.jpg" alt="Old Image 1">';
 
-        command.execute();
-        expect(shadowRoot.innerHTML).toContain('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...=');
-        expect(shadowRoot.innerHTML).toContain('mocksi-1234');
-        
-        command.undo();
-        expect(shadowRoot.innerHTML).toContain('https://example.com/old.jpg');
-    });
+		const command = new ReplaceImageCommand(
+			manipulator,
+			"https://example.com/old.jpg",
+			"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...="
+		);
+
+		command.execute();
+		expect(shadowRoot.innerHTML).toContain(
+			"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...="
+		);
+		expect(shadowRoot.innerHTML).toContain("mocksi-1234");
+
+		command.undo();
+		expect(shadowRoot.innerHTML).toContain("https://example.com/old.jpg");
+	});
 });
