@@ -24,8 +24,8 @@ const DemoItem = ({
 		setState(RecordingState.EDITING);
 	};
 
+	if (!url) return null
 	const domain = new URL(url).hostname;
-
 	return (
 		<div className={"flex justify-between w-full px-6"}>
 			<div className={"w-[200px]"}>
