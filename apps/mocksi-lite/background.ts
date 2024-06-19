@@ -182,6 +182,7 @@ async function getRecordings() {
 	if (email) {
 		const response = await apiCall(`recordings?creator=${email}`);
 		if (!response || response.length === 0) {
+			console.error("No recordings found or failed to fetch recordings.");
 			return;
 		}
 		const sorted = response.sort((a: Recording, b: Recording) =>
@@ -189,6 +190,8 @@ async function getRecordings() {
 		);
 		const recordings = JSON.stringify(sorted) || "[]";
 		chrome.storage.local.set({ recordings });
+	} else {
+		console.error("Email not found. Cannot fetch recordings.");
 	}
 }
 
