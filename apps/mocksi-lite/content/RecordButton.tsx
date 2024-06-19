@@ -34,39 +34,41 @@ const nextRecordingState = (currentStatus: RecordingState) => {
 	}
 };
 
-export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
-	// biome-ignore lint/correctness/useExhaustiveDependencies: hook will only run once
-	useEffect(() => {
-		const storageState =
-			(localStorage.getItem(MOCKSI_RECORDING_STATE) as RecordingState) ||
-			RecordingState.READY;
+const waitTime = 2000; // 2 seconds
 
-		onRecordChange(storageState);
-		const waitTime = 2000; // 2 seconds
-		if (storageState === RecordingState.ANALYZING) {
-			setTimeout(() => {
-				onRecordChange(RecordingState.CREATE);
-				localStorage.setItem(
-					MOCKSI_RECORDING_STATE,
-					RecordingState.CREATE.toString(),
-				);
-			}, waitTime);
-		}
-	}, []);
+export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
+	useEffect(() => {
+		chrome.storage.local.get([MOCKSI_RECORDING_STATE], (result) => {
+			const storageState =
+				(result[MOCKSI_RECORDING_STATE] as RecordingState) ||
+				RecordingState.READY;
+			onRecordChange(storageState);
+
+			if (storageState === RecordingState.ANALYZING) {
+				setTimeout(() => {
+					onRecordChange(RecordingState.CREATE);
+					chrome.storage.local.set({
+						[MOCKSI_RECORDING_STATE]: RecordingState.CREATE.toString(),
+					});
+				}, waitTime);
+			}
+		});
+	}, [onRecordChange]);
 
 	const handleToggleRecording = () => {
 		const newRecordState = nextRecordingState(state);
 		onRecordChange(newRecordState);
-		localStorage.setItem(MOCKSI_RECORDING_STATE, newRecordState.toString());
-		// THIS IS FOR DEMO PURPOSES
+		chrome.storage.local.set({
+			[MOCKSI_RECORDING_STATE]: newRecordState.toString(),
+		});
+
 		if (newRecordState === RecordingState.ANALYZING) {
 			setTimeout(() => {
 				onRecordChange(RecordingState.CREATE);
-				localStorage.setItem(
-					MOCKSI_RECORDING_STATE,
-					RecordingState.CREATE.toString(),
-				);
-			}, 10000);
+				chrome.storage.local.set({
+					[MOCKSI_RECORDING_STATE]: RecordingState.CREATE.toString(),
+				});
+			}, waitTime);
 		}
 	};
 
@@ -89,15 +91,12 @@ export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 			className={`h-full w-[56px] border-0 text-center ${color} text-white`}
 			type="button"
 			onClick={
-				state !== RecordingState.ANALYZING
-					? () => handleToggleRecording()
-					: () => undefined
+				state !== RecordingState.ANALYZING ? handleToggleRecording : undefined
 			}
 			onKeyUp={(event) => {
-				event.key === "Escape" &&
-					(state !== RecordingState.ANALYZING
-						? () => handleToggleRecording()
-						: () => undefined);
+				if (event.key === "Escape" && state !== RecordingState.ANALYZING) {
+					handleToggleRecording();
+				}
 			}}
 		>
 			{state !== RecordingState.ANALYZING ? label : <LoadingSpinner />}

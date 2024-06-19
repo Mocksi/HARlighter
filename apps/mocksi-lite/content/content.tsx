@@ -28,8 +28,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			root.unmount();
 		}
 		root = ReactDOM.createRoot(extensionRoot);
+
 		chrome.storage.local
-			.get(STORAGE_KEY)
+			.get([STORAGE_KEY, MOCKSI_RECORDING_STATE])
 			.then((value) => {
 				let parsedData: { email: string } | undefined;
 				const storedData = value[STORAGE_KEY] || "{}";
@@ -39,26 +40,32 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 					console.log("Error parsing data from storage: ", error);
 					throw new Error("could not parse data from storage.");
 				}
+
 				if (parsedData === undefined || !parsedData.email) {
 					throw new Error("No email found in storage.");
 				}
 
 				const { email } = parsedData || {};
-				const recordingState = localStorage.getItem(
-					MOCKSI_RECORDING_STATE,
-				) as RecordingState | null;
+				const recordingState = value[
+					MOCKSI_RECORDING_STATE
+				] as RecordingState | null;
+
 				if (email) {
-					// we need to initialize recordingState if there's none.
-					!recordingState &&
-						localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.READY);
+					if (!recordingState) {
+						chrome.storage.local.set({
+							[MOCKSI_RECORDING_STATE]: RecordingState.READY,
+						});
+					}
 				}
+
 				if (recordingState) {
 					setRootPosition(recordingState);
 				}
+
 				root.render(<ContentApp isOpen={true} email={email || ""} />);
 			})
 			.catch((error) => {
-				localStorage.clear();
+				chrome.storage.local.clear();
 				console.log("Error getting data from storage: ", error);
 				window.open(SignupURL);
 			});

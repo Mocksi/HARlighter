@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TextField from "../common/TextField";
 import {
 	MOCKSI_RECORDING_ID,
@@ -37,22 +37,38 @@ const recordingLabel = (currentStatus: RecordingState) => {
 export default function ContentApp({ isOpen, email }: ContentProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 	const [areChangesHighlighted, setAreChangesHighlighted] = useState(true);
-	const initialState = localStorage.getItem(
-		MOCKSI_RECORDING_STATE,
-	) as RecordingState | null;
 	const [state, setState] = useState<RecordingState>(
-		initialState ?? RecordingState.UNAUTHORIZED,
+		RecordingState.UNAUTHORIZED,
 	);
+
+	useEffect(() => {
+		// Load initial state from chrome storage
+		chrome.storage.local.get([MOCKSI_RECORDING_STATE], (result) => {
+			const initialState = result[
+				MOCKSI_RECORDING_STATE
+			] as RecordingState | null;
+			setState(initialState ?? RecordingState.UNAUTHORIZED);
+		});
+	}, []);
 
 	const onChangeState = (newState: RecordingState) => {
 		setState(newState);
 		setRootPosition(newState);
+		chrome.storage.local.set({ [MOCKSI_RECORDING_STATE]: newState });
 	};
 
 	const onChecked = () => {
 		setAreChangesHighlighted((prevValue) => {
 			ContentHighlighter.showHideHighlights(!prevValue);
 			return !prevValue;
+		});
+	};
+
+	const loadRecordingId = async () => {
+		return new Promise<string | undefined>((resolve) => {
+			chrome.storage.local.get([MOCKSI_RECORDING_ID], (result) => {
+				resolve(result[MOCKSI_RECORDING_ID]);
+			});
 		});
 	};
 
@@ -76,14 +92,16 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 			<div className="border border-solid border-grey/40 rounded-l bg-white mt-3 min-w-64 p-3 flex flex-row items-center gap-6">
 				<div
 					className="cursor-pointer"
-					onClick={() => {
+					onClick={async () => {
 						onChangeState(RecordingState.CREATE);
-						setEditorMode(false);
+						const recordingId = await loadRecordingId();
+						setEditorMode(false, recordingId);
 					}}
-					onKeyUp={(event) => {
+					onKeyUp={async (event) => {
 						if (event.key === "Escape") {
 							onChangeState(RecordingState.CREATE);
-							setEditorMode(false);
+							const recordingId = await loadRecordingId();
+							setEditorMode(false, recordingId);
 						}
 					}}
 				>
@@ -105,20 +123,16 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 				</div>
 				<div
 					className="cursor-pointer text-[#009875]"
-					onClick={() => {
+					onClick={async () => {
 						onChangeState(RecordingState.CREATE);
-						setEditorMode(
-							false,
-							localStorage.getItem(MOCKSI_RECORDING_ID) || undefined,
-						);
+						const recordingId = await loadRecordingId();
+						setEditorMode(false, recordingId);
 					}}
-					onKeyUp={(event) => {
+					onKeyUp={async (event) => {
 						if (event.key === "Enter") {
 							onChangeState(RecordingState.CREATE);
-							setEditorMode(
-								false,
-								localStorage.getItem(MOCKSI_RECORDING_ID) || undefined,
-							);
+							const recordingId = await loadRecordingId();
+							setEditorMode(false, recordingId);
 						}
 					}}
 				>
