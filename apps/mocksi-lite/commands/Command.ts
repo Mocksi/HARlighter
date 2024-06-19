@@ -11,19 +11,32 @@ interface DOMModification {
 	nextText: string;
 }
 
-export const buildQuerySelector = (parentElement: HTMLElement) => {
-	const { localName, id, className } = parentElement;
+export const buildQuerySelector = (
+	parentElement: HTMLElement,
+	newValue: string,
+) => {
+	const { localName, id, classList } = parentElement;
 	let keyToSave = localName;
 	if (id) {
 		keyToSave += `#${id}`;
 	}
-	if (className) {
-		keyToSave += `.${className}`;
+	if (classList.length) {
+		keyToSave += `.${[...classList].join(".")}`;
 	}
-	const elements = document.querySelectorAll(keyToSave);
-	if (elements.length > 1) {
+	let elements: NodeListOf<Element>;
+	try {
+		elements = document.querySelectorAll(keyToSave);
+	} catch (e: unknown) {
+		if (e instanceof Error) {
+			console.error(`Error querying selector ${keyToSave}: ${e}`);
+		}
+		return keyToSave;
+	}
+
+	if (elements.length) {
 		keyToSave += `[${[...elements].indexOf(parentElement)}]`;
 	}
+	keyToSave += `{${newValue}}`;
 	return keyToSave;
 };
 

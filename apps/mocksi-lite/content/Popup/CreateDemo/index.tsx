@@ -50,7 +50,10 @@ const CreateDemo = ({
 		setCreateForm(false);
 	};
 
-	if (createForm) return <Form onCancel={handleCancelClick} />;
+	if (createForm || !recordings.length) {
+		return <Form onCancel={handleCancelClick} />;
+	}
+
 	return (
 		<div
 			className={

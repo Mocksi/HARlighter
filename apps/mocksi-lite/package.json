@@ -4,6 +4,7 @@
 		"@types/chrome": "^0.0.259",
 		"@types/react": "^18.0.9",
 		"@types/react-dom": "^18.0.5",
+		"@types/sanitize-html": "^2.11.0",
 		"@types/uuid": "^9.0.8",
 		"extension": "1.7.1",
 		"react": "^18.1.0",
@@ -23,6 +24,7 @@
 		"@rollbar/react": "0.12.0-beta",
 		"@types/node": "*",
 		"rollbar": "^2.26.4",
+		"sanitize-html": "^2.13.0",
 		"uuid": "^9.0.1"
 	},
 	"name": "mocksi-lite",

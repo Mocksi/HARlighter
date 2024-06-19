@@ -1,4 +1,4 @@
-import { saveModification } from "../../utils";
+import UniversalReplace from "../../universalReplace";
 
 export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 	if (nodeWithTextArea) {
@@ -18,35 +18,49 @@ export function applyChanges(
 	oldValue: string,
 ) {
 	if (nodeWithTextArea) {
-		const parentElement = nodeWithTextArea?.parentElement;
-		const previousText = getPreviousNodeValue(nodeWithTextArea, oldValue);
-		nodeWithTextArea?.parentElement?.replaceChild(
-			document.createTextNode(newValue),
-			nodeWithTextArea,
-		);
-		saveModification(
-			parentElement as HTMLElement,
-			parentElement?.innerHTML || parentElement?.innerText || "",
-			previousText || "",
-		);
-		parentElement?.normalize();
+		cancelEditWithoutChanges(nodeWithTextArea);
+		UniversalReplace.addPattern(oldValue, newValue);
 	}
 }
 
-function getPreviousNodeValue(
-	nodeWithTextArea: HTMLElement | null,
-	oldValue: string,
+export function fragmentTextNode(
+	fragmentsToHighlight: Node[],
+	matches: RegExpMatchArray[],
+	textNode: Node,
+	newText: string,
 ) {
-	if (nodeWithTextArea) {
-		const ttt = nodeWithTextArea.parentElement?.cloneNode(true) as HTMLElement;
-		for (const node of ttt?.childNodes || []) {
-			// @ts-ignore
-			if (node?.id === "mocksiSelectedText") {
-				ttt?.replaceChild(document.createTextNode(oldValue), node);
-				ttt?.normalize();
-				break;
-			}
-		}
-		return ttt.innerHTML || "";
+	if (!textNode.nodeValue) {
+		return null;
 	}
+	const baseFragment = document.createDocumentFragment();
+	let cursor = 0;
+	let index = 0;
+	for (const match of matches) {
+		// match.index may be undefined? in which cases?????
+		const [startOffset, endOffset] = [
+			match.index || 0,
+			(match.index || 0) + match[0].length,
+		];
+		if (cursor < startOffset) {
+			baseFragment.appendChild(
+				document.createTextNode(
+					textNode.nodeValue.substring(cursor, startOffset),
+				),
+			);
+		}
+		const selectedTextFragment = document.createTextNode(newText);
+		fragmentsToHighlight.push(selectedTextFragment);
+		baseFragment.appendChild(selectedTextFragment);
+		cursor = endOffset;
+		if (index === matches.length - 1 && cursor !== textNode.nodeValue?.length) {
+			// end of matches
+			baseFragment.appendChild(
+				document.createTextNode(
+					textNode.nodeValue.substring(endOffset, textNode.nodeValue?.length),
+				),
+			);
+		}
+		index++;
+	}
+	return baseFragment;
 }
