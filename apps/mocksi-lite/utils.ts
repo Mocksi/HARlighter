@@ -1,6 +1,5 @@
 import sanitizeHtml from "sanitize-html";
 import type { Alteration } from "./background";
-
 import {
 	type Command,
 	SaveModificationCommand,
@@ -27,9 +26,11 @@ export const setRootPosition = (state: RecordingState) => {
 };
 
 export const logout = () => {
-	localStorage.clear();
-	chrome.storage.local.clear();
-	localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.UNAUTHORIZED);
+	chrome.storage.local.clear(() => {
+		chrome.storage.local.set({
+			[MOCKSI_RECORDING_STATE]: RecordingState.UNAUTHORIZED,
+		});
+	});
 	window.open(SignupURL);
 };
 
@@ -40,17 +41,20 @@ export const saveModification = (
 	newText: string,
 	previousText: string,
 ) => {
-	const saveModificationCommand = new SaveModificationCommand(localStorage, {
-		keyToSave: buildQuerySelector(parentElement, newText),
-		nextText: newText,
-		previousText,
-	});
+	const saveModificationCommand = new SaveModificationCommand(
+		chrome.storage.local,
+		{
+			keyToSave: buildQuerySelector(parentElement, newText),
+			nextText: newText,
+			previousText,
+		},
+	);
 	commandsExecuted.push(saveModificationCommand);
 	saveModificationCommand.execute();
 };
 
-export const persistModifications = (recordingId: string) => {
-	const modificationsFromStorage = getModificationsFromStorage();
+export const persistModifications = async (recordingId: string) => {
+	const modificationsFromStorage = await getModificationsFromStorage();
 	const alterations: Alteration[] = Object.entries<{
 		nextText: string;
 		previousText: string;
@@ -69,9 +73,9 @@ export const persistModifications = (recordingId: string) => {
 	});
 };
 
-export const undoModifications = () => {
-	loadPreviousModifications();
-	localStorage.removeItem(MOCKSI_MODIFICATIONS);
+export const undoModifications = async () => {
+	await loadPreviousModifications();
+	chrome.storage.local.remove(MOCKSI_MODIFICATIONS);
 };
 
 // v2 of loading alterations, this is from backend
@@ -82,9 +86,10 @@ export const loadAlterations = (alterations: Alteration[]) => {
 	}
 };
 
-// This is from localStorage
-export const loadPreviousModifications = () => {
-	const modifications: DOMModificationsType = getModificationsFromStorage();
+// This is from chrome.storage.local
+export const loadPreviousModifications = async () => {
+	const modifications: DOMModificationsType =
+		await getModificationsFromStorage();
 	for (const modification of Object.entries(modifications)) {
 		const [querySelector, { previousText, nextText }] = modification;
 		const sanitizedPreviousText = sanitizeHtml(previousText);
@@ -93,13 +98,17 @@ export const loadPreviousModifications = () => {
 	}
 };
 
-const getModificationsFromStorage = (): DOMModificationsType => {
-	try {
-		return JSON.parse(localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}");
-	} catch (error) {
-		console.error("Error parsing modifications:", error);
-		return {};
-	}
+const getModificationsFromStorage = (): Promise<DOMModificationsType> => {
+	return new Promise((resolve) => {
+		chrome.storage.local.get([MOCKSI_MODIFICATIONS], (result) => {
+			try {
+				resolve(JSON.parse(result[MOCKSI_MODIFICATIONS] || "{}"));
+			} catch (error) {
+				console.error("Error parsing modifications:", error);
+				resolve({});
+			}
+		});
+	});
 };
 
 const modifyElementInnerHTML = (

@@ -41,46 +41,60 @@ export const buildQuerySelector = (
 };
 
 export class SaveModificationCommand implements Command {
-	private prevModifications;
+	private prevModifications: Record<string, DOMModification>;
+
 	constructor(
-		private localStorage: Storage,
+		private storage: typeof chrome.storage.local,
 		private modification: DOMModification,
 	) {
-		try {
-			this.prevModifications = JSON.parse(
-				localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}",
-			);
-		} catch (error) {
-			console.error("Error parsing JSON:", error);
-			this.prevModifications = {};
-		}
+		this.prevModifications = {};
+		this.loadPreviousModifications();
 	}
 
-	execute(): void {
+	private async loadPreviousModifications(): Promise<void> {
+		return new Promise((resolve) => {
+			this.storage.get([MOCKSI_MODIFICATIONS], (result) => {
+				try {
+					this.prevModifications = JSON.parse(
+						result[MOCKSI_MODIFICATIONS] || "{}",
+					);
+				} catch (error) {
+					console.error("Error parsing JSON:", error);
+					this.prevModifications = {};
+				}
+				resolve();
+			});
+		});
+	}
+
+	async execute(): Promise<void> {
+		await this.loadPreviousModifications();
+
 		const { keyToSave, nextText, previousText } = this.modification;
 		const { previousText: previousTextFromStorage } =
 			this.prevModifications[keyToSave] || {};
-		this.localStorage.setItem(
-			MOCKSI_MODIFICATIONS,
-			JSON.stringify({
+
+		this.storage.set({
+			[MOCKSI_MODIFICATIONS]: JSON.stringify({
 				...this.prevModifications,
 				[keyToSave]: {
 					nextText,
 					previousText: previousTextFromStorage || previousText,
 				},
 			}),
-		);
+		});
 	}
 
-	undo(): void {
+	async undo(): Promise<void> {
+		await this.loadPreviousModifications();
+
 		const { keyToSave, previousText } = this.modification;
-		this.localStorage.setItem(
-			MOCKSI_MODIFICATIONS,
-			JSON.stringify({
+		this.storage.set({
+			[MOCKSI_MODIFICATIONS]: JSON.stringify({
 				...this.prevModifications,
 				[keyToSave]: { previousText },
 			}),
-		);
+		});
 	}
 }
 

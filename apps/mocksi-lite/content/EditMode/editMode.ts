@@ -8,12 +8,14 @@ import { cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
 import { ContentHighlighter } from "./highlighter";
 
-export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
+export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
 		if (recordingId) {
-			localStorage.setItem(MOCKSI_RECORDING_ID, recordingId);
+			await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: recordingId });
 		}
-		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
+		await chrome.storage.local.set({
+			[MOCKSI_RECORDING_STATE]: RecordingState.EDITING,
+		});
 		blockClickableElements();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 		return;
@@ -22,8 +24,10 @@ export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
 		persistModifications(recordingId);
 	}
 	undoModifications();
-	localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
-	localStorage.removeItem(MOCKSI_RECORDING_ID);
+	await chrome.storage.local.set({
+		[MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
+	});
+	await chrome.storage.local.remove(MOCKSI_RECORDING_ID);
 	document.body.removeEventListener("dblclick", onDoubleClickText);
 	restoreNodes();
 	ContentHighlighter.removeHighlightNodes();
@@ -93,7 +97,7 @@ function applyEditor(
 	if (selectedRange === null || selectedRange.anchorNode === null) {
 		return;
 	}
-	// this case is if the beggining node is the same as the finished one.
+	// this case is if the beginning node is the same as the finished one.
 	// this can happen while selecting text, there are more than one different node involved.
 	if (selectedRange.anchorNode === selectedRange.focusNode) {
 		for (const node of targetedElement.childNodes) {
@@ -118,7 +122,7 @@ function applyEditor(
 	}
 }
 
-//biome-ignore lint/suspicious/noExplicitAny: need to look after a proper type, but mainly are html nodes
+// biome-ignore lint/suspicious/noExplicitAny: need to look after a proper type, but mainly are html nodes
 const blockedNodes: any[] = [];
 
 const blockClickableElements = () => {

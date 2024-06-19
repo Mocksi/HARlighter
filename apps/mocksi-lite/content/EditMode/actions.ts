@@ -27,7 +27,7 @@ export function applyChanges(
 		const manipulator = new ShadowDOMManipulator(shadow);
 		manipulator.addPattern(oldValue, newValue);
 		manipulator.applyPatterns(); // TODO: verify this is necessary
-		nodeWithTextArea.innerHTML = '';
+		nodeWithTextArea.innerHTML = "";
 		for (const child of shadow.children) {
 			nodeWithTextArea.appendChild(child.cloneNode(true));
 		}
