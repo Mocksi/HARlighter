@@ -1,4 +1,4 @@
-import UniversalReplace from "../../universalReplace";
+import { ShadowDOMManipulator } from "@repo/dodom";
 
 export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 	if (nodeWithTextArea) {
@@ -19,7 +19,18 @@ export function applyChanges(
 ) {
 	if (nodeWithTextArea) {
 		cancelEditWithoutChanges(nodeWithTextArea);
-		UniversalReplace.addPattern(oldValue, newValue);
+		const shadow = nodeWithTextArea.shadowRoot;
+		if (!shadow) {
+			console.log("Could not create shadow");
+			return;
+		}
+		const manipulator = new ShadowDOMManipulator(shadow);
+		manipulator.addPattern(oldValue, newValue);
+		manipulator.applyPatterns(); // TODO: verify this is necessary
+		nodeWithTextArea.innerHTML = '';
+		for (const child of shadow.children) {
+			nodeWithTextArea.appendChild(child.cloneNode(true));
+		}
 	}
 }
 

@@ -11,7 +11,7 @@ describe('ShadowDOMManipulator', () => {
         const shadowHost = document.createElement('div');
         shadowHost.id = 'my-shadow-root';
         document.body.appendChild(shadowHost);
-        shadowRoot = shadowHost.attachShadow({ mode: 'open', serializable: true});
+        shadowRoot = shadowHost.attachShadow({ mode: 'open'});
         uuidGenerator = {
             generate: () => 'mocksi-1234'
         } as UUIDGenerator;
