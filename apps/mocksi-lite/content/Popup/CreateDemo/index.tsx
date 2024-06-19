@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import type { Recording } from "../../../background";
 import Button from "../../../common/Button";
-import type { RecordingState } from "../../../consts";
+import { RecordingState } from "../../../consts";
 import { getRecordingsStorage } from "../../../utils";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
@@ -11,12 +11,14 @@ interface CreateDemoProps {
 	createForm: boolean;
 	setCreateForm: (value: boolean) => void;
 	setState: (r: RecordingState) => void;
+	state: RecordingState;
 }
 
 const CreateDemo = ({
 	createForm,
 	setCreateForm,
 	setState,
+	state,
 }: CreateDemoProps) => {
 	const [recordings, setRecordings] = useState<Recording[]>([]);
 
@@ -25,7 +27,6 @@ const CreateDemo = ({
 		while (continueFetching) {
 			try {
 				const newRecordings = await getRecordingsStorage();
-				console.log({ newRecordings });
 				if (newRecordings.length !== recordings.length) {
 					setRecordings(newRecordings);
 					continueFetching = false; // Stop the loop if recordings have been updated
@@ -38,10 +39,10 @@ const CreateDemo = ({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
-		if (!createForm) {
+		if (!createForm && state !== RecordingState.EDITING) {
 			getRecordings();
 		}
-	}, [createForm]);
+	}, [createForm, state]);
 
 	if (createForm) return <Form onCancel={() => setCreateForm(false)} />;
 	return (

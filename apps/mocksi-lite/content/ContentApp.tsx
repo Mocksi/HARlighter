@@ -7,7 +7,7 @@ import {
 } from "../consts";
 import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
-import { sendMessage, setRootPosition } from "../utils";
+import { setRootPosition } from "../utils";
 import { setEditorMode } from "./EditMode/editMode";
 import Popup from "./Popup";
 import { RecordButton } from "./RecordButton";
@@ -45,11 +45,6 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 	const onChangeState = (newState: RecordingState) => {
 		setState(newState);
 		setRootPosition(newState);
-	};
-
-	const handleUpdate = () => {
-		const id = localStorage.getItem(MOCKSI_RECORDING_ID);
-		sendMessage("updateDemo", { id });
 	};
 
 	if (!isDialogOpen) return null;

@@ -18,7 +18,7 @@ type DOMModificationsType = {
 	[querySelector: string]: { nextText: string; previousText: string };
 };
 
-export const setRootPosition = (state: RecordingState) => {
+export const setRootPosition = (state: RecordingState | null) => {
 	const extensionRoot = document.getElementById("extension-root");
 	if (extensionRoot) {
 		const bottom =
