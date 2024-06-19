@@ -24,6 +24,8 @@ const DemoItem = ({
 		setState(RecordingState.EDITING);
 	};
 
+	const domain = new URL(url).hostname;
+
 	return (
 		<div className={"flex justify-between w-full px-6"}>
 			<div className={"w-[200px]"}>
@@ -31,6 +33,9 @@ const DemoItem = ({
 					{demo_name}
 				</TextField>
 				<TextField className={"truncate"}>{customer_name}</TextField>
+				<a href={url} target={"_blank"} rel={"noreferrer"}>
+					<TextField className={"text-xs underline"}>{domain}</TextField>
+				</a>
 			</div>
 			<div className={"flex gap-3"}>
 				<Button

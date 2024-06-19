@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { RecordingState } from "../../consts";
-import { sendMessage } from "../../utils";
+import { debounce_leading, sendMessage } from "../../utils";
 import CreateDemo from "./CreateDemo";
 import Divider from "./Divider";
 import Footer from "./Footer";
@@ -18,9 +18,12 @@ interface PopupProps {
 const Popup = ({ label, close, setState, state, email }: PopupProps) => {
 	const [createForm, setCreateForm] = useState<boolean>(false);
 
+	// NOTE: useEffect will retrigger on every render, because there is no second argument. This is fine because the debounce function will prevent the sendMessage from being called too often.
 	useEffect(() => {
-		sendMessage("getRecordings");
-	}, []);
+		debounce_leading(() => {
+			sendMessage("getRecordings");
+		}, 500);
+	});
 	const renderContent = () => {
 		switch (state) {
 			case RecordingState.CREATE:

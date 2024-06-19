@@ -7,6 +7,7 @@ export const MOCKSI_USER_ID = "mocksi-userId";
 export const MOCKSI_SESSION_ID = "mocksi-sessionId"; // FIXME: Move to an environment variable
 export const STORAGE_CHANGE_EVENT = "MOCKSI_STORAGE_CHANGE";
 export const MOCKSI_AUTH = "mocksi-auth";
+export const MOCKSI_HIGHLIGHTER_ID = "mocksi-highlighter";
 
 export const WebSocketURL = "wss://crowllectordb.onrender.com/ws";
 export const API_URL = "https://crowllectordb.onrender.com/api";

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TextField from "../common/TextField";
 import {
 	MOCKSI_RECORDING_ID,
@@ -9,6 +9,7 @@ import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
 import { setRootPosition } from "../utils";
 import { setEditorMode } from "./EditMode/editMode";
+import { ContentHighlighter } from "./EditMode/highlighter";
 import Popup from "./Popup";
 import { RecordButton } from "./RecordButton";
 
@@ -35,19 +36,45 @@ const recordingLabel = (currentStatus: RecordingState) => {
 
 export default function ContentApp({ isOpen, email }: ContentProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
-	const initialState = localStorage.getItem(
-		MOCKSI_RECORDING_STATE,
-	) as RecordingState | null;
+	const [areChangesHighlighted, setAreChangesHighlighted] = useState(true);
 	const [state, setState] = useState<RecordingState>(
-		initialState ?? RecordingState.UNAUTHORIZED,
+		RecordingState.UNAUTHORIZED,
 	);
+
+	useEffect(() => {
+		// Load initial state from chrome storage
+		chrome.storage.local.get([MOCKSI_RECORDING_STATE], (result) => {
+			const initialState = result[
+				MOCKSI_RECORDING_STATE
+			] as RecordingState | null;
+			setState(initialState ?? RecordingState.UNAUTHORIZED);
+		});
+	}, []);
 
 	const onChangeState = (newState: RecordingState) => {
 		setState(newState);
 		setRootPosition(newState);
+		chrome.storage.local.set({ [MOCKSI_RECORDING_STATE]: newState });
 	};
 
-	if (!isDialogOpen) return null;
+	const onChecked = () => {
+		setAreChangesHighlighted((prevValue) => {
+			ContentHighlighter.showHideHighlights(!prevValue);
+			return !prevValue;
+		});
+	};
+
+	const loadRecordingId = async () => {
+		return new Promise<string | undefined>((resolve) => {
+			chrome.storage.local.get([MOCKSI_RECORDING_ID], (result) => {
+				resolve(result[MOCKSI_RECORDING_ID]);
+			});
+		});
+	};
+
+	if (!isDialogOpen) {
+		return null;
+	}
 	if (state === RecordingState.READY || state === RecordingState.CREATE) {
 		return (
 			<Popup
@@ -65,14 +92,16 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 			<div className="border border-solid border-grey/40 rounded-l bg-white mt-3 min-w-64 p-3 flex flex-row items-center gap-6">
 				<div
 					className="cursor-pointer"
-					onClick={() => {
+					onClick={async () => {
 						onChangeState(RecordingState.CREATE);
-						setEditorMode(false);
+						const recordingId = await loadRecordingId();
+						setEditorMode(false, recordingId);
 					}}
-					onKeyUp={(event) => {
+					onKeyUp={async (event) => {
 						if (event.key === "Escape") {
 							onChangeState(RecordingState.CREATE);
-							setEditorMode(false);
+							const recordingId = await loadRecordingId();
+							setEditorMode(false, recordingId);
 						}
 					}}
 				>
@@ -81,7 +110,12 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 				<div className={"flex flex-col gap-2"}>
 					<TextField variant={"title"}>{recordingLabel(state)}</TextField>
 					<div className="flex gap-2 items-center">
-						<input type="checkbox" className="h-5 w-5 !rounded-lg" />
+						<input
+							checked={areChangesHighlighted}
+							onChange={() => onChecked()}
+							type="checkbox"
+							className="h-5 w-5 !rounded-lg"
+						/>
 						<div className={"text-[13px] leading-[15px]"}>
 							Highlight All Previous Changes
 						</div>
@@ -89,20 +123,16 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 				</div>
 				<div
 					className="cursor-pointer text-[#009875]"
-					onClick={() => {
+					onClick={async () => {
 						onChangeState(RecordingState.CREATE);
-						setEditorMode(
-							false,
-							localStorage.getItem(MOCKSI_RECORDING_ID) || undefined,
-						);
+						const recordingId = await loadRecordingId();
+						setEditorMode(false, recordingId);
 					}}
-					onKeyUp={(event) => {
+					onKeyUp={async (event) => {
 						if (event.key === "Enter") {
 							onChangeState(RecordingState.CREATE);
-							setEditorMode(
-								false,
-								localStorage.getItem(MOCKSI_RECORDING_ID) || undefined,
-							);
+							const recordingId = await loadRecordingId();
+							setEditorMode(false, recordingId);
 						}
 					}}
 				>

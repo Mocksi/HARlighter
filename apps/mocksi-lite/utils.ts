@@ -1,3 +1,4 @@
+import sanitizeHtml from "sanitize-html";
 import MocksiRollbar from "./MocksiRollbar";
 import type { Alteration } from "./background";
 import type { Recording } from "./background";
@@ -28,9 +29,12 @@ export const setRootPosition = (state: RecordingState | null) => {
 };
 
 export const logout = () => {
-	localStorage.clear();
-	chrome.storage.local.clear();
-	localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.UNAUTHORIZED);
+	chrome.storage.local.clear(() => {
+		chrome.storage.local.set({
+			[MOCKSI_RECORDING_STATE]: RecordingState.UNAUTHORIZED,
+		});
+	});
+	// FIXME: this should redirect to a logout page first
 	window.open(SignupURL);
 };
 
@@ -41,17 +45,20 @@ export const saveModification = (
 	newText: string,
 	previousText: string,
 ) => {
-	const saveModificationCommand = new SaveModificationCommand(localStorage, {
-		keyToSave: buildQuerySelector(parentElement),
-		nextText: newText,
-		previousText,
-	});
+	const saveModificationCommand = new SaveModificationCommand(
+		chrome.storage.local,
+		{
+			keyToSave: buildQuerySelector(parentElement, newText),
+			nextText: newText,
+			previousText,
+		},
+	);
 	commandsExecuted.push(saveModificationCommand);
 	saveModificationCommand.execute();
 };
 
-export const persistModifications = (recordingId: string) => {
-	const modificationsFromStorage = getModificationsFromStorage();
+export const persistModifications = async (recordingId: string) => {
+	const modificationsFromStorage = await getModificationsFromStorage();
 	const alterations: Alteration[] = Object.entries<{
 		nextText: string;
 		previousText: string;
@@ -68,67 +75,151 @@ export const persistModifications = (recordingId: string) => {
 		id: recordingId,
 		recording: { updated_timestamp, alterations },
 	});
-	// localStorage.removeItem(MOCKSI_MODIFICATIONS);
 };
 
-export const undoModifications = () => {
-	loadModifications();
-	localStorage.removeItem(MOCKSI_MODIFICATIONS);
-};
-
-const modifyElementInnerHTML = (selector: string, content: string) => {
-	const hasIndex = selector.match(/\[[0-9]+\]/);
-	let elemToModify: Element | null;
-
-	if (hasIndex) {
-		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
-		elemToModify =
-			document.querySelectorAll(selector.replace(hasIndex[0], ""))[index] ||
-			null;
-	} else {
-		elemToModify = document.querySelector(selector) || null;
-	}
-
-	if (elemToModify !== null) {
-		elemToModify.innerHTML = content;
-	}
+export const undoModifications = async () => {
+	await loadPreviousModifications();
+	chrome.storage.local.remove(MOCKSI_MODIFICATIONS);
 };
 
 // v2 of loading alterations, this is from backend
-export const loadAlterations = (alterations: Alteration[]) => {
+export const loadAlterations = (alterations: Alteration[] | null) => {
+	if (!alterations?.length) {
+		// FIXME: we should warn the user that there are no alterations for this demo
+		return [] as Alteration[];
+	}
 	for (const alteration of alterations) {
-		const { selector, dom_after } = alteration;
-		modifyElementInnerHTML(selector, dom_after);
+		const { selector, dom_after, dom_before } = alteration;
+		modifyElementInnerHTML(selector, dom_before, sanitizeHtml(dom_after));
 	}
 };
 
-// This is from localStorage
-export const loadModifications = () => {
-	const modifications: DOMModificationsType = getModificationsFromStorage();
+// This is from chrome.storage.local
+export const loadPreviousModifications = async () => {
+	const modifications: DOMModificationsType =
+		await getModificationsFromStorage();
 	for (const modification of Object.entries(modifications)) {
-		const [querySelector, { previousText }] = modification;
-		modifyElementInnerHTML(querySelector, previousText);
+		const [querySelector, { previousText, nextText }] = modification;
+		const sanitizedPreviousText = sanitizeHtml(previousText);
+		// here newText and previous is in altered order because we want to revert the changes
+		modifyElementInnerHTML(querySelector, nextText, sanitizedPreviousText);
 	}
 };
 
-const getModificationsFromStorage = (): DOMModificationsType => {
-	try {
-		return JSON.parse(localStorage.getItem(MOCKSI_MODIFICATIONS) || "{}");
-	} catch (error) {
-		console.error("Error parsing modifications:", error);
-		return {};
+const getModificationsFromStorage = (): Promise<DOMModificationsType> => {
+	return new Promise((resolve) => {
+		chrome.storage.local.get([MOCKSI_MODIFICATIONS], (result) => {
+			try {
+				resolve(JSON.parse(result[MOCKSI_MODIFICATIONS] || "{}"));
+			} catch (error) {
+				console.error("Error parsing modifications:", error);
+				resolve({});
+			}
+		});
+	});
+};
+
+const modifyElementInnerHTML = (
+	selector: string,
+	oldContent: string,
+	newContent: string,
+) => {
+	// querySelector format {htmlElementType}#{elementId}.{elementClassnames}[${elementIndexIfPresent}]{{newValue}}
+	const hasIndex = selector.match(/\[[0-9]+\]/);
+	const valueInQuerySelector = selector.match(/\{[a-zA-Z0-9 ]+\}/); // add spaces to pattern
+	let elemToModify: Element | null;
+	// FIXME: this needs to be refactored
+	if (hasIndex) {
+		// with all this replaces, we should build a formatter
+		const filteredQuerySelector = formatQuerySelector(
+			selector,
+			valueInQuerySelector,
+			hasIndex,
+		);
+		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
+		// FIXME: lots of duplicated code here
+		try {
+			elemToModify = document.querySelectorAll(filteredQuerySelector)[index];
+		} catch (e: unknown) {
+			if (e instanceof Error) {
+				console.error(`Error querying selector: ${e}`);
+			}
+
+			elemToModify = null;
+		}
+	} else {
+		// FIXME: lots of duplicated code here
+		try {
+			elemToModify = document.querySelector(
+				formatQuerySelector(selector, valueInQuerySelector, null),
+			);
+		} catch (e: unknown) {
+			if (e instanceof Error) {
+				console.error(`Error querying selector: ${e}`);
+			}
+			elemToModify = null;
+		}
 	}
+	const sanitizedNewContent = sanitizeHtml(newContent);
+	if (elemToModify?.innerHTML) {
+		elemToModify.innerHTML =
+			elemToModify.innerHTML.replaceAll(oldContent, sanitizedNewContent) || "";
+	}
+};
+
+const formatQuerySelector = (
+	rawSelector: string,
+	valueInQuerySelector: RegExpMatchArray | null,
+	hasIndex: RegExpMatchArray | null,
+) => {
+	if (hasIndex) {
+		return valueInQuerySelector
+			? rawSelector
+					.replace(hasIndex[0], "")
+					.replace(valueInQuerySelector[0], "")
+			: rawSelector.replace(hasIndex[0], "");
+	}
+
+	return valueInQuerySelector
+		? rawSelector.replace(valueInQuerySelector[0], "")
+		: rawSelector;
 };
 
 export const sendMessage = (
 	message: string,
 	body?: Record<string, unknown> | null,
-) =>
-	chrome.runtime.sendMessage({ message, body }, (response) => {
-		if (response?.status !== "success") {
-			console.error("Failed to send message to background script");
+) => {
+	try {
+		chrome.runtime.sendMessage({ message, body }, (response) => {
+			if (response?.status !== "success") {
+				throw new Error(
+					`Failed to send message to background script. Received response: ${response}`,
+				);
+			}
+		});
+	} catch (error) {
+		console.error("Error sending message to background script:", error);
+		logout();
+	}
+};
+
+// biome-ignore lint/suspicious/noExplicitAny: dynamic arguments
+export function debounce_leading<T extends (...args: any[]) => void>(
+	func: T,
+	timeout = 300,
+): (...args: Parameters<T>) => void {
+	let timer: number | undefined;
+
+	return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+		if (!timer) {
+			func.apply(this, args);
 		}
-	});
+		clearTimeout(timer);
+		timer = window.setTimeout(() => {
+			timer = undefined;
+		}, timeout);
+	};
+}
 
 export const getEmail = async (): Promise<string | null> => {
 	const value = await chrome.storage.local.get(STORAGE_KEY);

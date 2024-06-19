@@ -6,63 +6,33 @@ import {
 import { persistModifications, undoModifications } from "../../utils";
 import { cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
+import { ContentHighlighter } from "./highlighter";
 
-//biome-ignore lint/suspicious/noExplicitAny: need to look after a proper type, but mainly are html nodes
-const blockedNodes: any[] = [];
-
-const blockNodes = () => {
-	const aElements = document.querySelectorAll("a");
-	const buttonElements = document.querySelectorAll("button");
-	for (const clickableElement of [...aElements, ...buttonElements]) {
-		//@ts-ignore
-		const { href, className, style, onclick } = clickableElement;
-		blockedNodes.push({ href, className, onclick, style: { ...style } });
-		//@ts-ignore
-		clickableElement.href = "";
-		clickableElement.style.cursor = "text";
-		clickableElement.onclick = (event) => {
-			event.stopPropagation();
-			event.preventDefault();
-			console.log("BLOCKED!");
-		};
-	}
-};
-
-const restoreNodes = () => {
-	if (blockedNodes.length > 0) {
-		const aElements = document.querySelectorAll("a");
-		const buttonElements = document.querySelectorAll("button");
-		let index = 0;
-		for (const readonlyElem of [...aElements, ...buttonElements]) {
-			const { href, style, onclick } = blockedNodes[index];
-			//@ts-ignore
-			readonlyElem.href = href;
-			//@ts-ignore
-			readonlyElem.style.cursor = style.cursor;
-			//@ts-ignore
-			readonlyElem.onclick = onclick;
-			index++;
-		}
-	}
-};
-
-export const setEditorMode = (turnOn: boolean, recordingId?: string) => {
+export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
-		if (recordingId) localStorage.setItem(MOCKSI_RECORDING_ID, recordingId);
-		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.EDITING);
-		blockNodes();
-		document.body.addEventListener("dblclick", onDoubleClickText);
-	} else {
 		if (recordingId) {
-			persistModifications(recordingId);
+			await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: recordingId });
 		}
-		undoModifications();
-		localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
-		localStorage.removeItem(MOCKSI_RECORDING_ID);
-		document.body.removeEventListener("dblclick", onDoubleClickText);
-		restoreNodes();
-		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
+		await chrome.storage.local.set({
+			[MOCKSI_RECORDING_STATE]: RecordingState.EDITING,
+		});
+		blockClickableElements();
+		document.body.addEventListener("dblclick", onDoubleClickText);
+		return;
 	}
+	if (recordingId) {
+		persistModifications(recordingId);
+	}
+	undoModifications();
+	await chrome.storage.local.set({
+		[MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
+	});
+	await chrome.storage.local.remove(MOCKSI_RECORDING_ID);
+	document.body.removeEventListener("dblclick", onDoubleClickText);
+	restoreNodes();
+	ContentHighlighter.removeHighlightNodes();
+	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
+	document.normalize();
 };
 
 function onDoubleClickText(event: MouseEvent) {
@@ -83,6 +53,9 @@ function onDoubleClickText(event: MouseEvent) {
 
 function decorateClickable(targetedElement: HTMLElement) {
 	const [textNode] = targetedElement.childNodes;
+	if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
+		return;
+	}
 	targetedElement.replaceChild(
 		decorate(
 			textNode.textContent || "",
@@ -100,17 +73,19 @@ function decorateTextTag(
 	{ startOffset, endOffset }: { startOffset: number; endOffset: number },
 ) {
 	const fragment = document.createDocumentFragment();
-	if (startOffset > 0)
+	if (startOffset > 0) {
 		fragment.appendChild(
 			document.createTextNode(text.substring(0, startOffset)),
 		);
+	}
 	fragment.appendChild(
 		decorate(text.substring(startOffset, endOffset), width, shiftMode),
 	);
-	if (endOffset < text.length)
+	if (endOffset < text.length) {
 		fragment.appendChild(
 			document.createTextNode(text.substring(endOffset, text.length)),
 		);
+	}
 	return fragment;
 }
 
@@ -119,8 +94,10 @@ function applyEditor(
 	selectedRange: Selection | null,
 	shiftMode: boolean,
 ) {
-	if (selectedRange === null || selectedRange.anchorNode === null) return;
-	// this case is if the beggining node is the same as the finished one.
+	if (selectedRange === null || selectedRange.anchorNode === null) {
+		return;
+	}
+	// this case is if the beginning node is the same as the finished one.
 	// this can happen while selecting text, there are more than one different node involved.
 	if (selectedRange.anchorNode === selectedRange.focusNode) {
 		for (const node of targetedElement.childNodes) {
@@ -144,3 +121,46 @@ function applyEditor(
 		// TODO
 	}
 }
+
+// biome-ignore lint/suspicious/noExplicitAny: need to look after a proper type, but mainly are html nodes
+const blockedNodes: any[] = [];
+
+const blockClickableElements = () => {
+	const aElements = document.querySelectorAll("a");
+	const buttonElements = document.querySelectorAll("button");
+	for (const clickableElement of [...aElements, ...buttonElements]) {
+		//@ts-ignore
+		const { href, className, style, onclick } = clickableElement;
+		blockedNodes.push({ href, className, onclick, style: { ...style } });
+		//@ts-ignore
+		clickableElement.href = "";
+		clickableElement.style.cursor = "text";
+		clickableElement.onclick = (event) => {
+			event.stopPropagation();
+			event.preventDefault();
+			console.log("BLOCKED!");
+		};
+	}
+};
+
+const restoreNodes = () => {
+	if (blockedNodes.length > 0) {
+		const aElements = document.querySelectorAll("a");
+		const buttonElements = document.querySelectorAll("button");
+		let index = 0;
+		for (const readonlyElem of [...aElements, ...buttonElements]) {
+			if (blockedNodes[index]) {
+				const { href, style, onclick } = blockedNodes[index];
+				//@ts-ignore
+				readonlyElem.href = href;
+				//@ts-ignore
+				readonlyElem.style.cursor = style.cursor;
+				//@ts-ignore
+				readonlyElem.onclick = onclick;
+				index++;
+			} else {
+				break;
+			}
+		}
+	}
+};

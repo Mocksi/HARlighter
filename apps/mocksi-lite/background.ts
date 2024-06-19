@@ -1,7 +1,7 @@
 import MocksiRollbar from "./MocksiRollbar";
-import { SignupURL, WebSocketURL } from "./consts";
+import { STORAGE_KEY, SignupURL, WebSocketURL } from "./consts";
 import { apiCall } from "./networking";
-import { getEmail } from "./utils";
+import { getEmail, logout } from "./utils";
 
 export interface Alteration {
 	selector: string;
@@ -49,13 +49,17 @@ addEventListener("install", () => {
 });
 
 chrome.action.onClicked.addListener((activeTab) => {
-	const { id: currentTabId } = activeTab;
+	let { id: currentTabId } = activeTab;
 	if (currentTabId) {
-		chrome.debugger.detach({ tabId: currentTabId });
+		try {
+			chrome.debugger.detach({ tabId: currentTabId });
+		} catch (e) {
+			currentTabId = -1;
+		}
 	}
 
 	if (currentTabId && currentTabId < 0) {
-		return false;
+		return;
 	}
 	let activeTabUrl = "";
 	try {
@@ -149,10 +153,10 @@ function onAttach(tabId: number) {
 }
 
 function debuggerDetachHandler() {
-	console.log("detach");
 	requests.clear();
 }
-function createDemo(body: Record<string, unknown>) {
+
+async function createDemo(body: Record<string, unknown>) {
 	const defaultBody = {
 		created_timestamp: new Date(),
 		updated_timestamp: new Date(),
@@ -170,6 +174,29 @@ function createDemo(body: Record<string, unknown>) {
 function updateDemo(data: Record<string, unknown>) {
 	const { id, recording } = data;
 	apiCall(`recordings/${id}`, "POST", recording).then(() => getRecordings());
+}
+
+async function getEmail() {
+	const value = await chrome.storage.local.get(STORAGE_KEY);
+	if (!value) {
+		window.open(SignupURL);
+		return;
+	}
+
+	let parsedData: { email: string } | undefined;
+	const storedData = value[STORAGE_KEY] || "{}";
+	try {
+		parsedData = JSON.parse(storedData);
+	} catch (error) {
+		console.log("Error parsing data from storage: ", error);
+		parsedData = undefined;
+	}
+	if (parsedData?.email) {
+		return parsedData.email;
+	}
+
+	MocksiRollbar.log("No email found in storage. Logging out");
+	logout();
 }
 
 async function getRecordings() {
@@ -308,13 +335,17 @@ chrome.runtime.onMessage.addListener(
 		console.log("Received message:", request);
 
 		if (request.message === "createDemo") {
-			if (!request.body) return false;
+			if (!request.body) {
+				return false;
+			}
 			createDemo(request.body);
 			return true;
 		}
 
 		if (request.message === "updateDemo") {
-			if (!request.body) return false;
+			if (!request.body) {
+				return false;
+			}
 			updateDemo(request.body);
 			return true;
 		}

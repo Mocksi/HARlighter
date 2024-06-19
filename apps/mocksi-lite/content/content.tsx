@@ -31,10 +31,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			) as RecordingState | null;
 			if (email && !recordingState) {
 				// we need to initialize recordingState if there's none.
-				localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.READY);
+        chrome.storage.local.set({
+          [MOCKSI_RECORDING_STATE]: RecordingState.READY,
+        });
 			}
 			if (recordingState === RecordingState.EDITING) {
-				localStorage.setItem(MOCKSI_RECORDING_STATE, RecordingState.CREATE);
+        chrome.storage.local.set({
+          [MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
+        });
 			}
 			setRootPosition(recordingState);
 			root.render(<ContentApp isOpen={true} email={email || ""} />);
