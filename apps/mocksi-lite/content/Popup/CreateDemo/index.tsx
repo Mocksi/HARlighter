@@ -44,7 +44,9 @@ const CreateDemo = ({
 		}
 	}, [createForm, state]);
 
-	if (createForm) return <Form onCancel={() => setCreateForm(false)} />;
+	if (createForm) {
+		return <Form onCancel={() => setCreateForm(false)} />;
+	}
 	return (
 		<div className={"flex flex-1 flex-col h-[280px]"}>
 			{recordings.length ? (

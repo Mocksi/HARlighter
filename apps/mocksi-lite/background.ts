@@ -176,29 +176,6 @@ function updateDemo(data: Record<string, unknown>) {
 	apiCall(`recordings/${id}`, "POST", recording).then(() => getRecordings());
 }
 
-async function getEmail() {
-	const value = await chrome.storage.local.get(STORAGE_KEY);
-	if (!value) {
-		window.open(SignupURL);
-		return;
-	}
-
-	let parsedData: { email: string } | undefined;
-	const storedData = value[STORAGE_KEY] || "{}";
-	try {
-		parsedData = JSON.parse(storedData);
-	} catch (error) {
-		console.log("Error parsing data from storage: ", error);
-		parsedData = undefined;
-	}
-	if (parsedData?.email) {
-		return parsedData.email;
-	}
-
-	MocksiRollbar.log("No email found in storage. Logging out");
-	logout();
-}
-
 async function getRecordings() {
 	const email = await getEmail();
 

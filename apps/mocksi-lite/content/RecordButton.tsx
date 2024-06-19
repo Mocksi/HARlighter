@@ -40,13 +40,13 @@ export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 		chrome.storage.local.get([MOCKSI_RECORDING_STATE], (result) => {
 			const storageState =
 				(result[MOCKSI_RECORDING_STATE] as RecordingState) ||
-			RecordingState.READY;
+				RecordingState.READY;
 
-		onRecordChange(storageState);
-		if (storageState === RecordingState.ANALYZING) {
-			setTimeout(() => {
-				onRecordChange(RecordingState.CREATE);
-				chrome.storage.local.set({
+			onRecordChange(storageState);
+			if (storageState === RecordingState.ANALYZING) {
+				setTimeout(() => {
+					onRecordChange(RecordingState.CREATE);
+					chrome.storage.local.set({
 						[MOCKSI_RECORDING_STATE]: RecordingState.CREATE.toString(),
 					});
 				}, waitTime);
