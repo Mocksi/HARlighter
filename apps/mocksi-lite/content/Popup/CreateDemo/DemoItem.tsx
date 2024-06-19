@@ -25,7 +25,6 @@ const DemoItem = ({
 	};
 
 	const domain = new URL(url).hostname;
-
 	return (
 		<div className={"flex justify-between w-full px-6"}>
 			<div className={"w-[200px]"}>

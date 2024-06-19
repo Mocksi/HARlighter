@@ -40,16 +40,18 @@ export const logout = () => {
 
 const commandsExecuted: Command[] = [];
 
+const domainModifications: DOMModificationsType = {};
+
 export const saveModification = (
 	parentElement: HTMLElement,
 	newText: string,
 	previousText: string,
 ) => {
 	const saveModificationCommand = new SaveModificationCommand(
-		chrome.storage.local,
+		domainModifications,
 		{
 			keyToSave: buildQuerySelector(parentElement, newText),
-			nextText: newText,
+			nextText: sanitizeHtml(newText),
 			previousText,
 		},
 	);
@@ -57,19 +59,11 @@ export const saveModification = (
 	saveModificationCommand.execute();
 };
 
-export const persistModifications = async (recordingId: string) => {
-	const modificationsFromStorage = await getModificationsFromStorage();
-	const alterations: Alteration[] = Object.entries<{
-		nextText: string;
-		previousText: string;
-	}>(modificationsFromStorage).map(
-		([querySelector, { nextText, previousText }]) => ({
-			selector: querySelector,
-			action: previousText ? "modified" : "added",
-			dom_before: previousText || "",
-			dom_after: nextText,
-		}),
-	);
+export const persistModifications = (recordingId: string) => {
+	const alterations: Alteration[] = buildAlterations(domainModifications);
+	chrome.storage.local.set({
+		[MOCKSI_MODIFICATIONS]: JSON.stringify(domainModifications),
+	});
 	const updated_timestamp = new Date();
 	sendMessage("updateDemo", {
 		id: recordingId,
@@ -77,8 +71,8 @@ export const persistModifications = async (recordingId: string) => {
 	});
 };
 
-export const undoModifications = async () => {
-	await loadPreviousModifications();
+export const undoModifications = () => {
+	loadPreviousModifications();
 	chrome.storage.local.remove(MOCKSI_MODIFICATIONS);
 };
 
@@ -95,28 +89,13 @@ export const loadAlterations = (alterations: Alteration[] | null) => {
 };
 
 // This is from chrome.storage.local
-export const loadPreviousModifications = async () => {
-	const modifications: DOMModificationsType =
-		await getModificationsFromStorage();
-	for (const modification of Object.entries(modifications)) {
+export const loadPreviousModifications = () => {
+	for (const modification of Object.entries(domainModifications)) {
 		const [querySelector, { previousText, nextText }] = modification;
 		const sanitizedPreviousText = sanitizeHtml(previousText);
 		// here newText and previous is in altered order because we want to revert the changes
 		modifyElementInnerHTML(querySelector, nextText, sanitizedPreviousText);
 	}
-};
-
-const getModificationsFromStorage = (): Promise<DOMModificationsType> => {
-	return new Promise((resolve) => {
-		chrome.storage.local.get([MOCKSI_MODIFICATIONS], (result) => {
-			try {
-				resolve(JSON.parse(result[MOCKSI_MODIFICATIONS] || "{}"));
-			} catch (error) {
-				console.error("Error parsing modifications:", error);
-				resolve({});
-			}
-		});
-	});
 };
 
 const modifyElementInnerHTML = (
@@ -201,6 +180,19 @@ export const sendMessage = (
 		console.error("Error sending message to background script:", error);
 		logout();
 	}
+};
+
+const buildAlterations = (
+	modifications: DOMModificationsType,
+): Alteration[] => {
+	return Object.entries(modifications).map(
+		([querySelector, { nextText, previousText }]) => ({
+			selector: querySelector,
+			action: previousText ? "modified" : "added",
+			dom_before: previousText || "",
+			dom_after: nextText,
+		}),
+	);
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: dynamic arguments
