@@ -37,7 +37,7 @@ export const logout = () => {
 
 const commandsExecuted: Command[] = [];
 
-let domainModifications: DOMModificationsType = {}
+const domainModifications: DOMModificationsType = {};
 
 export const saveModification = (
 	parentElement: HTMLElement,
@@ -48,7 +48,7 @@ export const saveModification = (
 		domainModifications,
 		{
 			keyToSave: buildQuerySelector(parentElement, newText),
-			nextText: newText,
+			nextText: sanitizeHtml(newText),
 			previousText,
 		},
 	);
@@ -57,20 +57,10 @@ export const saveModification = (
 };
 
 export const persistModifications = (recordingId: string) => {
-	const alterations: Alteration[] = Object.entries<{
-		nextText: string;
-		previousText: string;
-	}>(domainModifications).map(
-		([querySelector, { nextText, previousText }]) => ({
-			selector: querySelector,
-			action: previousText ? "modified" : "added",
-			dom_before: previousText || "",
-			dom_after: nextText,
-		}),
-	);
+	const alterations: Alteration[] = buildAlterations(domainModifications);
 	chrome.storage.local.set({
-		[MOCKSI_MODIFICATIONS]: JSON.stringify(domainModifications)
-	})
+		[MOCKSI_MODIFICATIONS]: JSON.stringify(domainModifications),
+	});
 	const updated_timestamp = new Date();
 	sendMessage("updateDemo", {
 		id: recordingId,
@@ -104,7 +94,6 @@ export const loadPreviousModifications = () => {
 		modifyElementInnerHTML(querySelector, nextText, sanitizedPreviousText);
 	}
 };
-
 
 const modifyElementInnerHTML = (
 	selector: string,
@@ -188,6 +177,19 @@ export const sendMessage = (
 		console.error("Error sending message to background script:", error);
 		logout();
 	}
+};
+
+const buildAlterations = (
+	modifications: DOMModificationsType,
+): Alteration[] => {
+	return Object.entries(modifications).map(
+		([querySelector, { nextText, previousText }]) => ({
+			selector: querySelector,
+			action: previousText ? "modified" : "added",
+			dom_before: previousText || "",
+			dom_after: nextText,
+		}),
+	);
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: dynamic arguments

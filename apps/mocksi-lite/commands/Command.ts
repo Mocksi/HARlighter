@@ -41,12 +41,12 @@ export const buildQuerySelector = (
 };
 
 export class SaveModificationCommand implements Command {
-
 	constructor(
-		private prevModifications: {[querySelector: string]: { nextText: string; previousText: string }},
+		private prevModifications: {
+			[querySelector: string]: { nextText: string; previousText: string };
+		},
 		private modification: DOMModification,
-	) {
-	}
+	) {}
 
 	execute() {
 		const { keyToSave, nextText, previousText } = this.modification;
@@ -55,12 +55,16 @@ export class SaveModificationCommand implements Command {
 		this.prevModifications[keyToSave] = {
 			nextText,
 			previousText: previousTextFromStorage || previousText,
-		}
+		};
 	}
 
 	undo() {
 		const { keyToSave, previousText } = this.modification;
-		this.prevModifications[keyToSave] = { previousText, nextText: '' }
+		this.resetPrevModifications(keyToSave, previousText);
+	}
+
+	private resetPrevModifications(key: string, previousText: string) {
+		this.prevModifications[key] = { previousText, nextText: "" };
 	}
 }
 
