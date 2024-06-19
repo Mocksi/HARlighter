@@ -31,6 +31,7 @@ export const logout = () => {
 			[MOCKSI_RECORDING_STATE]: RecordingState.UNAUTHORIZED,
 		});
 	});
+	// FIXME: this should redirect to a logout page first
 	window.open(SignupURL);
 };
 
@@ -79,7 +80,11 @@ export const undoModifications = async () => {
 };
 
 // v2 of loading alterations, this is from backend
-export const loadAlterations = (alterations: Alteration[]) => {
+export const loadAlterations = (alterations: Alteration[] | null) => {
+	if (!alterations?.length) {
+		// FIXME: we should warn the user that there are no alterations for this demo
+		return [] as Alteration[];
+	}
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before } = alteration;
 		modifyElementInnerHTML(selector, dom_before, sanitizeHtml(dom_after));
