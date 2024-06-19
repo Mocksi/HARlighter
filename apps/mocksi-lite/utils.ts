@@ -1,4 +1,6 @@
+import sanitizeHtml from "sanitize-html";
 import type { Alteration } from "./background";
+
 import {
 	type Command,
 	SaveModificationCommand,
@@ -76,7 +78,7 @@ export const undoModifications = () => {
 export const loadAlterations = (alterations: Alteration[]) => {
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before } = alteration;
-		modifyElementInnerHTML(selector, dom_before, dom_after);
+		modifyElementInnerHTML(selector, dom_before, sanitizeHtml(dom_after));
 	}
 };
 
@@ -84,10 +86,10 @@ export const loadAlterations = (alterations: Alteration[]) => {
 export const loadPreviousModifications = () => {
 	const modifications: DOMModificationsType = getModificationsFromStorage();
 	for (const modification of Object.entries(modifications)) {
-		// value here is encoded, SHOULD NOT be a security risk to put it in the innerHTML
 		const [querySelector, { previousText, nextText }] = modification;
+		const sanitizedPreviousText = sanitizeHtml(previousText);
 		// here newText and previous is in altered order because we want to revert the changes
-		modifyElementInnerHTML(querySelector, nextText, previousText);
+		modifyElementInnerHTML(querySelector, nextText, sanitizedPreviousText);
 	}
 };
 
@@ -118,10 +120,14 @@ const modifyElementInnerHTML = (
 			hasIndex,
 		);
 		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
+		// FIXME: lots of duplicated code here
 		try {
 			elemToModify = document.querySelectorAll(filteredQuerySelector)[index];
-		} catch (error: any) {
-			console.error("Error querying selector:", error);
+		} catch (e: unknown) {
+			if (e instanceof Error) {
+				console.error(`Error querying selector: ${e}`);
+			}
+
 			elemToModify = null;
 		}
 	} else {
@@ -130,13 +136,17 @@ const modifyElementInnerHTML = (
 			elemToModify = document.querySelector(
 				formatQuerySelector(selector, valueInQuerySelector, null),
 			);
-		} catch (error: any) {
+		} catch (e: unknown) {
+			if (e instanceof Error) {
+				console.error(`Error querying selector: ${e}`);
+			}
 			elemToModify = null;
 		}
 	}
-	if (elemToModify !== null) {
+	const sanitizedNewContent = sanitizeHtml(newContent);
+	if (elemToModify?.innerHTML) {
 		elemToModify.innerHTML =
-			elemToModify?.innerHTML?.replaceAll(oldContent, newContent) || "";
+			elemToModify.innerHTML.replaceAll(oldContent, sanitizedNewContent) || "";
 	}
 };
 

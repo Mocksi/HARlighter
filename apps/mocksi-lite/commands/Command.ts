@@ -23,12 +23,14 @@ export const buildQuerySelector = (
 	if (classList.length) {
 		keyToSave += `.${[...classList].join(".")}`;
 	}
-	let elements;
+	let elements: NodeListOf<Element>;
 	try {
 		elements = document.querySelectorAll(keyToSave);
-	} catch(e: any) {
-		console.error(`Error querying selector ${keyToSave}: ${e}`);
-		elements = [];
+	} catch (e: unknown) {
+		if (e instanceof Error) {
+			console.error(`Error querying selector ${keyToSave}: ${e}`);
+		}
+		return keyToSave;
 	}
 
 	if (elements.length) {

@@ -49,6 +49,9 @@ function onDoubleClickText(event: MouseEvent) {
 
 function decorateClickable(targetedElement: HTMLElement) {
 	const [textNode] = targetedElement.childNodes;
+	if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
+		return;
+	}
 	targetedElement.replaceChild(
 		decorate(
 			textNode.textContent || "",
