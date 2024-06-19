@@ -53,14 +53,16 @@ const CreateDemo = ({
 				<div
 					className={"flex-1 flex flex-col py-8 overflow-y-scroll no-scrollbar"}
 				>
-					{recordings.filter((record) => record.url).map((record) => (
-						<Fragment key={`demo-item-${record.uuid}`}>
-							<DemoItem setState={setState} {...record} />
-							<div className={"px-3 w-full my-6"}>
-								<Divider />
-							</div>
-						</Fragment>
-					))}
+					{recordings
+						.filter((record) => record.url)
+						.map((record) => (
+							<Fragment key={`demo-item-${record.uuid}`}>
+								<DemoItem setState={setState} {...record} />
+								<div className={"px-3 w-full my-6"}>
+									<Divider />
+								</div>
+							</Fragment>
+						))}
 				</div>
 			) : null}
 			<Button
