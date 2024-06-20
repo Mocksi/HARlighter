@@ -214,7 +214,7 @@ const fillReplacements = (
 	}
 };
 
-const replaceFirstLetterCase = (value: string) => {
+export const replaceFirstLetterCase = (value: string) => {
 	return (match: string) => {
 		if (match[0]?.toLowerCase() !== match[0]?.toUpperCase()) {
 			// Check if the first character is alphabetical
