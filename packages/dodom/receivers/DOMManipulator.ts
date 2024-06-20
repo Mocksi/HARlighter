@@ -72,8 +72,10 @@ export class DOMManipulator {
 			nodeToReplace.parentElement.replaceChild(replacement, nodeToReplace);
 		}
 
-		for (const fragment of fragmentsToHighlight) {
-			this.contentHighlighter.highlightNode(fragment);
+		if (highlightReplacements) {
+			for (const fragment of fragmentsToHighlight) {
+				this.contentHighlighter.highlightNode(fragment);
+			}
 		}
 	}
 
