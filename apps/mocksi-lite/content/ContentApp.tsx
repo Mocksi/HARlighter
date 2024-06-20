@@ -9,7 +9,7 @@ import closeIcon from "../public/close-icon.png";
 import mocksiLogo from "../public/mocksi-logo.png";
 import { setRootPosition } from "../utils";
 import { setEditorMode } from "./EditMode/editMode";
-import { ContentHighlighter } from "./EditMode/highlighter";
+import { getHighlighter } from "./EditMode/highlighter";
 import Popup from "./Popup";
 import { RecordButton } from "./RecordButton";
 
@@ -40,6 +40,7 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 	const [state, setState] = useState<RecordingState>(
 		RecordingState.UNAUTHORIZED,
 	);
+	const ContentHighlighter = getHighlighter();
 
 	useEffect(() => {
 		// Load initial state from chrome storage
