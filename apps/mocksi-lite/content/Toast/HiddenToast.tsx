@@ -26,9 +26,10 @@ const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
 		return recordings.find((record) => record.uuid === recordingId);
 	};
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
 		getData().then((res) => setData(res));
-	}, [getData]);
+	}, []);
 
 	const handleEdit = () => {
 		sendMessage("resetIcon");
