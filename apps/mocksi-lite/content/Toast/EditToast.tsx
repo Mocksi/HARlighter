@@ -4,7 +4,7 @@ import { RecordingState } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
 import { loadRecordingId, recordingLabel } from "../../utils";
 import { setEditorMode } from "../EditMode/editMode";
-import { ContentHighlighter } from "../EditMode/highlighter";
+import { getHighlighter } from "../EditMode/highlighter";
 import Toast from "./index";
 
 interface EditToastProps {
@@ -14,6 +14,8 @@ interface EditToastProps {
 
 const EditToast = ({ state, onChangeState }: EditToastProps) => {
 	const [areChangesHighlighted, setAreChangesHighlighted] = useState(true);
+
+	const ContentHighlighter = getHighlighter();
 
 	const onChecked = () => {
 		setAreChangesHighlighted((prevValue) => {
