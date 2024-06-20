@@ -100,12 +100,14 @@ export const loadAlterations = (
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before } = alteration;
 		const elemToModify = getHTMLElementFromSelector(selector);
-		domManipulator.iterateAndReplace(
-			elemToModify as Node,
-			new RegExp(dom_before, "gi"),
-			sanitizeHtml(dom_after),
-			withHighlights,
-		);
+		if (elemToModify) {
+			domManipulator.iterateAndReplace(
+				elemToModify as Node,
+				new RegExp(dom_before, "gi"),
+				sanitizeHtml(dom_after),
+				withHighlights,
+			);
+		}
 	}
 };
 
