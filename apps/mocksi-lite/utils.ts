@@ -14,8 +14,9 @@ import {
 	STORAGE_KEY,
 	SignupURL,
 } from "./consts";
+import { DOMManipulator } from "@repo/dodom";
 import { fragmentTextNode } from "./content/EditMode/actions";
-import UniversalReplacer from "./universalReplace";
+import { ContentHighlighter } from "./content/EditMode/highlighter";
 
 type DOMModificationsType = {
 	[querySelector: string]: { nextText: string; previousText: string };
@@ -84,10 +85,12 @@ export const loadAlterations = (alterations: Alteration[] | null) => {
 		// FIXME: we should warn the user that there are no alterations for this demo
 		return [] as Alteration[];
 	}
+	const domManipulator = new DOMManipulator(fragmentTextNode, ContentHighlighter, saveModification)
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before } = alteration;
 		const elemToModify = getHTMLElementFromSelector(selector)
-		UniversalReplacer.iterateAndReplace(elemToModify as Node, new RegExp(dom_before, "gi"), sanitizeHtml(dom_after), true)
+		debugger
+		domManipulator.iterateAndReplace(elemToModify as Node, new RegExp(dom_before, "gi"), sanitizeHtml(dom_after), true)
 	}
 };
 
