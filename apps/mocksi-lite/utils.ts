@@ -23,7 +23,9 @@ export const setRootPosition = (state: RecordingState | null) => {
 	const extensionRoot = document.getElementById("extension-root");
 	if (extensionRoot) {
 		const bottom =
-			state === RecordingState.READY || state === RecordingState.CREATE;
+			state === RecordingState.READY ||
+			state === RecordingState.CREATE ||
+			state === RecordingState.PLAY;
 		extensionRoot.className = bottom ? "bottom-extension" : "top-extension";
 	}
 };
@@ -243,5 +245,22 @@ export const getRecordingsStorage = async (): Promise<Recording[]> => {
 	} catch (err) {
 		console.error("Failed to retrieve recordings:", err);
 		throw err;
+	}
+};
+
+export const recordingLabel = (currentStatus: RecordingState) => {
+	switch (currentStatus) {
+		case RecordingState.READY:
+			return "Start recording";
+		case RecordingState.RECORDING:
+			return "Mocksi Recording";
+		case RecordingState.EDITING:
+			return "Editing Template";
+		case RecordingState.ANALYZING:
+			return "Analyzing...";
+		case RecordingState.UNAUTHORIZED:
+			return "Login to record";
+		default:
+			return "Start recording";
 	}
 };
