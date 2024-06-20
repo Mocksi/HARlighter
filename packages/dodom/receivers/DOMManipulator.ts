@@ -32,7 +32,7 @@ export class DOMManipulator {
 	addPattern(pattern: string | RegExp, replace: string) {
 		const replacePattern = { pattern: toRegExpPattern(pattern), replace };
 		this.patterns.push(replacePattern);
-		this.seekAndReplace(replacePattern.pattern, replacePattern.replace);
+		this.seekAndReplaceAllPage(replacePattern.pattern, replacePattern.replace);
 	}
 
 	removePattern(pattern: string | RegExp) {
@@ -50,38 +50,34 @@ export class DOMManipulator {
 		}
 	}
 
-	seekAndReplace(pattern: RegExp, newText: string) {
+	seekAndReplaceAllPage(pattern: RegExp, newText: string) {
 		const body = document.querySelector("body");
 		if (!body) {
 			console.log("Body not found");
 			return;
 		}
+		this.iterateAndReplace(body, pattern, newText, true);
+	}
+
+	iterateAndReplace(
+		rootNode: Node,
+		oldValueInPattern: RegExp,
+		newText: string,
+		highlightReplacements: boolean,
+	) {
 		const fragmentsToHighlight: Node[] = [];
 		const replacements: { nodeToReplace: Node; replacement: Node }[] = [];
-		createTreeWalker(body, (textNode) => {
-			if (!textNode.nodeValue) {
-				return;
-			}
-			const matches = [...textNode.nodeValue.matchAll(pattern)];
-			if (matches.length > 0) {
-				const fragmentedTextNode = this.fragmentTextNode(
-					fragmentsToHighlight,
-					matches,
-					textNode,
-					newText,
-				);
-				replacements.push({
-					nodeToReplace: textNode,
-					replacement: fragmentedTextNode as Node,
-				});
-				this.saveModification(
-					textNode.parentElement as HTMLElement,
-					newText,
-					cleanPattern(pattern),
-				);
-			}
+		createTreeWalker(rootNode, (textNode) => {
+			fillReplacements(
+				textNode,
+				oldValueInPattern,
+				newText,
+				fragmentsToHighlight,
+				replacements,
+				this.fragmentTextNode,
+				this.saveModification,
+			);
 		});
-
 		for (const { nodeToReplace, replacement } of replacements) {
 			if (nodeToReplace.parentElement == null) {
 				continue;
@@ -89,8 +85,10 @@ export class DOMManipulator {
 			nodeToReplace.parentElement.replaceChild(replacement, nodeToReplace);
 		}
 
-		for (const fragment of fragmentsToHighlight) {
-			this.contentHighlighter.highlightNode(fragment);
+		if (highlightReplacements) {
+			for (const fragment of fragmentsToHighlight) {
+				this.contentHighlighter.highlightNode(fragment);
+			}
 		}
 	}
 
@@ -182,6 +180,38 @@ const createTreeWalker = (
 
 		iterator(textNode);
 	} while (treeWalker.nextNode());
+};
+
+const fillReplacements = (
+	textNode: Node,
+	oldTextPattern: RegExp,
+	newText: string,
+	fragmentsToHighlight: Node[],
+	replacements: { nodeToReplace: Node; replacement: Node }[],
+	fragmentTextNode: FragmentTextNode,
+	saveModification: SaveModification,
+) => {
+	if (!textNode || !textNode.nodeValue) {
+		return;
+	}
+	const matches = [...textNode.nodeValue.matchAll(oldTextPattern)];
+	if (matches.length > 0) {
+		const fragmentedTextNode = fragmentTextNode(
+			fragmentsToHighlight,
+			matches,
+			textNode,
+			newText,
+		);
+		replacements.push({
+			nodeToReplace: textNode,
+			replacement: fragmentedTextNode as Node,
+		});
+		saveModification(
+			textNode.parentElement as HTMLElement,
+			newText,
+			cleanPattern(oldTextPattern),
+		);
+	}
 };
 
 export const replaceFirstLetterCase = (value: string) => {

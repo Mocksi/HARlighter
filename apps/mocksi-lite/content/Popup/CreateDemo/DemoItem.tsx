@@ -10,6 +10,7 @@ import { setEditorMode } from "../../EditMode/editMode";
 interface DemoItemProps extends Recording {
 	setState: (r: RecordingState) => void;
 }
+
 const DemoItem = ({
 	uuid,
 	demo_name,
@@ -20,13 +21,14 @@ const DemoItem = ({
 }: DemoItemProps) => {
 	const handleEdit = () => {
 		setEditorMode(true, uuid);
+		loadAlterations(alterations, true);
 		setState(RecordingState.EDITING);
 	};
 
 	const handlePlay = () => {
 		chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: uuid }).then(() => {
 			setState(RecordingState.PLAY);
-			loadAlterations(alterations);
+			loadAlterations(alterations, false);
 		});
 	};
 

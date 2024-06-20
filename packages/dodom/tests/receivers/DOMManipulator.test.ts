@@ -39,11 +39,11 @@ describe("DOMManipulator", () => {
 		const pattern = "test";
 		const replace = "replace";
 
-		vi.spyOn(domManipulator, "seekAndReplace");
+		vi.spyOn(domManipulator, "seekAndReplaceAllPage");
 
 		domManipulator.addPattern(pattern, replace);
 
-		expect(domManipulator.seekAndReplace).toHaveBeenCalledWith(
+		expect(domManipulator.seekAndReplaceAllPage).toHaveBeenCalledWith(
 			expect.any(RegExp),
 			replace,
 		);
