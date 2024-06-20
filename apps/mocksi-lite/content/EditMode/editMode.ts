@@ -6,7 +6,7 @@ import {
 import { persistModifications, undoModifications } from "../../utils";
 import { cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
-import { ContentHighlighter } from "./highlighter";
+import { ContentHighlighter, initHighlighter } from "./highlighter";
 
 export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
@@ -16,6 +16,7 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 		await chrome.storage.local.set({
 			[MOCKSI_RECORDING_STATE]: RecordingState.EDITING,
 		});
+		initHighlighter();
 		blockClickableElements();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 		return;
