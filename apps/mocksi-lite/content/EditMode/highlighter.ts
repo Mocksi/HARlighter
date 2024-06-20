@@ -31,7 +31,13 @@ class Highlighter {
 	};
 }
 
-export const ContentHighlighter: Highlighter = new Highlighter();
+export let ContentHighlighter: Highlighter;
+
+export const initHighlighter = () => {
+	if (!ContentHighlighter) {
+		ContentHighlighter = new Highlighter();
+	}
+};
 
 const highlight = ({
 	x,
