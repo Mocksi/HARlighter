@@ -1,6 +1,6 @@
 import { DOMManipulator } from "@repo/dodom";
 import { saveModification } from "../../utils";
-import { ContentHighlighter } from "./highlighter";
+import { getHighlighter } from "./highlighter";
 
 export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 	if (nodeWithTextArea) {
@@ -24,7 +24,7 @@ export function applyChanges(
 		// TODO: check if we should keep the singleton behavior we had before
 		const domManipulator = new DOMManipulator(
 			fragmentTextNode,
-			ContentHighlighter,
+			getHighlighter(),
 			saveModification,
 		);
 		domManipulator.addPattern(oldValue, newValue);
