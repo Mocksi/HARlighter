@@ -19,6 +19,7 @@ const HiddenToast = ({onChangeState, close}: HiddenToastProps) => {
   };
 
   const handleClose = () => {
+    sendMessage("resetIcon");
     onChangeState(RecordingState.CREATE);
     close();
   };
