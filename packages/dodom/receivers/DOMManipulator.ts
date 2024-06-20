@@ -25,6 +25,10 @@ class DomManipulator {
 		private saveModification: SaveModification,
 	) {}
 
+	getPatternCount() {
+		return this.patterns.length;
+	}
+
 	addPattern(pattern: string | RegExp, replace: string) {
 		const replacePattern = { pattern: toRegExpPattern(pattern), replace };
 		this.patterns.push(replacePattern);
@@ -137,6 +141,16 @@ class DomManipulator {
 
 		return null;
 	}
+
+	replaceImage(oldSrc: string, newSrc: string) {
+		const images = document.querySelectorAll(
+			`img[src="${oldSrc}"]`,
+		) as NodeListOf<HTMLImageElement>;
+		for (const img of images) {
+			img.src = newSrc;
+			this.saveModification(img, newSrc, oldSrc);
+		}
+	}
 }
 
 const cleanPattern = (pattern: RegExp) =>
@@ -170,10 +184,13 @@ const createTreeWalker = (
 	} while (treeWalker.nextNode());
 };
 
-const replaceFirstLetterCase = (value: string) => {
+export const replaceFirstLetterCase = (value: string) => {
 	return (match: string) => {
-		if (match[0] === match[0].toUpperCase()) {
-			return value.charAt(0).toUpperCase() + value.slice(1);
+		if (match[0]?.toLowerCase() !== match[0]?.toUpperCase()) {
+			// Check if the first character is alphabetical
+			if (match[0] === match[0]?.toUpperCase()) {
+				return value.charAt(0).toUpperCase() + value.slice(1);
+			}
 		}
 		return value;
 	};
