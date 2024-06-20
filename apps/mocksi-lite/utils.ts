@@ -16,7 +16,7 @@ import {
 } from "./consts";
 import { DOMManipulator } from "@repo/dodom";
 import { fragmentTextNode } from "./content/EditMode/actions";
-import { ContentHighlighter } from "./content/EditMode/highlighter";
+import { getHighlighter } from "./content/EditMode/highlighter";
 
 type DOMModificationsType = {
 	[querySelector: string]: { nextText: string; previousText: string };
@@ -85,11 +85,10 @@ export const loadAlterations = (alterations: Alteration[] | null) => {
 		// FIXME: we should warn the user that there are no alterations for this demo
 		return [] as Alteration[];
 	}
-	const domManipulator = new DOMManipulator(fragmentTextNode, ContentHighlighter, saveModification)
+	const domManipulator = new DOMManipulator(fragmentTextNode, getHighlighter(), saveModification)
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before } = alteration;
 		const elemToModify = getHTMLElementFromSelector(selector)
-		debugger
 		domManipulator.iterateAndReplace(elemToModify as Node, new RegExp(dom_before, "gi"), sanitizeHtml(dom_after), true)
 	}
 };
@@ -103,38 +102,6 @@ export const loadPreviousModifications = () => {
 		// here newText and previous is in altered order because we want to revert the changes
 		if (elemToModify) {
 			elemToModify.innerHTML = elemToModify.innerHTML.replaceAll(nextText, sanitizedPreviousText)
-		}
-		// modifyElementInnerHTML(querySelector, nextText, sanitizedPreviousText);
-	}
-};
-
-const modifyElementInnerHTML = (
-	selector: string,
-	oldContent: string,
-	newContent: string,
-) => {
-	// querySelector format {htmlElementType}#{elementId}.{elementClassnames}[${elementIndexIfPresent}]{{newValue}}
-	const hasIndex = selector.match(/\[[0-9]+\]/);
-	const valueInQuerySelector = selector.match(/\{[a-zA-Z0-9 ]+\}/); // add spaces to pattern
-	let elemToModify: Element | null;
-	// FIXME: this needs to be refactored
-	if (hasIndex) {
-		// with all this replaces, we should build a formatter
-		const filteredQuerySelector = formatQuerySelector(
-			selector,
-			valueInQuerySelector,
-			hasIndex,
-		);
-		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
-		// FIXME: lots of duplicated code here
-		try {
-			elemToModify = document.querySelectorAll(filteredQuerySelector)[index];
-		} catch (e: unknown) {
-			if (e instanceof Error) {
-				console.error(`Error querying selector: ${e}`);
-			}
-
-			elemToModify = null;
 		}
 	}
 };
@@ -243,7 +210,7 @@ export const getEmail = async (): Promise<string | null> => {
 export const getRecordingsStorage = async (): Promise<Recording[]> => {
 	try {
 		const results = await chrome.storage.local.get(["recordings"]);
-		console.log(results.recordings);
+		console.log('results', results.recordings);
 		if (results.recordings) {
 			return JSON.parse(results.recordings);
 		}

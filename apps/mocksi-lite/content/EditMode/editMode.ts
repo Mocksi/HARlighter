@@ -6,7 +6,7 @@ import {
 import { persistModifications, undoModifications } from "../../utils";
 import { cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
-import { ContentHighlighter, initHighlighter } from "./highlighter";
+import { getHighlighter } from "./highlighter";
 
 export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
@@ -16,7 +16,6 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 		await chrome.storage.local.set({
 			[MOCKSI_RECORDING_STATE]: RecordingState.EDITING,
 		});
-		initHighlighter();
 		blockClickableElements();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 		return;
@@ -31,7 +30,7 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	await chrome.storage.local.remove(MOCKSI_RECORDING_ID);
 	document.body.removeEventListener("dblclick", onDoubleClickText);
 	restoreNodes();
-	ContentHighlighter.removeHighlightNodes();
+	getHighlighter().removeHighlightNodes();
 	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 	document.normalize();
 };

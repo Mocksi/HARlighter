@@ -31,10 +31,11 @@ class Highlighter {
 	};
 }
 
-export let ContentHighlighter: Highlighter;
+let ContentHighlighter: Highlighter;
 
-export const initHighlighter = () => {
+export const getHighlighter = () => {
 	if (!ContentHighlighter) ContentHighlighter = new Highlighter();
+	return ContentHighlighter;
 }
 
 const highlight = ({
