@@ -9,7 +9,7 @@ class UniversalReplace {
 	addPattern(pattern: string | RegExp, replace: string) {
 		const replacePattern = { pattern: toRegExpPattern(pattern), replace };
 		this.patterns.push(replacePattern);
-		this.seekAndReplace(replacePattern.pattern, replacePattern.replace);
+		this.seekAndReplaceAllPage(replacePattern.pattern, replacePattern.replace);
 	}
 
 	removePattern(pattern: string | RegExp) {
@@ -27,51 +27,35 @@ class UniversalReplace {
 		}
 	}
 
-	seekAndReplace(pattern: RegExp, newText: string) {
+	seekAndReplaceAllPage(pattern: RegExp, newText: string) {
 		const body = document.querySelector("body");
 		if (!body) {
 			console.log("Body not found");
 			return;
 		}
+		this.iterateAndReplace(body, pattern, newText, true)
+	}
+
+	iterateAndReplace(rootNode: Node, oldValueInPattern: RegExp, newText: string, highlightReplacements: boolean) {
 		const fragmentsToHighlight: Node[] = [];
 		const replacements: { nodeToReplace: Node; replacement: Node }[] = [];
-		createTreeWalker(body, (textNode) => {
-			if (!textNode.nodeValue) {
-				return;
-			}
-			const matches = [...textNode.nodeValue.matchAll(pattern)];
-			if (matches.length > 0) {
-				const fragmentedTextNode = fragmentTextNode(
-					fragmentsToHighlight,
-					matches,
-					textNode,
-					newText,
-				);
-				replacements.push({
-					nodeToReplace: textNode,
-					replacement: fragmentedTextNode as Node,
-				});
-				saveModification(
-					textNode.parentElement as HTMLElement,
-					newText,
-					cleanPattern(pattern),
-				);
-			}
+		createTreeWalker(rootNode, (textNode) => {
+			fillReplacements(textNode, oldValueInPattern, newText, fragmentsToHighlight, replacements)
 		});
-
 		for (const { nodeToReplace, replacement } of replacements) {
 			// The only case where the parentElement is null is when a node is removed from the body.
 			// Because of this, it's safe to ignore.
 			if (nodeToReplace.parentElement == null) {
 				continue;
 			}
-
 			nodeToReplace.parentElement.replaceChild(replacement, nodeToReplace);
 		}
-		//biome-ignore lint/complexity/noForEach: I'll replace later
-		fragmentsToHighlight.forEach((fragment) =>
-			ContentHighlighter.highlightNode(fragment),
-		);
+		if (highlightReplacements) {
+			//biome-ignore lint/complexity/noForEach: I'll replace later
+			fragmentsToHighlight.forEach((fragment) =>
+				ContentHighlighter.highlightNode(fragment),
+			);
+		}
 	}
 
 	// TODO need to execute this when the user presses "play"
@@ -143,6 +127,30 @@ const createTreeWalker = (
 		iterator(textNode);
 	} while (treeWalker.nextNode());
 };
+
+const fillReplacements = (textNode: Node, oldTextPattern: RegExp, newText: string, fragmentsToHighlight: Node[], replacements: { nodeToReplace: Node; replacement: Node }[]) => {
+	if (!textNode || !textNode.nodeValue) {
+		return;
+	}
+	const matches = [...textNode.nodeValue.matchAll(oldTextPattern)];
+	if (matches.length > 0) {
+		const fragmentedTextNode = fragmentTextNode(
+			fragmentsToHighlight,
+			matches,
+			textNode,
+			newText,
+		);
+		replacements.push({
+			nodeToReplace: textNode,
+			replacement: fragmentedTextNode as Node,
+		});
+		saveModification(
+			textNode.parentElement as HTMLElement,
+			newText,
+			cleanPattern(oldTextPattern),
+		);
+	}
+}
 
 const replaceFirstLetterCase = (value: string) => {
 	return (match: string) => {

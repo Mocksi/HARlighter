@@ -20,6 +20,7 @@ const DemoItem = ({
 	url,
 }: DemoItemProps) => {
 	const handleEdit = () => {
+		loadAlterations(alterations)
 		setEditorMode(true, uuid);
 		setState(RecordingState.EDITING);
 	};

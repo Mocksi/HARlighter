@@ -11,6 +11,8 @@ import {
 	RecordingState,
 	SignupURL,
 } from "./consts";
+import { fragmentTextNode } from "./content/EditMode/actions";
+import UniversalReplacer from "./universalReplace";
 
 type DOMModificationsType = {
 	[querySelector: string]: { nextText: string; previousText: string };
@@ -81,7 +83,8 @@ export const loadAlterations = (alterations: Alteration[] | null) => {
 	}
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before } = alteration;
-		modifyElementInnerHTML(selector, dom_before, sanitizeHtml(dom_after));
+		const elemToModify = getHTMLElementFromSelector(selector)
+		UniversalReplacer.iterateAndReplace(elemToModify as Node, new RegExp(dom_before, "gi"), sanitizeHtml(dom_after), true)
 	}
 };
 
@@ -90,56 +93,11 @@ export const loadPreviousModifications = () => {
 	for (const modification of Object.entries(domainModifications)) {
 		const [querySelector, { previousText, nextText }] = modification;
 		const sanitizedPreviousText = sanitizeHtml(previousText);
+		const elemToModify = getHTMLElementFromSelector(querySelector)
 		// here newText and previous is in altered order because we want to revert the changes
-		modifyElementInnerHTML(querySelector, nextText, sanitizedPreviousText);
-	}
-};
-
-const modifyElementInnerHTML = (
-	selector: string,
-	oldContent: string,
-	newContent: string,
-) => {
-	// querySelector format {htmlElementType}#{elementId}.{elementClassnames}[${elementIndexIfPresent}]{{newValue}}
-	const hasIndex = selector.match(/\[[0-9]+\]/);
-	const valueInQuerySelector = selector.match(/\{[a-zA-Z0-9 ]+\}/); // add spaces to pattern
-	let elemToModify: Element | null;
-	// FIXME: this needs to be refactored
-	if (hasIndex) {
-		// with all this replaces, we should build a formatter
-		const filteredQuerySelector = formatQuerySelector(
-			selector,
-			valueInQuerySelector,
-			hasIndex,
-		);
-		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
-		// FIXME: lots of duplicated code here
-		try {
-			elemToModify = document.querySelectorAll(filteredQuerySelector)[index];
-		} catch (e: unknown) {
-			if (e instanceof Error) {
-				console.error(`Error querying selector: ${e}`);
-			}
-
-			elemToModify = null;
+		if (elemToModify) {
+			elemToModify.innerHTML = elemToModify.innerHTML.replaceAll(nextText, sanitizedPreviousText)
 		}
-	} else {
-		// FIXME: lots of duplicated code here
-		try {
-			elemToModify = document.querySelector(
-				formatQuerySelector(selector, valueInQuerySelector, null),
-			);
-		} catch (e: unknown) {
-			if (e instanceof Error) {
-				console.error(`Error querying selector: ${e}`);
-			}
-			elemToModify = null;
-		}
-	}
-	const sanitizedNewContent = sanitizeHtml(newContent);
-	if (elemToModify?.innerHTML) {
-		elemToModify.innerHTML =
-			elemToModify.innerHTML.replaceAll(oldContent, sanitizedNewContent) || "";
 	}
 };
 
@@ -148,18 +106,33 @@ const formatQuerySelector = (
 	valueInQuerySelector: RegExpMatchArray | null,
 	hasIndex: RegExpMatchArray | null,
 ) => {
-	if (hasIndex) {
-		return valueInQuerySelector
-			? rawSelector
-					.replace(hasIndex[0], "")
-					.replace(valueInQuerySelector[0], "")
-			: rawSelector.replace(hasIndex[0], "");
-	}
-
-	return valueInQuerySelector
-		? rawSelector.replace(valueInQuerySelector[0], "")
-		: rawSelector;
+	// querySelector format {htmlElementType}#{elementId}.{elementClassnames}[${elementIndexIfPresent}]{{newValue}}
+	const [index] = hasIndex || ['']
+	const [value] = valueInQuerySelector || [''] 
+	return rawSelector
+		.replace(index, "")
+		.replace(value, "")
 };
+
+const getHTMLElementFromSelector = (unfomattedSelector: string): Element | null => {
+	const hasIndex = unfomattedSelector.match(/\[[0-9]+\]/);
+	const valueInQuerySelector = unfomattedSelector.match(/\{.+\}/);
+	const formattedSelector = formatQuerySelector(unfomattedSelector, hasIndex, valueInQuerySelector)
+	let elemToModify: NodeListOf<Element> | null;
+	try {
+		elemToModify = document.querySelectorAll(formattedSelector);
+	} catch (e: unknown) {
+		if (e instanceof Error) {
+			console.error(`Error querying selector: ${e}`);
+		}
+		elemToModify = null;
+	}
+	if (elemToModify) {
+		const index = hasIndex ? +hasIndex[0].replace("[", "").replace("]", "") : 0;
+		return elemToModify[index]
+	} 
+	return elemToModify
+}
 
 export const sendMessage = (
 	message: string,
