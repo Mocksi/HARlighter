@@ -1,9 +1,8 @@
 {
-  "extends": "@repo/typescript-config/base.json",
-  "compilerOptions": {
-    "outDir": "dist"
-  },
-  "include": ["index.ts", "receivers", "utils", "commands"],
-  "exclude": ["node_modules", "dist", "test"]
+	"extends": "@repo/typescript-config/base.json",
+	"compilerOptions": {
+		"outDir": "dist"
+	},
+	"include": ["index.ts", "receivers", "utils", "commands"],
+	"exclude": ["node_modules", "dist", "test"]
 }
-

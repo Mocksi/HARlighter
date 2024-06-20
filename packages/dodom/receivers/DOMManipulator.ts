@@ -1,10 +1,33 @@
-import { fragmentTextNode } from "./content/EditMode/actions";
-import { ContentHighlighter } from "./content/EditMode/highlighter";
-import { saveModification } from "./utils";
+type FragmentTextNode = (
+	fragmentsToHighlight: Node[],
+	matches: RegExpMatchArray[],
+	textNode: Node,
+	newText: string,
+) => DocumentFragment | null;
 
-class UniversalReplace {
-	observer: MutationObserver | undefined;
-	patterns: { pattern: RegExp; replace: string }[] = [];
+interface ContentHighlighterInterface {
+	highlightNode(node: Node): void;
+}
+
+type SaveModification = (
+	element: HTMLElement,
+	newText: string,
+	cleanPattern: string,
+) => void;
+
+export class DOMManipulator {
+	private observer: MutationObserver | undefined;
+	private patterns: { pattern: RegExp; replace: string }[] = [];
+
+	constructor(
+		private fragmentTextNode: FragmentTextNode,
+		private contentHighlighter: ContentHighlighterInterface,
+		private saveModification: SaveModification,
+	) {}
+
+	getPatternCount() {
+		return this.patterns.length;
+	}
 
 	addPattern(pattern: string | RegExp, replace: string) {
 		const replacePattern = { pattern: toRegExpPattern(pattern), replace };
@@ -41,7 +64,7 @@ class UniversalReplace {
 			}
 			const matches = [...textNode.nodeValue.matchAll(pattern)];
 			if (matches.length > 0) {
-				const fragmentedTextNode = fragmentTextNode(
+				const fragmentedTextNode = this.fragmentTextNode(
 					fragmentsToHighlight,
 					matches,
 					textNode,
@@ -51,7 +74,7 @@ class UniversalReplace {
 					nodeToReplace: textNode,
 					replacement: fragmentedTextNode as Node,
 				});
-				saveModification(
+				this.saveModification(
 					textNode.parentElement as HTMLElement,
 					newText,
 					cleanPattern(pattern),
@@ -60,44 +83,51 @@ class UniversalReplace {
 		});
 
 		for (const { nodeToReplace, replacement } of replacements) {
-			// The only case where the parentElement is null is when a node is removed from the body.
-			// Because of this, it's safe to ignore.
 			if (nodeToReplace.parentElement == null) {
 				continue;
 			}
-
 			nodeToReplace.parentElement.replaceChild(replacement, nodeToReplace);
 		}
-		//biome-ignore lint/complexity/noForEach: I'll replace later
-		fragmentsToHighlight.forEach((fragment) =>
-			ContentHighlighter.highlightNode(fragment),
-		);
+
+		for (const fragment of fragmentsToHighlight) {
+			this.contentHighlighter.highlightNode(fragment);
+		}
 	}
 
-	// TODO need to execute this when the user presses "play"
 	createObserver() {
-		this.observer = new MutationObserver((mutations) => {
-			for (const mutation of mutations) {
-				if (mutation.addedNodes != null && mutation.addedNodes.length > 0) {
-					for (const node of mutation.addedNodes) {
-						createTreeWalker(node, (textNode) => {
-							if (!textNode.textContent || !textNode.nodeValue) {
-								return null;
-							}
+		this.observer = new MutationObserver(this.handleMutations.bind(this));
+		this.observer.observe(document, { childList: true, subtree: true });
+	}
 
-							const replace = this.matchReplacePattern(textNode.textContent);
-							if (replace) {
-								textNode.nodeValue = textNode.nodeValue.replace(
-									replace.pattern,
-									replaceFirstLetterCase(replace.replace),
-								);
-							}
-						});
-					}
-				}
+	handleMutations(mutations: MutationRecord[]) {
+		for (const mutation of mutations) {
+			this.handleMutation(mutation);
+		}
+	}
+
+	handleMutation(mutation: MutationRecord) {
+		if (mutation.addedNodes == null || mutation.addedNodes.length === 0) {
+			return;
+		}
+		for (const node of mutation.addedNodes) {
+			this.handleAddedNode(node);
+		}
+	}
+
+	handleAddedNode(node: Node) {
+		createTreeWalker(node, (textNode) => {
+			if (!textNode.textContent || !textNode.nodeValue) {
+				return;
+			}
+
+			const replace = this.matchReplacePattern(textNode.textContent);
+			if (replace) {
+				textNode.nodeValue = textNode.nodeValue.replace(
+					replace.pattern,
+					replaceFirstLetterCase(replace.replace),
+				);
 			}
 		});
-		this.observer.observe(document, { childList: true, subtree: true });
 	}
 
 	matchReplacePattern(
@@ -110,6 +140,16 @@ class UniversalReplace {
 		}
 
 		return null;
+	}
+
+	replaceImage(oldSrc: string, newSrc: string) {
+		const images = document.querySelectorAll(
+			`img[src="${oldSrc}"]`,
+		) as NodeListOf<HTMLImageElement>;
+		for (const img of images) {
+			img.src = newSrc;
+			this.saveModification(img, newSrc, oldSrc);
+		}
 	}
 }
 
@@ -144,11 +184,13 @@ const createTreeWalker = (
 	} while (treeWalker.nextNode());
 };
 
-const replaceFirstLetterCase = (value: string) => {
+export const replaceFirstLetterCase = (value: string) => {
 	return (match: string) => {
-		// Check if the first letter in the match is uppercase
-		if (match[0] === match[0].toUpperCase()) {
-			return value.charAt(0).toUpperCase() + value.slice(1);
+		if (match[0]?.toLowerCase() !== match[0]?.toUpperCase()) {
+			// Check if the first character is alphabetical
+			if (match[0] === match[0]?.toUpperCase()) {
+				return value.charAt(0).toUpperCase() + value.slice(1);
+			}
 		}
 		return value;
 	};
@@ -161,5 +203,3 @@ const toRegExpPattern = (pattern: string | RegExp) => {
 
 	return pattern;
 };
-
-export default new UniversalReplace();
