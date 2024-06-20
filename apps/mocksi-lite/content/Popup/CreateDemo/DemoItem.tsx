@@ -21,7 +21,7 @@ const DemoItem = ({
 }: DemoItemProps) => {
 	const handleEdit = () => {
 		setEditorMode(true, uuid);
-		loadAlterations(alterations);
+		loadAlterations(alterations, true);
 		setState(RecordingState.EDITING);
 	};
 
@@ -47,7 +47,7 @@ const DemoItem = ({
 				</Button>
 				<Button
 					variant={Variant.icon}
-					onClick={() => loadAlterations(alterations)}
+					onClick={() => loadAlterations(alterations, false)}
 					disabled={
 						!url.includes(window.location.hostname) ||
 						!alterations ||

@@ -83,7 +83,7 @@ export const undoModifications = () => {
 };
 
 // v2 of loading alterations, this is from backend
-export const loadAlterations = (alterations: Alteration[] | null) => {
+export const loadAlterations = (alterations: Alteration[] | null, withHighlights: boolean) => {
 	undoModifications()
 	if (!alterations?.length) {
 		// FIXME: we should warn the user that there are no alterations for this demo
@@ -101,7 +101,7 @@ export const loadAlterations = (alterations: Alteration[] | null) => {
 			elemToModify as Node,
 			new RegExp(dom_before, "gi"),
 			sanitizeHtml(dom_after),
-			true,
+			withHighlights,
 		);
 	}
 };
