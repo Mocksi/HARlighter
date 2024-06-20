@@ -56,14 +56,27 @@ export class DOMManipulator {
 			console.log("Body not found");
 			return;
 		}
-		this.iterateAndReplace(body, pattern, newText, true)
+		this.iterateAndReplace(body, pattern, newText, true);
 	}
 
-	iterateAndReplace(rootNode: Node, oldValueInPattern: RegExp, newText: string, highlightReplacements: boolean) {
+	iterateAndReplace(
+		rootNode: Node,
+		oldValueInPattern: RegExp,
+		newText: string,
+		highlightReplacements: boolean,
+	) {
 		const fragmentsToHighlight: Node[] = [];
 		const replacements: { nodeToReplace: Node; replacement: Node }[] = [];
 		createTreeWalker(rootNode, (textNode) => {
-			fillReplacements(textNode, oldValueInPattern, newText, fragmentsToHighlight, replacements, this.fragmentTextNode, this.saveModification)
+			fillReplacements(
+				textNode,
+				oldValueInPattern,
+				newText,
+				fragmentsToHighlight,
+				replacements,
+				this.fragmentTextNode,
+				this.saveModification,
+			);
 		});
 		for (const { nodeToReplace, replacement } of replacements) {
 			if (nodeToReplace.parentElement == null) {
@@ -170,14 +183,14 @@ const createTreeWalker = (
 };
 
 const fillReplacements = (
-		textNode: Node,
-		oldTextPattern: RegExp,
-		newText: string,
-		fragmentsToHighlight: Node[],
-		replacements: { nodeToReplace: Node; replacement: Node }[],
-		fragmentTextNode: FragmentTextNode,
-		saveModification: SaveModification
-	) => {
+	textNode: Node,
+	oldTextPattern: RegExp,
+	newText: string,
+	fragmentsToHighlight: Node[],
+	replacements: { nodeToReplace: Node; replacement: Node }[],
+	fragmentTextNode: FragmentTextNode,
+	saveModification: SaveModification,
+) => {
 	if (!textNode || !textNode.nodeValue) {
 		return;
 	}
@@ -199,7 +212,7 @@ const fillReplacements = (
 			cleanPattern(oldTextPattern),
 		);
 	}
-}
+};
 
 const replaceFirstLetterCase = (value: string) => {
 	return (match: string) => {
