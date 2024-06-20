@@ -1,7 +1,13 @@
+import { useEffect, useState } from "react";
+import type { Recording } from "../../background";
 import Button, { Variant } from "../../common/Button";
 import TextField from "../../common/TextField";
 import { RecordingState } from "../../consts";
-import { sendMessage } from "../../utils";
+import {
+	getRecordingsStorage,
+	loadRecordingId,
+	sendMessage,
+} from "../../utils";
 import { setEditorMode } from "../EditMode/editMode";
 import Divider from "../Popup/Divider";
 import Toast from "./index";
@@ -12,6 +18,18 @@ interface HiddenToastProps {
 }
 
 const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
+	const [data, setData] = useState<Recording>();
+
+	const getData = async () => {
+		const recordingId = await loadRecordingId();
+		const recordings = await getRecordingsStorage();
+		return recordings.find((record) => record.uuid === recordingId);
+	};
+
+	useEffect(() => {
+		getData().then((res) => setData(res));
+	}, [getData]);
+
 	const handleEdit = () => {
 		sendMessage("resetIcon");
 		onChangeState(RecordingState.EDITING);
@@ -26,8 +44,8 @@ const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
 	return (
 		<Toast className="flex-col py-4 w-[244px] mr-6 mt-1">
 			<div className="flex flex-col gap-1 items-center mb-4">
-				<TextField variant={"title"}>demo name</TextField>
-				<TextField>customer nbame</TextField>
+				<TextField variant={"title"}>{data?.demo_name ?? ""}</TextField>
+				<TextField>{data?.customer_name ?? data?.url ?? ""}</TextField>
 			</div>
 			<Divider />
 			<div className="flex flex-col items-center gap-1 mt-4">

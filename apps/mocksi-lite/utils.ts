@@ -9,6 +9,7 @@ import {
 } from "./commands/Command";
 import {
 	MOCKSI_MODIFICATIONS,
+	MOCKSI_RECORDING_ID,
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
 	STORAGE_KEY,
@@ -245,6 +246,14 @@ export const getRecordingsStorage = async (): Promise<Recording[]> => {
 		console.error("Failed to retrieve recordings:", err);
 		throw err;
 	}
+};
+
+export const loadRecordingId = async () => {
+	return new Promise<string | undefined>((resolve) => {
+		chrome.storage.local.get([MOCKSI_RECORDING_ID], (result) => {
+			resolve(result[MOCKSI_RECORDING_ID]);
+		});
+	});
 };
 
 export const recordingLabel = (currentStatus: RecordingState) => {

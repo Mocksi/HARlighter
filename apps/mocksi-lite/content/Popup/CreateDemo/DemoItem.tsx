@@ -10,7 +10,6 @@ import { setEditorMode } from "../../EditMode/editMode";
 interface DemoItemProps extends Recording {
 	setState: (r: RecordingState) => void;
 }
-
 const DemoItem = ({
 	uuid,
 	demo_name,

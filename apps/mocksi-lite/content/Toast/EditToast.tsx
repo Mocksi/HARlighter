@@ -1,8 +1,8 @@
 import { useState } from "react";
 import TextField from "../../common/TextField";
-import { MOCKSI_RECORDING_ID, RecordingState } from "../../consts";
+import { RecordingState } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
-import { recordingLabel } from "../../utils";
+import { loadRecordingId, recordingLabel } from "../../utils";
 import { setEditorMode } from "../EditMode/editMode";
 import { ContentHighlighter } from "../EditMode/highlighter";
 import Toast from "./index";
@@ -22,27 +22,19 @@ const EditToast = ({ state, onChangeState }: EditToastProps) => {
 		});
 	};
 
-	const loadRecordingId = async () => {
-		return new Promise<string | undefined>((resolve) => {
-			chrome.storage.local.get([MOCKSI_RECORDING_ID], (result) => {
-				resolve(result[MOCKSI_RECORDING_ID]);
-			});
-		});
+	const handleClose = async () => {
+		onChangeState(RecordingState.CREATE);
+		const recordingId = await loadRecordingId();
+		setEditorMode(false, recordingId);
 	};
 	return (
 		<Toast className={"mt-3 min-w-64 p-3 flex flex-row items-center gap-6"}>
 			<div
 				className="cursor-pointer"
-				onClick={async () => {
-					onChangeState(RecordingState.CREATE);
-					const recordingId = await loadRecordingId();
-					setEditorMode(false, recordingId);
-				}}
+				onClick={handleClose}
 				onKeyUp={async (event) => {
 					if (event.key === "Escape") {
-						onChangeState(RecordingState.CREATE);
-						const recordingId = await loadRecordingId();
-						setEditorMode(false, recordingId);
+						handleClose();
 					}
 				}}
 			>
