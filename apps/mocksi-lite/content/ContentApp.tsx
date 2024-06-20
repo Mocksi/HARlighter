@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
-import { setRootPosition } from "../utils";
+import {useEffect, useState} from "react";
+import {MOCKSI_RECORDING_STATE, RecordingState} from "../consts";
+import {setRootPosition} from "../utils";
 import Popup from "./Popup";
 import EditToast from "./Toast/EditToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
+import HiddenToast from "./Toast/HiddenToast";
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -59,6 +60,12 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 			/>
 		);
 	}
+
+  if (state === RecordingState.HIDDEN) {
+    return (
+      <HiddenToast onChangeState={onChangeState} close={() => setIsDialogOpen(false)} />
+    )
+  }
 
 	return (
 		<RecordingToast

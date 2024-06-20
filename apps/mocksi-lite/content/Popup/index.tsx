@@ -17,12 +17,9 @@ interface PopupProps {
 const Popup = ({ close, setState, state, email }: PopupProps) => {
 	const [createForm, setCreateForm] = useState<boolean>(false);
 
-	// NOTE: useEffect will retrigger on every render, because there is no second argument. This is fine because the debounce function will prevent the sendMessage from being called too often.
 	useEffect(() => {
-		debounce_leading(() => {
-			sendMessage("getRecordings");
-		}, 500);
-	});
+    sendMessage("getRecordings");
+	}, []);
 	const renderContent = () => {
 		switch (state) {
 			case RecordingState.CREATE:

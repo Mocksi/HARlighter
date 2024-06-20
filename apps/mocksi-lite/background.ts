@@ -335,6 +335,22 @@ chrome.runtime.onMessage.addListener(
 			return true;
 		}
 
+    if (request.message === "updateToPauseIcon") {
+      chrome.action.setIcon({path: "./public/pause-icon.png"});
+      return true;
+    }
+
+    if (request.message === "updateToPlayIcon") {
+      chrome.action.setIcon({path: "./public/play-icon.png"});
+      return true;
+    }
+
+    if (request.message === "resetIcon") {
+      console.log("reset icon")
+      chrome.action.setIcon({path: "./public/icon/icon128"})
+      return true;
+    }
+
 		sendResponse({ message: request.message, status: "fail" });
 		return false; // No async response for other messages
 	},

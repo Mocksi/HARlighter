@@ -1,10 +1,6 @@
 import ReactDOM from "react-dom/client";
-import {
-	MOCKSI_RECORDING_STATE,
-	RecordingState,
-	STORAGE_CHANGE_EVENT,
-} from "../consts";
-import { getEmail, setRootPosition } from "../utils";
+import {MOCKSI_RECORDING_STATE, RecordingState, STORAGE_CHANGE_EVENT,} from "../consts";
+import {getEmail, sendMessage, setRootPosition} from "../utils";
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
@@ -26,22 +22,27 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		}
 		root = ReactDOM.createRoot(extensionRoot);
 		getEmail().then((email) => {
-			const recordingState = localStorage.getItem(
-				MOCKSI_RECORDING_STATE,
-			) as RecordingState | null;
-			if (email && !recordingState) {
-				// we need to initialize recordingState if there's none.
-				chrome.storage.local.set({
-					[MOCKSI_RECORDING_STATE]: RecordingState.READY,
-				});
-			}
-			if (recordingState === RecordingState.EDITING) {
-				chrome.storage.local.set({
-					[MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
-				});
-			}
-			setRootPosition(recordingState);
-			root.render(<ContentApp isOpen={true} email={email || ""} />);
+      chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
+        const recordingState: RecordingState|null = results[MOCKSI_RECORDING_STATE];
+        console.log({recordingState})
+        if (email && !recordingState) {
+          // we need to initialize recordingState if there's none.
+          chrome.storage.local.set({
+            [MOCKSI_RECORDING_STATE]: RecordingState.READY,
+          });
+        }
+        if (recordingState === RecordingState.EDITING) {
+          chrome.storage.local.set({
+            [MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
+          });
+        }
+        if (recordingState === RecordingState.HIDDEN) {
+          sendMessage("updateToPlayIcon");
+        }
+        setRootPosition(recordingState);
+        root.render(<ContentApp isOpen={true} email={email || ""} />);
+
+      })
 		});
 	}
 	sendResponse({ status: "success" });
