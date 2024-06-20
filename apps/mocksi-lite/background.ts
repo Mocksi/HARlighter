@@ -346,7 +346,7 @@ chrome.runtime.onMessage.addListener(
 		}
 
 		if (request.message === "resetIcon") {
-			chrome.action.setIcon({ path: "./public/mocksi-icon" });
+			chrome.action.setIcon({ path: "./public/mocksi-icon.png" });
 			return true;
 		}
 
