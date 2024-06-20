@@ -1,3 +1,4 @@
+import { DOMManipulator } from "@repo/dodom";
 import sanitizeHtml from "sanitize-html";
 import MocksiRollbar from "./MocksiRollbar";
 import type { Alteration } from "./background";
@@ -14,7 +15,6 @@ import {
 	STORAGE_KEY,
 	SignupURL,
 } from "./consts";
-import { DOMManipulator } from "@repo/dodom";
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
 
@@ -85,11 +85,20 @@ export const loadAlterations = (alterations: Alteration[] | null) => {
 		// FIXME: we should warn the user that there are no alterations for this demo
 		return [] as Alteration[];
 	}
-	const domManipulator = new DOMManipulator(fragmentTextNode, getHighlighter(), saveModification)
+	const domManipulator = new DOMManipulator(
+		fragmentTextNode,
+		getHighlighter(),
+		saveModification,
+	);
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before } = alteration;
-		const elemToModify = getHTMLElementFromSelector(selector)
-		domManipulator.iterateAndReplace(elemToModify as Node, new RegExp(dom_before, "gi"), sanitizeHtml(dom_after), true)
+		const elemToModify = getHTMLElementFromSelector(selector);
+		domManipulator.iterateAndReplace(
+			elemToModify as Node,
+			new RegExp(dom_before, "gi"),
+			sanitizeHtml(dom_after),
+			true,
+		);
 	}
 };
 
@@ -98,10 +107,13 @@ export const loadPreviousModifications = () => {
 	for (const modification of Object.entries(domainModifications)) {
 		const [querySelector, { previousText, nextText }] = modification;
 		const sanitizedPreviousText = sanitizeHtml(previousText);
-		const elemToModify = getHTMLElementFromSelector(querySelector)
+		const elemToModify = getHTMLElementFromSelector(querySelector);
 		// here newText and previous is in altered order because we want to revert the changes
 		if (elemToModify) {
-			elemToModify.innerHTML = elemToModify.innerHTML.replaceAll(nextText, sanitizedPreviousText)
+			elemToModify.innerHTML = elemToModify.innerHTML.replaceAll(
+				nextText,
+				sanitizedPreviousText,
+			);
 		}
 	}
 };
@@ -112,17 +124,21 @@ const formatQuerySelector = (
 	hasIndex: RegExpMatchArray | null,
 ) => {
 	// querySelector format {htmlElementType}#{elementId}.{elementClassnames}[${elementIndexIfPresent}]{{newValue}}
-	const [index] = hasIndex || ['']
-	const [value] = valueInQuerySelector || [''] 
-	return rawSelector
-		.replace(index, "")
-		.replace(value, "")
+	const [index] = hasIndex || [""];
+	const [value] = valueInQuerySelector || [""];
+	return rawSelector.replace(index, "").replace(value, "");
 };
 
-const getHTMLElementFromSelector = (unfomattedSelector: string): Element | null => {
+const getHTMLElementFromSelector = (
+	unfomattedSelector: string,
+): Element | null => {
 	const hasIndex = unfomattedSelector.match(/\[[0-9]+\]/);
 	const valueInQuerySelector = unfomattedSelector.match(/\{.+\}/);
-	const formattedSelector = formatQuerySelector(unfomattedSelector, hasIndex, valueInQuerySelector)
+	const formattedSelector = formatQuerySelector(
+		unfomattedSelector,
+		hasIndex,
+		valueInQuerySelector,
+	);
 	let elemToModify: NodeListOf<Element> | null;
 	try {
 		elemToModify = document.querySelectorAll(formattedSelector);
@@ -134,10 +150,10 @@ const getHTMLElementFromSelector = (unfomattedSelector: string): Element | null 
 	}
 	if (elemToModify) {
 		const index = hasIndex ? +hasIndex[0].replace("[", "").replace("]", "") : 0;
-		return elemToModify[index]
-	} 
-	return elemToModify
-}
+		return elemToModify[index];
+	}
+	return elemToModify;
+};
 
 export const sendMessage = (
 	message: string,
@@ -210,7 +226,7 @@ export const getEmail = async (): Promise<string | null> => {
 export const getRecordingsStorage = async (): Promise<Recording[]> => {
 	try {
 		const results = await chrome.storage.local.get(["recordings"]);
-		console.log('results', results.recordings);
+		console.log("results", results.recordings);
 		if (results.recordings) {
 			return JSON.parse(results.recordings);
 		}

@@ -40,7 +40,7 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 	const [state, setState] = useState<RecordingState>(
 		RecordingState.UNAUTHORIZED,
 	);
-	const ContentHighlighter = getHighlighter()
+	const ContentHighlighter = getHighlighter();
 
 	useEffect(() => {
 		// Load initial state from chrome storage

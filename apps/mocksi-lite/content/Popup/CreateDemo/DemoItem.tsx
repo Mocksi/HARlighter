@@ -21,7 +21,7 @@ const DemoItem = ({
 }: DemoItemProps) => {
 	const handleEdit = () => {
 		setEditorMode(true, uuid);
-		loadAlterations(alterations)
+		loadAlterations(alterations);
 		setState(RecordingState.EDITING);
 	};
 
