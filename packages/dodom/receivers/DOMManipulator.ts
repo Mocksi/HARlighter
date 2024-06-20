@@ -3,7 +3,7 @@ type FragmentTextNode = (
 	matches: RegExpMatchArray[],
 	textNode: Node,
 	newText: string,
-) => Node;
+) => DocumentFragment | null;
 
 interface ContentHighlighterInterface {
 	highlightNode(node: Node): void;
@@ -15,7 +15,7 @@ type SaveModification = (
 	cleanPattern: string,
 ) => void;
 
-class DomManipulator {
+export class DOMManipulator {
 	private observer: MutationObserver | undefined;
 	private patterns: { pattern: RegExp; replace: string }[] = [];
 
@@ -203,5 +203,3 @@ const toRegExpPattern = (pattern: string | RegExp) => {
 
 	return pattern;
 };
-
-export default DomManipulator;

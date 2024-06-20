@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import DomManipulator from "../../receivers/DOMManipulator";
+import { DOMManipulator } from "../../receivers/DOMManipulator";
 import { replaceFirstLetterCase } from "../../receivers/DOMManipulator";
 
 const mockFragmentTextNode = vi.fn();
@@ -16,11 +16,11 @@ global.MutationObserver = vi.fn(function MutationObserver(callback) {
 	};
 });
 
-describe("DomManipulator", () => {
-	let domManipulator: DomManipulator;
+describe("DOMManipulator", () => {
+	let domManipulator: DOMManipulator;
 
 	beforeEach(() => {
-		domManipulator = new DomManipulator(
+		domManipulator = new DOMManipulator(
 			mockFragmentTextNode,
 			mockContentHighlighter,
 			mockSaveModification,

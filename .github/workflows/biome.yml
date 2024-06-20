@@ -24,3 +24,5 @@ jobs:
           working-dir: "/"
       - name: Run Biome mocksi-lite
         run: biome ci ./apps/mocksi-lite
+      - name: Run Biome dodom
+        run: biome ci ./packages/dodom

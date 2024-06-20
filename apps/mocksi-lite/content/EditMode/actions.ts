@@ -1,4 +1,6 @@
-import UniversalReplace from "../../universalReplace";
+import { ContentHighlighter } from "./highlighter";
+import { saveModification } from "../../utils";
+import { DOMManipulator } from "@repo/dodom";
 
 export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 	if (nodeWithTextArea) {
@@ -19,7 +21,13 @@ export function applyChanges(
 ) {
 	if (nodeWithTextArea) {
 		cancelEditWithoutChanges(nodeWithTextArea);
-		UniversalReplace.addPattern(oldValue, newValue);
+		// TODO: check if we should keep the singleton behavior we had before
+		const domManipulator = new DOMManipulator(
+			fragmentTextNode,
+			ContentHighlighter,
+			saveModification,
+		);
+		domManipulator.addPattern(oldValue, newValue);
 	}
 }
 
@@ -29,8 +37,9 @@ export function fragmentTextNode(
 	textNode: Node,
 	newText: string,
 ) {
+	const fragment = document.createDocumentFragment();
 	if (!textNode.nodeValue) {
-		return null;
+		return fragment;
 	}
 	const baseFragment = document.createDocumentFragment();
 	let cursor = 0;
