@@ -77,14 +77,17 @@ export const persistModifications = (recordingId: string) => {
 export const undoModifications = () => {
 	loadPreviousModifications();
 	chrome.storage.local.remove(MOCKSI_MODIFICATIONS);
-	getHighlighter().removeHighlightNodes()
+	getHighlighter().removeHighlightNodes();
 	// clean the domainModifications
-	domainModifications = {}
+	domainModifications = {};
 };
 
 // v2 of loading alterations, this is from backend
-export const loadAlterations = (alterations: Alteration[] | null, withHighlights: boolean) => {
-	undoModifications()
+export const loadAlterations = (
+	alterations: Alteration[] | null,
+	withHighlights: boolean,
+) => {
+	undoModifications();
 	if (!alterations?.length) {
 		// FIXME: we should warn the user that there are no alterations for this demo
 		return [] as Alteration[];
