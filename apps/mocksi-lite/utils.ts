@@ -43,7 +43,7 @@ export const logout = () => {
 
 const commandsExecuted: Command[] = [];
 
-const domainModifications: DOMModificationsType = {};
+let domainModifications: DOMModificationsType = {};
 
 export const saveModification = (
 	parentElement: HTMLElement,
@@ -77,10 +77,14 @@ export const persistModifications = (recordingId: string) => {
 export const undoModifications = () => {
 	loadPreviousModifications();
 	chrome.storage.local.remove(MOCKSI_MODIFICATIONS);
+	getHighlighter().removeHighlightNodes()
+	// clean the domainModifications
+	domainModifications = {}
 };
 
 // v2 of loading alterations, this is from backend
 export const loadAlterations = (alterations: Alteration[] | null) => {
+	undoModifications()
 	if (!alterations?.length) {
 		// FIXME: we should warn the user that there are no alterations for this demo
 		return [] as Alteration[];
