@@ -1,13 +1,10 @@
 import ReactDOM from "react-dom/client";
-import MocksiRollbar from "../MocksiRollbar";
 import {
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
 	STORAGE_CHANGE_EVENT,
-	STORAGE_KEY,
-	SignupURL,
 } from "../consts";
-import { setRootPosition } from "../utils";
+import { getEmail, setRootPosition } from "../utils";
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
@@ -28,47 +25,24 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			root.unmount();
 		}
 		root = ReactDOM.createRoot(extensionRoot);
-
-		chrome.storage.local
-			.get([STORAGE_KEY, MOCKSI_RECORDING_STATE])
-			.then((value) => {
-				let parsedData: { email: string } | undefined;
-				const storedData = value[STORAGE_KEY] || "{}";
-				try {
-					parsedData = JSON.parse(storedData);
-				} catch (error) {
-					console.log("Error parsing data from storage: ", error);
-					throw new Error("could not parse data from storage.");
-				}
-
-				if (parsedData === undefined || !parsedData.email) {
-					throw new Error("No email found in storage.");
-				}
-
-				const { email } = parsedData || {};
-				const recordingState = value[
-					MOCKSI_RECORDING_STATE
-				] as RecordingState | null;
-
-				if (email) {
-					if (!recordingState) {
-						chrome.storage.local.set({
-							[MOCKSI_RECORDING_STATE]: RecordingState.READY,
-						});
-					}
-				}
-
-				if (recordingState) {
-					setRootPosition(recordingState);
-				}
-
-				root.render(<ContentApp isOpen={true} email={email || ""} />);
-			})
-			.catch((error) => {
-				chrome.storage.local.clear();
-				console.log("Error getting data from storage: ", error);
-				window.open(SignupURL);
-			});
+		getEmail().then((email) => {
+			const recordingState = localStorage.getItem(
+				MOCKSI_RECORDING_STATE,
+			) as RecordingState | null;
+			if (email && !recordingState) {
+				// we need to initialize recordingState if there's none.
+				chrome.storage.local.set({
+					[MOCKSI_RECORDING_STATE]: RecordingState.READY,
+				});
+			}
+			if (recordingState === RecordingState.EDITING) {
+				chrome.storage.local.set({
+					[MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
+				});
+			}
+			setRootPosition(recordingState);
+			root.render(<ContentApp isOpen={true} email={email || ""} />);
+		});
 	}
 	sendResponse({ status: "success" });
 });

@@ -7,6 +7,7 @@ interface RecordButtonProps {
 	onRecordChange: (status: RecordingState) => void;
 	state: RecordingState;
 }
+const waitTime = 2000; // 2 seconds
 
 const recordingColorAndLabel = (currentStatus: RecordingState) => {
 	switch (currentStatus) {
@@ -34,16 +35,14 @@ const nextRecordingState = (currentStatus: RecordingState) => {
 	}
 };
 
-const waitTime = 2000; // 2 seconds
-
 export const RecordButton = ({ state, onRecordChange }: RecordButtonProps) => {
 	useEffect(() => {
 		chrome.storage.local.get([MOCKSI_RECORDING_STATE], (result) => {
 			const storageState =
 				(result[MOCKSI_RECORDING_STATE] as RecordingState) ||
 				RecordingState.READY;
-			onRecordChange(storageState);
 
+			onRecordChange(storageState);
 			if (storageState === RecordingState.ANALYZING) {
 				setTimeout(() => {
 					onRecordChange(RecordingState.CREATE);

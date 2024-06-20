@@ -1,7 +1,3 @@
-import { DOMManipulator } from "@repo/dodom";
-import { saveModification } from "../../utils";
-import { ContentHighlighter } from "./highlighter";
-
 export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 	if (nodeWithTextArea) {
 		const parentElement = nodeWithTextArea?.parentElement;
@@ -14,32 +10,14 @@ export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 	}
 }
 
-export function applyChanges(
-	nodeWithTextArea: HTMLElement | null,
-	newValue: string,
-	oldValue: string,
-) {
-	if (nodeWithTextArea) {
-		cancelEditWithoutChanges(nodeWithTextArea);
-		// TODO: check if we should keep the singleton behavior we had before
-		const domManipulator = new DOMManipulator(
-			fragmentTextNode,
-			ContentHighlighter,
-			saveModification,
-		);
-		domManipulator.addPattern(oldValue, newValue);
-	}
-}
-
 export function fragmentTextNode(
 	fragmentsToHighlight: Node[],
 	matches: RegExpMatchArray[],
 	textNode: Node,
 	newText: string,
 ) {
-	const fragment = document.createDocumentFragment();
 	if (!textNode.nodeValue) {
-		return fragment;
+		return null;
 	}
 	const baseFragment = document.createDocumentFragment();
 	let cursor = 0;

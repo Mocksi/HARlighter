@@ -32,6 +32,7 @@ const Popup = ({ label, close, setState, state, email }: PopupProps) => {
 						createForm={createForm}
 						setCreateForm={setCreateForm}
 						setState={setState}
+						state={state}
 					/>
 				);
 			default:

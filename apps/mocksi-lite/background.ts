@@ -1,7 +1,7 @@
 import MocksiRollbar from "./MocksiRollbar";
 import { STORAGE_KEY, SignupURL, WebSocketURL } from "./consts";
 import { apiCall } from "./networking";
-import { logout } from "./utils";
+import { getEmail, logout } from "./utils";
 
 export interface Alteration {
 	selector: string;
@@ -176,40 +176,23 @@ function updateDemo(data: Record<string, unknown>) {
 	apiCall(`recordings/${id}`, "POST", recording).then(() => getRecordings());
 }
 
-async function getEmail() {
-	const value = await chrome.storage.local.get(STORAGE_KEY);
-	if (!value) {
-		window.open(SignupURL);
-		return;
-	}
-
-	let parsedData: { email: string } | undefined;
-	const storedData = value[STORAGE_KEY] || "{}";
-	try {
-		parsedData = JSON.parse(storedData);
-	} catch (error) {
-		console.log("Error parsing data from storage: ", error);
-		parsedData = undefined;
-	}
-	if (parsedData?.email) {
-		return parsedData.email;
-	}
-
-	MocksiRollbar.log("No email found in storage. Logging out");
-	logout();
-}
-
 async function getRecordings() {
 	const email = await getEmail();
-	const response = await apiCall(`recordings/?creator=${email}`);
-	if (!response || response.length === 0) {
-		return;
+
+	if (email) {
+		const response = await apiCall(`recordings?creator=${email}`);
+		if (!response || response.length === 0) {
+			console.error("No recordings found or failed to fetch recordings.");
+			return;
+		}
+		const sorted = response.sort((a: Recording, b: Recording) =>
+			a.updated_timestamp > b.updated_timestamp ? -1 : 0,
+		);
+		const recordings = JSON.stringify(sorted) || "[]";
+		chrome.storage.local.set({ recordings });
+	} else {
+		console.error("Email not found. Cannot fetch recordings.");
 	}
-	const sorted = response.sort((a: Recording, b: Recording) =>
-		a.updated_timestamp > b.updated_timestamp ? -1 : 0,
-	);
-	const recordings = JSON.stringify(sorted) || "[]";
-	chrome.storage.local.set({ recordings });
 }
 
 // TODO: create a type for the params

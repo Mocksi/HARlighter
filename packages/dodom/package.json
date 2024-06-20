@@ -1,27 +1,29 @@
 {
-  "name": "@repo/dodom",
-  "version": "1.0.0",
-  "description": "A command pattern-based DOM manipulation and network mock manager package.",
-  "private": true,
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "tsc",
-    "test": "pnpm exec vitest"
-  },
-  "devDependencies": {
-    "@next/eslint-plugin-next": "^14.0.4",
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
-    "@types/eslint": "^8.56.1",
-    "@types/jsdom": "^21.1.7",
-    "@types/node": "^20.10.6",
-    "@types/uuid": "^9.0.8",
-    "eslint": "^8.56.0",
-    "jsdom": "^24.1.0",
-    "typescript": "^5.3.3",
-    "vitest": "^1.6.0"
-  },
-  "dependencies": {
-    "uuid": "^9.0.1"
-  }
+	"name": "@repo/dodom",
+	"version": "1.0.0",
+	"description": "A command pattern-based DOM manipulation and network mock manager package.",
+	"private": true,
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "tsc",
+		"test": "pnpm exec vitest",
+		"lint": "biome ci .",
+		"format": "biome check --apply . && biome lint --apply ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.7.2",
+		"@repo/eslint-config": "workspace:*",
+		"@repo/typescript-config": "workspace:*",
+		"@types/eslint": "^8.56.1",
+		"@types/jsdom": "^21.1.7",
+		"@types/node": "^20.10.6",
+		"@types/uuid": "^9.0.8",
+		"eslint": "^8.56.0",
+		"jsdom": "^24.1.0",
+		"typescript": "^5.3.3",
+		"vitest": "^1.6.0"
+	},
+	"dependencies": {
+		"uuid": "^9.0.1"
+	}
 }

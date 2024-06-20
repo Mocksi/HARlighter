@@ -1,5 +1,7 @@
 import sanitizeHtml from "sanitize-html";
+import MocksiRollbar from "./MocksiRollbar";
 import type { Alteration } from "./background";
+import type { Recording } from "./background";
 import {
 	type Command,
 	SaveModificationCommand,
@@ -9,6 +11,7 @@ import {
 	MOCKSI_MODIFICATIONS,
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
+	STORAGE_KEY,
 	SignupURL,
 } from "./consts";
 import { fragmentTextNode } from "./content/EditMode/actions";
@@ -18,7 +21,7 @@ type DOMModificationsType = {
 	[querySelector: string]: { nextText: string; previousText: string };
 };
 
-export const setRootPosition = (state: RecordingState) => {
+export const setRootPosition = (state: RecordingState | null) => {
 	const extensionRoot = document.getElementById("extension-root");
 	if (extensionRoot) {
 		const bottom =
@@ -97,6 +100,38 @@ export const loadPreviousModifications = () => {
 		// here newText and previous is in altered order because we want to revert the changes
 		if (elemToModify) {
 			elemToModify.innerHTML = elemToModify.innerHTML.replaceAll(nextText, sanitizedPreviousText)
+		}
+		// modifyElementInnerHTML(querySelector, nextText, sanitizedPreviousText);
+	}
+};
+
+const modifyElementInnerHTML = (
+	selector: string,
+	oldContent: string,
+	newContent: string,
+) => {
+	// querySelector format {htmlElementType}#{elementId}.{elementClassnames}[${elementIndexIfPresent}]{{newValue}}
+	const hasIndex = selector.match(/\[[0-9]+\]/);
+	const valueInQuerySelector = selector.match(/\{[a-zA-Z0-9 ]+\}/); // add spaces to pattern
+	let elemToModify: Element | null;
+	// FIXME: this needs to be refactored
+	if (hasIndex) {
+		// with all this replaces, we should build a formatter
+		const filteredQuerySelector = formatQuerySelector(
+			selector,
+			valueInQuerySelector,
+			hasIndex,
+		);
+		const index: number = +hasIndex[0].replace("[", "").replace("]", "");
+		// FIXME: lots of duplicated code here
+		try {
+			elemToModify = document.querySelectorAll(filteredQuerySelector)[index];
+		} catch (e: unknown) {
+			if (e instanceof Error) {
+				console.error(`Error querying selector: ${e}`);
+			}
+
+			elemToModify = null;
 		}
 	}
 };
@@ -182,3 +217,36 @@ export function debounce_leading<T extends (...args: any[]) => void>(
 		}, timeout);
 	};
 }
+
+export const getEmail = async (): Promise<string | null> => {
+	const value = await chrome.storage.local.get(STORAGE_KEY);
+	if (!value) {
+		window.open(SignupURL);
+		return null; // Ensure a value is always returned
+	}
+
+	const storedData = value[STORAGE_KEY] || "{}";
+	try {
+		const parsedData = JSON.parse(storedData);
+		return parsedData.email;
+	} catch (error) {
+		console.log("Error parsing data from storage: ", error);
+		MocksiRollbar.log("Error parsing email data, logging out.");
+		logout();
+		return null;
+	}
+};
+
+export const getRecordingsStorage = async (): Promise<Recording[]> => {
+	try {
+		const results = await chrome.storage.local.get(["recordings"]);
+		console.log(results.recordings);
+		if (results.recordings) {
+			return JSON.parse(results.recordings);
+		}
+		return [];
+	} catch (err) {
+		console.error("Failed to retrieve recordings:", err);
+		throw err;
+	}
+};
