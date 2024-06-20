@@ -18,7 +18,7 @@ const Popup = ({ close, setState, state, email }: PopupProps) => {
 	const [createForm, setCreateForm] = useState<boolean>(false);
 
 	useEffect(() => {
-    sendMessage("getRecordings");
+		sendMessage("getRecordings");
 	}, []);
 	const renderContent = () => {
 		switch (state) {
