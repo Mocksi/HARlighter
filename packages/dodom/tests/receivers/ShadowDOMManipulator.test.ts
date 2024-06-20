@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ShadowDOMManipulator } from "../../receivers/ShadowDOMManipulator";
-import type { UUIDGenerator } from "../../utils/UUIDGenerator";
 import { fragmentTextNode } from "../../utils";
+import type { UUIDGenerator } from "../../utils/UUIDGenerator";
 
 describe("ShadowDOMManipulator", () => {
 	let shadowRoot: ShadowRoot;
@@ -16,17 +16,16 @@ describe("ShadowDOMManipulator", () => {
 		uuidGenerator = {
 			generate: () => "mocksi-1234",
 		} as UUIDGenerator;
-        const saveModification = () => {};
-        const contentHighlighter = { highlightNode: () => {}}
-        contentHighlighter.highlightNode = () => {};
-		 manipulator = new ShadowDOMManipulator(
-            shadowRoot,
-            fragmentTextNode,
-            saveModification,
-            contentHighlighter,
-            uuidGenerator
-        );
-            
+		const saveModification = () => {};
+		const contentHighlighter = { highlightNode: () => {} };
+		contentHighlighter.highlightNode = () => {};
+		manipulator = new ShadowDOMManipulator(
+			shadowRoot,
+			fragmentTextNode,
+			saveModification,
+			contentHighlighter,
+			uuidGenerator,
+		);
 	});
 
 	afterEach(() => {

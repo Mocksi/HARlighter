@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ReplaceImageCommand } from "../../commands/ReplaceImageCommand";
 import { ShadowDOMManipulator } from "../../receivers/ShadowDOMManipulator";
-import type { UUIDGenerator } from "../../utils/UUIDGenerator";
 import { fragmentTextNode } from "../../utils";
+import type { UUIDGenerator } from "../../utils/UUIDGenerator";
 
 describe("ReplaceImageCommand", () => {
 	let shadowRoot: ShadowRoot;
@@ -17,15 +17,15 @@ describe("ReplaceImageCommand", () => {
 		uuidGenerator = {
 			generate: () => "mocksi-1234",
 		} as UUIDGenerator;
-        const saveModification = () => {};
-        const contentHighlighter = { highlightNode: () => {}};
-        manipulator = new ShadowDOMManipulator(
-            shadowRoot,
-            fragmentTextNode,
-            saveModification,
-            contentHighlighter,
-            uuidGenerator
-        );
+		const saveModification = () => {};
+		const contentHighlighter = { highlightNode: () => {} };
+		manipulator = new ShadowDOMManipulator(
+			shadowRoot,
+			fragmentTextNode,
+			saveModification,
+			contentHighlighter,
+			uuidGenerator,
+		);
 	});
 
 	afterEach(() => {
@@ -40,12 +40,12 @@ describe("ReplaceImageCommand", () => {
 		const command = new ReplaceImageCommand(
 			manipulator,
 			"https://example.com/old.jpg",
-			"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...="
+			"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...=",
 		);
 
 		command.execute();
 		expect(shadowRoot.innerHTML).toContain(
-			"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...="
+			"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...=",
 		);
 		expect(shadowRoot.innerHTML).toContain("mocksi-1234");
 

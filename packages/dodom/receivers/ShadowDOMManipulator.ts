@@ -23,14 +23,14 @@ export class ShadowDOMManipulator {
 	private fragmentTextNode: FragmentTextNodeFunction;
 	private saveModification: SaveModificationFunction;
 	// FIXME: this should not be any
-    // biome-ignore lint/suspicious/noExplicitAny: will fix in a separate PR
+	// biome-ignore lint/suspicious/noExplicitAny: will fix in a separate PR
 	private contentHighlighter: any;
 
 	constructor(
 		shadowRoot: ShadowRoot,
 		fragmentTextNode: FragmentTextNodeFunction,
 		saveModification: SaveModificationFunction,
-        // FIXME: this should not be any
+		// FIXME: this should not be any
 		// biome-ignore lint/suspicious/noExplicitAny: will fix in a separate PR
 		contentHighlighter: any,
 		uuidGenerator?: UUIDGenerator,
@@ -94,12 +94,11 @@ export class ShadowDOMManipulator {
 			this.observer = undefined;
 		}
 	}
-    applyPatterns() {
-        for (const pattern of this.patterns) {
-            this.seekAndReplace(pattern.pattern, pattern.replace);
-        }
-    }
-
+	applyPatterns() {
+		for (const pattern of this.patterns) {
+			this.seekAndReplace(pattern.pattern, pattern.replace);
+		}
+	}
 
 	seekAndReplace(pattern: RegExp, newText: string) {
 		const fragmentsToHighlight: Node[] = [];
@@ -166,9 +165,9 @@ export class ShadowDOMManipulator {
 		this.observer.observe(this.shadowRoot, { childList: true, subtree: true });
 	}
 
-    disconnectObserver() {
-        this.observer?.disconnect();
-    }
+	disconnectObserver() {
+		this.observer?.disconnect();
+	}
 
 	private matchReplacePattern(
 		text: string,
