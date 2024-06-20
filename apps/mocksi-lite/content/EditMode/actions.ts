@@ -1,6 +1,6 @@
-import { ContentHighlighter } from "./highlighter";
-import { saveModification } from "../../utils";
 import { DOMManipulator } from "@repo/dodom";
+import { saveModification } from "../../utils";
+import { ContentHighlighter } from "./highlighter";
 
 export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 	if (nodeWithTextArea) {
