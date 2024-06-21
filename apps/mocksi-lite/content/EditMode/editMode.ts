@@ -57,8 +57,16 @@ function onDoubleClickText(event: MouseEvent) {
 }
 
 function openImageUploadModal(targetedElement: HTMLImageElement) {
-	const modal = document.createElement("div");
-	modal.innerHTML = `
+	// Create a container for the shadow DOM
+	const modalContainer = document.createElement("div");
+	document.body.appendChild(modalContainer);
+
+	// Attach a shadow root to the container
+	const shadowRoot = modalContainer.attachShadow({ mode: "open" });
+
+	// Create the modal content
+	const modalContent = document.createElement("div");
+	modalContent.innerHTML = `
         <div id="image-upload-modal" style="display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc;">
             <h2>Upload New Image</h2>
             <input type="file" id="image-input" accept="image/*">
@@ -66,17 +74,25 @@ function openImageUploadModal(targetedElement: HTMLImageElement) {
             <button id="cancel-button">Cancel</button>
         </div>
     `;
-	document.body.appendChild(modal);
 
-	const imageInput = modal.querySelector("#image-input") as HTMLInputElement;
-	const uploadButton = modal.querySelector(
+	// Append the modal content to the shadow root
+	shadowRoot.appendChild(modalContent);
+
+	// Query the elements within the shadow DOM
+	const imageInput = shadowRoot.querySelector(
+		"#image-input",
+	) as HTMLInputElement;
+	const uploadButton = shadowRoot.querySelector(
 		"#upload-button",
 	) as HTMLButtonElement;
-	const cancelButton = modal.querySelector(
+	const cancelButton = shadowRoot.querySelector(
 		"#cancel-button",
 	) as HTMLButtonElement;
+
+	// Focus the targeted element
 	targetedElement.focus();
 
+	// Add event listeners to the buttons
 	uploadButton.addEventListener("click", () => {
 		const file = imageInput.files?.[0];
 		if (file) {
@@ -96,7 +112,7 @@ function openImageUploadModal(targetedElement: HTMLImageElement) {
 	cancelButton.addEventListener("click", closeImageUploadModal);
 
 	function closeImageUploadModal() {
-		document.body.removeChild(modal);
+		document.body.removeChild(modalContainer);
 	}
 }
 

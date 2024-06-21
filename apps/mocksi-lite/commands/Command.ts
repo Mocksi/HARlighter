@@ -1,5 +1,3 @@
-import { MOCKSI_MODIFICATIONS } from "../consts";
-
 export interface Command {
 	execute(): void;
 	undo(): void;
@@ -7,8 +5,9 @@ export interface Command {
 
 interface DOMModification {
 	keyToSave: string;
-	previousText: string;
-	nextText: string;
+	oldValue: string;
+	newValue: string;
+	type: "text" | "image";
 }
 
 export const buildQuerySelector = (
@@ -43,28 +42,37 @@ export const buildQuerySelector = (
 export class SaveModificationCommand implements Command {
 	constructor(
 		private prevModifications: {
-			[querySelector: string]: { nextText: string; previousText: string };
+			[querySelector: string]: {
+				newValue: string;
+				oldValue: string;
+				type: "text" | "image";
+			};
 		},
 		private modification: DOMModification,
 	) {}
 
 	execute() {
-		const { keyToSave, nextText, previousText } = this.modification;
-		const { previousText: previousTextFromStorage } =
+		const { keyToSave, newValue, oldValue, type } = this.modification;
+		const { oldValue: oldValueFromStorage } =
 			this.prevModifications[keyToSave] || {};
 		this.prevModifications[keyToSave] = {
-			nextText,
-			previousText: previousTextFromStorage || previousText,
+			newValue,
+			oldValue: oldValueFromStorage || oldValue,
+			type,
 		};
 	}
 
 	undo() {
-		const { keyToSave, previousText } = this.modification;
-		this.resetPrevModifications(keyToSave, previousText);
+		const { keyToSave, oldValue, type } = this.modification;
+		this.resetPrevModifications(keyToSave, oldValue, type);
 	}
 
-	private resetPrevModifications(key: string, previousText: string) {
-		this.prevModifications[key] = { previousText, nextText: "" };
+	private resetPrevModifications(
+		key: string,
+		oldValue: string,
+		type: "text" | "image",
+	) {
+		this.prevModifications[key] = { oldValue, newValue: "", type };
 	}
 }
 

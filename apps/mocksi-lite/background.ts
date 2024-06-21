@@ -8,6 +8,7 @@ export interface Alteration {
 	action: string;
 	dom_before: string;
 	dom_after: string;
+	type: string;
 }
 
 export interface Recording {

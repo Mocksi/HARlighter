@@ -146,6 +146,9 @@ export class DOMManipulator {
 		) as NodeListOf<HTMLImageElement>;
 		for (const img of images) {
 			img.src = newSrc;
+			if (img.srcset) {
+				img.removeAttribute("srcset");
+			}
 			this.saveModification(img, newSrc, oldSrc);
 		}
 	}
