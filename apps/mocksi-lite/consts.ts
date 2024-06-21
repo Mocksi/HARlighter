@@ -26,6 +26,7 @@ export enum RecordingState {
 	EDITING = "EDITING",
 	PLAY = "PLAY",
 	HIDDEN = "HIDDEN",
+	CHAT = "CHAT",
 }
 
 export const popupTitle = "Tip & Tricks";

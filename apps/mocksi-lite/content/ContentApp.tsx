@@ -3,6 +3,7 @@ import useShadow from "use-shadow-dom";
 import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
 import { setRootPosition } from "../utils";
 import Popup from "./Popup";
+import ChatToast from "./Toast/ChatToast";
 import EditToast from "./Toast/EditToast";
 import HiddenToast from "./Toast/HiddenToast";
 import PlayToast from "./Toast/PlayToast";
@@ -62,6 +63,8 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 				return <PlayToast onChangeState={setState} close={closeDialog} />;
 			case RecordingState.HIDDEN:
 				return <HiddenToast onChangeState={setState} close={closeDialog} />;
+			case RecordingState.CHAT:
+				return <ChatToast />;
 			default:
 				return (
 					<RecordingToast
