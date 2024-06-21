@@ -1,14 +1,15 @@
 import TextField from "../../common/TextField";
 import { type RecordingState, popupContent, popupTitle } from "../../consts";
+import { recordingLabel } from "../../utils";
 import { RecordButton } from "../RecordButton";
 
 interface RecordDemoProps {
-	label: string;
 	state: RecordingState;
 	setState: (s: RecordingState) => void;
 }
 
-const RecordDemo = ({ label, state, setState }: RecordDemoProps) => {
+const RecordDemo = ({ state, setState }: RecordDemoProps) => {
+	const label = recordingLabel(state);
 	return (
 		<>
 			<div

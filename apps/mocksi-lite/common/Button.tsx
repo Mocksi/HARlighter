@@ -18,7 +18,7 @@ const getButtonStyles = (variant: Variant) => {
 		case Variant.primary:
 			return "bg-[#E8F3EC] border-[#E8F3EC] px-6";
 		case Variant.icon:
-			return "bg-[#E8F3EC] border-[#E8F3EC] p-3";
+			return "bg-[#E8F3EC] border-[#E8F3EC] p-3 max-h-[42px] h-[42px]";
 		case Variant.secondary:
 			return "border-[#009875] px-6";
 		default:

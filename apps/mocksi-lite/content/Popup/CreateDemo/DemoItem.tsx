@@ -1,9 +1,13 @@
 import type { Recording } from "../../../background";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
-import { RecordingState } from "../../../consts";
+import {
+	MOCKSI_ALTERATIONS,
+	MOCKSI_RECORDING_ID,
+	RecordingState,
+} from "../../../consts";
 import editIcon from "../../../public/edit-icon.png";
-import exportIcon from "../../../public/export-icon.png";
+import playIcon from "../../../public/play-icon.png";
 import { loadAlterations } from "../../../utils";
 import { setEditorMode } from "../../EditMode/editMode";
 
@@ -25,6 +29,13 @@ const DemoItem = ({
 		setState(RecordingState.EDITING);
 	};
 
+	const handlePlay = async () => {
+		await chrome.storage.local.set({ [MOCKSI_ALTERATIONS]: alterations });
+		await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: uuid });
+		loadAlterations(alterations, false);
+		setState(RecordingState.PLAY);
+	};
+
 	const domain = new URL(url).hostname;
 	return (
 		<div className={"flex justify-between w-full px-6"}>
@@ -34,7 +45,9 @@ const DemoItem = ({
 				</TextField>
 				<TextField className={"truncate"}>{customer_name}</TextField>
 				<a href={url} target={"_blank"} rel={"noreferrer"}>
-					<TextField className={"text-xs underline"}>{domain}</TextField>
+					<TextField className={"text-xs underline truncate"}>
+						{domain}
+					</TextField>
 				</a>
 			</div>
 			<div className={"flex gap-3"}>
@@ -47,10 +60,14 @@ const DemoItem = ({
 				</Button>
 				<Button
 					variant={Variant.icon}
-					onClick={() => loadAlterations(alterations, false)}
-					disabled={!url.includes(window.location.hostname)}
+					onClick={handlePlay}
+					disabled={
+						!url.includes(window.location.hostname) ||
+						!alterations ||
+						!alterations.length
+					}
 				>
-					<img src={exportIcon} alt={"exportIcon"} />
+					<img src={playIcon} alt={"playIcon"} />
 				</Button>
 			</div>
 		</div>

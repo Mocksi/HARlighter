@@ -9,21 +9,17 @@ import RecordDemo from "./RecordDemo";
 
 interface PopupProps {
 	close: () => void;
-	label: string;
 	setState: (r: RecordingState) => void;
 	state: RecordingState;
 	email: string | null;
 }
 
-const Popup = ({ label, close, setState, state, email }: PopupProps) => {
+const Popup = ({ close, setState, state, email }: PopupProps) => {
 	const [createForm, setCreateForm] = useState<boolean>(false);
 
-	// NOTE: useEffect will retrigger on every render, because there is no second argument. This is fine because the debounce function will prevent the sendMessage from being called too often.
 	useEffect(() => {
-		debounce_leading(() => {
-			sendMessage("getRecordings");
-		}, 500);
-	});
+		sendMessage("getRecordings");
+	}, []);
 	const renderContent = () => {
 		switch (state) {
 			case RecordingState.CREATE:
@@ -36,7 +32,7 @@ const Popup = ({ label, close, setState, state, email }: PopupProps) => {
 					/>
 				);
 			default:
-				return <RecordDemo label={label} state={state} setState={setState} />;
+				return <RecordDemo state={state} setState={setState} />;
 		}
 	};
 
