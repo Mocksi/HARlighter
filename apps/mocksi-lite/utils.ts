@@ -11,6 +11,7 @@ import {
 } from "./commands/Command";
 import {
 	MOCKSI_ALTERATIONS,
+	MOCKSI_LAST_PAGE_DOM,
 	MOCKSI_MODIFICATIONS,
 	MOCKSI_RECORDING_ID,
 	MOCKSI_RECORDING_STATE,
@@ -260,6 +261,11 @@ export function debounce_leading<T extends (...args: any[]) => void>(
 	};
 }
 
+export const getLastPageDom = async () => {
+	const value = await chrome.storage.local.get([MOCKSI_LAST_PAGE_DOM]);
+	return value[MOCKSI_LAST_PAGE_DOM];
+};
+
 export const getEmail = async (): Promise<string | null> => {
 	const value = await chrome.storage.local.get(STORAGE_KEY);
 	if (!value) {
@@ -344,4 +350,41 @@ export const recordingLabel = (currentStatus: RecordingState) => {
 		default:
 			return "Start recording";
 	}
+};
+
+export const innerHTMLToJson = (innerHTML: string): string => {
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(innerHTML, "text/html");
+
+	function elementToJson(element: Element): object {
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		const obj: any = {};
+
+		obj.tag = element.tagName.toLowerCase();
+
+		if (element.attributes.length > 0) {
+			obj.attributes = {};
+			for (const attr of Array.from(element.attributes)) {
+				obj.attributes[attr.name] = attr.value;
+			}
+		}
+
+		if (element.children.length > 0) {
+			obj.children = Array.from(element.children).map((child) =>
+				elementToJson(child),
+			);
+		} else {
+			obj.text = element.textContent;
+		}
+
+		return obj;
+	}
+
+	// Convert the body of the parsed document to JSON
+	const json = Array.from(doc.body.children).map((child) =>
+		elementToJson(child),
+	);
+	const body = json.length === 1 ? json[0] : json;
+
+	return JSON.stringify(body);
 };
