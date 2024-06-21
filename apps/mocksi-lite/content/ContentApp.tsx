@@ -94,16 +94,15 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 			<div className="border border-solid border-grey/40 rounded-l bg-white mt-3 min-w-64 p-3 flex flex-row items-center gap-6">
 				<div
 					className="cursor-pointer"
-					onClick={async () => {
+					onClick={() => {
+						// We don't pass the recordingId here because we don't want to persist the changes
+						setEditorMode(false);
 						onChangeState(RecordingState.CREATE);
-						const recordingId = await loadRecordingId();
-						setEditorMode(false, recordingId);
 					}}
-					onKeyUp={async (event) => {
+					onKeyUp={(event) => {
 						if (event.key === "Escape") {
+							setEditorMode(false);
 							onChangeState(RecordingState.CREATE);
-							const recordingId = await loadRecordingId();
-							setEditorMode(false, recordingId);
 						}
 					}}
 				>
@@ -126,15 +125,15 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 				<div
 					className="cursor-pointer text-[#009875]"
 					onClick={async () => {
-						onChangeState(RecordingState.CREATE);
 						const recordingId = await loadRecordingId();
-						setEditorMode(false, recordingId);
+						await setEditorMode(false, recordingId);
+						onChangeState(RecordingState.CREATE);
 					}}
 					onKeyUp={async (event) => {
 						if (event.key === "Enter") {
-							onChangeState(RecordingState.CREATE);
 							const recordingId = await loadRecordingId();
-							setEditorMode(false, recordingId);
+							await setEditorMode(false, recordingId);
+							onChangeState(RecordingState.CREATE);
 						}
 					}}
 				>

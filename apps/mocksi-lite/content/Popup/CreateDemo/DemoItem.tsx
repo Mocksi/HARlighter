@@ -48,11 +48,7 @@ const DemoItem = ({
 				<Button
 					variant={Variant.icon}
 					onClick={() => loadAlterations(alterations, false)}
-					disabled={
-						!url.includes(window.location.hostname) ||
-						!alterations ||
-						!alterations.length
-					}
+					disabled={!url.includes(window.location.hostname)}
 				>
 					<img src={exportIcon} alt={"exportIcon"} />
 				</Button>
