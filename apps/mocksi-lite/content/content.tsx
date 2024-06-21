@@ -44,7 +44,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				if (recordingState === RecordingState.HIDDEN) {
 					sendMessage("updateToPlayIcon");
 				}
-				setRootPosition(recordingState);
+				setRootPosition(
+					recordingState === RecordingState.EDITING
+						? RecordingState.CREATE
+						: recordingState,
+				);
 				root.render(<ContentApp isOpen={true} email={email || ""} />);
 			});
 		});
