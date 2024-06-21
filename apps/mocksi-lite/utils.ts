@@ -77,8 +77,10 @@ export const persistModifications = async (recordingId: string) => {
 	});
 	const updated_timestamp = new Date();
 	await updateRecordingsStorage({
-		uuid: recordingId, updated_timestamp, alterations
-	})
+		uuid: recordingId,
+		updated_timestamp,
+		alterations,
+	});
 	sendMessage("updateDemo", {
 		id: recordingId,
 		recording: { updated_timestamp, alterations },
@@ -268,18 +270,26 @@ export const getRecordingsStorage = async (): Promise<Recording[]> => {
 	}
 };
 
-export const updateRecordingsStorage = async ({uuid, updated_timestamp, alterations }: {uuid: string, updated_timestamp: Date, alterations: Alteration[]}) => {
+export const updateRecordingsStorage = async ({
+	uuid,
+	updated_timestamp,
+	alterations,
+}: { uuid: string; updated_timestamp: Date; alterations: Alteration[] }) => {
 	try {
-		const recordingsFromStorage = await getRecordingsStorage()
-		const modifiedRecordings = recordingsFromStorage.map((recording) => recording.uuid === uuid ? {...recording, uuid, updated_timestamp, alterations} : recording)
+		const recordingsFromStorage = await getRecordingsStorage();
+		const modifiedRecordings = recordingsFromStorage.map((recording) =>
+			recording.uuid === uuid
+				? { ...recording, uuid, updated_timestamp, alterations }
+				: recording,
+		);
 		const sorted = modifiedRecordings.sort((a: Recording, b: Recording) =>
 			a.updated_timestamp > b.updated_timestamp ? -1 : 0,
 		);
-		const recordingsStringified = JSON.stringify(sorted)
-		console.log('modified', recordingsFromStorage, sorted)
-		chrome.storage.local.set({recordings: recordingsStringified})
+		const recordingsStringified = JSON.stringify(sorted);
+		console.log("modified", recordingsFromStorage, sorted);
+		chrome.storage.local.set({ recordings: recordingsStringified });
 	} catch (err) {
 		console.error("Failed to save modifications from LS:", err);
 		throw err;
 	}
-}
+};
