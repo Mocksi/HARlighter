@@ -26,6 +26,7 @@
 		"@rollbar/react": "0.12.0-beta",
 		"rollbar": "^2.26.4",
 		"sanitize-html": "^2.13.0",
+		"use-shadow-dom": "^1.2.0",
 		"uuid": "^9.0.1"
 	},
 	"name": "mocksi-lite",
