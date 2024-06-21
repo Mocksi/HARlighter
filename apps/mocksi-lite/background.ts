@@ -74,6 +74,10 @@ chrome.action.onClicked.addListener((activeTab) => {
 		return;
 	}
 
+	if (!chrome.action.isEnabled()) {
+		chrome.action.enable();
+	}
+
 	const version = "1.0";
 	if (!currentTabId) {
 		return;
