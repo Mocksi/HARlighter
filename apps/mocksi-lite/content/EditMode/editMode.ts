@@ -4,7 +4,7 @@ import {
 	RecordingState,
 } from "../../consts";
 import { persistModifications, undoModifications } from "../../utils";
-import { cancelEditWithoutChanges } from "./actions";
+import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
 
 export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
@@ -35,7 +35,14 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 
 function onDoubleClickText(event: MouseEvent) {
 	// @ts-ignore MouseEvent typing seems incomplete
-	if (event?.toElement?.nodeName !== "TEXTAREA") {
+	const nodeName = event?.toElement?.nodeName;
+	if (nodeName === "IMG") {
+		const targetedElement: HTMLImageElement = event.target as HTMLImageElement;
+		console.log("Image clicked", targetedElement.alt);
+		openImageUploadModal(targetedElement);
+		return;
+	}
+	if (nodeName !== "TEXTAREA") {
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 		const targetedElement: HTMLElement = event.target as HTMLElement;
 		const selection = window.getSelection();
@@ -47,6 +54,66 @@ function onDoubleClickText(event: MouseEvent) {
 			document.getElementById("mocksiTextArea")?.focus();
 		}
 	}
+}
+
+function openImageUploadModal(targetedElement: HTMLImageElement) {
+	const modal = document.createElement("div");
+	modal.innerHTML = `
+        <div id="image-upload-modal" style="display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc;">
+            <h2>Upload New Image</h2>
+            <input type="file" id="image-input" accept="image/*">
+            <button id="upload-button">Upload</button>
+            <button id="cancel-button">Cancel</button>
+        </div>
+    `;
+	document.body.appendChild(modal);
+
+	const imageInput = modal.querySelector("#image-input") as HTMLInputElement;
+	const uploadButton = modal.querySelector(
+		"#upload-button",
+	) as HTMLButtonElement;
+	const cancelButton = modal.querySelector(
+		"#cancel-button",
+	) as HTMLButtonElement;
+	targetedElement.focus();
+
+	uploadButton.addEventListener("click", () => {
+		const file = imageInput.files?.[0];
+		if (file) {
+			convertImageToDataUri(file)
+				.then((dataUri) => {
+					applyImageChanges(targetedElement, dataUri);
+					closeImageUploadModal();
+				})
+				.catch((error) => {
+					console.error("Error reading file:", error);
+				});
+		} else {
+			console.error("No file selected.");
+		}
+	});
+
+	cancelButton.addEventListener("click", closeImageUploadModal);
+
+	function closeImageUploadModal() {
+		document.body.removeChild(modal);
+	}
+}
+
+function closeImageUploadModal() {
+	const modal = document.getElementById("image-upload-modal");
+	if (modal) {
+		modal.remove();
+	}
+}
+
+function convertImageToDataUri(file: File): Promise<string> {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onload = () => resolve(reader.result as string);
+		reader.onerror = reject;
+		reader.readAsDataURL(file);
+	});
 }
 
 function decorateClickable(targetedElement: HTMLElement) {
@@ -95,28 +162,23 @@ function applyEditor(
 	if (selectedRange === null || selectedRange.anchorNode === null) {
 		return;
 	}
-	// this case is if the beginning node is the same as the finished one.
-	// this can happen while selecting text, there are more than one different node involved.
 	if (selectedRange.anchorNode === selectedRange.focusNode) {
 		for (const node of targetedElement.childNodes) {
 			if (
 				node === selectedRange.anchorNode ||
 				[...node.childNodes].includes(selectedRange.anchorNode as ChildNode)
 			) {
-				// @ts-ignore
 				targetedElement.replaceChild(
 					decorateTextTag(
 						selectedRange.anchorNode?.textContent || "",
 						targetedElement.clientWidth?.toString() || "",
 						shiftMode,
 						selectedRange.getRangeAt(0),
-					), // new node
+					),
 					node,
 				);
 			}
 		}
-	} else {
-		// TODO
 	}
 }
 
@@ -124,14 +186,21 @@ function applyEditor(
 const blockedNodes: any[] = [];
 
 const blockClickableElements = () => {
-	const aElements = document.querySelectorAll("a");
-	const buttonElements = document.querySelectorAll("button");
-	for (const clickableElement of [...aElements, ...buttonElements]) {
-		//@ts-ignore
-		const { href, className, style, onclick } = clickableElement;
-		blockedNodes.push({ href, className, onclick, style: { ...style } });
-		//@ts-ignore
-		clickableElement.href = "";
+	const clickableElements = [
+		...document.querySelectorAll("a"),
+		...document.querySelectorAll("button"),
+		...document.querySelectorAll("img"),
+	];
+	for (const clickableElement of clickableElements) {
+		const { href, className, style, onclick, src } =
+			clickableElement as HTMLAnchorElement &
+				HTMLButtonElement &
+				HTMLImageElement;
+		blockedNodes.push({ href, className, onclick, style: { ...style }, src });
+		if (clickableElement instanceof HTMLAnchorElement) {
+			clickableElement.removeAttribute("href");
+			clickableElement.removeAttribute("src");
+		}
 		clickableElement.style.cursor = "text";
 		clickableElement.onclick = (event) => {
 			event.stopPropagation();
@@ -143,17 +212,21 @@ const blockClickableElements = () => {
 
 const restoreNodes = () => {
 	if (blockedNodes.length > 0) {
-		const aElements = document.querySelectorAll("a");
-		const buttonElements = document.querySelectorAll("button");
+		const clickableElements = [
+			...document.querySelectorAll("a"),
+			...document.querySelectorAll("button"),
+			...document.querySelectorAll("img"),
+		];
 		let index = 0;
-		for (const readonlyElem of [...aElements, ...buttonElements]) {
+		for (const readonlyElem of clickableElements) {
 			if (blockedNodes[index]) {
-				const { href, style, onclick } = blockedNodes[index];
-				//@ts-ignore
-				readonlyElem.href = href;
-				//@ts-ignore
+				const { href, style, onclick, src } = blockedNodes[index];
+				if (readonlyElem instanceof HTMLAnchorElement) {
+					readonlyElem.href = href;
+				} else if (readonlyElem instanceof HTMLImageElement) {
+					readonlyElem.src = src;
+				}
 				readonlyElem.style.cursor = style.cursor;
-				//@ts-ignore
 				readonlyElem.onclick = onclick;
 				index++;
 			} else {

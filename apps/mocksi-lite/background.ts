@@ -92,7 +92,7 @@ chrome.action.onClicked.addListener((activeTab) => {
 		// biome-ignore lint/suspicious/noExplicitAny: error message
 	} catch (e: any) {
 		console.error("Error attaching debugger", e);
-		if (e.message === "Cannot acces a chrome:// URL") {
+		if (e.message === "Cannot access a chrome:// URL") {
 			console.log("Cannot attach to this target");
 			return;
 		}
