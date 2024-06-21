@@ -20,7 +20,7 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 		return;
 	}
 	if (recordingId) {
-		persistModifications(recordingId);
+		await persistModifications(recordingId);
 	}
 	undoModifications();
 	await chrome.storage.local.set({
@@ -31,6 +31,7 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	restoreNodes();
 	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 	document.normalize();
+	return;
 };
 
 function onDoubleClickText(event: MouseEvent) {

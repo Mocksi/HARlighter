@@ -74,12 +74,17 @@ export const saveModification = (
 	saveModificationCommand.execute();
 };
 
-export const persistModifications = (recordingId: string) => {
+export const persistModifications = async (recordingId: string) => {
 	const alterations: Alteration[] = buildAlterations(domainModifications);
 	chrome.storage.local.set({
 		[MOCKSI_MODIFICATIONS]: JSON.stringify(domainModifications),
 	});
 	const updated_timestamp = new Date();
+	await updateRecordingsStorage({
+		uuid: recordingId,
+		updated_timestamp,
+		alterations,
+	});
 	sendMessage("updateDemo", {
 		id: recordingId,
 		recording: { updated_timestamp, alterations },
@@ -274,6 +279,29 @@ export const getRecordingsStorage = async (): Promise<Recording[]> => {
 	}
 };
 
+export const updateRecordingsStorage = async ({
+	uuid,
+	updated_timestamp,
+	alterations,
+}: { uuid: string; updated_timestamp: Date; alterations: Alteration[] }) => {
+	try {
+		const recordingsFromStorage = await getRecordingsStorage();
+		const modifiedRecordings = recordingsFromStorage.map((recording) =>
+			recording.uuid === uuid
+				? { ...recording, uuid, updated_timestamp, alterations }
+				: recording,
+		);
+		const sorted = modifiedRecordings.sort((a: Recording, b: Recording) =>
+			a.updated_timestamp > b.updated_timestamp ? -1 : 0,
+		);
+		const recordingsStringified = JSON.stringify(sorted);
+		console.log("modified", recordingsFromStorage, sorted);
+		chrome.storage.local.set({ recordings: recordingsStringified });
+	} catch (err) {
+		console.error("Failed to save modifications from LS:", err);
+		throw err;
+	}
+};
 export const loadRecordingId = async () => {
 	return new Promise<string | undefined>((resolve) => {
 		chrome.storage.local.get([MOCKSI_RECORDING_ID], (result) => {
