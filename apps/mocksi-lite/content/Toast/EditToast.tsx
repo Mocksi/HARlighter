@@ -25,18 +25,22 @@ const EditToast = ({ state, onChangeState }: EditToastProps) => {
 	};
 
 	const handleClose = async () => {
-		onChangeState(RecordingState.CREATE);
 		const recordingId = await loadRecordingId();
-		setEditorMode(false, recordingId);
+		await setEditorMode(false, recordingId);
+		onChangeState(RecordingState.CREATE);
 	};
 	return (
 		<Toast className={"mt-3 min-w-64 p-3 flex flex-row items-center gap-6"}>
 			<div
 				className="cursor-pointer"
-				onClick={handleClose}
+				onClick={() => {
+					setEditorMode(false);
+					onChangeState(RecordingState.CREATE);
+				}}
 				onKeyUp={async (event) => {
 					if (event.key === "Escape") {
-						handleClose();
+						setEditorMode(false);
+						onChangeState(RecordingState.CREATE);
 					}
 				}}
 			>
@@ -59,15 +63,15 @@ const EditToast = ({ state, onChangeState }: EditToastProps) => {
 			<div
 				className="cursor-pointer text-[#009875]"
 				onClick={async () => {
-					onChangeState(RecordingState.CREATE);
 					const recordingId = await loadRecordingId();
-					setEditorMode(false, recordingId);
+					await setEditorMode(false, recordingId);
+					onChangeState(RecordingState.CREATE);
 				}}
 				onKeyUp={async (event) => {
 					if (event.key === "Enter") {
-						onChangeState(RecordingState.CREATE);
 						const recordingId = await loadRecordingId();
-						setEditorMode(false, recordingId);
+						await setEditorMode(false, recordingId);
+						onChangeState(RecordingState.CREATE);
 					}
 				}}
 			>
