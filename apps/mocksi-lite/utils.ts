@@ -301,7 +301,7 @@ export const updateRecordingsStorage = async ({
 		console.error("Failed to save modifications from LS:", err);
 		throw err;
 	}
-}
+};
 export const loadRecordingId = async () => {
 	return new Promise<string | undefined>((resolve) => {
 		chrome.storage.local.get([MOCKSI_RECORDING_ID], (result) => {
