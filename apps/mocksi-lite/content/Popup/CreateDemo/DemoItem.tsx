@@ -28,7 +28,7 @@ const DemoItem = ({
 	const handlePlay = () => {
 		chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: uuid }).then(() => {
 			setState(RecordingState.PLAY);
-			loadAlterations(alterations, false);
+			loadAlterations(alterations, true);
 		});
 	};
 
