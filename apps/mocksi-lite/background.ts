@@ -185,7 +185,12 @@ async function getRecordings() {
 	const email = await getEmail();
 
 	if (email) {
-		const response = await apiCall(`recordings?creator=${email}`);
+		const response = await apiCall(`recordings?creator=${email}`).catch(
+			(err) => {
+				console.error(`Failed to fetch recordings: ${err}`);
+				return null;
+			},
+		);
 		if (!response || response.length === 0) {
 			console.error("No recordings found or failed to fetch recordings.");
 			return;

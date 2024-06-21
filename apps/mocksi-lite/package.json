@@ -1,6 +1,7 @@
 {
 	"devDependencies": {
 		"@biomejs/biome": "1.7.2",
+		"@types/auth0-js": "^9.21.6",
 		"@types/chrome": "^0.0.259",
 		"@types/jsdom": "^21.1.7",
 		"@types/node": "^20.11.19",
@@ -25,6 +26,7 @@
 	"dependencies": {
 		"@repo/harlight": "workspace:*",
 		"@rollbar/react": "0.12.0-beta",
+		"auth0-js": "^9.26.1",
 		"rollbar": "^2.26.4",
 		"sanitize-html": "^2.13.0",
 		"use-shadow-dom": "^1.2.0",
