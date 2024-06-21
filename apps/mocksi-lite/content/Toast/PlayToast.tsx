@@ -4,7 +4,7 @@ import closeIcon from "../../public/close-icon.png";
 import editIcon from "../../public/edit-icon.png";
 import labeledIcon from "../../public/labeled-icon.png";
 import stopIcon from "../../public/stop-icon.png";
-import { getAlterations, loadAlterations, sendMessage } from "../../utils";
+import { getAlterations, loadAlterations, sendMessage, undoModifications } from "../../utils";
 import { setEditorMode } from "../EditMode/editMode";
 import Toast from "./index";
 
@@ -15,9 +15,9 @@ interface PlayToastProps {
 const PlayToast = ({ onChangeState, close }: PlayToastProps) => {
 	const handleEdit = async () => {
 		const alterations = await getAlterations();
-		onChangeState(RecordingState.EDITING);
 		loadAlterations(alterations, true);
 		setEditorMode(true);
+		onChangeState(RecordingState.EDITING);
 	};
 	const handleHideToast = () => {
 		sendMessage("updateToPauseIcon");
@@ -39,7 +39,10 @@ const PlayToast = ({ onChangeState, close }: PlayToastProps) => {
 			<div className={"flex gap-2"}>
 				<Button
 					variant={Variant.icon}
-					onClick={() => onChangeState(RecordingState.CREATE)}
+					onClick={() => {
+						undoModifications()
+						onChangeState(RecordingState.CREATE)
+					}}
 				>
 					<img src={stopIcon} alt={"stopIcon"} />
 				</Button>
