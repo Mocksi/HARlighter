@@ -29,26 +29,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
 				const recordingState: RecordingState | null =
 					results[MOCKSI_RECORDING_STATE];
+				let state = recordingState;
 				console.log({ recordingState });
 				if (email && !recordingState) {
 					// we need to initialize recordingState if there's none.
 					chrome.storage.local.set({
 						[MOCKSI_RECORDING_STATE]: RecordingState.READY,
 					});
+					state = RecordingState.READY;
 				}
 				if (recordingState === RecordingState.EDITING) {
 					chrome.storage.local.set({
 						[MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
 					});
+					state = RecordingState.CREATE;
 				}
 				if (recordingState === RecordingState.HIDDEN) {
 					sendMessage("updateToPlayIcon");
 				}
-				setRootPosition(
-					recordingState === RecordingState.EDITING
-						? RecordingState.CREATE
-						: recordingState,
-				);
+				setRootPosition(state);
 				root.render(<ContentApp isOpen={true} email={email || ""} />);
 			});
 		});
