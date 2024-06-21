@@ -4,7 +4,9 @@ import Button, { Variant } from "../../common/Button";
 import TextField from "../../common/TextField";
 import { RecordingState } from "../../consts";
 import {
+	getAlterations,
 	getRecordingsStorage,
+	loadAlterations,
 	loadRecordingId,
 	sendMessage,
 } from "../../utils";
@@ -31,9 +33,11 @@ const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
 		getData().then((res) => setData(res));
 	}, []);
 
-	const handleEdit = () => {
+	const handleEdit = async () => {
 		sendMessage("resetIcon");
+		const alterations = await getAlterations();
 		onChangeState(RecordingState.EDITING);
+		loadAlterations(alterations, true);
 		setEditorMode(true);
 	};
 

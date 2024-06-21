@@ -9,6 +9,7 @@ import {
 	buildQuerySelector,
 } from "./commands/Command";
 import {
+	MOCKSI_ALTERATIONS,
 	MOCKSI_MODIFICATIONS,
 	MOCKSI_RECORDING_ID,
 	MOCKSI_RECORDING_STATE,
@@ -252,6 +253,12 @@ export const getEmail = async (): Promise<string | null> => {
 		logout();
 		return null;
 	}
+};
+export const getAlterations = async (): Promise<Alteration[] | []> => {
+	const value = await chrome.storage.local.get([MOCKSI_ALTERATIONS]);
+	const storedData = value[MOCKSI_ALTERATIONS];
+
+	return storedData ?? [];
 };
 
 export const getRecordingsStorage = async (): Promise<Recording[]> => {

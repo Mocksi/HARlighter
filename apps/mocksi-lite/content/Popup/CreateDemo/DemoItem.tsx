@@ -1,7 +1,11 @@
 import type { Recording } from "../../../background";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
-import { MOCKSI_RECORDING_ID, RecordingState } from "../../../consts";
+import {
+	MOCKSI_ALTERATIONS,
+	MOCKSI_RECORDING_ID,
+	RecordingState,
+} from "../../../consts";
 import editIcon from "../../../public/edit-icon.png";
 import playIcon from "../../../public/play-icon.png";
 import { loadAlterations } from "../../../utils";
@@ -25,11 +29,11 @@ const DemoItem = ({
 		setState(RecordingState.EDITING);
 	};
 
-	const handlePlay = () => {
-		chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: uuid }).then(() => {
-			setState(RecordingState.PLAY);
-			loadAlterations(alterations, true);
-		});
+	const handlePlay = async () => {
+		await chrome.storage.local.set({ [MOCKSI_ALTERATIONS]: alterations });
+		await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: uuid });
+		loadAlterations(alterations, false);
+		setState(RecordingState.PLAY);
 	};
 
 	const domain = new URL(url).hostname;

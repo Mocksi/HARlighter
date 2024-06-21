@@ -4,7 +4,7 @@ import closeIcon from "../../public/close-icon.png";
 import editIcon from "../../public/edit-icon.png";
 import labeledIcon from "../../public/labeled-icon.png";
 import stopIcon from "../../public/stop-icon.png";
-import { sendMessage } from "../../utils";
+import { getAlterations, loadAlterations, sendMessage } from "../../utils";
 import { setEditorMode } from "../EditMode/editMode";
 import Toast from "./index";
 
@@ -13,8 +13,10 @@ interface PlayToastProps {
 	onChangeState: (r: RecordingState) => void;
 }
 const PlayToast = ({ onChangeState, close }: PlayToastProps) => {
-	const handleEdit = () => {
+	const handleEdit = async () => {
+		const alterations = await getAlterations();
 		onChangeState(RecordingState.EDITING);
+		loadAlterations(alterations, true);
 		setEditorMode(true);
 	};
 	const handleHideToast = () => {
