@@ -80,6 +80,9 @@ export function applyImageChanges(
 ) {
 	const oldSrc = targetedElement.src;
 	targetedElement.src = newSrc;
+	if (targetedElement.srcset) {
+		targetedElement.removeAttribute("srcset");
+	}
 	const domManipulator = new DOMManipulator(
 		fragmentTextNode,
 		getHighlighter(),
