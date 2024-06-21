@@ -38,49 +38,42 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 			});
 	};
 
+	const closeDialog = () => setIsDialogOpen(false);
+
 	if (!isDialogOpen) {
 		return null;
 	}
-	if (state === RecordingState.READY || state === RecordingState.CREATE) {
-		return (
-			<Popup
-				state={state}
-				close={() => setIsDialogOpen(false)}
-				setState={onChangeState}
-				email={email}
-			/>
-		);
-	}
 
-	if (state === RecordingState.EDITING) {
-		return <EditToast state={state} onChangeState={onChangeState} />;
-	}
+	const renderContent = () => {
+		switch (state) {
+			case RecordingState.READY:
+			case RecordingState.CREATE:
+				return (
+					<Popup
+						state={state}
+						close={closeDialog}
+						setState={setState}
+						email={email}
+					/>
+				);
+			case RecordingState.EDITING:
+				return <EditToast state={state} onChangeState={setState} />;
+			case RecordingState.PLAY:
+				return <PlayToast onChangeState={setState} close={closeDialog} />;
+			case RecordingState.HIDDEN:
+				return <HiddenToast onChangeState={setState} close={closeDialog} />;
+			default:
+				return (
+					<RecordingToast
+						close={closeDialog}
+						state={state}
+						onChangeState={setState}
+					/>
+				);
+		}
+	};
 
-	if (state === RecordingState.PLAY) {
-		return (
-			<PlayToast
-				onChangeState={onChangeState}
-				close={() => setIsDialogOpen(false)}
-			/>
-		);
-	}
-
-	if (state === RecordingState.HIDDEN) {
-		return (
-			<HiddenToast
-				onChangeState={onChangeState}
-				close={() => setIsDialogOpen(false)}
-			/>
-		);
-	}
-
-	return (
-		<RecordingToast
-			close={() => setIsDialogOpen(false)}
-			state={state}
-			onChangeState={onChangeState}
-		/>
-	);
+	return renderContent();
 }
 
 const extractStyles = (): string => {
