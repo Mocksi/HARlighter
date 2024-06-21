@@ -9,7 +9,9 @@ import {
 	buildQuerySelector,
 } from "./commands/Command";
 import {
+	MOCKSI_ALTERATIONS,
 	MOCKSI_MODIFICATIONS,
+	MOCKSI_RECORDING_ID,
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
 	STORAGE_KEY,
@@ -32,7 +34,9 @@ export const setRootPosition = (state: RecordingState | null) => {
 	const extensionRoot = document.getElementById("extension-root");
 	if (extensionRoot) {
 		const bottom =
-			state === RecordingState.READY || state === RecordingState.CREATE;
+			state === RecordingState.READY ||
+			state === RecordingState.CREATE ||
+			state === RecordingState.PLAY;
 		extensionRoot.className = bottom ? "bottom-extension" : "top-extension";
 	}
 };
@@ -250,11 +254,16 @@ export const getEmail = async (): Promise<string | null> => {
 		return null;
 	}
 };
+export const getAlterations = async (): Promise<Alteration[] | []> => {
+	const value = await chrome.storage.local.get([MOCKSI_ALTERATIONS]);
+	const storedData = value[MOCKSI_ALTERATIONS];
+
+	return storedData ?? [];
+};
 
 export const getRecordingsStorage = async (): Promise<Recording[]> => {
 	try {
 		const results = await chrome.storage.local.get(["recordings"]);
-		console.log("results", results.recordings);
 		if (results.recordings) {
 			return JSON.parse(results.recordings);
 		}
@@ -262,5 +271,30 @@ export const getRecordingsStorage = async (): Promise<Recording[]> => {
 	} catch (err) {
 		console.error("Failed to retrieve recordings:", err);
 		throw err;
+	}
+};
+
+export const loadRecordingId = async () => {
+	return new Promise<string | undefined>((resolve) => {
+		chrome.storage.local.get([MOCKSI_RECORDING_ID], (result) => {
+			resolve(result[MOCKSI_RECORDING_ID]);
+		});
+	});
+};
+
+export const recordingLabel = (currentStatus: RecordingState) => {
+	switch (currentStatus) {
+		case RecordingState.READY:
+			return "Start recording";
+		case RecordingState.RECORDING:
+			return "Mocksi Recording";
+		case RecordingState.EDITING:
+			return "Editing Template";
+		case RecordingState.ANALYZING:
+			return "Analyzing...";
+		case RecordingState.UNAUTHORIZED:
+			return "Login to record";
+		default:
+			return "Start recording";
 	}
 };

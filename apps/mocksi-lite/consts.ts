@@ -1,5 +1,6 @@
 export const MOCKSI_RECORDING_STATE = "mocksi-recordingState";
 export const MOCKSI_RECORDING_ID = "mocksi-recordingId";
+export const MOCKSI_ALTERATIONS = "mocksi-alterations";
 export const MOCKSI_MODIFICATIONS = "mocksi-modifications";
 export const COOKIE_NAME = "sessionid";
 export const MOCKSI_ACCESS_TOKEN = "mocksi-accessToken";
@@ -23,6 +24,8 @@ export enum RecordingState {
 	ANALYZING = "ANALYZING",
 	CREATE = "CREATE",
 	EDITING = "EDITING",
+	PLAY = "PLAY",
+	HIDDEN = "HIDDEN",
 }
 
 export const popupTitle = "Tip & Tricks";
