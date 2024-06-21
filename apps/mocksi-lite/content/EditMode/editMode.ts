@@ -47,7 +47,7 @@ function onDoubleClickText(event: MouseEvent) {
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 		const targetedElement: HTMLElement = event.target as HTMLElement;
 		const selection = window.getSelection();
-		if (selection?.toString()) {
+		if (selection?.toString()?.trim()) {
 			applyEditor(targetedElement, selection, event.shiftKey);
 			document.getElementById("mocksiTextArea")?.focus();
 		} else {
