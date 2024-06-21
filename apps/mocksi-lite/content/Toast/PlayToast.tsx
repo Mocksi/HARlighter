@@ -4,7 +4,12 @@ import closeIcon from "../../public/close-icon.png";
 import editIcon from "../../public/edit-icon.png";
 import labeledIcon from "../../public/labeled-icon.png";
 import stopIcon from "../../public/stop-icon.png";
-import { getAlterations, loadAlterations, sendMessage, undoModifications } from "../../utils";
+import {
+	getAlterations,
+	loadAlterations,
+	sendMessage,
+	undoModifications,
+} from "../../utils";
 import { setEditorMode } from "../EditMode/editMode";
 import Toast from "./index";
 
@@ -40,8 +45,8 @@ const PlayToast = ({ onChangeState, close }: PlayToastProps) => {
 				<Button
 					variant={Variant.icon}
 					onClick={() => {
-						undoModifications()
-						onChangeState(RecordingState.CREATE)
+						undoModifications();
+						onChangeState(RecordingState.CREATE);
 					}}
 				>
 					<img src={stopIcon} alt={"stopIcon"} />
