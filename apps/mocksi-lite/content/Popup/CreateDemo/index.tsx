@@ -48,7 +48,7 @@ const CreateDemo = ({
 		return <Form onCancel={() => setCreateForm(false)} />;
 	}
 	return (
-		<div className={"flex flex-1 flex-col h-[280px]"}>
+		<div className={"flex flex-1 flex-col h-[280px] overflow-x-scroll"}>
 			{recordings.length ? (
 				<div
 					className={"flex-1 flex flex-col py-8 overflow-y-scroll no-scrollbar"}

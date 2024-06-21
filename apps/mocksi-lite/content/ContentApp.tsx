@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useShadow from "use-shadow-dom";
 import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
 import { setRootPosition } from "../utils";
 import Popup from "./Popup";
@@ -12,7 +13,7 @@ interface ContentProps {
 	email: string | null;
 }
 
-export default function ContentApp({ isOpen, email }: ContentProps) {
+function ShadowContentApp({ isOpen, email }: ContentProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 	const [state, setState] = useState<RecordingState>(
 		RecordingState.UNAUTHORIZED,
@@ -77,4 +78,31 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 			onChangeState={onChangeState}
 		/>
 	);
+}
+
+const extractStyles = (): string => {
+	let styles = "";
+	const styleSheets = Array.from(document.styleSheets) as CSSStyleSheet[];
+
+	for (const sheet of styleSheets) {
+		try {
+			if (sheet.cssRules) {
+				const cssRules = Array.from(sheet.cssRules) as CSSRule[];
+				for (const rule of cssRules) {
+					styles += rule.cssText;
+				}
+			}
+		} catch (e) {
+			console.error("Error accessing stylesheet:", e);
+		}
+	}
+
+	return styles;
+};
+
+export default function ContentApp({ isOpen, email }: ContentProps) {
+	const styles = extractStyles();
+	return useShadow(<ShadowContentApp isOpen={isOpen} email={email} />, [], {
+		styleContent: styles,
+	});
 }

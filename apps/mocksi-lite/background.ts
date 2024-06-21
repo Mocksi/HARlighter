@@ -8,6 +8,7 @@ export interface Alteration {
 	action: string;
 	dom_before: string;
 	dom_after: string;
+	type: string;
 }
 
 export interface Recording {
@@ -74,6 +75,10 @@ chrome.action.onClicked.addListener((activeTab) => {
 		return;
 	}
 
+	if (!chrome.action.isEnabled()) {
+		chrome.action.enable();
+	}
+
 	const version = "1.0";
 	if (!currentTabId) {
 		return;
@@ -92,7 +97,7 @@ chrome.action.onClicked.addListener((activeTab) => {
 		// biome-ignore lint/suspicious/noExplicitAny: error message
 	} catch (e: any) {
 		console.error("Error attaching debugger", e);
-		if (e.message === "Cannot acces a chrome:// URL") {
+		if (e.message === "Cannot access a chrome:// URL") {
 			console.log("Cannot attach to this target");
 			return;
 		}
