@@ -8,6 +8,7 @@
 		"@types/react-dom": "^18.0.5",
 		"@types/sanitize-html": "^2.11.0",
 		"@types/uuid": "^9.0.8",
+		"daisyui": "^4.12.2",
 		"extension": "1.7.1",
 		"react": "^18.1.0",
 		"react-dom": "^18.1.0",
@@ -26,6 +27,7 @@
 		"@rollbar/react": "0.12.0-beta",
 		"rollbar": "^2.26.4",
 		"sanitize-html": "^2.13.0",
+		"use-shadow-dom": "^1.2.0",
 		"uuid": "^9.0.1"
 	},
 	"name": "mocksi-lite",

@@ -73,3 +73,20 @@ export function fragmentTextNode(
 	}
 	return baseFragment;
 }
+
+export function applyImageChanges(
+	targetedElement: HTMLImageElement,
+	newSrc: string,
+) {
+	const oldSrc = targetedElement.src;
+	targetedElement.src = newSrc;
+	if (targetedElement.srcset) {
+		targetedElement.removeAttribute("srcset");
+	}
+	const domManipulator = new DOMManipulator(
+		fragmentTextNode,
+		getHighlighter(),
+		saveModification,
+	);
+	domManipulator.replaceImage(oldSrc, newSrc);
+}

@@ -18,8 +18,14 @@ import {
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
 
+type DomAlteration = {
+	type: "text" | "image";
+	newValue: string;
+	oldValue: string;
+};
+
 type DOMModificationsType = {
-	[querySelector: string]: { nextText: string; previousText: string };
+	[querySelector: string]: DomAlteration;
 };
 
 export const setRootPosition = (state: RecordingState | null) => {
@@ -47,15 +53,17 @@ let domainModifications: DOMModificationsType = {};
 
 export const saveModification = (
 	parentElement: HTMLElement,
-	newText: string,
-	previousText: string,
+	newValue: string,
+	oldValue: string,
+	type: "text" | "image" = "text",
 ) => {
 	const saveModificationCommand = new SaveModificationCommand(
 		domainModifications,
 		{
-			keyToSave: buildQuerySelector(parentElement, newText),
-			nextText: sanitizeHtml(newText),
-			previousText,
+			keyToSave: buildQuerySelector(parentElement, newValue),
+			newValue: sanitizeHtml(newValue),
+			oldValue,
+			type,
 		},
 	);
 	commandsExecuted.push(saveModificationCommand);
@@ -98,31 +106,41 @@ export const loadAlterations = (
 		saveModification,
 	);
 	for (const alteration of alterations) {
-		const { selector, dom_after, dom_before } = alteration;
+		const { selector, dom_after, dom_before, type } = alteration;
 		const elemToModify = getHTMLElementFromSelector(selector);
 		if (elemToModify) {
-			domManipulator.iterateAndReplace(
-				elemToModify as Node,
-				new RegExp(dom_before, "gi"),
-				sanitizeHtml(dom_after),
-				withHighlights,
-			);
+			if (type === "text") {
+				domManipulator.iterateAndReplace(
+					elemToModify as Node,
+					new RegExp(dom_before, "gi"),
+					sanitizeHtml(dom_after),
+					withHighlights,
+				);
+			} else if (type === "image" && elemToModify instanceof HTMLImageElement) {
+				elemToModify.src = dom_after;
+				if (elemToModify.srcset) {
+					elemToModify.removeAttribute("srcset");
+				}
+			}
 		}
 	}
 };
 
 // This is from chrome.storage.local
 export const loadPreviousModifications = () => {
-	for (const modification of Object.entries(domainModifications)) {
-		const [querySelector, { previousText, nextText }] = modification;
-		const sanitizedPreviousText = sanitizeHtml(previousText);
+	for (const [querySelector, { oldValue, newValue, type }] of Object.entries(
+		domainModifications,
+	)) {
+		const sanitizedOldValue = sanitizeHtml(oldValue);
 		const elemToModify = getHTMLElementFromSelector(querySelector);
-		// here newText and previous is in altered order because we want to revert the changes
-		if (elemToModify) {
+		// here newValue and oldValue is in altered order because we want to revert the changes
+		if (type === "text" && elemToModify) {
 			elemToModify.innerHTML = elemToModify.innerHTML.replaceAll(
-				nextText,
-				sanitizedPreviousText,
+				newValue,
+				sanitizedOldValue,
 			);
+		} else if (type === "image" && elemToModify instanceof HTMLImageElement) {
+			elemToModify.src = sanitizedOldValue;
 		}
 	}
 };
@@ -186,11 +204,12 @@ const buildAlterations = (
 	modifications: DOMModificationsType,
 ): Alteration[] => {
 	return Object.entries(modifications).map(
-		([querySelector, { nextText, previousText }]) => ({
+		([querySelector, { newValue, oldValue, type }]) => ({
 			selector: querySelector,
-			action: previousText ? "modified" : "added",
-			dom_before: previousText || "",
-			dom_after: nextText,
+			action: oldValue ? "modified" : "added",
+			dom_before: oldValue || "",
+			dom_after: newValue,
+			type,
 		}),
 	);
 };

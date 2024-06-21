@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useShadow from "use-shadow-dom";
 import TextField from "../common/TextField";
 import {
 	MOCKSI_RECORDING_ID,
@@ -34,7 +35,7 @@ const recordingLabel = (currentStatus: RecordingState) => {
 	}
 };
 
-export default function ContentApp({ isOpen, email }: ContentProps) {
+function ShadowContentApp({ isOpen, email }: ContentProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 	const [areChangesHighlighted, setAreChangesHighlighted] = useState(true);
 	const [state, setState] = useState<RecordingState>(
@@ -165,4 +166,31 @@ export default function ContentApp({ isOpen, email }: ContentProps) {
 			)}
 		</div>
 	);
+}
+
+const extractStyles = (): string => {
+	let styles = "";
+	const styleSheets = Array.from(document.styleSheets) as CSSStyleSheet[];
+
+	for (const sheet of styleSheets) {
+		try {
+			if (sheet.cssRules) {
+				const cssRules = Array.from(sheet.cssRules) as CSSRule[];
+				for (const rule of cssRules) {
+					styles += rule.cssText;
+				}
+			}
+		} catch (e) {
+			console.error("Error accessing stylesheet:", e);
+		}
+	}
+
+	return styles;
+};
+
+export default function ContentApp({ isOpen, email }: ContentProps) {
+	const styles = extractStyles();
+	return useShadow(<ShadowContentApp isOpen={isOpen} email={email} />, [], {
+		styleContent: styles,
+	});
 }

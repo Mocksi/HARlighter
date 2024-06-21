@@ -43,7 +43,7 @@ const Popup = ({ label, close, setState, state, email }: PopupProps) => {
 	return (
 		<div
 			className={
-				"w-[375px] h-[596px] shadow-lg rounded-lg m-4 bg-white flex flex-col justify-between"
+				"w-[500px] h-[596px] shadow-lg rounded-lg m-4 bg-white flex flex-col justify-between"
 			}
 		>
 			<Header createForm={createForm} close={close} />
