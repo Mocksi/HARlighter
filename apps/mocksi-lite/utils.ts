@@ -146,7 +146,6 @@ export const loadPreviousModifications = () => {
 				sanitizedOldValue,
 			);
 		} else if (type === "image" && elemToModify instanceof HTMLImageElement) {
-			// elemToModify.removeAttribute('src')
 			elemToModify.src = oldValue;
 		}
 	}
