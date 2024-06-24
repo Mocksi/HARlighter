@@ -126,10 +126,10 @@ export const loadAlterations = (
 					withHighlights,
 				);
 			} else if (type === "image" && elemToModify instanceof HTMLImageElement) {
-				elemToModify.src = dom_after;
-				if (elemToModify.srcset) {
-					elemToModify.removeAttribute("srcset");
-				}
+				domManipulator.replaceImage(
+					dom_before,
+					dom_after
+				)
 			}
 		}
 	}
@@ -149,7 +149,8 @@ export const loadPreviousModifications = () => {
 				sanitizedOldValue,
 			);
 		} else if (type === "image" && elemToModify instanceof HTMLImageElement) {
-			elemToModify.src = sanitizedOldValue;
+			// elemToModify.removeAttribute('src')
+			elemToModify.src = oldValue;
 		}
 	}
 };
