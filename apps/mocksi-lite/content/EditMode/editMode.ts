@@ -237,11 +237,9 @@ const restoreNodes = () => {
 		let index = 0;
 		for (const readonlyElem of clickableElements) {
 			if (blockedNodes[index]) {
-				const { href, style, onclick, src } = blockedNodes[index];
+				const { href, style, onclick } = blockedNodes[index];
 				if (readonlyElem instanceof HTMLAnchorElement) {
 					readonlyElem.href = href;
-				} else if (readonlyElem instanceof HTMLImageElement) {
-					readonlyElem.src = src;
 				}
 				readonlyElem.style.cursor = style.cursor;
 				readonlyElem.onclick = onclick;
