@@ -13,6 +13,7 @@ type SaveModification = (
 	element: HTMLElement,
 	newText: string,
 	cleanPattern: string,
+	type: "text" | "image",
 ) => void;
 
 export class DOMManipulator {
@@ -142,14 +143,15 @@ export class DOMManipulator {
 
 	replaceImage(oldSrc: string, newSrc: string) {
 		const images = document.querySelectorAll(
-			`img[src="${oldSrc}"]`,
+			`img`,
 		) as NodeListOf<HTMLImageElement>;
 		for (const img of images) {
+			if (img.src !== oldSrc) continue;
 			img.src = newSrc;
 			if (img.srcset) {
 				img.removeAttribute("srcset");
 			}
-			this.saveModification(img, newSrc, oldSrc);
+			this.saveModification(img, newSrc, oldSrc, "image");
 		}
 	}
 }
@@ -213,6 +215,7 @@ const fillReplacements = (
 			textNode.parentElement as HTMLElement,
 			newText,
 			cleanPattern(oldTextPattern),
+			"text"
 		);
 	}
 };
