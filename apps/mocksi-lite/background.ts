@@ -1,4 +1,5 @@
 import MocksiRollbar from "./MocksiRollbar";
+import WebSocketBuilder from "./WebSocketBuilder";
 import { STORAGE_KEY, SignupURL, WebSocketURL } from "./consts";
 import { apiCall } from "./networking";
 import { getEmail, logout } from "./utils";
@@ -365,93 +366,14 @@ chrome.runtime.onMessage.addListener(
 	},
 );
 
-let webSocket = new WebSocket(WebSocketURL);
-
-webSocket.onopen = () => {
-	keepAlive();
-};
-
-webSocket.onmessage = (event) => {
-	console.log(`websocket received message: ${event.data}`);
-	let command: RequestInterception | null = null;
-	try {
-		const parsed = JSON.parse(event.data);
-		command = parsed as RequestInterception;
-	} catch (e) {
-		console.error("Error parsing websocket message", e);
-		return;
-	}
-
-	if (command?.type === "RequestInterception") {
-		// data will be uri encoded to prevent issues with unicode
-		const interceptDataEncoded = atob(command.payload);
-		const interceptData = decodeURIComponent(interceptDataEncoded);
-		const interception: RequestInterception = {
-			type: command.type,
-			url: command.url,
-			method: command.method,
-			payload: interceptData,
-		};
-		requestInterceptions.set(command.url, interception);
-		console.log("Will intercept request", command.url);
-
-		if (!currentTabId) {
-			return;
-		}
-
-		chrome.debugger.sendCommand(
-			{ tabId: currentTabId },
-			"Network.setRequestInterception",
-			{
-				patterns: [
-					{
-						urlPattern: command.url,
-						resourceType: "XHR",
-						interceptionStage: "HeadersReceived",
-					},
-				],
-			},
-			(response) => {
-				console.log("requested", response);
-			},
-		);
-		chrome.debugger.onEvent.addListener(allEventHandler);
-	}
-};
-
-webSocket.onclose = () => {
-	console.log("websocket connection closed");
-	const reconnectInterval = 5000; // 5 seconds
-	// biome-ignore lint/suspicious/noExplicitAny: tried to add NodeJS.Timeout type but is breaking on prod build leaving as any for now.
-	let reconnectTimeout: any;
-
-	function reconnectWebSocket() {
-		if (reconnectTimeout) {
-			clearTimeout(reconnectTimeout);
-		}
-		reconnectTimeout = setTimeout(() => {
-			console.log("Reconnecting websocket...");
-			const oldWebSocket = webSocket;
-			webSocket = new WebSocket(WebSocketURL);
-			// FIXME: this is nasty, but it works
-			webSocket.onopen = oldWebSocket.onopen;
-			webSocket.onmessage = oldWebSocket.onmessage;
-			webSocket.onclose = oldWebSocket.onclose;
-		}, reconnectInterval);
-	}
-
-	reconnectWebSocket();
-};
-
-function keepAlive() {
-	const keepAliveIntervalId = setInterval(() => {
-		if (!webSocket) {
-			clearInterval(keepAliveIntervalId);
-		}
-		try {
-			webSocket.send("keepalive");
-		} catch (e) {
-			console.error("Error sending keepalive", e);
-		}
-	}, 5 * 1000);
-}
+const webSocket = new WebSocketBuilder(WebSocketURL)
+  .onOpen(() => {
+    console.log('WebSocket connection opened');
+  })
+  .onMessage((event) => {
+    console.log(`websocket received message: ${event.data}`);
+  })
+  .onClose(() => {
+    console.log('WebSocket connection closed');
+  })
+  .build();
