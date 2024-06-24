@@ -126,10 +126,7 @@ export const loadAlterations = (
 					withHighlights,
 				);
 			} else if (type === "image" && elemToModify instanceof HTMLImageElement) {
-				domManipulator.replaceImage(
-					dom_before,
-					dom_after
-				)
+				domManipulator.replaceImage(dom_before, dom_after);
 			}
 		}
 	}
