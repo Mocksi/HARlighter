@@ -143,10 +143,12 @@ export class DOMManipulator {
 
 	replaceImage(oldSrc: string, newSrc: string) {
 		const images = document.querySelectorAll(
-			`img`,
+			"img",
 		) as NodeListOf<HTMLImageElement>;
 		for (const img of images) {
-			if (img.src !== oldSrc) continue;
+			if (img.src !== oldSrc) {
+				continue;
+			}
 			img.src = newSrc;
 			if (img.srcset) {
 				img.removeAttribute("srcset");
@@ -215,7 +217,7 @@ const fillReplacements = (
 			textNode.parentElement as HTMLElement,
 			newText,
 			cleanPattern(oldTextPattern),
-			"text"
+			"text",
 		);
 	}
 };
