@@ -25,7 +25,7 @@ function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 			.set({ [MOCKSI_RECORDING_STATE]: newState })
 			.then(() => {
 				setState(newState);
-				// setRootPosition(newState);
+				setRootPosition(newState);
 			});
 	};
 
