@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useShadow from "use-shadow-dom";
 import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
 import { setRootPosition } from "../utils";
@@ -9,32 +9,23 @@ import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
 
 interface ContentProps {
+	initialState: RecordingState;
 	isOpen?: boolean;
 	email: string | null;
 }
 
-function ShadowContentApp({ isOpen, email }: ContentProps) {
+function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 	const [state, setState] = useState<RecordingState>(
-		RecordingState.UNAUTHORIZED,
+		initialState ?? RecordingState.UNAUTHORIZED,
 	);
-
-	useEffect(() => {
-		// Load initial state from chrome storage
-		chrome.storage.local.get([MOCKSI_RECORDING_STATE], (result) => {
-			const initialState = result[
-				MOCKSI_RECORDING_STATE
-			] as RecordingState | null;
-			setState(initialState ?? RecordingState.UNAUTHORIZED);
-		});
-	}, []);
 
 	const onChangeState = (newState: RecordingState) => {
 		chrome.storage.local
 			.set({ [MOCKSI_RECORDING_STATE]: newState })
 			.then(() => {
 				setState(newState);
-				setRootPosition(newState);
+				// setRootPosition(newState);
 			});
 	};
 
@@ -52,22 +43,24 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 					<Popup
 						state={state}
 						close={closeDialog}
-						setState={setState}
+						setState={onChangeState}
 						email={email}
 					/>
 				);
 			case RecordingState.EDITING:
-				return <EditToast state={state} onChangeState={setState} />;
+				return <EditToast state={state} onChangeState={onChangeState} />;
 			case RecordingState.PLAY:
-				return <PlayToast onChangeState={setState} close={closeDialog} />;
+				return <PlayToast onChangeState={onChangeState} close={closeDialog} />;
 			case RecordingState.HIDDEN:
-				return <HiddenToast onChangeState={setState} close={closeDialog} />;
+				return (
+					<HiddenToast onChangeState={onChangeState} close={closeDialog} />
+				);
 			default:
 				return (
 					<RecordingToast
 						close={closeDialog}
 						state={state}
-						onChangeState={setState}
+						onChangeState={onChangeState}
 					/>
 				);
 		}
@@ -96,9 +89,21 @@ const extractStyles = (): string => {
 	return styles;
 };
 
-export default function ContentApp({ isOpen, email }: ContentProps) {
+export default function ContentApp({
+	isOpen,
+	email,
+	initialState,
+}: ContentProps) {
 	const styles = extractStyles();
-	return useShadow(<ShadowContentApp isOpen={isOpen} email={email} />, [], {
-		styleContent: styles,
-	});
+	return useShadow(
+		<ShadowContentApp
+			initialState={initialState}
+			isOpen={isOpen}
+			email={email}
+		/>,
+		[],
+		{
+			styleContent: styles,
+		},
+	);
 }
