@@ -1,4 +1,5 @@
 import { MOCKSI_HIGHLIGHTER_ID } from "../../consts";
+import { decorate } from "./decorator";
 
 class Highlighter {
 	private contentRanger = document.createRange();
@@ -8,7 +9,7 @@ class Highlighter {
 		this.contentRanger.selectNodeContents(elementToHighlight);
 		const { x, y, width, height } =
 			this.contentRanger.getBoundingClientRect() || {};
-		const textHighlight = highlight({ x, y, width, height });
+		const textHighlight = highlight({ x, y, width, height, highlightedElement: elementToHighlight });
 		document.body.appendChild(textHighlight);
 		//@ts-ignore just don't know what is meaning here
 		this.highlightedNodes.push(elementToHighlight);
@@ -45,7 +46,8 @@ const highlight = ({
 	y,
 	width,
 	height,
-}: { x: number; y: number; width: number; height: number }) => {
+	highlightedElement
+}: { x: number; y: number; width: number; height: number, highlightedElement: Node }) => {
 	const highlightDiv = document.createElement("div");
 	highlightDiv.className = MOCKSI_HIGHLIGHTER_ID;
 	highlightDiv.style.position = "absolute";
@@ -56,5 +58,21 @@ const highlight = ({
 	highlightDiv.style.height = `${height + 4}px`;
 	highlightDiv.style.border = "2px solid purple";
 	highlightDiv.style.backgroundColor = "transparent";
+	highlightDiv.style.cursor = "text";
+	highlightDiv.ondblclick = (event: MouseEvent) => {
+		(event.target as HTMLElement).style.display = 'none'
+		if (highlightedElement.parentElement) {
+			highlightedElement.parentElement?.replaceChild(
+				decorate(
+					highlightedElement.textContent || '',
+					''+width,
+					false
+				),
+				highlightedElement
+			)
+			document.getElementById('mocksiTextArea')?.focus()
+		}
+		event.stopPropagation()
+	}
 	return highlightDiv;
 };

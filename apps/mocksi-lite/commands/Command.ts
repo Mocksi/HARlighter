@@ -39,6 +39,10 @@ export const buildQuerySelector = (
 	return keyToSave;
 };
 
+const concatModifiedValue = (querySelector: string, value: string) => {
+	return querySelector.concat(`{${value}}`)
+}
+
 export class SaveModificationCommand implements Command {
 	constructor(
 		private prevModifications: {
@@ -55,6 +59,11 @@ export class SaveModificationCommand implements Command {
 		const { keyToSave, newValue, oldValue, type } = this.modification;
 		const { oldValue: oldValueFromStorage } =
 			this.prevModifications[keyToSave] || {};
+		console.log('executed save', {
+			newValue,
+			oldValue: oldValueFromStorage || oldValue,
+			type,
+		}, oldValueFromStorage)
 		this.prevModifications[keyToSave] = {
 			newValue,
 			oldValue: oldValueFromStorage || oldValue,

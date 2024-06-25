@@ -48,6 +48,7 @@ function injectTextArea(width: string | undefined, value: string) {
 		const newValue = event.target?.value;
 		applyChanges(selectedText, newValue, value);
 	};
+
 	//@ts-ignore
 	ndiv.value = value;
 	ndiv.id = "mocksiTextArea";
