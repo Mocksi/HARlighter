@@ -55,7 +55,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 					window.open(SignupURL);
 				}
 				setRootPosition(state);
-				root.render(<ContentApp isOpen={true} email={email || ""} />);
+				root.render(
+					<ContentApp
+						initialState={state ?? RecordingState.READY}
+						isOpen={true}
+						email={email || ""}
+					/>,
+				);
 			});
 		});
 	}
