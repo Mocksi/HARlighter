@@ -1,8 +1,7 @@
 import MocksiRollbar from "./MocksiRollbar";
-import WebSocketBuilder from "./WebSocketBuilder";
-import { SignupURL, WebSocketURL } from "./consts";
+import { STORAGE_KEY, SignupURL, WebSocketURL } from "./consts";
 import { apiCall } from "./networking";
-import { getEmail } from "./utils";
+import { getEmail, logout } from "./utils";
 
 export interface Alteration {
 	selector: string;
@@ -117,7 +116,7 @@ interface DataPayload {
 	currentURL?: string;
 }
 
-let webSocket: WebSocket | undefined;
+const credsJson = "";
 
 // TODO: create a type for the request
 // biome-ignore lint/suspicious/noExplicitAny: this is hard to type
@@ -155,13 +154,11 @@ function sendData(request: Map<string, any>) {
 
 function onAttach(tabId: number) {
 	chrome.debugger.sendCommand({ tabId: tabId }, "Network.enable");
-	chrome.debugger.onEvent.addListener(debuggerEventHandler);
-	webSocket = new WebSocketBuilder(WebSocketURL).build();
+	chrome.debugger.onEvent.addListener(allEventHandler);
 }
 
 function debuggerDetachHandler() {
 	requests.clear();
-	webSocket?.close();
 }
 
 async function createDemo(body: Record<string, unknown>) {
@@ -212,7 +209,7 @@ async function getRecordings() {
 // biome-ignore lint/suspicious/noExplicitAny: also hard to type
 const requests = new Map<string, Map<string, any>>();
 
-function debuggerEventHandler(
+function allEventHandler(
 	debuggeeId: chrome.debugger.Debuggee,
 	message: string,
 	// TODO: create a type for the params
@@ -371,3 +368,94 @@ chrome.runtime.onMessage.addListener(
 		return false; // No async response for other messages
 	},
 );
+
+let webSocket = new WebSocket(WebSocketURL);
+
+webSocket.onopen = () => {
+	keepAlive();
+};
+
+webSocket.onmessage = (event) => {
+	console.log(`websocket received message: ${event.data}`);
+	let command: RequestInterception | null = null;
+	try {
+		const parsed = JSON.parse(event.data);
+		command = parsed as RequestInterception;
+	} catch (e) {
+		console.error("Error parsing websocket message", e);
+		return;
+	}
+
+	if (command?.type === "RequestInterception") {
+		// data will be uri encoded to prevent issues with unicode
+		const interceptDataEncoded = atob(command.payload);
+		const interceptData = decodeURIComponent(interceptDataEncoded);
+		const interception: RequestInterception = {
+			type: command.type,
+			url: command.url,
+			method: command.method,
+			payload: interceptData,
+		};
+		requestInterceptions.set(command.url, interception);
+		console.log("Will intercept request", command.url);
+
+		if (!currentTabId) {
+			return;
+		}
+
+		chrome.debugger.sendCommand(
+			{ tabId: currentTabId },
+			"Network.setRequestInterception",
+			{
+				patterns: [
+					{
+						urlPattern: command.url,
+						resourceType: "XHR",
+						interceptionStage: "HeadersReceived",
+					},
+				],
+			},
+			(response) => {
+				console.log("requested", response);
+			},
+		);
+		chrome.debugger.onEvent.addListener(allEventHandler);
+	}
+};
+
+webSocket.onclose = () => {
+	console.log("websocket connection closed");
+	const reconnectInterval = 5000; // 5 seconds
+	// biome-ignore lint/suspicious/noExplicitAny: tried to add NodeJS.Timeout type but is breaking on prod build leaving as any for now.
+	let reconnectTimeout: any;
+
+	function reconnectWebSocket() {
+		if (reconnectTimeout) {
+			clearTimeout(reconnectTimeout);
+		}
+		reconnectTimeout = setTimeout(() => {
+			console.log("Reconnecting websocket...");
+			const oldWebSocket = webSocket;
+			webSocket = new WebSocket(WebSocketURL);
+			// FIXME: this is nasty, but it works
+			webSocket.onopen = oldWebSocket.onopen;
+			webSocket.onmessage = oldWebSocket.onmessage;
+			webSocket.onclose = oldWebSocket.onclose;
+		}, reconnectInterval);
+	}
+
+	reconnectWebSocket();
+};
+
+function keepAlive() {
+	const keepAliveIntervalId = setInterval(() => {
+		if (!webSocket) {
+			clearInterval(keepAliveIntervalId);
+		}
+		try {
+			webSocket.send("keepalive");
+		} catch (e) {
+			console.error("Error sending keepalive", e);
+		}
+	}, 5 * 1000);
+}
