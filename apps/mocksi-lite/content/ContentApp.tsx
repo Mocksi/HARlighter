@@ -64,7 +64,7 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 			case RecordingState.HIDDEN:
 				return <HiddenToast onChangeState={setState} close={closeDialog} />;
 			case RecordingState.CHAT:
-				return <ChatToast />;
+				return <ChatToast onChangeState={setState} close={closeDialog} />;
 			default:
 				return (
 					<RecordingToast

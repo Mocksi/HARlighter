@@ -1,8 +1,8 @@
 import MocksiRollbar from "./MocksiRollbar";
 import WebSocketBuilder from "./WebSocketBuilder";
-import { STORAGE_KEY, SignupURL, WebSocketURL } from "./consts";
+import { SignupURL, WebSocketURL } from "./consts";
 import { apiCall } from "./networking";
-import { getEmail, logout } from "./utils";
+import { getEmail } from "./utils";
 
 export interface Alteration {
 	selector: string;
@@ -117,7 +117,7 @@ interface DataPayload {
 	currentURL?: string;
 }
 
-const credsJson = "";
+let webSocket: WebSocket | undefined;
 
 // TODO: create a type for the request
 // biome-ignore lint/suspicious/noExplicitAny: this is hard to type
@@ -155,11 +155,13 @@ function sendData(request: Map<string, any>) {
 
 function onAttach(tabId: number) {
 	chrome.debugger.sendCommand({ tabId: tabId }, "Network.enable");
-	chrome.debugger.onEvent.addListener(allEventHandler);
+	chrome.debugger.onEvent.addListener(debuggerEventHandler);
+	webSocket = new WebSocketBuilder(WebSocketURL).build();
 }
 
 function debuggerDetachHandler() {
 	requests.clear();
+	webSocket?.close();
 }
 
 async function createDemo(body: Record<string, unknown>) {
@@ -210,7 +212,7 @@ async function getRecordings() {
 // biome-ignore lint/suspicious/noExplicitAny: also hard to type
 const requests = new Map<string, Map<string, any>>();
 
-function allEventHandler(
+function debuggerEventHandler(
 	debuggeeId: chrome.debugger.Debuggee,
 	message: string,
 	// TODO: create a type for the params
@@ -361,19 +363,11 @@ chrome.runtime.onMessage.addListener(
 			return true;
 		}
 
+		if (request.message === "Chat") {
+			return true;
+		}
+
 		sendResponse({ message: request.message, status: "fail" });
 		return false; // No async response for other messages
 	},
 );
-
-const webSocket = new WebSocketBuilder(WebSocketURL)
-  .onOpen(() => {
-    console.log('WebSocket connection opened');
-  })
-  .onMessage((event) => {
-    console.log(`websocket received message: ${event.data}`);
-  })
-  .onClose(() => {
-    console.log('WebSocket connection closed');
-  })
-  .build();

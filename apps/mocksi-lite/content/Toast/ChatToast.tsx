@@ -1,14 +1,26 @@
 import { useState } from "react";
 import Toast from ".";
+import Button, { Variant } from "../../common/Button";
+import { MOCKSI_RECORDING_STATE, type RecordingState } from "../../consts";
+import closeIcon from "../../public/close-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
 import playIcon from "../../public/play-icon.png";
+import { sendMessage } from "../../utils";
 
 interface Message {
 	role: "assistant" | "user";
 	content: string;
 }
 
-const ChatToast = () => {
+// TODO: this interface should be a common interface
+interface ChatToastProps {
+	close: () => void;
+	onChangeState: (r: RecordingState) => void;
+}
+
+const ChatToast = ({ onChangeState, close }: ChatToastProps) => {
+	const [_state, setState] = useState<string>("");
+
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [isTyping, setIsTyping] = useState<boolean>(false);
 	const [inputValue, setInputValue] = useState<string>("");
@@ -31,15 +43,21 @@ const ChatToast = () => {
 			setIsTyping(false);
 		}, 1000); // Simulated delay
 	};
+	const handleClose = () => {
+		close();
+	};
 
 	return (
 		<Toast
-			className="flex-col py-4 w-[800px] mr-6 mt-1"
+			className="relative flex flex-col py-4 w-[800px] mr-6 mt-1 h-[900px]"
 			backgroundColor="bg-gray-300"
 		>
-			<div
-				className={"flex flex-col justify-center items-center gap-6 mt-[75px]"}
-			>
+			<div className="absolute top-0 left-0 m-2">
+				<Button variant={Variant.secondary} onClick={handleClose}>
+					<img src={closeIcon} alt="closeIcon" />
+				</Button>
+			</div>
+			<div className="flex flex-col justify-center items-center gap-6 mt-[75px] h-full">
 				<div className="flex-grow overflow-auto">
 					{messages.length > 0 &&
 						messages.map((msg, i) => {
@@ -74,7 +92,7 @@ const ChatToast = () => {
 						<input
 							type="text"
 							placeholder="Ask Mocksi a question..."
-							className="input input-bordered flex-grow mr-2.5"
+							className="input input-bordered flex-grow mr-2.5 bg-white"
 							value={inputValue}
 							onChange={(e) => setInputValue(e.target.value)}
 							required
@@ -96,5 +114,4 @@ const ChatToast = () => {
 		</Toast>
 	);
 };
-
 export default ChatToast;
