@@ -9,16 +9,17 @@ import {
 	buildQuerySelector,
 } from "./commands/Command";
 import {
-	MOCKSI_ALTERATIONS,
-	MOCKSI_MODIFICATIONS,
-	MOCKSI_RECORDING_ID,
-	MOCKSI_RECORDING_STATE,
-	RecordingState,
-	STORAGE_KEY,
-	SignupURL,
+  MOCKSI_ALTERATIONS,
+  MOCKSI_MODIFICATIONS,
+  MOCKSI_RECORDING_ID,
+  MOCKSI_RECORDING_STATE,
+  RecordingState,
+  STORAGE_KEY,
+  SignupURL,
 } from "./consts";
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
+import auth0, {WebAuth} from "auth0-js";
 
 type DomAlteration = {
 	type: "text" | "image";
@@ -28,6 +29,15 @@ type DomAlteration = {
 
 type DOMModificationsType = {
 	[querySelector: string]: DomAlteration;
+};
+
+const authOptions: auth0.AuthOptions = {
+  domain: "dev-3lgt71qosvm4psf0.us.auth0.com",
+  clientID: "3XDxVDUz3W3038KmRvkJSjkIs5mGj7at",
+  redirectUri: "https://nest-auth-ts-merge.onrender.com",
+  // TODO: change to include offline_access, see https://github.com/Mocksi/nest/pull/10#discussion_r1635647560
+  responseType: "id_token token",
+  audience: "Mocksi Lite",
 };
 
 export const setRootPosition = (state: RecordingState | null) => {
@@ -42,13 +52,13 @@ export const setRootPosition = (state: RecordingState | null) => {
 };
 
 export const logout = () => {
+  // FIXME: this should redirect to a logout page first
+  const webAuth: WebAuth = new auth0.WebAuth(authOptions);
 	chrome.storage.local.clear(() => {
 		chrome.storage.local.set({
 			[MOCKSI_RECORDING_STATE]: RecordingState.UNAUTHORIZED,
-		});
+		}, () => webAuth.logout({clientID: authOptions.clientID, returnTo: authOptions.redirectUri}))
 	});
-	// FIXME: this should redirect to a logout page first
-	window.open(SignupURL);
 };
 
 const commandsExecuted: Command[] = [];

@@ -30,12 +30,10 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 	}, []);
 
 	const onChangeState = (newState: RecordingState) => {
-		chrome.storage.local
-			.set({ [MOCKSI_RECORDING_STATE]: newState })
-			.then(() => {
-				setState(newState);
-				setRootPosition(newState);
-			});
+    chrome.storage.local.set({ [MOCKSI_RECORDING_STATE]: newState }).then(() => {
+      setState(newState);
+      setRootPosition(newState);
+    })
 	};
 
 	const closeDialog = () => setIsDialogOpen(false);
