@@ -1,8 +1,9 @@
 import ReactDOM from "react-dom/client";
 import {
-  MOCKSI_RECORDING_STATE,
-  RecordingState, SignupURL,
-  STORAGE_CHANGE_EVENT,
+	MOCKSI_RECORDING_STATE,
+	RecordingState,
+	STORAGE_CHANGE_EVENT,
+	SignupURL,
 } from "../consts";
 import { getEmail, sendMessage, setRootPosition } from "../utils";
 import ContentApp from "./ContentApp";
@@ -47,7 +48,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				if (recordingState === RecordingState.HIDDEN) {
 					sendMessage("updateToPlayIcon");
 				}
-				if (recordingState === RecordingState.UNAUTHORIZED && window.location.origin !== SignupURL) {
+				if (
+					recordingState === RecordingState.UNAUTHORIZED &&
+					window.location.origin !== SignupURL
+				) {
 					window.open(SignupURL);
 				}
 				setRootPosition(state);
