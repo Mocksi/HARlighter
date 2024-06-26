@@ -4,6 +4,7 @@ export interface Command {
 }
 
 interface DOMModification {
+	previousKey: string;
 	keyToSave: string;
 	oldValue: string;
 	newValue: string;
@@ -39,9 +40,6 @@ export const buildQuerySelector = (
 	return keyToSave;
 };
 
-const concatModifiedValue = (querySelector: string, value: string) => {
-	return querySelector.concat(`{${value}}`)
-}
 
 export class SaveModificationCommand implements Command {
 	constructor(
@@ -50,20 +48,18 @@ export class SaveModificationCommand implements Command {
 				newValue: string;
 				oldValue: string;
 				type: "text" | "image";
-			};
+			} | undefined;
 		},
 		private modification: DOMModification,
 	) {}
 
 	execute() {
-		const { keyToSave, newValue, oldValue, type } = this.modification;
+		const { keyToSave, previousKey, newValue, oldValue, type } = this.modification;
 		const { oldValue: oldValueFromStorage } =
-			this.prevModifications[keyToSave] || {};
-		console.log('executed save', {
-			newValue,
-			oldValue: oldValueFromStorage || oldValue,
-			type,
-		}, oldValueFromStorage)
+			this.prevModifications[previousKey] || {};
+		if (this.prevModifications[previousKey]) {
+			this.prevModifications[previousKey] = undefined
+		}
 		this.prevModifications[keyToSave] = {
 			newValue,
 			oldValue: oldValueFromStorage || oldValue,
