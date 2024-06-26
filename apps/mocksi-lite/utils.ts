@@ -64,7 +64,7 @@ export const saveModification = (
 	const saveModificationCommand = new SaveModificationCommand(
 		domainModifications,
 		{
-			previousKey: buildQuerySelector(parentElement, oldValue), 
+			previousKey: buildQuerySelector(parentElement, oldValue),
 			keyToSave: buildQuerySelector(parentElement, newValue),
 			newValue: sanitizeHtml(newValue),
 			oldValue,
@@ -135,7 +135,10 @@ export const loadAlterations = (
 
 // This is from chrome.storage.local
 export const loadPreviousModifications = () => {
-	for (const [querySelector, { oldValue, newValue, type }] of modificationsIterable()) {
+	for (const [
+		querySelector,
+		{ oldValue, newValue, type },
+	] of modificationsIterable()) {
 		const sanitizedOldValue = sanitizeHtml(oldValue);
 		const elemToModify = getHTMLElementFromSelector(querySelector);
 		// here newValue and oldValue is in altered order because we want to revert the changes
@@ -218,7 +221,7 @@ const buildAlterations = (): Alteration[] => {
 };
 
 function modificationsIterable() {
-	return Object.entries(domainModifications).filter(([, values]) => values)
+	return Object.entries(domainModifications).filter(([, values]) => values);
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: dynamic arguments
@@ -325,7 +328,7 @@ export const recordingLabel = (currentStatus: RecordingState) => {
 	}
 };
 
-// Generates a random string of length 5 
+// Generates a random string of length 5
 export const generateRandomString = () => {
-	return Math.random().toString(36).substring(2, 7)
-}
+	return Math.random().toString(36).substring(2, 7);
+};

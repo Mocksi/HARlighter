@@ -40,25 +40,27 @@ export const buildQuerySelector = (
 	return keyToSave;
 };
 
-
 export class SaveModificationCommand implements Command {
 	constructor(
 		private prevModifications: {
-			[querySelector: string]: {
-				newValue: string;
-				oldValue: string;
-				type: "text" | "image";
-			} | undefined;
+			[querySelector: string]:
+				| {
+						newValue: string;
+						oldValue: string;
+						type: "text" | "image";
+				  }
+				| undefined;
 		},
 		private modification: DOMModification,
 	) {}
 
 	execute() {
-		const { keyToSave, previousKey, newValue, oldValue, type } = this.modification;
+		const { keyToSave, previousKey, newValue, oldValue, type } =
+			this.modification;
 		const { oldValue: oldValueFromStorage } =
 			this.prevModifications[previousKey] || {};
 		if (this.prevModifications[previousKey]) {
-			this.prevModifications[previousKey] = undefined
+			this.prevModifications[previousKey] = undefined;
 		}
 		this.prevModifications[keyToSave] = {
 			newValue,

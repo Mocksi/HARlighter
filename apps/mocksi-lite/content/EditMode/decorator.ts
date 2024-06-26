@@ -2,17 +2,35 @@ import { applyChanges, cancelEditWithoutChanges } from "./actions";
 
 // function to decorate the porcion of TextNode with the textArea to edit the content
 // functions parameter is to add some extra functionality at the moment of submitting or cancel.
-export function decorate(text: string, width: string, shiftMode: boolean, functions: {onSubmit: (() => void) | undefined, onCancel: (() => void) | undefined} = {onSubmit: undefined, onCancel: undefined}) {
+export function decorate(
+	text: string,
+	width: string,
+	shiftMode: boolean,
+	functions: {
+		onSubmit: (() => void) | undefined;
+		onCancel: (() => void) | undefined;
+	} = { onSubmit: undefined, onCancel: undefined },
+) {
 	const newSpan = document.createElement("span");
 	newSpan.style.position = "relative";
 	newSpan.id = "mocksiSelectedText";
 	newSpan.appendChild(document.createTextNode(text));
-	const textArea = injectTextArea(shiftMode ? width : undefined, text, functions.onSubmit, functions.onCancel);
+	const textArea = injectTextArea(
+		shiftMode ? width : undefined,
+		text,
+		functions.onSubmit,
+		functions.onCancel,
+	);
 	newSpan.appendChild(textArea);
 	return newSpan;
 }
 
-function injectTextArea(width: string | undefined, value: string, onSubmit?: () => void, onCancel?: () => void) {
+function injectTextArea(
+	width: string | undefined,
+	value: string,
+	onSubmit?: () => void,
+	onCancel?: () => void,
+) {
 	const ndiv = document.createElement("textarea");
 	ndiv.setAttribute("tabindex", "-1");
 	const elementStyle = {
@@ -41,7 +59,7 @@ function injectTextArea(width: string | undefined, value: string, onSubmit?: () 
 			}
 			event.preventDefault(); // Prevents the addition of a new line in the text field
 		} else if (event.key === "Escape") {
-			onCancel && onCancel()
+			onCancel?.();
 			cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 		}
 	};
@@ -49,7 +67,7 @@ function injectTextArea(width: string | undefined, value: string, onSubmit?: () 
 		const selectedText = document.getElementById("mocksiSelectedText");
 		// @ts-ignore I don't know why the value property is no inside the target object
 		const newValue = event.target?.value;
-		onSubmit && onSubmit()
+		onSubmit?.();
 		applyChanges(selectedText, newValue, value);
 	};
 

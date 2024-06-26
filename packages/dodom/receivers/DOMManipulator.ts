@@ -84,7 +84,7 @@ export class DOMManipulator {
 			if (nodeToReplace.parentElement == null) {
 				continue;
 			}
-			this.contentHighlighter.removeHighlightNode(nodeToReplace)
+			this.contentHighlighter.removeHighlightNode(nodeToReplace);
 			nodeToReplace.parentElement.replaceChild(replacement, nodeToReplace);
 		}
 
