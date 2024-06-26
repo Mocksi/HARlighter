@@ -81,6 +81,7 @@ export const saveModification = (
 	const saveModificationCommand = new SaveModificationCommand(
 		domainModifications,
 		{
+			previousKey: buildQuerySelector(parentElement, oldValue),
 			keyToSave: buildQuerySelector(parentElement, newValue),
 			newValue: sanitizeHtml(newValue),
 			oldValue,
@@ -92,7 +93,7 @@ export const saveModification = (
 };
 
 export const persistModifications = async (recordingId: string) => {
-	const alterations: Alteration[] = buildAlterations(domainModifications);
+	const alterations: Alteration[] = buildAlterations();
 	chrome.storage.local.set({
 		[MOCKSI_MODIFICATIONS]: JSON.stringify(domainModifications),
 	});
@@ -151,9 +152,10 @@ export const loadAlterations = (
 
 // This is from chrome.storage.local
 export const loadPreviousModifications = () => {
-	for (const [querySelector, { oldValue, newValue, type }] of Object.entries(
-		domainModifications,
-	)) {
+	for (const [
+		querySelector,
+		{ oldValue, newValue, type },
+	] of modificationsIterable()) {
 		const sanitizedOldValue = sanitizeHtml(oldValue);
 		const elemToModify = getHTMLElementFromSelector(querySelector);
 		// here newValue and oldValue is in altered order because we want to revert the changes
@@ -223,10 +225,8 @@ export const sendMessage = (
 	}
 };
 
-const buildAlterations = (
-	modifications: DOMModificationsType,
-): Alteration[] => {
-	return Object.entries(modifications).map(
+const buildAlterations = (): Alteration[] => {
+	return modificationsIterable().map(
 		([querySelector, { newValue, oldValue, type }]) => ({
 			selector: querySelector,
 			action: oldValue ? "modified" : "added",
@@ -236,6 +236,10 @@ const buildAlterations = (
 		}),
 	);
 };
+
+function modificationsIterable() {
+	return Object.entries(domainModifications).filter(([, values]) => values);
+}
 
 // biome-ignore lint/suspicious/noExplicitAny: dynamic arguments
 export function debounce_leading<T extends (...args: any[]) => void>(
