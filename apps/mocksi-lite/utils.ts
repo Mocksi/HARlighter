@@ -327,8 +327,3 @@ export const recordingLabel = (currentStatus: RecordingState) => {
 			return "Start recording";
 	}
 };
-
-// Generates a random string of length 5
-export const generateRandomString = () => {
-	return Math.random().toString(36).substring(2, 7);
-};

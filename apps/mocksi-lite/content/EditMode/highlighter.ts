@@ -1,5 +1,5 @@
+import { v4 as uuidv4 } from "uuid";
 import { MOCKSI_HIGHLIGHTER_ID } from "../../consts";
-import { generateRandomString } from "../../utils";
 import { decorate } from "./decorator";
 
 class Highlighter {
@@ -18,7 +18,7 @@ class Highlighter {
 			height,
 			highlightedElement: elementToHighlight,
 		});
-		textHighlight.id = generateRandomString();
+		textHighlight.id = uuidv4();
 		document.body.appendChild(textHighlight);
 		//@ts-ignore just don't know what is meaning here
 		this.highlightedNodes.push({
@@ -100,24 +100,20 @@ const highlight = ({
 	highlightDiv.style.backgroundColor = "transparent";
 	highlightDiv.style.cursor = "text";
 	highlightDiv.ondblclick = (event: MouseEvent) => {
-		(event.target as HTMLElement).style.display = "none";
-		if (highlightedElement.parentElement) {
-			highlightedElement.parentElement?.replaceChild(
-				decorate(
-					highlightedElement.textContent || "",
-					`${width || ""}`,
-					false,
-					{
-						onSubmit: undefined,
-						onCancel: () => {
-							(event.target as HTMLElement).style.display = "block";
-						},
-					},
-				),
-				highlightedElement,
-			);
-			document.getElementById("mocksiTextArea")?.focus();
+		if (!highlightedElement?.parentElement) {
+			return;
 		}
+		(event.target as HTMLElement).style.display = "none";
+		highlightedElement.parentElement?.replaceChild(
+			decorate(highlightedElement.textContent || "", `${width || ""}`, false, {
+				onSubmit: undefined,
+				onCancel: () => {
+					(event.target as HTMLElement).style.display = "block";
+				},
+			}),
+			highlightedElement,
+		);
+		document.getElementById("mocksiTextArea")?.focus();
 		event.stopPropagation();
 	};
 	return highlightDiv;
