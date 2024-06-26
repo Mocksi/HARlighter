@@ -7,6 +7,7 @@ type FragmentTextNode = (
 
 interface ContentHighlighterInterface {
 	highlightNode(node: Node): void;
+	removeHighlightNode(node: Node): void;
 }
 
 type SaveModification = (
@@ -83,6 +84,7 @@ export class DOMManipulator {
 			if (nodeToReplace.parentElement == null) {
 				continue;
 			}
+			this.contentHighlighter.removeHighlightNode(nodeToReplace)
 			nodeToReplace.parentElement.replaceChild(replacement, nodeToReplace);
 		}
 
