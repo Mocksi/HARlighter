@@ -1,11 +1,6 @@
 import ReactDOM from "react-dom/client";
-import {
-	MOCKSI_RECORDING_STATE,
-	RecordingState,
-	STORAGE_CHANGE_EVENT,
-	SignupURL,
-} from "../consts";
-import { getEmail, sendMessage, setRootPosition } from "../utils";
+import {MOCKSI_RECORDING_STATE, RecordingState, SignupURL, STORAGE_CHANGE_EVENT,} from "../consts";
+import {getAlterations, getEmail, loadAlterations, sendMessage, setRootPosition} from "../utils";
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
@@ -15,6 +10,17 @@ function initial() {
 		document.getElementById("extension-root") || document.createElement("div");
 	rootDiv.id = "extension-root";
 	document.body.appendChild(rootDiv);
+
+  chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
+    const recordingState: RecordingState | null =
+      results[MOCKSI_RECORDING_STATE];
+    if (recordingState === RecordingState.HIDDEN) {
+      sendMessage("updateToPauseIcon")
+      getAlterations().then((alterations) => {
+        loadAlterations(alterations, false)
+      })
+    }
+  })
 }
 
 document.addEventListener("DOMContentLoaded", initial);
