@@ -4,11 +4,12 @@ import Button, { Variant } from "../../common/Button";
 import TextField from "../../common/TextField";
 import { RecordingState } from "../../consts";
 import {
-  getAlterations,
-  getRecordingsStorage,
-  loadAlterations,
-  loadRecordingId,
-  sendMessage, undoModifications,
+	getAlterations,
+	getRecordingsStorage,
+	loadAlterations,
+	loadRecordingId,
+	sendMessage,
+	undoModifications,
 } from "../../utils";
 import { setEditorMode } from "../EditMode/editMode";
 import Divider from "../Popup/Divider";
@@ -42,7 +43,7 @@ const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
 	};
 
 	const handleClose = () => {
-    undoModifications();
+		undoModifications();
 		sendMessage("resetIcon");
 		onChangeState(RecordingState.CREATE);
 		close();

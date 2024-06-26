@@ -19,7 +19,7 @@ interface PlayToastProps {
 }
 const PlayToast = ({ onChangeState, close }: PlayToastProps) => {
 	const handleEdit = async () => {
-    sendMessage("resetIcon");
+		sendMessage("resetIcon");
 		const alterations = await getAlterations();
 		loadAlterations(alterations, true);
 		setEditorMode(true);
@@ -31,11 +31,11 @@ const PlayToast = ({ onChangeState, close }: PlayToastProps) => {
 		close();
 	};
 
-  const handleStop = () => {
-    sendMessage("resetIcon");
-    undoModifications();
-    onChangeState(RecordingState.CREATE);
-  };
+	const handleStop = () => {
+		sendMessage("resetIcon");
+		undoModifications();
+		onChangeState(RecordingState.CREATE);
+	};
 
 	return (
 		<Toast className={"mb-7 gap-4 py-3 px-4"}>
@@ -50,10 +50,7 @@ const PlayToast = ({ onChangeState, close }: PlayToastProps) => {
 			</div>
 			<img src={labeledIcon} alt={"labeledIcon"} />
 			<div className={"flex gap-2"}>
-				<Button
-					variant={Variant.icon}
-					onClick={handleStop}
-				>
+				<Button variant={Variant.icon} onClick={handleStop}>
 					<img src={stopIcon} alt={"stopIcon"} />
 				</Button>
 				<Button variant={Variant.icon} onClick={handleEdit}>
