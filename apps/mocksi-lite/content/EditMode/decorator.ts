@@ -1,6 +1,6 @@
 import { applyChanges, cancelEditWithoutChanges } from "./actions";
 
-// function to decorate the porcion of TextNode with the textArea to edit the content
+// function to decorate the portion of TextNode with the textArea to edit the content
 // functions parameter is to add some extra functionality at the moment of submitting or cancel.
 export function decorate(
 	text: string,
