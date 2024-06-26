@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Toast from ".";
 import Button, { Variant } from "../../common/Button";
 import { MOCKSI_RECORDING_STATE, type RecordingState } from "../../consts";
@@ -24,6 +24,24 @@ const ChatToast = ({ onChangeState, close }: ChatToastProps) => {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [isTyping, setIsTyping] = useState<boolean>(false);
 	const [inputValue, setInputValue] = useState<string>("");
+
+	useEffect(() => {
+		// FIXME: move this constant to consts
+		const REQUEST_CHAT = "requestChat";
+		chrome.runtime.sendMessage({message: REQUEST_CHAT}, (_response) => {});
+		setIsTyping(true);
+	}, []);
+
+	chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
+		if (request.type === "beginChat") {
+			const newMessage: Message = {
+				role: "assistant",
+				content: request.message,
+			};
+			setMessages([...messages, newMessage]);
+			setIsTyping(false);
+		}
+	});
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -85,7 +103,7 @@ const ChatToast = ({ onChangeState, close }: ChatToastProps) => {
 					<div className="input-group max-w-full w-[500px] relative flex items-center">
 						{isTyping && (
 							<small className="absolute -top-5 left-0.5 animate-pulse">
-								Mocksi is typing...
+								MocksiAI is typing...
 							</small>
 						)}
 
@@ -96,8 +114,11 @@ const ChatToast = ({ onChangeState, close }: ChatToastProps) => {
 							value={inputValue}
 							onChange={(e) => setInputValue(e.target.value)}
 							required
+							disabled={isTyping}
 						/>
-						<button className="btn btn-square" type="submit">
+						<button className="btn btn-square" type="submit"
+						disabled={isTyping}
+						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								className="h-6 w-6"

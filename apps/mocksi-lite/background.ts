@@ -1,5 +1,10 @@
 import MocksiRollbar from "./MocksiRollbar";
-import { STORAGE_KEY, SignupURL, WebSocketURL } from "./consts";
+import {
+	MOCKSI_ALTERATIONS,
+	STORAGE_KEY,
+	SignupURL,
+	WebSocketURL,
+} from "./consts";
 import { apiCall } from "./networking";
 import { getEmail, logout } from "./utils";
 
@@ -315,6 +320,48 @@ function allEventHandler(
 	}
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const getStorageData = (keys: string[]): Promise<Record<string, any>> => {
+	return new Promise((resolve, reject) => {
+		chrome.storage.local.get(keys, (result) => {
+			if (chrome.runtime.lastError) {
+				reject(chrome.runtime.lastError);
+			} else {
+				resolve(result);
+			}
+		});
+	});
+};
+
+const handleRequestChat = async () => {
+	try {
+		const recordingsResult = await getStorageData(["recordings"]);
+		if (!recordingsResult.recordings) {
+			console.warn("No recordings found.");
+			return;
+		}
+
+		const alterationsResult = await getStorageData([MOCKSI_ALTERATIONS]);
+		if (!alterationsResult[MOCKSI_ALTERATIONS]) {
+			console.warn("No alterations found.");
+			return;
+		}
+
+		const payload = {
+			command: "requestChat",
+			recordings: recordingsResult.recordings,
+			alterations: alterationsResult[MOCKSI_ALTERATIONS],
+		};
+
+		console.log('sending payload: ', payload)
+		const encodedPayload = encodeURIComponent(JSON.stringify(payload));
+		const encodedPayloadBase64 = btoa(encodedPayload);
+		webSocket.send(encodedPayloadBase64);
+	} catch (error) {
+		console.error("Error handling requestChat:", error);
+	}
+};
+
 let currentTabId: number | undefined;
 chrome.runtime.onMessage.addListener(
 	(
@@ -361,6 +408,11 @@ chrome.runtime.onMessage.addListener(
 		}
 
 		if (request.message === "Chat") {
+			return true;
+		}
+
+		if (request.message === "requestChat") {
+			handleRequestChat();
 			return true;
 		}
 
@@ -420,6 +472,12 @@ webSocket.onmessage = (event) => {
 			},
 		);
 		chrome.debugger.onEvent.addListener(allEventHandler);
+	}
+
+	if (command?.type === "beginChat") {
+		chrome.tabs.sendMessage(currentTabId || 0, {
+			text: "beginChat",
+		});
 	}
 };
 
