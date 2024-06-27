@@ -66,21 +66,24 @@ export class DOMManipulator {
 		oldValueInPattern: RegExp,
 		newText: string,
 		highlightReplacements: boolean,
+		appliedReplacements: HTMLElement[] = []
 	) {
 		const fragmentsToHighlight: Node[] = [];
-		const replacements: { nodeToReplace: Node; replacement: Node }[] = [];
+		const replacementsToApply: { nodeToReplace: Node; replacement: Node }[] = [];
+		// TO IMPROVE: Prevent iterating through already applied nodes!
+		// This is a bruteforce method to replace ALL nodes.
 		createTreeWalker(rootNode, (textNode) => {
 			fillReplacements(
 				textNode,
 				oldValueInPattern,
 				newText,
 				fragmentsToHighlight,
-				replacements,
+				replacementsToApply,
 				this.fragmentTextNode,
 				this.saveModification,
 			);
-		});
-		for (const { nodeToReplace, replacement } of replacements) {
+		}, appliedReplacements);
+		for (const { nodeToReplace, replacement } of replacementsToApply) {
 			if (nodeToReplace.parentElement == null) {
 				continue;
 			}
@@ -166,6 +169,7 @@ const cleanPattern = (pattern: RegExp) =>
 const createTreeWalker = (
 	rootElement: Node,
 	iterator: (textNode: Node) => void,
+	appliedReplacements: HTMLElement[] = []
 ) => {
 	const treeWalker = document.createTreeWalker(
 		rootElement,
@@ -173,7 +177,7 @@ const createTreeWalker = (
 		(node) => {
 			if (
 				node.parentElement instanceof HTMLScriptElement ||
-				node.parentElement instanceof HTMLStyleElement
+				node.parentElement instanceof HTMLStyleElement 
 			) {
 				return NodeFilter.FILTER_REJECT;
 			}
@@ -183,7 +187,12 @@ const createTreeWalker = (
 	let textNode: Node;
 	do {
 		textNode = treeWalker.currentNode;
-		if (textNode.nodeValue === null || !textNode?.textContent?.trim()) {
+		// preventing processing already applied nodes and the empty ones.
+		if (
+			(textNode.parentElement && appliedReplacements.includes(textNode.parentElement)) ||
+			textNode.nodeValue === null ||
+			!textNode?.textContent?.trim()
+		) {
 			continue;
 		}
 
