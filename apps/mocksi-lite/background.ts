@@ -1,7 +1,13 @@
 import MocksiRollbar from "./MocksiRollbar";
-import { STORAGE_KEY, SignupURL, WebSocketURL } from "./consts";
+import {
+	MOCKSI_RECORDING_STATE,
+	RecordingState,
+	STORAGE_KEY,
+	SignupURL,
+	WebSocketURL,
+} from "./consts";
 import { apiCall } from "./networking";
-import { getEmail, logout } from "./utils";
+import { getAlterations, getEmail, loadAlterations, logout } from "./utils";
 
 export interface Alteration {
 	selector: string;
@@ -315,6 +321,18 @@ function allEventHandler(
 	}
 }
 
+const setPlayMode = async (url?: string) => {
+	const [result] = await chrome.tabs.query({
+		active: true,
+		lastFocusedWindow: true,
+	});
+	await chrome.tabs.create({ url });
+	await chrome.action.setIcon({ path: "./public/pause-icon.png" });
+	await chrome.storage.local.set({
+		[MOCKSI_RECORDING_STATE]: RecordingState.PLAY,
+	});
+};
+
 let currentTabId: number | undefined;
 chrome.runtime.onMessage.addListener(
 	(
@@ -357,6 +375,12 @@ chrome.runtime.onMessage.addListener(
 
 		if (request.message === "resetIcon") {
 			chrome.action.setIcon({ path: "./public/mocksi-icon.png" });
+			return true;
+		}
+
+		if (request.message === "playMode") {
+			const url: string = request.body?.url as string;
+			setPlayMode(url ?? "");
 			return true;
 		}
 

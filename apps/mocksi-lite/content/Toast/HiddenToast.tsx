@@ -9,6 +9,7 @@ import {
 	loadAlterations,
 	loadRecordingId,
 	sendMessage,
+	undoModifications,
 } from "../../utils";
 import { setEditorMode } from "../EditMode/editMode";
 import Divider from "../Popup/Divider";
@@ -42,6 +43,7 @@ const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
 	};
 
 	const handleClose = () => {
+		undoModifications();
 		sendMessage("resetIcon");
 		onChangeState(RecordingState.CREATE);
 		close();

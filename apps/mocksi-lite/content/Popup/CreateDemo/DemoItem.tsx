@@ -8,7 +8,7 @@ import {
 } from "../../../consts";
 import editIcon from "../../../public/edit-icon.png";
 import playIcon from "../../../public/play-icon.png";
-import { loadAlterations } from "../../../utils";
+import { loadAlterations, sendMessage } from "../../../utils";
 import { setEditorMode } from "../../EditMode/editMode";
 
 interface DemoItemProps extends Recording {
@@ -23,6 +23,7 @@ const DemoItem = ({
 	alterations,
 	url,
 }: DemoItemProps) => {
+	const domain = new URL(url).hostname;
 	const handleEdit = () => {
 		setEditorMode(true, uuid);
 		loadAlterations(alterations, true);
@@ -30,13 +31,19 @@ const DemoItem = ({
 	};
 
 	const handlePlay = async () => {
-		await chrome.storage.local.set({ [MOCKSI_ALTERATIONS]: alterations });
-		await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: uuid });
-		loadAlterations(alterations, false);
-		setState(RecordingState.PLAY);
+		await chrome.storage.local.set({
+			[MOCKSI_ALTERATIONS]: alterations,
+			[MOCKSI_RECORDING_ID]: uuid,
+		});
+		if (window.location.href === url) {
+			sendMessage("updateToPauseIcon");
+			loadAlterations(alterations, false);
+			setState(RecordingState.PLAY);
+		} else {
+			sendMessage("playMode", { url });
+		}
 	};
 
-	const domain = new URL(url).hostname;
 	return (
 		<div className={"flex justify-between px-6"}>
 			<div className={"w-[200px]"}>
@@ -61,11 +68,7 @@ const DemoItem = ({
 				<Button
 					variant={Variant.icon}
 					onClick={handlePlay}
-					disabled={
-						!url.includes(window.location.hostname) ||
-						!alterations ||
-						!alterations.length
-					}
+					disabled={!alterations || !alterations.length}
 				>
 					<img src={playIcon} alt={"playIcon"} />
 				</Button>

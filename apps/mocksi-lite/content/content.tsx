@@ -5,16 +5,36 @@ import {
 	STORAGE_CHANGE_EVENT,
 	SignupURL,
 } from "../consts";
-import { getEmail, sendMessage, setRootPosition } from "../utils";
+import {
+	getAlterations,
+	getEmail,
+	loadAlterations,
+	sendMessage,
+	setRootPosition,
+} from "../utils";
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
+async function handlePlayState() {
+	const alterations = await getAlterations();
+	if (alterations?.length) {
+		loadAlterations(alterations, false);
+	}
+}
 
 function initial() {
 	const rootDiv =
 		document.getElementById("extension-root") || document.createElement("div");
 	rootDiv.id = "extension-root";
 	document.body.appendChild(rootDiv);
+
+	chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
+		const recordingState: RecordingState | null =
+			results[MOCKSI_RECORDING_STATE];
+		if (recordingState === RecordingState.HIDDEN) {
+			handlePlayState();
+		}
+	});
 }
 
 document.addEventListener("DOMContentLoaded", initial);
@@ -45,7 +65,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 					});
 					state = RecordingState.CREATE;
 				}
-				if (recordingState === RecordingState.HIDDEN) {
+				if (recordingState === RecordingState.PLAY) {
 					sendMessage("updateToPlayIcon");
 				}
 				if (

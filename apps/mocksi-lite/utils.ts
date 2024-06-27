@@ -46,6 +46,7 @@ export const setRootPosition = (state: RecordingState | null) => {
 		const bottom =
 			state === RecordingState.READY ||
 			state === RecordingState.CREATE ||
+			state === RecordingState.HIDDEN ||
 			state === RecordingState.PLAY;
 		extensionRoot.className = bottom ? "bottom-extension" : "top-extension";
 	}
