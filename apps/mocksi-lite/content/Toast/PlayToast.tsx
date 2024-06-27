@@ -27,7 +27,7 @@ const PlayToast = ({ onChangeState, close }: PlayToastProps) => {
 	};
 	const handleHideToast = () => {
 		sendMessage("updateToPauseIcon");
-		onChangeState(RecordingState.HIDDEN);
+		onChangeState(RecordingState.PLAY);
 		close();
 	};
 

@@ -31,12 +31,14 @@ const DemoItem = ({
 	};
 
 	const handlePlay = async () => {
-		await chrome.storage.local.set({ [MOCKSI_ALTERATIONS]: alterations });
-		await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: uuid });
+		await chrome.storage.local.set({
+			[MOCKSI_ALTERATIONS]: alterations,
+			[MOCKSI_RECORDING_ID]: uuid,
+		});
 		if (window.location.href === url) {
 			sendMessage("updateToPauseIcon");
 			loadAlterations(alterations, false);
-			setState(RecordingState.HIDDEN);
+			setState(RecordingState.PLAY);
 		} else {
 			sendMessage("playMode", { url });
 		}

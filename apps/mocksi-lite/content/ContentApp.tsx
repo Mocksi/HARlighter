@@ -50,12 +50,7 @@ function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 			case RecordingState.EDITING:
 				return <EditToast state={state} onChangeState={onChangeState} />;
 			case RecordingState.PLAY:
-			case RecordingState.HIDDEN:
 				return <PlayToast onChangeState={onChangeState} close={closeDialog} />;
-			// case RecordingState.HIDDEN:
-			// 	return (
-			// 		<HiddenToast onChangeState={onChangeState} close={closeDialog} />
-			// 	);
 			default:
 				return (
 					<RecordingToast

@@ -329,7 +329,7 @@ const setPlayMode = async (url?: string) => {
 	await chrome.tabs.create({ url });
 	await chrome.action.setIcon({ path: "./public/pause-icon.png" });
 	await chrome.storage.local.set({
-		[MOCKSI_RECORDING_STATE]: RecordingState.HIDDEN,
+		[MOCKSI_RECORDING_STATE]: RecordingState.PLAY,
 	});
 };
 

@@ -15,6 +15,12 @@ import {
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
+async function handlePlayState() {
+  const alterations = await getAlterations();
+  if (alterations && alterations.length) {
+    loadAlterations(alterations, false);
+  }
+}
 
 function initial() {
 	const rootDiv =
@@ -22,16 +28,13 @@ function initial() {
 	rootDiv.id = "extension-root";
 	document.body.appendChild(rootDiv);
 
-	chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-		const recordingState: RecordingState | null =
-			results[MOCKSI_RECORDING_STATE];
-		if (recordingState === RecordingState.HIDDEN) {
-			sendMessage("updateToPauseIcon");
-			getAlterations().then((alterations) => {
-				loadAlterations(alterations, false);
-			});
-		}
-	});
+
+  chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
+    const recordingState: RecordingState | null = results[MOCKSI_RECORDING_STATE];
+    if (recordingState === RecordingState.HIDDEN) {
+      handlePlayState();
+    }
+  });
 }
 
 document.addEventListener("DOMContentLoaded", initial);
@@ -62,7 +65,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 					});
 					state = RecordingState.CREATE;
 				}
-				if (recordingState === RecordingState.HIDDEN) {
+				if (recordingState === RecordingState.PLAY) {
 					sendMessage("updateToPlayIcon");
 				}
 				if (
