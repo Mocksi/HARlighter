@@ -71,8 +71,6 @@ export class DOMManipulator {
 		const fragmentsToHighlight: Node[] = [];
 		const replacementsToApply: { nodeToReplace: Node; replacement: Node }[] =
 			[];
-		// TO IMPROVE: Prevent iterating through already applied nodes!
-		// This is a bruteforce method to replace ALL nodes.
 		createTreeWalker(
 			rootNode,
 			(textNode) => {
