@@ -132,8 +132,10 @@ export const loadAlterations = (
 		getHighlighter(),
 		saveModification,
 	);
+	const modifiedElements: HTMLElement[] = []
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before, type } = alteration;
+		if (domainModifications[selector]) continue; // this means if alteration has been applied.
 		const elemToModify = getHTMLElementFromSelector(selector);
 		if (elemToModify) {
 			if (type === "text") {
@@ -142,10 +144,12 @@ export const loadAlterations = (
 					new RegExp(dom_before, "gi"),
 					sanitizeHtml(dom_after),
 					withHighlights,
+					modifiedElements
 				);
 			} else if (type === "image" && elemToModify instanceof HTMLImageElement) {
 				domManipulator.replaceImage(dom_before, dom_after);
 			}
+			modifiedElements.push(elemToModify as HTMLElement)
 		}
 	}
 };

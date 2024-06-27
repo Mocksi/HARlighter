@@ -37,9 +37,8 @@ export function fragmentTextNode(
 	textNode: Node,
 	newText: string,
 ) {
-	const fragment = document.createDocumentFragment();
 	if (!textNode.nodeValue) {
-		return fragment;
+		return document.createDocumentFragment();
 	}
 	const baseFragment = document.createDocumentFragment();
 	let cursor = 0;
