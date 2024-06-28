@@ -5,6 +5,7 @@ import type { RecordingState } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
 import playIcon from "../../public/play-icon.png";
+import { getLastPageDom } from "../../utils";
 
 interface Message {
 	role: "assistant" | "user";
@@ -16,96 +17,114 @@ interface ChatToastProps {
 	onChangeState: (r: RecordingState) => void;
 }
 
-const REQUEST_CHAT = "requestChatTest";
-const STORAGE_KEY = "chatMessages";
+const REQUEST_CHAT = "requestChat";
+const STORAGE_KEY = "chatMessages2";
 
 const ChatToast: React.FC<ChatToastProps> = React.memo(
 	({ onChangeState, close }) => {
-		const [messages, setMessages] = useState<Message[]>(() => {
-			const storedMessages = localStorage.getItem(STORAGE_KEY);
-			return storedMessages ? JSON.parse(storedMessages) : [];
-		});
+		const [messages, setMessages] = useState<Message[]>([]);
 		const [isTyping, setIsTyping] = useState<boolean>(false);
 		const [inputValue, setInputValue] = useState<string>("");
-		const initialRequestSent = useRef<boolean>(false);
 		const messageListenerRef = useRef<
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			((request: any, sender: any, sendResponse: any) => void) | null
 		>(null);
 
 		useEffect(() => {
-			localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+			chrome.storage.local.get([STORAGE_KEY], (result) => {
+				if (chrome.runtime.lastError) {
+					console.error("Error loading messages:", chrome.runtime.lastError);
+					return;
+				}
+				if (result[STORAGE_KEY]) {
+					setMessages(JSON.parse(result[STORAGE_KEY]));
+				}
+			});
+		}, []);
+
+		useEffect(() => {
+			chrome.storage.local.set(
+				{ [STORAGE_KEY]: JSON.stringify(messages) },
+				() => {
+					if (chrome.runtime.lastError) {
+						console.error("Error saving messages:", chrome.runtime.lastError);
+					}
+				},
+			);
 		}, [messages]);
 
 		const sendChatRequest = useCallback(
 			(messageBody: { messages: Message[] }) => {
-				chrome.runtime.sendMessage(
-					{ message: REQUEST_CHAT, body: messageBody },
-					() => setIsTyping(true),
-				);
+				getLastPageDom().then((domData) => {
+					const jsonData = {
+						messageBody,
+						domData,
+					};
+
+					const payload = {
+						type: "requestChat",
+						json_data: jsonData,
+						user_id: "user123", // Replace with actual user ID
+						session_id: "session456", // Replace with actual session ID
+						event_timestamp: new Date().toISOString(),
+					};
+
+					const jsonString = JSON.stringify(payload);
+					const urlEncoded = encodeURIComponent(jsonString);
+					const base64Encoded = btoa(urlEncoded);
+
+					chrome.runtime.sendMessage(
+						{ message: REQUEST_CHAT, body: base64Encoded },
+						() => setIsTyping(false),
+					);
+				});
 			},
 			[],
 		);
 
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		const handleMessage = useCallback((request: any) => {
-			if (request.type === "beginChat" || request.type === "chatReply") {
-				const newMessage: Message = {
-					role: "assistant",
-					content: request.message,
-				};
-				setMessages((prevMessages) => {
-					if (!prevMessages.some((msg) => msg.content === newMessage.content)) {
-						const updatedMessages = [...prevMessages, newMessage];
-						localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedMessages));
-						return updatedMessages;
-					}
-					return prevMessages;
-				});
-				setIsTyping(false);
+			if (request.type === "ChatResponse") {
+				try {
+					const decodedBase64 = atob(request.body);
+					const decodedURL = decodeURIComponent(decodedBase64);
+					const parsedData = JSON.parse(decodedURL);
 
-				if (request.type === "chatReply" && request.dom) {
-					const decodedDom = decodeURIComponent(atob(request.dom));
-					document.body.innerHTML = decodedDom;
+					if (parsedData.chat_message) {
+						const newMessage: Message = {
+							role: "assistant",
+							content: parsedData.chat_message,
+						};
+						setMessages((prevMessages) => [...prevMessages, newMessage]);
+						setIsTyping(false);
+					}
+				} catch (error) {
+					console.error("Error parsing ChatResponse:", error);
 				}
 			}
 		}, []);
 
 		useEffect(() => {
-			if (!initialRequestSent.current && messages.length === 0) {
-				sendChatRequest({ messages: [] });
-				initialRequestSent.current = true;
+			if (messageListenerRef.current) {
+				chrome.runtime.onMessage.addListener(messageListenerRef.current);
 			}
+			// Send initial request
+			sendChatRequest({ messages: [] });
 
 			messageListenerRef.current = (
-				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				request: any,
-				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				_sender: any,
-				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				_sendResponse: any,
 			) => {
 				handleMessage(request);
+				_sendResponse({ status: "success" });
+				return true;
 			};
-
-			chrome.runtime.onMessage.addListener(messageListenerRef.current);
-
-			return () => {
-				if (messageListenerRef.current) {
-					chrome.runtime.onMessage.removeListener(messageListenerRef.current);
-				}
-			};
-		}, [handleMessage, sendChatRequest, messages.length]);
+		}, [handleMessage, sendChatRequest]);
 
 		const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 			if (inputValue.trim()) {
 				const newMessage: Message = { role: "user", content: inputValue };
-				setMessages((prevMessages) => {
-					const updatedMessages = [...prevMessages, newMessage];
-					localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedMessages));
-					return updatedMessages;
-				});
+				setMessages((prevMessages) => [...prevMessages, newMessage]);
 				setInputValue("");
 				sendChatRequest({ messages: [...messages, newMessage] });
 			}
