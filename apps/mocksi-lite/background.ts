@@ -505,15 +505,23 @@ webSocket.onclose = () => {
 	reconnectWebSocket();
 };
 
+
+let keepAliveIntervalId: number | null | undefined = null; // Global variable to store the interval ID
 function keepAlive() {
-	const keepAliveIntervalId = setInterval(() => {
-		if (!webSocket) {
-			clearInterval(keepAliveIntervalId);
-		}
-		try {
-			webSocket.send("keepalive");
-		} catch (e) {
-			console.error("Error sending keepalive", e);
-		}
-	}, 5 * 1000);
+  // Clear any existing interval to prevent multiple keepAlive instances
+  if (keepAliveIntervalId!== null) {
+    clearInterval(keepAliveIntervalId);
+  }
+
+  keepAliveIntervalId = setInterval(() => {
+    if (!webSocket && keepAliveIntervalId) {
+      clearInterval(keepAliveIntervalId);
+      return;
+    }
+    try {
+      webSocket.send(btoa("keepalive"));
+    } catch (e) {
+      console.error("Error sending keepalive", e);
+    }
+  }, 20 * 60 * 1000); // Set to 20 minutes
 }
