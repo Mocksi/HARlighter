@@ -134,7 +134,7 @@ function convertImageToDataUri(file: File): Promise<string> {
 }
 
 function decorateClickable(targetedElement: HTMLElement) {
-	const [textNode] = targetedElement.childNodes;
+	const [textNode] = [...targetedElement.childNodes].filter(node => !!node.textContent?.trim().replaceAll('\n', ''));
 	if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
 		return;
 	}
@@ -212,14 +212,15 @@ const blockClickableElements = () => {
 		const { href, className, style, onclick, src } =
 			clickableElement as HTMLAnchorElement &
 				HTMLButtonElement &
-				HTMLImageElement;
+				HTMLImageElement & 
+				HTMLElement;
 		blockedNodes.push({ href, className, onclick, style: { ...style }, src });
 		if (clickableElement instanceof HTMLAnchorElement) {
 			clickableElement.removeAttribute("href");
 			clickableElement.removeAttribute("src");
 		}
-		clickableElement.style.cursor = "text";
-		clickableElement.onclick = (event) => {
+		(clickableElement as HTMLElement).style.cursor = "text";
+		(clickableElement as HTMLElement).onclick = (event) => {
 			event.stopPropagation();
 			event.preventDefault();
 			console.log("BLOCKED!");
@@ -241,8 +242,8 @@ const restoreNodes = () => {
 				if (readonlyElem instanceof HTMLAnchorElement) {
 					readonlyElem.href = href;
 				}
-				readonlyElem.style.cursor = style.cursor;
-				readonlyElem.onclick = onclick;
+				(readonlyElem as HTMLElement).style.cursor = style.cursor;
+				(readonlyElem as HTMLElement).onclick = onclick;
 				index++;
 			} else {
 				break;
