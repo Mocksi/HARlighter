@@ -7,7 +7,7 @@ import {
 	WebSocketURL,
 } from "./consts";
 import { apiCall } from "./networking";
-import { getAlterations, getEmail, loadAlterations, logout } from "./utils";
+import {getAlterations, getEmail, getRecordingsStorage, loadAlterations, logout} from "./utils";
 
 export interface Alteration {
 	selector: string;
@@ -97,9 +97,27 @@ chrome.action.onClicked.addListener((activeTab) => {
 			onAttach.bind(null, currentTabId),
 		);
 		chrome.debugger.onDetach.addListener(debuggerDetachHandler);
-		chrome.tabs.sendMessage(currentTabId || 0, {
-			text: "clickedIcon",
-		});
+    getRecordingsStorage()
+      .then(recordings => {
+      if (recordings.length) {
+        chrome.tabs.sendMessage(currentTabId || 0, {
+          text: "clickedIcon",
+        });
+      } else {
+        getRecordings().then(() => {
+          chrome.tabs.sendMessage(currentTabId || 0, {
+            text: "clickedIcon",
+          });
+        });
+      }
+    })
+      .catch((err) => {
+        console.error(`Failed to get recordings: ${err}`);
+        chrome.tabs.sendMessage(currentTabId || 0, {
+          text: "clickedIcon",
+        });
+      })
+
 		// biome-ignore lint/suspicious/noExplicitAny: error message
 	} catch (e: any) {
 		console.error("Error attaching debugger", e);
@@ -189,23 +207,17 @@ function updateDemo(data: Record<string, unknown>) {
 
 async function getRecordings() {
 	const email = await getEmail();
-
 	if (email) {
-		const response = await apiCall(`recordings?creator=${email}`).catch(
-			(err) => {
-				console.error(`Failed to fetch recordings: ${err}`);
-				return null;
-			},
-		);
-		if (!response || response.length === 0) {
-			console.error("No recordings found or failed to fetch recordings.");
-			return;
-		}
-		const sorted = response.sort((a: Recording, b: Recording) =>
-			a.updated_timestamp > b.updated_timestamp ? -1 : 0,
-		);
-		const recordings = JSON.stringify(sorted) || "[]";
-		chrome.storage.local.set({ recordings });
+    try {
+      const response = await apiCall(`recordings?creator=${email}`)
+      if (!response || response.length === 0) {
+        console.error("No recordings found or failed to fetch recordings.");
+        return;
+      }
+      await chrome.storage.local.set({ recordings: response });
+    } catch (err) {
+      console.error(`Failed to fetch recordings: ${err}`);
+    }
 	} else {
 		console.error("Email not found. Cannot fetch recordings.");
 	}

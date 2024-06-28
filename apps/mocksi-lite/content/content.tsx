@@ -6,11 +6,11 @@ import {
 	SignupURL,
 } from "../consts";
 import {
-	getAlterations,
-	getEmail,
-	loadAlterations,
-	sendMessage,
-	setRootPosition,
+  getAlterations,
+  getEmail, getRecordingsStorage,
+  loadAlterations,
+  sendMessage,
+  setRootPosition,
 } from "../utils";
 import ContentApp from "./ContentApp";
 
@@ -39,6 +39,52 @@ function initial() {
 
 document.addEventListener("DOMContentLoaded", initial);
 
+async function handleRecordingState(): Promise<{ state: RecordingState, email: string|null }> {
+  const email = await getEmail();
+  const results = await chrome.storage.local.get([MOCKSI_RECORDING_STATE]);
+  const recordings = await getRecordingsStorage();
+
+  const recordingState = results[MOCKSI_RECORDING_STATE];
+  let state = recordingState;
+  console.log({recordingState})
+
+  if (email) {
+    // USER IS LOGGED IN
+    switch (recordingState) {
+      case RecordingState.UNAUTHORIZED:
+      case RecordingState.READY:
+      case undefined:
+        const nextState = recordings.length ? RecordingState.CREATE : RecordingState.READY;
+        await chrome.storage.local.set({
+          [MOCKSI_RECORDING_STATE]: nextState,
+        });
+        state = nextState;
+        break;
+      case RecordingState.EDITING:
+        await chrome.storage.local.set({
+          [MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
+        });
+        state = RecordingState.CREATE;
+        break;
+      case RecordingState.PLAY:
+        sendMessage("updateToPlayIcon");
+        break;
+    }
+  } else {
+    // USER IS NOT LOGGED IN
+    if (
+      recordingState === RecordingState.UNAUTHORIZED &&
+      window.location.origin !== SignupURL
+    ) {
+      window.open(SignupURL);
+    }
+    sendMessage("resetIcon")
+    state = RecordingState.UNAUTHORIZED;
+  }
+
+  return {state, email};
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	const extensionRoot = document.getElementById("extension-root");
 	if (extensionRoot) {
@@ -46,44 +92,18 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			root.unmount();
 		}
 		root = ReactDOM.createRoot(extensionRoot);
-		getEmail().then((email) => {
-			chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-				const recordingState: RecordingState | null =
-					results[MOCKSI_RECORDING_STATE];
-				let state = recordingState;
-				console.log({ recordingState });
-				if (email && !recordingState) {
-					// we need to initialize recordingState if there's none.
-					chrome.storage.local.set({
-						[MOCKSI_RECORDING_STATE]: RecordingState.READY,
-					});
-					state = RecordingState.READY;
-				}
-				if (recordingState === RecordingState.EDITING) {
-					chrome.storage.local.set({
-						[MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
-					});
-					state = RecordingState.CREATE;
-				}
-				if (recordingState === RecordingState.PLAY) {
-					sendMessage("updateToPlayIcon");
-				}
-				if (
-					recordingState === RecordingState.UNAUTHORIZED &&
-					window.location.origin !== SignupURL
-				) {
-					window.open(SignupURL);
-				}
-				setRootPosition(state);
-				root.render(
-					<ContentApp
-						initialState={state ?? RecordingState.READY}
-						isOpen={true}
-						email={email || ""}
-					/>,
-				);
-			});
-		});
+    handleRecordingState().then(({state, email}) => {
+      setRootPosition(state);
+
+      root.render(
+        <ContentApp
+          initialState={state}
+          isOpen={true}
+          email={email || ""}
+        />,
+      );
+    })
+
 	}
 	sendResponse({ status: "success" });
 });
