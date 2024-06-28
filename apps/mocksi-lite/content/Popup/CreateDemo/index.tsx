@@ -28,9 +28,10 @@ const CreateDemo = ({
 			try {
 				const newRecordings = await getRecordingsStorage();
 				if (newRecordings.length !== recordings.length) {
-          const sortedRecordings = newRecordings.sort((a: Recording, b: Recording) =>
-            a.updated_timestamp > b.updated_timestamp ? -1 : 0,
-          );
+					const sortedRecordings = newRecordings.sort(
+						(a: Recording, b: Recording) =>
+							a.updated_timestamp > b.updated_timestamp ? -1 : 0,
+					);
 					setRecordings(sortedRecordings);
 					continueFetching = false; // Stop the loop if recordings have been updated
 				}
@@ -54,7 +55,9 @@ const CreateDemo = ({
 		<div className={"flex flex-1 flex-col h-[280px] overflow-x-scroll"}>
 			{recordings.length ? (
 				<div
-					className={"flex-grow flex flex-col py-8 overflow-y-scroll no-scrollbar"}
+					className={
+						"flex-grow flex flex-col py-8 overflow-y-scroll no-scrollbar"
+					}
 				>
 					{recordings
 						.filter((record) => record.url)

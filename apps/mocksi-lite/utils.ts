@@ -289,7 +289,7 @@ export const getRecordingsStorage = async (): Promise<Recording[]> => {
 	try {
 		const results = await chrome.storage.local.get(["recordings"]);
 		if (results.recordings) {
-			return results.recordings
+			return results.recordings;
 		}
 		return [];
 	} catch (err) {

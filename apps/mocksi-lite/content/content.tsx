@@ -6,11 +6,12 @@ import {
 	SignupURL,
 } from "../consts";
 import {
-  getAlterations,
-  getEmail, getRecordingsStorage,
-  loadAlterations,
-  sendMessage,
-  setRootPosition,
+	getAlterations,
+	getEmail,
+	getRecordingsStorage,
+	loadAlterations,
+	sendMessage,
+	setRootPosition,
 } from "../utils";
 import ContentApp from "./ContentApp";
 
@@ -39,50 +40,56 @@ function initial() {
 
 document.addEventListener("DOMContentLoaded", initial);
 
-async function handleRecordingState(): Promise<{ state: RecordingState, email: string|null }> {
-  const email = await getEmail();
-  const results = await chrome.storage.local.get([MOCKSI_RECORDING_STATE]);
-  const recordings = await getRecordingsStorage();
+async function handleRecordingState(): Promise<{
+	state: RecordingState;
+	email: string | null;
+}> {
+	const email = await getEmail();
+	const results = await chrome.storage.local.get([MOCKSI_RECORDING_STATE]);
+	const recordings = await getRecordingsStorage();
 
-  const recordingState = results[MOCKSI_RECORDING_STATE];
-  let state = recordingState;
-  console.log({recordingState})
+	const recordingState = results[MOCKSI_RECORDING_STATE];
+	let state = recordingState;
+	console.log({ recordingState });
 
-  if (email) {
-    // USER IS LOGGED IN
-    switch (recordingState) {
-      case RecordingState.UNAUTHORIZED:
-      case RecordingState.READY:
-      case undefined:
-        const nextState = recordings.length ? RecordingState.CREATE : RecordingState.READY;
-        await chrome.storage.local.set({
-          [MOCKSI_RECORDING_STATE]: nextState,
-        });
-        state = nextState;
-        break;
-      case RecordingState.EDITING:
-        await chrome.storage.local.set({
-          [MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
-        });
-        state = RecordingState.CREATE;
-        break;
-      case RecordingState.PLAY:
-        sendMessage("updateToPlayIcon");
-        break;
-    }
-  } else {
-    // USER IS NOT LOGGED IN
-    if (
-      recordingState === RecordingState.UNAUTHORIZED &&
-      window.location.origin !== SignupURL
-    ) {
-      window.open(SignupURL);
-    }
-    sendMessage("resetIcon")
-    state = RecordingState.UNAUTHORIZED;
-  }
+	if (email) {
+		// USER IS LOGGED IN
+		switch (recordingState) {
+			case RecordingState.UNAUTHORIZED:
+			case RecordingState.READY:
+			case undefined: {
+				const nextState = recordings.length
+					? RecordingState.CREATE
+					: RecordingState.READY;
+				await chrome.storage.local.set({
+					[MOCKSI_RECORDING_STATE]: nextState,
+				});
+				state = nextState;
+				break;
+			}
+			case RecordingState.EDITING:
+				await chrome.storage.local.set({
+					[MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
+				});
+				state = RecordingState.CREATE;
+				break;
+			case RecordingState.PLAY:
+				sendMessage("updateToPlayIcon");
+				break;
+		}
+	} else {
+		// USER IS NOT LOGGED IN
+		if (
+			recordingState === RecordingState.UNAUTHORIZED &&
+			window.location.origin !== SignupURL
+		) {
+			window.open(SignupURL);
+		}
+		sendMessage("resetIcon");
+		state = RecordingState.UNAUTHORIZED;
+	}
 
-  return {state, email};
+	return { state, email };
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -92,18 +99,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			root.unmount();
 		}
 		root = ReactDOM.createRoot(extensionRoot);
-    handleRecordingState().then(({state, email}) => {
-      setRootPosition(state);
+		handleRecordingState().then(({ state, email }) => {
+			setRootPosition(state);
 
-      root.render(
-        <ContentApp
-          initialState={state}
-          isOpen={true}
-          email={email || ""}
-        />,
-      );
-    })
-
+			root.render(
+				<ContentApp initialState={state} isOpen={true} email={email || ""} />,
+			);
+		});
 	}
 	sendResponse({ status: "success" });
 });
