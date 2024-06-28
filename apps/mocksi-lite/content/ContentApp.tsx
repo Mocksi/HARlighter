@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
-import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
-import { setRootPosition } from "../utils";
+import {
+	MOCKSI_LAST_PAGE_DOM,
+	MOCKSI_RECORDING_STATE,
+	RecordingState,
+} from "../consts";
+import { innerHTMLToJson, setRootPosition } from "../utils";
 import Popup from "./Popup";
 import ChatToast from "./Toast/ChatToast";
 import EditToast from "./Toast/EditToast";
@@ -20,6 +24,15 @@ function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 	const [state, setState] = useState<RecordingState>(
 		initialState ?? RecordingState.UNAUTHORIZED,
 	);
+	useEffect(() => {
+		let dom_as_json = "";
+		try {
+			dom_as_json = innerHTMLToJson(document.body.innerHTML);
+		} catch (e) {
+			console.error("Error setting last page dom:", e);
+		}
+		chrome.storage.local.set({ [MOCKSI_LAST_PAGE_DOM]: dom_as_json });
+	});
 
 	const onChangeState = (newState: RecordingState) => {
 		chrome.storage.local
