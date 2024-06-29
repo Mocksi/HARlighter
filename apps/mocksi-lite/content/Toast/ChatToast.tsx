@@ -55,9 +55,9 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 		const sendChatRequest = useCallback(
 			(messageBody: { messages: Message[] }) => {
 				getLastPageDom().then((domData) => {
+					console.log("DOM Data:", domData);
 					const jsonData = {
 						messageBody,
-						domData,
 					};
 
 					const payload = {
@@ -68,12 +68,8 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 						event_timestamp: new Date().toISOString(),
 					};
 
-					const jsonString = JSON.stringify(payload);
-					const urlEncoded = encodeURIComponent(jsonString);
-					const base64Encoded = btoa(urlEncoded);
-
 					chrome.runtime.sendMessage(
-						{ message: REQUEST_CHAT, body: base64Encoded },
+						{ message: REQUEST_CHAT, body: payload },
 						() => setIsTyping(false),
 					);
 				});
