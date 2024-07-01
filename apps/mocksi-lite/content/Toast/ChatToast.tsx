@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import Toast from ".";
 import Button, { Variant } from "../../common/Button";
-import type { RecordingState } from "../../consts";
+import { ChatWebSocketURL, type RecordingState } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
 import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
-import { getLastPageDom } from "../../utils";
+import { getEmail, getLastPageDom } from "../../utils";
 
 interface Message {
 	role: "assistant" | "user";
@@ -17,62 +17,80 @@ interface ChatToastProps {
 	onChangeState: (r: RecordingState) => void;
 }
 
-const REQUEST_CHAT = "requestChat";
+let ws: WebSocket;
 
 const ChatToast: React.FC<ChatToastProps> = React.memo(
 	({ onChangeState, close }) => {
 		const [messages, setMessages] = useState<Message[]>([]);
 		const [isTyping, setIsTyping] = useState<boolean>(false);
 		const [inputValue, setInputValue] = useState<string>("");
-
-		const sendChatRequest = useCallback(
-			(messageBody: { messages: Message[] }) => {
-				getLastPageDom().then((domData) => {
-					console.log("DOM Data:", domData);
-					const jsonData = {
-						messageBody,
-					};
-
-					const payload = {
-						type: "requestChat",
-						json_data: jsonData,
-						user_id: "user123", // Replace with actual user ID
-						session_id: "session456", // Replace with actual session ID
-						event_timestamp: new Date().toISOString(),
-					};
-
-					chrome.runtime.sendMessage(
-						{ message: REQUEST_CHAT, body: payload },
-						() => setIsTyping(true),
-					);
-				});
-			},
-			[],
-		);
-
+		const [email, setEmail] = useState<string>("");
+		const wsRef = useRef<WebSocket | null>(null);
+	
 		useEffect(() => {
-			const checkForNewMessages = () => {
-				chrome.storage.local.get(["reply_messages"], (result) => {
-					const storedMessages = result.reply_messages || [];
-					if (storedMessages.length > messages.length) {
-						const newMessage = storedMessages[storedMessages.length - 1];
-						if (newMessage.content !== messages[messages.length - 1]?.content) {
-							setMessages((prevMessages) => [...prevMessages, newMessage]);
-						}
-					}
-					setIsTyping(false);
-				});
+			wsRef.current = new WebSocket(ChatWebSocketURL);
+		  
+			wsRef.current.onmessage = (event) => {
+			  try {
+				const data = JSON.parse(event.data);
+				console.log("Received data:", data);
+		  
+				if (
+				  data.message &&
+				  typeof data.message === 'object' &&
+				  'role' in data.message &&
+				  'content' in data.message
+				) {
+				  setMessages((prevMessages) => [...prevMessages, data.message as Message]);
+		  
+				  // Log the modified HTML content and XSLT transform
+				  if ('modified html content' in data) {
+					console.log("Modified HTML content:", data['modified html content']);
+				  }
+				  if ('xslt' in data) {
+					console.log("XSLT transform:", data.xslt);
+				  }
+				} else {
+				  console.error("Received message in unexpected format:", data);
+				}
+		  
+				setIsTyping(false);
+			  } catch (error) {
+				console.error("Error parsing WebSocket message:", error);
+			  }
 			};
-
-			const intervalId = setInterval(checkForNewMessages, 10000);
-
-			return () => clearInterval(intervalId);
-		}, [messages]);
-
-		useEffect(() => {
-			// Send initial request
-			sendChatRequest({ messages: [] });
-		}, [sendChatRequest]);
+		  
+			wsRef.current.onerror = (error) => {
+			  console.error("WebSocket error:", error);
+			};
+		  
+			getEmail().then((email) => {
+			  setEmail(email || "");
+			});
+		  
+			return () => {
+			  if (wsRef.current) {
+				wsRef.current.close();
+			  }
+			};
+		  }, []);
+	
+		const sendReply = useCallback(
+		  (messageBody: { messages: Message[] }) => {
+			setIsTyping(true);
+			getLastPageDom().then((domData) => {
+			  if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+				const payload = JSON.stringify({ ...messageBody, domData, email });
+				console.log(`sending payload: ${payload}`);
+				wsRef.current.send(payload);
+			  } else {
+				console.error("WebSocket is not open");
+				setIsTyping(false);
+			  }
+			});
+		  },
+		  [email]
+		);
 
 		const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
@@ -80,7 +98,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 				const newMessage: Message = { role: "user", content: inputValue };
 				setMessages((prevMessages) => [...prevMessages, newMessage]);
 				setInputValue("");
-				sendChatRequest({ messages: [...messages, newMessage] });
+				sendReply({ messages: [...messages, newMessage] });
 			}
 		};
 

@@ -13,7 +13,10 @@ export const MOCKSI_IMAGE_REPLACER_ID = "mocksi-image-replacer";
 export const MOCKSI_LAST_PAGE_DOM = "mocksi-last-page-dom";
 
 // FIXME: Move to an environment variable
-export const WebSocketURL = "wss://crowllectordb.onrender.com/ws";
+//export const WebSocketURL = "wss://crowllectordb.onrender.com/ws";
+export const WebSocketURL = "ws://localhost:8080/ws";
+export const ChatWebSocketURL = "ws://localhost:8080/ws/chat";
+
 export const API_URL = "https://crowllectordb.onrender.com/api";
 // FIXME: Move to an environment variable
 export const SignupURL = "https://nest-auth-ts-merge.onrender.com";
