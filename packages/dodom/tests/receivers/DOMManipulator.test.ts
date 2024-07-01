@@ -5,6 +5,7 @@ import { replaceFirstLetterCase } from "../../receivers/DOMManipulator";
 const mockFragmentTextNode = vi.fn();
 const mockContentHighlighter = {
 	highlightNode: vi.fn(),
+	removeHighlightNode: vi.fn(),
 };
 const mockSaveModification = vi.fn();
 global.MutationObserver = vi.fn(function MutationObserver(callback) {
