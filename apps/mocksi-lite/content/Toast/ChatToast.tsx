@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Toast from ".";
 import Button, { Variant } from "../../common/Button";
 import type { RecordingState } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
+import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
-import playIcon from "../../public/play-icon.png";
 import { getLastPageDom } from "../../utils";
 
 interface Message {
@@ -18,39 +18,12 @@ interface ChatToastProps {
 }
 
 const REQUEST_CHAT = "requestChat";
-const STORAGE_KEY = "chatMessages2";
 
 const ChatToast: React.FC<ChatToastProps> = React.memo(
 	({ onChangeState, close }) => {
 		const [messages, setMessages] = useState<Message[]>([]);
 		const [isTyping, setIsTyping] = useState<boolean>(false);
 		const [inputValue, setInputValue] = useState<string>("");
-		const messageListenerRef = useRef<
-			((request: any, sender: any, sendResponse: any) => void) | null
-		>(null);
-
-		useEffect(() => {
-			chrome.storage.local.get([STORAGE_KEY], (result) => {
-				if (chrome.runtime.lastError) {
-					console.error("Error loading messages:", chrome.runtime.lastError);
-					return;
-				}
-				if (result[STORAGE_KEY]) {
-					setMessages(JSON.parse(result[STORAGE_KEY]));
-				}
-			});
-		}, []);
-
-		useEffect(() => {
-			chrome.storage.local.set(
-				{ [STORAGE_KEY]: JSON.stringify(messages) },
-				() => {
-					if (chrome.runtime.lastError) {
-						console.error("Error saving messages:", chrome.runtime.lastError);
-					}
-				},
-			);
-		}, [messages]);
 
 		const sendChatRequest = useCallback(
 			(messageBody: { messages: Message[] }) => {
@@ -70,51 +43,36 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 
 					chrome.runtime.sendMessage(
 						{ message: REQUEST_CHAT, body: payload },
-						() => setIsTyping(false),
+						() => setIsTyping(true),
 					);
 				});
 			},
 			[],
 		);
 
-		const handleMessage = useCallback((request: any) => {
-			if (request.type === "ChatResponse") {
-				try {
-					const decodedBase64 = atob(request.body);
-					const decodedURL = decodeURIComponent(decodedBase64);
-					const parsedData = JSON.parse(decodedURL);
-
-					if (parsedData.chat_message) {
-						const newMessage: Message = {
-							role: "assistant",
-							content: parsedData.chat_message,
-						};
-						setMessages((prevMessages) => [...prevMessages, newMessage]);
-						setIsTyping(false);
+		useEffect(() => {
+			const checkForNewMessages = () => {
+				chrome.storage.local.get(["reply_messages"], (result) => {
+					const storedMessages = result.reply_messages || [];
+					if (storedMessages.length > messages.length) {
+						const newMessage = storedMessages[storedMessages.length - 1];
+						if (newMessage.content !== messages[messages.length - 1]?.content) {
+							setMessages((prevMessages) => [...prevMessages, newMessage]);
+						}
 					}
-				} catch (error) {
-					console.error("Error parsing ChatResponse:", error);
-				}
-			}
-		}, []);
+					setIsTyping(false);
+				});
+			};
+
+			const intervalId = setInterval(checkForNewMessages, 10000);
+
+			return () => clearInterval(intervalId);
+		}, [messages]);
 
 		useEffect(() => {
-			if (messageListenerRef.current) {
-				chrome.runtime.onMessage.addListener(messageListenerRef.current);
-			}
 			// Send initial request
 			sendChatRequest({ messages: [] });
-
-			messageListenerRef.current = (
-				request: any,
-				_sender: any,
-				_sendResponse: any,
-			) => {
-				handleMessage(request);
-				_sendResponse({ status: "success" });
-				return true;
-			};
-		}, [handleMessage, sendChatRequest]);
+		}, [sendChatRequest]);
 
 		const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
@@ -140,7 +98,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 					<div className="flex-grow overflow-auto">
 						{messages.map((msg, i) => {
 							const chatKey = `chatKey${i}`;
-							const msgIcon = msg.role === "assistant" ? playIcon : mocksiLogo;
+							const msgIcon = msg.role === "assistant" ? mocksiLogo : editIcon;
 							return (
 								<div
 									className={`chat ${

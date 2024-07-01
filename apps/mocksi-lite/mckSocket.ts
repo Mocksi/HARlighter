@@ -81,15 +81,37 @@ function handleMckSocketMessage(data: string) {
 		console.error("Raw message that caused the error:", data);
 	}
 }
+function ensureAscii(input: string): string {
+	// biome-ignore lint/suspicious/noControlCharactersInRegex: <explanation>
+	return input.replace(/[^\x00-\x7F]/g, " ");
+}
+
+function removeAllPercent(input: string): string {
+	return input.replace(/%20/g, " ");
+}
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+function appendMessageToStorage(message: any) {
+	chrome.storage.local.get(["reply_messages"], (result) => {
+		const messages = result.reply_messages || [];
+		messages.push(message);
+		chrome.storage.local.set({ reply_messages: messages }, () => {
+			console.log("Message appended to storage");
+		});
+	});
+}
 
 function handleChatResponse(response: WebsocketResponse) {
-	console.log("Received chat response:", response.chat_message);
-	const payload = {
-		type: "ChatResponse",
-		body: response.chat_message,
+	if (!response.chat_message) {
+		console.error("ChatResponse does not contain chat_message");
+		return;
+	}
+	const withSpaces = ensureAscii(removeAllPercent(response.chat_message));
+	const output = decodeURIComponent(withSpaces);
+	const newMessage = {
+		role: "assistant",
+		content: output,
 	};
-	sendMessage("ChatResponse", payload);
-	console.log("ChatResponse sent");
+	appendMessageToStorage(newMessage);
 }
 
 function handleRequestInterception(response: WebsocketResponse) {

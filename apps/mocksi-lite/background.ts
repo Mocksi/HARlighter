@@ -102,6 +102,7 @@ chrome.action.onClicked.addListener((activeTab) => {
 		chrome.tabs.sendMessage(currentTabId || 0, {
 			text: "clickedIcon",
 		});
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	} catch (e: any) {
 		console.error("Error attaching debugger", e);
 		if (e.message === "Cannot access a chrome:// URL") {
@@ -123,10 +124,10 @@ interface DataPayload {
 	currentURL?: string;
 }
 
-const credsJson = "";
 let currentTabId: number | undefined;
 const requestInterceptions: Map<string, RequestInterception> = new Map();
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 function sendData(request: Map<string, any>) {
 	if (!currentTabId) {
 		return;
@@ -290,11 +291,13 @@ async function getRecordings() {
 	}
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 const requests = new Map<string, Map<string, any>>();
 
 function allEventHandler(
 	debuggeeId: chrome.debugger.Debuggee,
 	message: string,
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	params: any,
 ) {
 	if (currentTabId !== debuggeeId.tabId) {
@@ -303,6 +306,7 @@ function allEventHandler(
 
 	if (message === "Network.requestWillBeSent") {
 		if (params.request) {
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			const detail = new Map<string, any>();
 			detail.set("request", params.request);
 			requests.set(params.requestId, detail);
@@ -350,6 +354,7 @@ function allEventHandler(
 				{
 					urls: [params.response.url],
 				},
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				(response: any) => {
 					if (response?.cookies) {
 						request.set("cookies", response.cookies);
@@ -393,6 +398,7 @@ function allEventHandler(
 	}
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 const getStorageData = (keys: string[]): Promise<Record<string, any>> => {
 	return new Promise((resolve, reject) => {
 		chrome.storage.local.get(keys, (result) => {

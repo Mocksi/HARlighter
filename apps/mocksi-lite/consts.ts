@@ -18,6 +18,7 @@ export const API_URL = "https://crowllectordb.onrender.com/api";
 // FIXME: Move to an environment variable
 export const SignupURL = "https://nest-auth-ts-merge.onrender.com";
 export const STORAGE_KEY = "mocksi-auth";
+export const CHAT_UPDATED_EVENT = "chatUpdated";
 
 export enum RecordingState {
 	UNAUTHORIZED = "UNAUTHORIZED",
