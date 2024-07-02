@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
+import { XmlParser, Xslt } from "xslt-processor";
 import Toast from ".";
 import Button, { Variant } from "../../common/Button";
 import { ChatWebSocketURL, type RecordingState } from "../../consts";
@@ -19,77 +20,170 @@ interface ChatToastProps {
 
 let ws: WebSocket;
 
+async function applyXMLTransformation(html: string, xslt: string): Promise<string> {
+	console.log("Applying XSLT transformation to HTML:", html);
+	console.log("XSLT:", xslt);
+  
+	// Convert HTML to well-formed XML
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(html, 'text/html');
+	const serializer = new XMLSerializer();
+	const wellFormedXml = serializer.serializeToString(doc.documentElement);
+  
+	// Wrap the well-formed XML in a root element
+	const wrappedXml = `<root>${wellFormedXml}</root>`;
+  
+	// Create XML and XSLT documents
+	const xmlDoc = parser.parseFromString(wrappedXml, 'text/xml');
+	const xsltDoc = parser.parseFromString(xslt, 'text/xml');
+  
+	// Perform the transformation
+	const processor = new XSLTProcessor();
+	processor.importStylesheet(xsltDoc);
+	const resultDoc = processor.transformToDocument(xmlDoc);
+  
+	// Extract the transformed content
+	const resultXml = serializer.serializeToString(resultDoc);
+  
+	// Remove the root element we added and convert back to HTML
+	const transformedHtml = resultXml.replace(/<\/?root>/g, '');
+	const finalDoc = parser.parseFromString(transformedHtml, 'text/html');
+	return serializer.serializeToString(finalDoc.body);
+  }
+  
+
+// Helper function to convert the modified_html array to an HTML string
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+function convertModifiedHtmlToString(modifiedHtml: any[]): string {
+	const parser = new DOMParser();
+	const doc = parser.parseFromString("", "text/html");
+  
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  	function createElementFromJson(json: any): HTMLElement {
+	  const el = doc.createElement(json.tag);
+	  if (json.attributes) {
+		for (const [key, value] of Object.entries(json.attributes)) {
+		  el.setAttribute(key, value as string);
+		}
+	  }
+	  if (json.text) {
+		el.textContent = json.text;
+	  }
+	  if (json.children && Array.isArray(json.children)) {
+		for (const child of json.children) {
+		  el.appendChild(createElementFromJson(child));
+		}
+	  }
+	  return el;
+	}
+  
+	const rootElement = doc.createElement("div");
+	for (const item of modifiedHtml) {
+	  rootElement.appendChild(createElementFromJson(item));
+	}
+
+	return rootElement.innerHTML;
+  }
+  
+
 const ChatToast: React.FC<ChatToastProps> = React.memo(
 	({ onChangeState, close }) => {
 		const [messages, setMessages] = useState<Message[]>([]);
 		const [isTyping, setIsTyping] = useState<boolean>(false);
 		const [inputValue, setInputValue] = useState<string>("");
 		const [email, setEmail] = useState<string>("");
+		const [domData, setDomData] = useState<string>("");
 		const wsRef = useRef<WebSocket | null>(null);
-	
+
 		useEffect(() => {
-			wsRef.current = new WebSocket(ChatWebSocketURL);
-		  
-			wsRef.current.onmessage = (event) => {
-			  try {
-				const data = JSON.parse(event.data);
-				console.log("Received data:", data);
-		  
-				if (
-				  data.message &&
-				  typeof data.message === 'object' &&
-				  'role' in data.message &&
-				  'content' in data.message
-				) {
-				  setMessages((prevMessages) => [...prevMessages, data.message as Message]);
-		  
-				  // Log the modified HTML content and XSLT transform
-				  if ('modified html content' in data) {
-					console.log("Modified HTML content:", data['modified html content']);
-				  }
-				  if ('xslt' in data) {
-					console.log("XSLT transform:", data.xslt);
-				  }
-				} else {
-				  console.error("Received message in unexpected format:", data);
-				}
-		  
-				setIsTyping(false);
-			  } catch (error) {
-				console.error("Error parsing WebSocket message:", error);
-			  }
-			};
-		  
-			wsRef.current.onerror = (error) => {
-			  console.error("WebSocket error:", error);
-			};
-		  
-			getEmail().then((email) => {
-			  setEmail(email || "");
-			});
-		  
-			return () => {
-			  if (wsRef.current) {
-				wsRef.current.close();
-			  }
-			};
-		  }, []);
-	
-		const sendReply = useCallback(
-		  (messageBody: { messages: Message[] }) => {
-			setIsTyping(true);
 			getLastPageDom().then((domData) => {
-			  if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-				const payload = JSON.stringify({ ...messageBody, domData, email });
-				console.log(`sending payload: ${payload}`);
-				wsRef.current.send(payload);
-			  } else {
-				console.error("WebSocket is not open");
-				setIsTyping(false);
-			  }
+				setDomData(domData);
 			});
-		  },
-		  [email]
+			wsRef.current = new WebSocket(ChatWebSocketURL);
+			wsRef.current.onmessage = async (event) => {
+				try {
+				  const response = JSON.parse(event.data);
+				  console.log("Received data:", response);
+			  
+				  if (response.message && response.message.role === "assistant" && response.message.content) {
+					const data = JSON.parse(response.message.content);
+			  
+					if (data.description && data.modified_html && data.xslt_transform) {
+					  setMessages((prevMessages) => [
+						...prevMessages,
+						{ role: "assistant", content: data.description },
+					  ]);
+			  
+					  try {
+						// Convert the modified_html array to an HTML string
+						const htmlString = convertModifiedHtmlToString(data.modified_html);
+						console.log("Converted HTML string:", htmlString);
+			  
+						// Apply XSLT transformation
+						const transformedHTML = await applyXMLTransformation(htmlString, data.xslt_transform);
+						console.log("Transformed HTML:", transformedHTML);
+			  
+						// Instead of replacing the entire body, update only the relevant parts
+						const tempDiv = document.createElement("div");
+						tempDiv.innerHTML = transformedHTML;
+			  
+						// Update user-info section
+						const userInfo = document.querySelector(".user-info");
+						const newUserInfo = tempDiv.querySelector(".user-info");
+						if (userInfo && newUserInfo) {
+						  userInfo.innerHTML = newUserInfo.innerHTML;
+						}
+			  
+						// Update main-content section
+						const mainContent = document.querySelector(".main-content");
+						const newMainContent = tempDiv.querySelector(".main-content");
+						if (mainContent && newMainContent) {
+						  mainContent.innerHTML = newMainContent.innerHTML;
+						}
+					  } catch (error) {
+						console.error("Error processing HTML:", error);
+					  }
+					} else {
+					  console.error("Received data in unexpected format:", data);
+					}
+				  } else if (response.modified_html_content || response.xslt) {
+					console.log("Received modified HTML content or XSLT, but not processing it.");
+				  }
+			  
+				  setIsTyping(false);
+				} catch (error) {
+				  console.error("Error parsing WebSocket message:", error);
+				}
+			  };
+			  
+			wsRef.current.onerror = (error) => {
+				console.error("WebSocket error:", error);
+			};
+
+			getEmail().then((email) => {
+				setEmail(email || "");
+			});
+
+			return () => {
+				if (wsRef.current) {
+					wsRef.current.close();
+				}
+			};
+		}, []);
+
+		const sendReply = useCallback(
+			(messageBody: { messages: Message[] }) => {
+				setIsTyping(true);
+				if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+					const payload = JSON.stringify({ ...messageBody, domData, email });
+					console.log(`sending payload: ${payload}`);
+					wsRef.current.send(payload);
+				} else {
+					console.error("WebSocket is not open");
+					setIsTyping(false);
+				}
+			},
+			[email, domData],
 		);
 
 		const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
