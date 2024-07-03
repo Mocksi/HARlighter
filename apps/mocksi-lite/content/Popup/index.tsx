@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { RecordingState } from "../../consts";
+import { MOCKSI_POPUP_LOCATION, RecordingState } from "../../consts";
 import { debounce_leading, sendMessage } from "../../utils";
 import CreateDemo from "./CreateDemo";
 import Divider from "./Divider";
 import Footer from "./Footer";
 import Header from "./Header";
 import RecordDemo from "./RecordDemo";
-import Draggable from "react-draggable";
+import Draggable, { DraggableEventHandler } from "react-draggable";
 
 interface PopupProps {
 	close: () => void;
@@ -16,6 +16,7 @@ interface PopupProps {
 }
 
 const Popup = ({ close, setState, state, email }: PopupProps) => {
+	const [position, setPosition] = useState({ x: 0, y: 0})
 	const [createForm, setCreateForm] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -37,16 +38,32 @@ const Popup = ({ close, setState, state, email }: PopupProps) => {
 		}
 	};
 
-	const onDragStop = (...args: any[]) => {
-		console.log('drag stop', args)
+	const onDragStop: DraggableEventHandler = (event, data) => {
+		if (data.x === 0 || data.y === 0) {
+			return;
+		}
+
+		setPosition({ x: data.x, y: data.y })
+
+		chrome.storage.local.set({
+			[MOCKSI_POPUP_LOCATION]: {
+				x: data.x,
+				y: data.y
+			}
+		})
 	}
 
-	const onDragStart = (...args: any[]) => {
-		console.log('drag stop', args)
-	}
+	useEffect(() => {
+		chrome.storage.local.get([MOCKSI_POPUP_LOCATION], (results) => {
+			const location = results[MOCKSI_POPUP_LOCATION]
+			if (location) {
+				setPosition(location)
+			}
+		})
+	}, [])
 
 	return (
-		<Draggable handle=".drag-handle" onStart={onDragStart} onStop={onDragStop}>
+		<Draggable handle=".drag-handle" position={position} onStop={onDragStop}>
 		<div
 			className={
 				"w-[500px] h-[596px] shadow-lg rounded-lg m-4 bg-white flex flex-col justify-between"

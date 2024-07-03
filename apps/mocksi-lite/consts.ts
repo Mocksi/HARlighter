@@ -11,6 +11,8 @@ export const MOCKSI_AUTH = "mocksi-auth";
 export const MOCKSI_HIGHLIGHTER_ID = "mocksi-highlighter";
 export const MOCKSI_IMAGE_REPLACER_ID = "mocksi-image-replacer";
 
+export const MOCKSI_POPUP_LOCATION = "mocksi-popup-location";
+
 export const WebSocketURL = "wss://crowllectordb.onrender.com/ws";
 export const API_URL = "https://crowllectordb.onrender.com/api";
 // FIXME: Move to an environment variable
