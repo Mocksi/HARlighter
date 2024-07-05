@@ -26,8 +26,8 @@ const Header = ({ createForm, close, onDelete, onGoBack }: HeaderProps) => {
 				>
 					<img src={closeIcon} alt="closeIcon" />
 				</div>
-				<div className={"w-full mr-[20px] flex justify-center"}>
-					<img src={menuIcon} alt="menuIcon" />
+				<div className={"w-full mr-[20px] flex justify-center drag-handle"}>
+					<img src={menuIcon} draggable="false" alt="menuIcon" />
 				</div>
 			</div>
 
