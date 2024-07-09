@@ -13,6 +13,8 @@ import HiddenToast from "./Toast/HiddenToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
 import { AppState, AppStateContext, AppStateProvider } from "./AppStateContext";
+import { RecordButton } from "./RecordButton";
+import RecordDemo from "./Popup/RecordDemo";
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -41,24 +43,25 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 
 	const renderContent = () => {
 		switch (state) {
-			case AppState.READY:
-			case AppState.CREATE:
-				return (
-					<Popup
-						close={closeDialog}
-						email={email}
-					/>
-				);
 			case AppState.EDITING:
 				return <EditToast />;
 			case AppState.PLAY:
 				return <PlayToast close={closeDialog} />;
 			case AppState.CHAT:
 				return <ChatToast onChangeState={() => {}} close={closeDialog} />;
+			case AppState.RECORDING:
+			case AppState.ANALYZING:
+				return <RecordingToast close={closeDialog} />
+			case AppState.INIT: 
+				// When initializing the application and loading state we want to show nothing, potentially this is a loading UI in the future
+				return null;
+			case AppState.READY:
+			case AppState.CREATE:
 			default:
 				return (
-					<RecordingToast
+					<Popup
 						close={closeDialog}
+						email={email}
 					/>
 				);
 		}

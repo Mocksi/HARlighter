@@ -25,6 +25,7 @@ const DemoItem = ({
 }: DemoItemProps) => {
 	const { dispatch } = useContext(AppStateContext);
 	const domain = new URL(url).hostname;
+	
 	const handleEdit = () => {
 		setEditorMode(true, uuid);
 		loadAlterations(alterations, true);

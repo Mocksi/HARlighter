@@ -6,7 +6,7 @@ import { getRecordingsStorage } from "../../../utils";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
-import { AppState, AppStateContext } from "../../AppStateContext";
+import { AppEvent, AppState, AppStateContext } from "../../AppStateContext";
 
 interface CreateDemoProps {
 	createForm: boolean;
@@ -43,8 +43,13 @@ const CreateDemo = ({
 		}
 	}, [createForm, state]);
 
+	const handleCreateFormSubmit = () => {
+		setCreateForm(false);
+		dispatch({ event: AppEvent.CREATE_DEMO})
+	}
+
 	if (createForm) {
-		return <Form onCancel={() => setCreateForm(false)} />;
+		return <Form onCancel={() => setCreateForm(false)} onSubmit={handleCreateFormSubmit} />;
 	}
 
 	return (

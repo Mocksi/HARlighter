@@ -111,11 +111,11 @@ window.addEventListener("message", (event: MessageEvent) => {
 
 		if (eventData.key === MOCKSI_AUTH) {
 			chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-				const recordingState: RecordingState | null =
+				const recordingState: AppState | null =
 					results[MOCKSI_RECORDING_STATE];
-				if (recordingState === RecordingState.UNAUTHORIZED) {
+				if (recordingState === AppState.UNAUTHORIZED) {
 					chrome.storage.local.set({
-						[MOCKSI_RECORDING_STATE]: RecordingState.READY,
+						[MOCKSI_RECORDING_STATE]: AppState.READY,
 					});
 				}
 			});

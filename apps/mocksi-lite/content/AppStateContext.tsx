@@ -2,6 +2,7 @@ import { Dispatch, createContext, useEffect, useReducer } from "react";
 import { MOCKSI_RECORDING_STATE } from "../consts";
 
 export enum AppState  {
+  INIT = "INIT",
 	UNAUTHORIZED = "UNAUTHORIZED",
 	READY = "READY",
 	RECORDING = "RECORDING",
@@ -23,9 +24,11 @@ export enum AppEvent {
   SAVE_MODIFICATIONS = "SAVE_MODIFICATIONS",
   START_PLAYING = "START_PLAYING",
   STOP_PLAYING = "STOP_PLAYING",
+  START_CHAT = "START_CHAT",
+  CREATE_DEMO = "CREATE_DEMO"
 }
 
-export const INITIAL_STATE = AppState.READY;
+export const INITIAL_STATE = AppState.INIT;
 
 type AppStateContextType = {
   state: AppState;
@@ -45,12 +48,10 @@ export const AppStateContext = createContext<AppStateContextType>({
 const appStateReducer = (state: AppState, action: AppStateAction) => {
   switch (action.event) {
     case AppEvent.SET_INITIAL_STATE: {
-      return action.payload ?? AppState.READY;
+      return action.payload ?? AppState.CREATE;
     }
     case AppEvent.START_RECORDING:
-      if (state === AppState.READY) {
         return AppState.RECORDING;
-      }
     case AppEvent.STOP_RECORDING:
       if (state === AppState.RECORDING) {
         return AppState.ANALYZING;
@@ -73,6 +74,10 @@ const appStateReducer = (state: AppState, action: AppStateAction) => {
         return AppState.PLAY;
     case AppEvent.STOP_PLAYING:
         return AppState.CREATE;
+    case AppEvent.START_CHAT:
+        return AppState.CHAT;
+    case AppEvent.CREATE_DEMO:
+        return AppState.READY;
   }
 }
 
