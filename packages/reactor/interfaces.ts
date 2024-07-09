@@ -9,12 +9,13 @@ export interface Modification {
 		| "highlight"
 		| "toast"
 		| "addComponent"
-        | "unknown";
+		| "unknown";
 	content?: string;
 	imageUrl?: string;
 	toastMessage?: string;
 	componentHtml?: string;
 	highlightStyle?: string;
+	duration?: number;
 }
 
 export interface ModificationRequest {

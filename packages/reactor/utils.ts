@@ -3,37 +3,49 @@
 import type { Modification, ModificationRequest } from "./interfaces";
 
 export function parseRequest(userRequest: string): ModificationRequest {
-	return JSON.parse(userRequest);
+	try {
+		return JSON.parse(userRequest);
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	} catch (error: any) {
+		console.error("Error parsing user request:", error);
+		throw new Error("Invalid user request format");
+	}
 }
 
 export async function generateModifications(
 	request: ModificationRequest,
 	doc: Document,
 ): Promise<void> {
-	for (const mod of request.modifications) {
-		let elements: NodeListOf<Element>;
-		try {
-			if (!mod.selector) {
-				console.warn("No selector provided for modification.");
+	try {
+		for (const mod of request.modifications) {
+			let elements: NodeListOf<Element>;
+			try {
+				if (!mod.selector) {
+					console.warn("No selector provided for modification.");
+					continue;
+				}
+				elements = doc.querySelectorAll(mod.selector);
+			} catch (e) {
+				console.warn(`Invalid selector: ${mod.selector}`);
 				continue;
 			}
-			elements = doc.querySelectorAll(mod.selector);
-		} catch (e) {
-			console.warn(`Invalid selector: ${mod.selector}`);
-			continue;
-		}
 
-		if (elements.length === 0) {
-			console.warn(`Element not found for selector: ${mod.selector}`);
-			continue;
-		}
+			if (elements.length === 0) {
+				console.warn(`Element not found for selector: ${mod.selector}`);
+				continue;
+			}
 
-		for (const element of elements) {
-			await applyModification(element, mod, doc);
-		}
+			for (const element of elements) {
+				await applyModification(element, mod, doc);
+			}
 
-		// Add a small delay between modifications
-		await new Promise((resolve) => setTimeout(resolve, 100));
+			// Add a small delay between modifications
+			await new Promise((resolve) => setTimeout(resolve, 100));
+		}
+		// biome-ignore lint/suspicious/noExplicitAny: exception handling
+	} catch (error: any) {
+		console.error("Error generating modifications:", error);
+		throw new Error(`Error generating modifications: ${error}`);
 	}
 }
 
@@ -66,7 +78,7 @@ export async function applyModification(
 			}
 			break;
 		case "toast":
-			createToast(mod.toastMessage || "Notification", doc);
+			createToast(mod.toastMessage || "Notification", doc, mod.duration);
 			break;
 		case "addComponent":
 			element.insertAdjacentHTML("beforeend", mod.componentHtml || "");
@@ -76,7 +88,11 @@ export async function applyModification(
 	}
 }
 
-export function createToast(message: string, doc: Document): void {
+export function createToast(
+	message: string,
+	doc: Document,
+	duration = 3000,
+): void {
 	const toast = doc.createElement("div");
 	toast.className = "fixed bottom-4 right-4 bg-blue-500 text-white p-4 rounded";
 	toast.textContent = message;
@@ -84,5 +100,5 @@ export function createToast(message: string, doc: Document): void {
 
 	setTimeout(() => {
 		toast.remove();
-	}, 3000);
+	}, duration);
 }

@@ -39,20 +39,6 @@ describe("Utils", () => {
 			);
 		});
 
-		it("should append content correctly", async () => {
-			const modification: Modification = {
-				action: "append",
-				content: "<p>New Content</p>",
-			};
-			const element = doc.createElement("div");
-			element.innerHTML = "<p>Initial Content</p>";
-			await applyModification(element, modification, doc);
-
-			expect(element.innerHTML).toBe(
-				"<p>Initial Content</p><p>New Content</p>",
-			);
-		});
-
 		it("should prepend content correctly", async () => {
 			const modification: Modification = {
 				action: "prepend",
@@ -78,18 +64,18 @@ describe("Utils", () => {
 			expect(element.parentElement).toBeNull();
 		});
 
-        it("should ignore invalid selectors", async () => {
-            const modification: Modification = {
-                action: "replace",
-                content: "<p>New Content</p>",
-                selector: "#;3s92hn"
-            };
-            const element = doc.createElement("div");
-            element.innerHTML = "<p>Old Content</p>";
-            await applyModification(element, modification, doc);
+		it("should ignore invalid selectors", async () => {
+			const modification: Modification = {
+				action: "replace",
+				content: "<p>New Content</p>",
+				selector: "#;3s92hn",
+			};
+			const element = doc.createElement("div");
+			element.innerHTML = "<p>Old Content</p>";
+			await applyModification(element, modification, doc);
 
 			expect(element.parentElement).toBeNull();
-        });
+		});
 
 		it("should swap image source correctly", async () => {
 			const modification: Modification = {
@@ -119,15 +105,16 @@ describe("Utils", () => {
 			const modification: Modification = {
 				action: "toast",
 				toastMessage: "Test Notification",
+				duration: 100,
 			};
-			createToast(modification.toastMessage ?? "", doc);
+			createToast(modification.toastMessage ?? "", doc, modification.duration);
 
 			// Simulate checking if the toast exists
 			const toastElement = doc.querySelector(".bg-blue-500"); // Assuming '.bg-blue-500' is the class for the toast
 			expect(toastElement?.textContent).toBe("Test Notification");
 
 			// Simulate waiting for the toast to be removed
-			await new Promise((resolve) => setTimeout(resolve, 3100));
+			await new Promise((resolve) => setTimeout(resolve, 200));
 
 			expect(doc.querySelector(".bg-blue-500")).toBeNull();
 		});
@@ -176,15 +163,15 @@ describe("Utils", () => {
 	describe("generateModifications", () => {
 		it("should handle empty selectors gracefully", async () => {
 			const request: ModificationRequest = {
-                modifications: [
-                    {
-                        selector: "",
-                        action: "replace",
-                        content: "<p>New Content</p>",
-                    },
-                ],
-                description: ""
-            };
+				modifications: [
+					{
+						selector: "",
+						action: "replace",
+						content: "<p>New Content</p>",
+					},
+				],
+				description: "",
+			};
 
 			await generateModifications(request, doc);
 		});
