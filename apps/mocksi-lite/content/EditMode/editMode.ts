@@ -23,8 +23,6 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	document.body.removeEventListener("dblclick", onDoubleClickText);
 	restoreNodes();
 	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
-	document.normalize();
-
 	return;
 };
 
