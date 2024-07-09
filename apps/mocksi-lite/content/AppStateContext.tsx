@@ -10,6 +10,7 @@ export enum AppState  {
 	EDITING = "EDITING",
 	PLAY = "PLAY",
 	HIDDEN = "HIDDEN",
+  CHAT = "CHAT",
 }
 
 export enum AppEvent {

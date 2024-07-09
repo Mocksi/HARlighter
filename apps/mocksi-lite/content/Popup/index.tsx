@@ -36,7 +36,11 @@ const Popup = ({ close, email }: PopupProps) => {
 		}
 	};
 
-	const onDragStop: DraggableEventHandler = (event, data) => {
+	const onDragStop: DraggableEventHandler = (
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		event: any,
+		data: { x: number; y: number },
+	) => {
 		if (data.x === 0 || data.y === 0) {
 			return;
 		}
@@ -76,7 +80,7 @@ const Popup = ({ close, email }: PopupProps) => {
 				{!createForm && (
 					<div>
 						<Divider />
-						<Footer close={close} email={email} />
+						<Footer close={close} email={email} setState={setState} />
 					</div>
 				)}
 			</div>

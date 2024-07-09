@@ -4,11 +4,11 @@ import {
 	RecordingState,
 	STORAGE_KEY,
 	SignupURL,
-	WebSocketURL,
 } from "./consts";
 import { AppState } from "./content/AppStateContext";
+import { initializeMckSocket, sendMckSocketMessage } from "./mckSocket";
 import { apiCall } from "./networking";
-import { getAlterations, getEmail, loadAlterations, logout } from "./utils";
+import { getEmail, getLastPageDom } from "./utils";
 
 export interface Alteration {
 	selector: string;
@@ -35,6 +35,7 @@ interface ChromeMessage {
 	status?: string;
 	tabId?: string;
 	body?: Record<string, unknown>;
+	detail?: string;
 }
 
 interface RequestInterception {
@@ -44,11 +45,17 @@ interface RequestInterception {
 	payload: string;
 }
 
+interface ChatResponse {
+	type: "ChatResponse";
+	chat_message: string;
+}
+
 interface ChromeMessageWithData extends ChromeMessage {
 	data: string;
 }
 
-const requestInterceptions: Map<string, RequestInterception> = new Map();
+const CHAT_UPDATED_EVENT = "chatUpdated";
+
 addEventListener("install", () => {
 	// TODO test if this works on other browsers
 	chrome.tabs.create({
@@ -101,7 +108,7 @@ chrome.action.onClicked.addListener((activeTab) => {
 		chrome.tabs.sendMessage(currentTabId || 0, {
 			text: "clickedIcon",
 		});
-		// biome-ignore lint/suspicious/noExplicitAny: error message
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	} catch (e: any) {
 		console.error("Error attaching debugger", e);
 		if (e.message === "Cannot access a chrome:// URL") {
@@ -123,10 +130,10 @@ interface DataPayload {
 	currentURL?: string;
 }
 
-const credsJson = "";
+let currentTabId: number | undefined;
+const requestInterceptions: Map<string, RequestInterception> = new Map();
 
-// TODO: create a type for the request
-// biome-ignore lint/suspicious/noExplicitAny: this is hard to type
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 function sendData(request: Map<string, any>) {
 	if (!currentTabId) {
 		return;
@@ -151,11 +158,90 @@ function sendData(request: Map<string, any>) {
 			data.sessionID = sessionID;
 		}
 
-		// uri encode the data before sending to prevent
-		// problems with unicode data
-		const dataStr = JSON.stringify(data);
-		const encodedDataStr = encodeURIComponent(dataStr);
-		webSocket?.send(btoa(encodedDataStr));
+		sendMckSocketMessage(data);
+	});
+}
+
+export function handleMckSocketMessage(data: string) {
+	let command: RequestInterception | ChatResponse | null = null;
+	try {
+		const decodedBase64 = atob(data);
+		const decodedURL = decodeURIComponent(decodedBase64);
+		const parsed = JSON.parse(decodedURL);
+		command = parsed as RequestInterception | ChatResponse;
+	} catch (e) {
+		console.error("Error parsing MckSocket message", e);
+		return;
+	}
+
+	if (command?.type === "RequestInterception") {
+		const interceptDataEncoded = atob(command.payload);
+		const interceptData = decodeURIComponent(interceptDataEncoded);
+		const interception: RequestInterception = {
+			type: command.type,
+			url: command.url,
+			method: command.method,
+			payload: interceptData,
+		};
+		requestInterceptions.set(command.url, interception);
+		console.log("Will intercept request", command.url);
+
+		if (!currentTabId) {
+			return;
+		}
+
+		chrome.debugger.sendCommand(
+			{ tabId: currentTabId },
+			"Network.setRequestInterception",
+			{
+				patterns: [
+					{
+						urlPattern: command.url,
+						resourceType: "XHR",
+						interceptionStage: "HeadersReceived",
+					},
+				],
+			},
+			(response) => {
+				console.log("requested", response);
+			},
+		);
+		chrome.debugger.onEvent.addListener(allEventHandler);
+	}
+
+	if (command?.type === "ChatResponse") {
+		handleChatResponse(command as ChatResponse);
+	}
+
+	if (command?.type === "beginChat") {
+		console.log("TBD: beginChat");
+	}
+}
+
+function handleChatResponse(response: ChatResponse) {
+	chrome.storage.local.get([STORAGE_KEY], (result) => {
+		const messages = result[STORAGE_KEY] ? JSON.parse(result[STORAGE_KEY]) : [];
+		const newMessage = {
+			role: "assistant",
+			content: response.chat_message,
+		};
+		messages.push(newMessage);
+
+		chrome.storage.local.set(
+			{ [STORAGE_KEY]: JSON.stringify(messages) },
+			() => {
+				if (chrome.runtime.lastError) {
+					console.error("Error saving chat message:", chrome.runtime.lastError);
+				} else {
+					console.log("Chat message saved successfully");
+					chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+						if (tabs[0]?.id) {
+							chrome.tabs.sendMessage(tabs[0].id, { type: CHAT_UPDATED_EVENT });
+						}
+					});
+				}
+			},
+		);
 	});
 }
 
@@ -167,7 +253,6 @@ function onAttach(tabId: number) {
 function debuggerDetachHandler() {
 	requests.clear();
 }
-
 async function createDemo(body: Record<string, unknown>) {
 	const defaultBody = {
 		created_timestamp: new Date(),
@@ -213,15 +298,13 @@ async function getRecordings() {
 	}
 }
 
-// TODO: create a type for the params
-// biome-ignore lint/suspicious/noExplicitAny: also hard to type
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 const requests = new Map<string, Map<string, any>>();
 
 function allEventHandler(
 	debuggeeId: chrome.debugger.Debuggee,
 	message: string,
-	// TODO: create a type for the params
-	// biome-ignore lint/suspicious/noExplicitAny: params is a generic object
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	params: any,
 ) {
 	if (currentTabId !== debuggeeId.tabId) {
@@ -230,8 +313,7 @@ function allEventHandler(
 
 	if (message === "Network.requestWillBeSent") {
 		if (params.request) {
-			// TODO: create a type for the detail
-			// biome-ignore lint/suspicious/noExplicitAny: same as above
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			const detail = new Map<string, any>();
 			detail.set("request", params.request);
 			requests.set(params.requestId, detail);
@@ -279,7 +361,7 @@ function allEventHandler(
 				{
 					urls: [params.response.url],
 				},
-				// biome-ignore lint/suspicious/noExplicitAny: Reading from a generic object
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				(response: any) => {
 					if (response?.cookies) {
 						request.set("cookies", response.cookies);
@@ -335,7 +417,34 @@ const setPlayMode = async (url?: string) => {
 	});
 };
 
-let currentTabId: number | undefined;
+const handleRequestChat = async (message: string) => {
+	try {
+		const lastPageDom = await getLastPageDom();
+		const json_data = {
+			messageBody: {
+				messages: JSON.parse(message),
+				lastPageDom,
+			},
+		};
+		const payload = {
+			command: "requestChatTest",
+			type: "requestChatTest",
+			json_data: {
+				message: JSON.stringify({
+					type: "requestChat",
+					json_data: json_data,
+					user_id: "user123",
+					session_id: "session456",
+					event_timestamp: new Date().toISOString(),
+				}),
+			},
+		};
+		sendMckSocketMessage(payload);
+	} catch (error) {
+		console.error("Error handling requestChat:", error);
+	}
+};
+
 chrome.runtime.onMessage.addListener(
 	(
 		request: ChromeMessageWithData,
@@ -380,9 +489,40 @@ chrome.runtime.onMessage.addListener(
 			return true;
 		}
 
-		if (request.message === "playMode") {
-			const url: string = request.body?.url as string;
-			setPlayMode(url ?? "");
+		if (request.message === "Chat") {
+			return true;
+		}
+
+		if (
+			request.message === "requestChat" ||
+			request.message === "requestChatTest"
+		) {
+			try {
+				console.log("Requesting chat with message:", request.body);
+				const body = JSON.stringify(request.body) || "";
+				handleRequestChat(body);
+			} catch (error) {
+				console.log("Error handling requestChat:", error);
+			}
+
+			return true;
+		}
+
+		if (request.message === "ChatResponse") {
+			if (
+				request.body &&
+				typeof request.body === "object" &&
+				"chat_message" in request.body
+			) {
+				handleChatResponse(request.body as unknown as ChatResponse);
+				sendResponse({ message: request.message, status: "success" });
+			} else {
+				sendResponse({
+					message: request.message,
+					status: "error",
+					detail: "Invalid ChatResponse body",
+				});
+			}
 			return true;
 		}
 
@@ -391,93 +531,4 @@ chrome.runtime.onMessage.addListener(
 	},
 );
 
-let webSocket = new WebSocket(WebSocketURL);
-
-webSocket.onopen = () => {
-	keepAlive();
-};
-
-webSocket.onmessage = (event) => {
-	console.log(`websocket received message: ${event.data}`);
-	let command: RequestInterception | null = null;
-	try {
-		const parsed = JSON.parse(event.data);
-		command = parsed as RequestInterception;
-	} catch (e) {
-		console.error("Error parsing websocket message", e);
-		return;
-	}
-
-	if (command?.type === "RequestInterception") {
-		// data will be uri encoded to prevent issues with unicode
-		const interceptDataEncoded = atob(command.payload);
-		const interceptData = decodeURIComponent(interceptDataEncoded);
-		const interception: RequestInterception = {
-			type: command.type,
-			url: command.url,
-			method: command.method,
-			payload: interceptData,
-		};
-		requestInterceptions.set(command.url, interception);
-		console.log("Will intercept request", command.url);
-
-		if (!currentTabId) {
-			return;
-		}
-
-		chrome.debugger.sendCommand(
-			{ tabId: currentTabId },
-			"Network.setRequestInterception",
-			{
-				patterns: [
-					{
-						urlPattern: command.url,
-						resourceType: "XHR",
-						interceptionStage: "HeadersReceived",
-					},
-				],
-			},
-			(response) => {
-				console.log("requested", response);
-			},
-		);
-		chrome.debugger.onEvent.addListener(allEventHandler);
-	}
-};
-
-webSocket.onclose = () => {
-	console.log("websocket connection closed");
-	const reconnectInterval = 5000; // 5 seconds
-	// biome-ignore lint/suspicious/noExplicitAny: tried to add NodeJS.Timeout type but is breaking on prod build leaving as any for now.
-	let reconnectTimeout: any;
-
-	function reconnectWebSocket() {
-		if (reconnectTimeout) {
-			clearTimeout(reconnectTimeout);
-		}
-		reconnectTimeout = setTimeout(() => {
-			console.log("Reconnecting websocket...");
-			const oldWebSocket = webSocket;
-			webSocket = new WebSocket(WebSocketURL);
-			// FIXME: this is nasty, but it works
-			webSocket.onopen = oldWebSocket.onopen;
-			webSocket.onmessage = oldWebSocket.onmessage;
-			webSocket.onclose = oldWebSocket.onclose;
-		}, reconnectInterval);
-	}
-
-	reconnectWebSocket();
-};
-
-function keepAlive() {
-	const keepAliveIntervalId = setInterval(() => {
-		if (!webSocket) {
-			clearInterval(keepAliveIntervalId);
-		}
-		try {
-			webSocket.send("keepalive");
-		} catch (e) {
-			console.error("Error sending keepalive", e);
-		}
-	}, 5 * 1000);
-}
+initializeMckSocket();
