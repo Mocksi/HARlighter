@@ -12,8 +12,8 @@ import {
 	sendMessage,
 	setRootPosition,
 } from "../utils";
-import ContentApp from "./ContentApp";
 import { AppState } from "./AppStateContext";
+import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
 async function handlePlayState() {
@@ -30,8 +30,7 @@ function initial() {
 	document.body.appendChild(rootDiv);
 
 	chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-		const appState: AppState | null =
-			results[MOCKSI_RECORDING_STATE];
+		const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 		if (appState === AppState.HIDDEN) {
 			handlePlayState();
 		}
@@ -49,10 +48,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		root = ReactDOM.createRoot(extensionRoot);
 		getEmail().then((email) => {
 			chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-				const appState: AppState | null =
-					results[MOCKSI_RECORDING_STATE];
+				const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 				let state = appState;
-				
+
 				console.log({ appState });
 
 				if (email && !appState) {
@@ -76,12 +74,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 				setRootPosition(state);
 
-				root.render(
-					<ContentApp
-						isOpen={true}
-						email={email || ""}
-					/>,
-				);
+				root.render(<ContentApp isOpen={true} email={email || ""} />);
 			});
 		});
 	}
@@ -111,8 +104,7 @@ window.addEventListener("message", (event: MessageEvent) => {
 
 		if (eventData.key === MOCKSI_AUTH) {
 			chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-				const appState: AppState | null =
-					results[MOCKSI_RECORDING_STATE];
+				const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 				if (appState === AppState.UNAUTHORIZED) {
 					chrome.storage.local.set({
 						[MOCKSI_RECORDING_STATE]: AppState.READY,

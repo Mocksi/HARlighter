@@ -16,9 +16,9 @@ const Form = ({ onCancel, onSubmit }: FormProps) => {
 
 	const handleSubmit = () => {
 		sendMessage("createDemo", { demo_name: name, customer_name: customer });
-		onSubmit()
+		onSubmit();
 	};
-	
+
 	return (
 		<div className={"flex-1 mt-3"}>
 			<Divider />

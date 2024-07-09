@@ -1,15 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
-import {
-	MOCKSI_LAST_PAGE_DOM,
-} from "../consts";
+import { MOCKSI_LAST_PAGE_DOM } from "../consts";
 import { innerHTMLToJson, setRootPosition } from "../utils";
+import { AppState, AppStateContext, AppStateProvider } from "./AppStateContext";
 import Popup from "./Popup";
 import ChatToast from "./Toast/ChatToast";
 import EditToast from "./Toast/EditToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
-import { AppState, AppStateContext, AppStateProvider } from "./AppStateContext";
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -46,19 +44,14 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 				return <ChatToast onChangeState={() => {}} close={closeDialog} />;
 			case AppState.RECORDING:
 			case AppState.ANALYZING:
-				return <RecordingToast close={closeDialog} />
-			case AppState.INIT: 
+				return <RecordingToast close={closeDialog} />;
+			case AppState.INIT:
 				// When initializing the application and loading state we want to show nothing, potentially this is a loading UI in the future
 				return null;
 			case AppState.READY:
 			case AppState.CREATE:
 			default:
-				return (
-					<Popup
-						close={closeDialog}
-						email={email}
-					/>
-				);
+				return <Popup close={closeDialog} email={email} />;
 		}
 	};
 
@@ -85,17 +78,11 @@ const extractStyles = (): string => {
 	return styles;
 };
 
-export default function ContentApp({
-	isOpen,
-	email,
-}: ContentProps) {
+export default function ContentApp({ isOpen, email }: ContentProps) {
 	const styles = extractStyles();
 	return useShadow(
 		<AppStateProvider>
-			<ShadowContentApp
-				isOpen={isOpen}
-				email={email}
-			/>
+			<ShadowContentApp isOpen={isOpen} email={email} />
 		</AppStateProvider>,
 		[],
 		{

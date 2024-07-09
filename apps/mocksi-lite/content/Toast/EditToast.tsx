@@ -2,10 +2,10 @@ import { useContext, useState } from "react";
 import TextField from "../../common/TextField";
 import closeIcon from "../../public/close-icon.png";
 import { loadRecordingId, recordingLabel } from "../../utils";
+import { AppEvent, AppStateContext } from "../AppStateContext";
 import { setEditorMode } from "../EditMode/editMode";
 import { getHighlighter } from "../EditMode/highlighter";
 import Toast from "./index";
-import { AppEvent, AppStateContext } from "../AppStateContext";
 
 const EditToast = () => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -39,11 +39,11 @@ const EditToast = () => {
 			<div
 				className="cursor-pointer"
 				onClick={() => {
-					handleCancel()
+					handleCancel();
 				}}
 				onKeyUp={async (event) => {
 					if (event.key === "Escape") {
-						handleCancel()
+						handleCancel();
 					}
 				}}
 			>
@@ -66,11 +66,11 @@ const EditToast = () => {
 			<div
 				className="cursor-pointer text-[#009875]"
 				onClick={async () => {
-					handleSave()
+					handleSave();
 				}}
 				onKeyUp={async (event) => {
 					if (event.key === "Enter") {
-						handleSave()
+						handleSave();
 					}
 				}}
 			>

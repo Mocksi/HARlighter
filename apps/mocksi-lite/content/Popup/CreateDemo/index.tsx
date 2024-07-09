@@ -2,20 +2,17 @@ import { Fragment, useContext, useEffect, useState } from "react";
 import type { Recording } from "../../../background";
 import Button from "../../../common/Button";
 import { getRecordingsStorage } from "../../../utils";
+import { AppEvent, AppState, AppStateContext } from "../../AppStateContext";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
-import { AppEvent, AppState, AppStateContext } from "../../AppStateContext";
 
 interface CreateDemoProps {
 	createForm: boolean;
 	setCreateForm: (value: boolean) => void;
 }
 
-const CreateDemo = ({
-	createForm,
-	setCreateForm,
-}: CreateDemoProps) => {
+const CreateDemo = ({ createForm, setCreateForm }: CreateDemoProps) => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const [recordings, setRecordings] = useState<Recording[]>([]);
 
@@ -43,11 +40,16 @@ const CreateDemo = ({
 
 	const handleCreateFormSubmit = () => {
 		setCreateForm(false);
-		dispatch({ event: AppEvent.CREATE_DEMO})
-	}
+		dispatch({ event: AppEvent.CREATE_DEMO });
+	};
 
 	if (createForm) {
-		return <Form onCancel={() => setCreateForm(false)} onSubmit={handleCreateFormSubmit} />;
+		return (
+			<Form
+				onCancel={() => setCreateForm(false)}
+				onSubmit={handleCreateFormSubmit}
+			/>
+		);
 	}
 
 	return (

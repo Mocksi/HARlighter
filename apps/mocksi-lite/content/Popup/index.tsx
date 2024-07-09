@@ -2,12 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import Draggable, { type DraggableEventHandler } from "react-draggable";
 import { MOCKSI_POPUP_LOCATION } from "../../consts";
 import { sendMessage } from "../../utils";
+import { AppState, AppStateContext } from "../AppStateContext";
 import CreateDemo from "./CreateDemo";
 import Divider from "./Divider";
 import Footer from "./Footer";
 import Header from "./Header";
 import RecordDemo from "./RecordDemo";
-import { AppState, AppStateContext } from "../AppStateContext";
 
 interface PopupProps {
 	close: () => void;
@@ -22,17 +22,14 @@ const Popup = ({ close, email }: PopupProps) => {
 	useEffect(() => {
 		sendMessage("getRecordings");
 	}, []);
-	
+
 	const renderContent = () => {
 		if (state === AppState.CREATE) {
 			return (
-				<CreateDemo
-					createForm={createForm}
-					setCreateForm={setCreateForm}
-				/>
-			)
+				<CreateDemo createForm={createForm} setCreateForm={setCreateForm} />
+			);
 		} else {
-			return <RecordDemo />
+			return <RecordDemo />;
 		}
 	};
 

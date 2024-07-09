@@ -2,9 +2,9 @@ import { useContext } from "react";
 import closeIcon from "../../public/close-icon.png";
 import mocksiLogo from "../../public/mocksi-logo.png";
 import { recordingLabel } from "../../utils";
+import { AppState, AppStateContext } from "../AppStateContext";
 import { RecordButton } from "../RecordButton";
 import Toast from "./index";
-import { AppState, AppStateContext } from "../AppStateContext";
 
 interface RecordingToast {
 	close: () => void;
@@ -30,9 +30,7 @@ const RecordingToast = ({ close }: RecordingToast) => {
 					{recordingLabel(state)}
 				</span>
 			</div>
-			{state !== AppState.UNAUTHORIZED && (
-				<RecordButton />
-			)}
+			{state !== AppState.UNAUTHORIZED && <RecordButton />}
 		</Toast>
 	);
 };

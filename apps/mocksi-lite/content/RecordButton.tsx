@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import recordIcon from "../public/record-icon.png";
-import { LoadingSpinner } from "./LoadingSpinner";
 import { AppEvent, AppState, AppStateContext } from "./AppStateContext";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 const waitTime = 2000; // 2 seconds
 
@@ -29,8 +29,8 @@ export const RecordButton = () => {
 		dispatch({ event: AppEvent.STOP_RECORDING });
 		setTimeout(() => {
 			dispatch({ event: AppEvent.STOP_ANALYZING });
-		}, waitTime)
-	}
+		}, waitTime);
+	};
 
 	const { color, label } = recordingColorAndLabel(state);
 
@@ -52,9 +52,7 @@ export const RecordButton = () => {
 		<button
 			className={`h-full w-[56px] border-0 text-center ${color} text-white`}
 			type="button"
-			onClick={
-				state !== AppState.ANALYZING ? handleStopRecording : undefined
-			}
+			onClick={state !== AppState.ANALYZING ? handleStopRecording : undefined}
 			onKeyUp={(event) => {
 				if (event.key === "Escape" && state !== AppState.ANALYZING) {
 					handleStopRecording();

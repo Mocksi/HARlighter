@@ -1,6 +1,4 @@
-import {
-	MOCKSI_RECORDING_ID,
-} from "../../consts";
+import { MOCKSI_RECORDING_ID } from "../../consts";
 import { persistModifications, undoModifications } from "../../utils";
 import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";

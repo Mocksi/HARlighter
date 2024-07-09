@@ -19,7 +19,7 @@ interface PlayToastProps {
 }
 
 const PlayToast = ({ close }: PlayToastProps) => {
-	const { dispatch } = useContext(AppStateContext)
+	const { dispatch } = useContext(AppStateContext);
 
 	const handleEdit = async () => {
 		sendMessage("resetIcon");

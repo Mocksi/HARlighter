@@ -1,10 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import Toast from ".";
 import Button, { Variant } from "../../common/Button";
-import {
-	ChatWebSocketURL,
-	MOCKSI_RECORDING_STATE,
-} from "../../consts";
+import { ChatWebSocketURL, MOCKSI_RECORDING_STATE } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
 import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";

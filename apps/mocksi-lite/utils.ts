@@ -18,9 +18,9 @@ import {
 	STORAGE_KEY,
 	SignupURL,
 } from "./consts";
+import { AppState } from "./content/AppStateContext";
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
-import { AppState } from "./content/AppStateContext";
 
 type DomAlteration = {
 	type: "text" | "image";

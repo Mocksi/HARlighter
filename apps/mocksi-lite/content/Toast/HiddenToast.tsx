@@ -10,10 +10,10 @@ import {
 	sendMessage,
 	undoModifications,
 } from "../../utils";
+import { AppState } from "../AppStateContext";
 import { setEditorMode } from "../EditMode/editMode";
 import Divider from "../Popup/Divider";
 import Toast from "./index";
-import { AppState } from "../AppStateContext";
 
 interface HiddenToastProps {
 	close: () => void;

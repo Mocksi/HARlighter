@@ -1,9 +1,5 @@
 import MocksiRollbar from "./MocksiRollbar";
-import {
-	MOCKSI_RECORDING_STATE,
-	STORAGE_KEY,
-	SignupURL,
-} from "./consts";
+import { MOCKSI_RECORDING_STATE, STORAGE_KEY, SignupURL } from "./consts";
 import { AppState } from "./content/AppStateContext";
 import { initializeMckSocket, sendMckSocketMessage } from "./mckSocket";
 import { apiCall } from "./networking";
