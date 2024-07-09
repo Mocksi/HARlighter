@@ -51,7 +51,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				const recordingState: RecordingState | null =
 					results[MOCKSI_RECORDING_STATE];
 				let state = recordingState;
+				
 				console.log({ recordingState });
+
 				if (email && !recordingState) {
 					// we need to initialize recordingState if there's none.
 					chrome.storage.local.set({
@@ -59,25 +61,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 					});
 					state = RecordingState.READY;
 				}
-				if (recordingState === RecordingState.EDITING) {
-					chrome.storage.local.set({
-						[MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
-					});
-					state = RecordingState.CREATE;
-				}
+
 				if (recordingState === RecordingState.PLAY) {
 					sendMessage("updateToPlayIcon");
 				}
+
 				if (
 					recordingState === RecordingState.UNAUTHORIZED &&
 					window.location.origin !== SignupURL
 				) {
 					window.open(SignupURL);
 				}
+
 				setRootPosition(state);
+
 				root.render(
 					<ContentApp
-						initialState={state ?? RecordingState.READY}
 						isOpen={true}
 						email={email || ""}
 					/>,

@@ -1,3 +1,4 @@
+import { useContext } from "react";
 import type { Recording } from "../../../background";
 import Button, { Variant } from "../../../common/Button";
 import TextField from "../../../common/TextField";
@@ -10,24 +11,24 @@ import editIcon from "../../../public/edit-icon.png";
 import playIcon from "../../../public/play-icon.png";
 import { loadAlterations, sendMessage } from "../../../utils";
 import { setEditorMode } from "../../EditMode/editMode";
+import { AppEvent, AppStateContext } from "../../AppStateContext";
 
 interface DemoItemProps extends Recording {
-	setState: (r: RecordingState) => void;
 }
 
 const DemoItem = ({
 	uuid,
 	demo_name,
 	customer_name,
-	setState,
 	alterations,
 	url,
 }: DemoItemProps) => {
+	const { dispatch } = useContext(AppStateContext);
 	const domain = new URL(url).hostname;
 	const handleEdit = () => {
 		setEditorMode(true, uuid);
 		loadAlterations(alterations, true);
-		setState(RecordingState.EDITING);
+		dispatch({ event: AppEvent.START_EDITING })
 	};
 
 	const handlePlay = async () => {
@@ -38,7 +39,7 @@ const DemoItem = ({
 		if (window.location.href === url) {
 			sendMessage("updateToPauseIcon");
 			loadAlterations(alterations, false);
-			setState(RecordingState.PLAY);
+			dispatch({ event: AppEvent.START_PLAYING });
 		} else {
 			sendMessage("playMode", { url });
 		}

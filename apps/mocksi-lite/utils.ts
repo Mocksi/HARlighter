@@ -20,6 +20,7 @@ import {
 } from "./consts";
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
+import { AppState } from "./content/AppStateContext";
 
 type DomAlteration = {
 	type: "text" | "image";
@@ -329,17 +330,17 @@ export const loadRecordingId = async () => {
 	});
 };
 
-export const recordingLabel = (currentStatus: RecordingState) => {
+export const recordingLabel = (currentStatus: AppState) => {
 	switch (currentStatus) {
-		case RecordingState.READY:
+		case AppState.READY:
 			return "Start recording";
-		case RecordingState.RECORDING:
+		case AppState.RECORDING:
 			return "Mocksi Recording";
-		case RecordingState.EDITING:
+		case AppState.EDITING:
 			return "Editing Template";
-		case RecordingState.ANALYZING:
+		case AppState.ANALYZING:
 			return "Analyzing...";
-		case RecordingState.UNAUTHORIZED:
+		case AppState.UNAUTHORIZED:
 			return "Login to record";
 		default:
 			return "Start recording";

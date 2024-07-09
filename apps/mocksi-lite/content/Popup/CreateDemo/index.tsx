@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import type { Recording } from "../../../background";
 import Button from "../../../common/Button";
 import { RecordingState } from "../../../consts";
@@ -6,20 +6,18 @@ import { getRecordingsStorage } from "../../../utils";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
+import { AppState, AppStateContext } from "../../AppStateContext";
 
 interface CreateDemoProps {
 	createForm: boolean;
 	setCreateForm: (value: boolean) => void;
-	setState: (r: RecordingState) => void;
-	state: RecordingState;
 }
 
 const CreateDemo = ({
 	createForm,
 	setCreateForm,
-	setState,
-	state,
 }: CreateDemoProps) => {
+	const { state, dispatch } = useContext(AppStateContext);
 	const [recordings, setRecordings] = useState<Recording[]>([]);
 
 	const getRecordings = async () => {
@@ -39,7 +37,7 @@ const CreateDemo = ({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
-		if (!createForm && state !== RecordingState.EDITING) {
+		if (!createForm && state !== AppState.EDITING) {
 			getRecordings();
 		}
 	}, [createForm, state]);
@@ -57,7 +55,7 @@ const CreateDemo = ({
 						.filter((record) => record.url)
 						.map((record) => (
 							<Fragment key={`demo-item-${record.uuid}`}>
-								<DemoItem setState={setState} {...record} />
+								<DemoItem {...record} />
 								<div className={"px-3 w-full my-6"}>
 									<Divider />
 								</div>

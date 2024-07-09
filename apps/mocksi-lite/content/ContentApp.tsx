@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import useShadow from "use-shadow-dom";
 import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
 import { setRootPosition } from "../utils";
@@ -7,27 +7,16 @@ import EditToast from "./Toast/EditToast";
 import HiddenToast from "./Toast/HiddenToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
+import { AppState, AppStateContext, AppStateProvider } from "./AppStateContext";
 
 interface ContentProps {
-	initialState: RecordingState;
 	isOpen?: boolean;
 	email: string | null;
 }
 
-function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
+function ShadowContentApp({ isOpen, email }: ContentProps) {
+	const { state } = useContext(AppStateContext);
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
-	const [state, setState] = useState<RecordingState>(
-		initialState ?? RecordingState.UNAUTHORIZED,
-	);
-
-	const onChangeState = (newState: RecordingState) => {
-		chrome.storage.local
-			.set({ [MOCKSI_RECORDING_STATE]: newState })
-			.then(() => {
-				setState(newState);
-				setRootPosition(newState);
-			});
-	};
 
 	const closeDialog = () => setIsDialogOpen(false);
 
@@ -37,26 +26,22 @@ function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 
 	const renderContent = () => {
 		switch (state) {
-			case RecordingState.READY:
-			case RecordingState.CREATE:
+			case AppState.READY:
+			case AppState.CREATE:
 				return (
 					<Popup
-						state={state}
 						close={closeDialog}
-						setState={onChangeState}
 						email={email}
 					/>
 				);
-			case RecordingState.EDITING:
-				return <EditToast state={state} onChangeState={onChangeState} />;
-			case RecordingState.PLAY:
-				return <PlayToast onChangeState={onChangeState} close={closeDialog} />;
+			case AppState.EDITING:
+				return <EditToast />;
+			case AppState.PLAY:
+				return <PlayToast close={closeDialog} />;
 			default:
 				return (
 					<RecordingToast
 						close={closeDialog}
-						state={state}
-						onChangeState={onChangeState}
 					/>
 				);
 		}
@@ -88,15 +73,15 @@ const extractStyles = (): string => {
 export default function ContentApp({
 	isOpen,
 	email,
-	initialState,
 }: ContentProps) {
 	const styles = extractStyles();
 	return useShadow(
-		<ShadowContentApp
-			initialState={initialState}
-			isOpen={isOpen}
-			email={email}
-		/>,
+		<AppStateProvider>
+			<ShadowContentApp
+				isOpen={isOpen}
+				email={email}
+			/>
+		</AppStateProvider>,
 		[],
 		{
 			styleContent: styles,

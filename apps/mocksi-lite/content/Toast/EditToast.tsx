@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import TextField from "../../common/TextField";
 import { RecordingState } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
@@ -6,13 +6,13 @@ import { loadRecordingId, recordingLabel } from "../../utils";
 import { setEditorMode } from "../EditMode/editMode";
 import { getHighlighter } from "../EditMode/highlighter";
 import Toast from "./index";
+import { AppEvent, AppStateContext } from "../AppStateContext";
 
-interface EditToastProps {
-	state: RecordingState;
-	onChangeState: (r: RecordingState) => void;
-}
+interface EditToastProps {}
 
-const EditToast = ({ state, onChangeState }: EditToastProps) => {
+const EditToast = ({ }: EditToastProps) => {
+	const { state, dispatch } = useContext(AppStateContext);
+
 	const [areChangesHighlighted, setAreChangesHighlighted] = useState(true);
 
 	const ContentHighlighter = getHighlighter();
@@ -24,24 +24,29 @@ const EditToast = ({ state, onChangeState }: EditToastProps) => {
 		});
 	};
 
-	const handleClose = async (shouldSaveValues: boolean) => {
-		let recordingId: string | undefined;
-		if (shouldSaveValues) {
-			recordingId = await loadRecordingId();
-		}
+	const handleSave = async () => {
+		const recordingId = await loadRecordingId();
+
 		await setEditorMode(false, recordingId);
-		onChangeState(RecordingState.CREATE);
+
+		dispatch({ event: AppEvent.SAVE_MODIFICATIONS });
 	};
+
+	const handleCancel = () => {
+		setEditorMode(false);
+		dispatch({ event: AppEvent.CANCEL_EDITING });
+	};
+
 	return (
 		<Toast className={"mt-3 min-w-64 p-3 flex flex-row items-center gap-6"}>
 			<div
 				className="cursor-pointer"
 				onClick={() => {
-					handleClose(false);
+					handleCancel()
 				}}
 				onKeyUp={async (event) => {
 					if (event.key === "Escape") {
-						handleClose(false);
+						handleCancel()
 					}
 				}}
 			>
@@ -64,11 +69,11 @@ const EditToast = ({ state, onChangeState }: EditToastProps) => {
 			<div
 				className="cursor-pointer text-[#009875]"
 				onClick={async () => {
-					handleClose(true);
+					handleSave()
 				}}
 				onKeyUp={async (event) => {
 					if (event.key === "Enter") {
-						handleClose(true);
+						handleSave()
 					}
 				}}
 			>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Draggable, { type DraggableEventHandler } from "react-draggable";
 import { MOCKSI_POPUP_LOCATION, RecordingState } from "../../consts";
 import { debounce_leading, sendMessage } from "../../utils";
@@ -7,34 +7,32 @@ import Divider from "./Divider";
 import Footer from "./Footer";
 import Header from "./Header";
 import RecordDemo from "./RecordDemo";
+import { AppState, AppStateContext } from "../AppStateContext";
 
 interface PopupProps {
 	close: () => void;
-	setState: (r: RecordingState) => void;
-	state: RecordingState;
 	email: string | null;
 }
 
-const Popup = ({ close, setState, state, email }: PopupProps) => {
+const Popup = ({ close, email }: PopupProps) => {
+	const { state, dispatch } = useContext(AppStateContext);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 	const [createForm, setCreateForm] = useState<boolean>(false);
 
 	useEffect(() => {
 		sendMessage("getRecordings");
 	}, []);
+	
 	const renderContent = () => {
-		switch (state) {
-			case RecordingState.CREATE:
-				return (
-					<CreateDemo
-						createForm={createForm}
-						setCreateForm={setCreateForm}
-						setState={setState}
-						state={state}
-					/>
-				);
-			default:
-				return <RecordDemo state={state} setState={setState} />;
+		if (state === AppState.CREATE) {
+			return (
+				<CreateDemo
+					createForm={createForm}
+					setCreateForm={setCreateForm}
+				/>
+			)
+		} else {
+			return <RecordDemo />
 		}
 	};
 
