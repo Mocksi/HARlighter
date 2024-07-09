@@ -6,6 +6,7 @@ import {
 	SignupURL,
 	WebSocketURL,
 } from "./consts";
+import { AppState } from "./content/AppStateContext";
 import { apiCall } from "./networking";
 import { getAlterations, getEmail, loadAlterations, logout } from "./utils";
 
@@ -172,6 +173,7 @@ async function createDemo(body: Record<string, unknown>) {
 		created_timestamp: new Date(),
 		updated_timestamp: new Date(),
 	};
+
 	chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([result]) => {
 		apiCall("recordings", "PUT", {
 			...body,
@@ -329,7 +331,7 @@ const setPlayMode = async (url?: string) => {
 	await chrome.tabs.create({ url });
 	await chrome.action.setIcon({ path: "./public/pause-icon.png" });
 	await chrome.storage.local.set({
-		[MOCKSI_RECORDING_STATE]: RecordingState.PLAY,
+		[MOCKSI_RECORDING_STATE]: AppState.PLAY,
 	});
 };
 

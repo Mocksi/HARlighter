@@ -41,14 +41,14 @@ const authOptions: auth0.AuthOptions = {
 	audience: "Mocksi Lite",
 };
 
-export const setRootPosition = (state: RecordingState | null) => {
+export const setRootPosition = (state: AppState | null) => {
 	const extensionRoot = document.getElementById("extension-root");
 	if (extensionRoot) {
 		const bottom =
-			state === RecordingState.READY ||
-			state === RecordingState.CREATE ||
-			state === RecordingState.HIDDEN ||
-			state === RecordingState.PLAY;
+			state === AppState.READY ||
+			state === AppState.CREATE ||
+			state === AppState.HIDDEN ||
+			state === AppState.PLAY;
 		extensionRoot.className = bottom ? "bottom-extension" : "top-extension";
 	}
 };
@@ -59,7 +59,7 @@ export const logout = () => {
 	chrome.storage.local.clear(() => {
 		chrome.storage.local.set(
 			{
-				[MOCKSI_RECORDING_STATE]: RecordingState.UNAUTHORIZED,
+				[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
 			},
 			() =>
 				webAuth.logout({

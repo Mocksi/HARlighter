@@ -23,35 +23,16 @@ const recordingColorAndLabel = (currentStatus: AppState) => {
 export const RecordButton = ({}: RecordButtonProps) => {
 	const { state, dispatch } = useContext(AppStateContext);
 
-	// useEffect(() => {
-	// 	chrome.storage.local.get([MOCKSI_RECORDING_STATE], (result) => {
-	// 		const storageState =
-	// 			(result[MOCKSI_RECORDING_STATE] as RecordingState) ||
-	// 			RecordingState.READY;
-
-	// 		onRecordChange(storageState);
-	// 		if (storageState === RecordingState.ANALYZING) {
-	// 			setTimeout(() => {
-	// 				onRecordChange(RecordingState.CREATE);
-	// 				chrome.storage.local.set({
-	// 					[MOCKSI_RECORDING_STATE]: RecordingState.CREATE.toString(),
-	// 				});
-	// 			}, waitTime);
-	// 		}
-	// 	});
-	// }, [onRecordChange]);
-
-	const handleToggleRecording = () => {
+	const handleStartRecording = () => {
 		dispatch({ event: AppEvent.START_RECORDING });
+	};
 
-		setTimeout(() => {
-			dispatch({ event: AppEvent.STOP_RECORDING });
-		}, waitTime);
-
+	const handleStopRecording = () => {
+		dispatch({ event: AppEvent.STOP_RECORDING });
 		setTimeout(() => {
 			dispatch({ event: AppEvent.STOP_ANALYZING });
-		}, waitTime * 2);
-	};
+		}, waitTime)
+	}
 
 	const { color, label } = recordingColorAndLabel(state);
 
@@ -59,9 +40,9 @@ export const RecordButton = ({}: RecordButtonProps) => {
 		return (
 			<div
 				className={"cursor-pointer"}
-				onClick={handleToggleRecording}
+				onClick={handleStartRecording}
 				onKeyUp={(event) => {
-					event.key === "Enter" && handleToggleRecording();
+					event.key === "Enter" && handleStartRecording();
 				}}
 			>
 				<img src={recordIcon} alt={"recordIcon"} />
@@ -74,11 +55,11 @@ export const RecordButton = ({}: RecordButtonProps) => {
 			className={`h-full w-[56px] border-0 text-center ${color} text-white`}
 			type="button"
 			onClick={
-				state !== AppState.ANALYZING ? handleToggleRecording : undefined
+				state !== AppState.ANALYZING ? handleStopRecording : undefined
 			}
 			onKeyUp={(event) => {
 				if (event.key === "Escape" && state !== AppState.ANALYZING) {
-					handleToggleRecording();
+					handleStopRecording();
 				}
 			}}
 		>

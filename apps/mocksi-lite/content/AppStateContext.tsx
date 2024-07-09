@@ -62,16 +62,16 @@ const appStateReducer = (state: AppState, action: AppStateAction) => {
         return AppState.EDITING;
     case AppEvent.CANCEL_EDITING:
       if (state === AppState.EDITING) {
-        return AppState.READY;
+        return AppState.CREATE;
       }
     case AppEvent.SAVE_MODIFICATIONS:
       if (state === AppState.EDITING) {
-        return AppState.READY;
+        return AppState.CREATE;
       }
     case AppEvent.START_PLAYING:
         return AppState.PLAY;
     case AppEvent.STOP_PLAYING:
-        return AppState.READY;
+        return AppState.CREATE;
   }
 }
 
@@ -83,6 +83,8 @@ const appStateReducer = (state: AppState, action: AppStateAction) => {
 const localStorageMiddleware = (reducer: typeof appStateReducer) => {
   return (state: AppState, action: AppStateAction) => {
     const newState = reducer(state, action);
+
+    console.log(state, action.event, newState)
 
     chrome.storage.local.set({ [MOCKSI_RECORDING_STATE]: newState })
     

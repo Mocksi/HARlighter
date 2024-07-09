@@ -38,6 +38,7 @@ const CreateDemo = ({
 	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
 		if (!createForm && state !== AppState.EDITING) {
+			console.log('getting recordings')
 			getRecordings();
 		}
 	}, [createForm, state]);
@@ -45,6 +46,7 @@ const CreateDemo = ({
 	if (createForm) {
 		return <Form onCancel={() => setCreateForm(false)} />;
 	}
+
 	return (
 		<div className={"flex flex-1 flex-col h-[280px] overflow-x-scroll"}>
 			{recordings.length ? (

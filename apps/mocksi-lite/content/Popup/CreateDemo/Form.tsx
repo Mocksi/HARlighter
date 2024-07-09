@@ -17,6 +17,7 @@ const Form = ({ onCancel }: FormProps) => {
 		sendMessage("createDemo", { demo_name: name, customer_name: customer });
 		onCancel();
 	};
+	
 	return (
 		<div className={"flex-1 mt-3"}>
 			<Divider />
