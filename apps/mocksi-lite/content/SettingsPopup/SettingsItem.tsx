@@ -1,20 +1,25 @@
 import type { Recording } from "../../background";
 import Button, { Variant } from "../../common/Button";
 import TextField from "../../common/TextField";
+import { sendMessage } from "../../utils";
 
-interface DemoItemProps extends Recording {}
+interface SettingsItemProps extends Recording {
+	onDelete: () => void;
+}
 
-const DemoItem = ({
+const SettingsItem = ({
 	uuid,
 	demo_name,
 	customer_name,
 	alterations,
 	url,
-}: DemoItemProps) => {
+	onDelete,
+}: SettingsItemProps) => {
 	const domain = new URL(url).hostname;
 
 	const handleDelete = () => {
-		console.log('deleting', demo_name)
+		sendMessage("deleteDemo", { id: uuid });
+		onDelete();
 	};
 
 	return (
@@ -31,10 +36,7 @@ const DemoItem = ({
 				</a>
 			</div>
 			<div className={"flex gap-3"}>
-				<Button
-					variant={Variant.primary}
-					onClick={handleDelete}
-				>
+				<Button variant={Variant.primary} onClick={handleDelete}>
 					Delete
 				</Button>
 			</div>
@@ -42,4 +44,4 @@ const DemoItem = ({
 	);
 };
 
-export default DemoItem;
+export default SettingsItem;

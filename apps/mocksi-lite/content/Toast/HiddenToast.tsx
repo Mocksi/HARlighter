@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Recording } from "../../background";
 import Button, { Variant } from "../../common/Button";
+import Divider from "../../common/Divider";
 import TextField from "../../common/TextField";
 import {
 	getAlterations,
@@ -12,7 +13,6 @@ import {
 } from "../../utils";
 import { AppState } from "../AppStateContext";
 import { setEditorMode } from "../EditMode/editMode";
-import Divider from "../Popup/Divider";
 import Toast from "./index";
 
 interface HiddenToastProps {

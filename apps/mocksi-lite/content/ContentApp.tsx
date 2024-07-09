@@ -2,15 +2,20 @@ import { useContext, useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
 import { MOCKSI_LAST_PAGE_DOM } from "../consts";
 import { innerHTMLToJson, logout, setRootPosition } from "../utils";
-import { AppEvent, AppState, AppStateContext, AppStateProvider } from "./AppStateContext";
-import ChatToast from "./Toast/ChatToast";
-import EditToast from "./Toast/EditToast";
-import PlayToast from "./Toast/PlayToast";
-import RecordingToast from "./Toast/RecordingToast";
+import {
+	AppEvent,
+	AppState,
+	AppStateContext,
+	AppStateProvider,
+} from "./AppStateContext";
 import CreatePopup from "./CreatePopup";
 import ListPopup from "./ListPopup";
 import ReadyToRecordPopup from "./ReadyToRecordPopup";
 import SettingsPopup from "./SettingsPopup";
+import ChatToast from "./Toast/ChatToast";
+import EditToast from "./Toast/EditToast";
+import PlayToast from "./Toast/PlayToast";
+import RecordingToast from "./Toast/RecordingToast";
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -35,11 +40,11 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 
 	const handleOnChat = () => {
 		dispatch({ event: AppEvent.START_CHAT });
-	}
+	};
 
 	const handleOnLogout = () => {
-		logout()
-	}
+		logout();
+	};
 
 	if (!isDialogOpen) {
 		return null;
@@ -51,7 +56,7 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 			email,
 			onChat: handleOnChat,
 			onLogout: handleOnLogout,
-		}
+		};
 		switch (state) {
 			case AppState.EDITING:
 				return <EditToast />;

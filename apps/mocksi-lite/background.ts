@@ -269,6 +269,11 @@ function updateDemo(data: Record<string, unknown>) {
 	apiCall(`recordings/${id}`, "POST", recording).then(() => getRecordings());
 }
 
+async function deleteDemo(data: Record<string, unknown>) {
+	const { id } = data;
+	apiCall(`recordings/${id}`, "DELETE").then(() => getRecordings());
+}
+
 async function getRecordings() {
 	const email = await getEmail();
 
@@ -281,6 +286,7 @@ async function getRecordings() {
 		);
 		if (!response || response.length === 0) {
 			console.error("No recordings found or failed to fetch recordings.");
+			chrome.storage.local.set({ recordings: [] });
 			return;
 		}
 		const sorted = response.sort((a: Recording, b: Recording) =>
@@ -461,6 +467,14 @@ chrome.runtime.onMessage.addListener(
 				return false;
 			}
 			updateDemo(request.body);
+			return true;
+		}
+
+		if (request.message === "deleteDemo") {
+			if (!request.body) {
+				return false;
+			}
+			deleteDemo(request.body);
 			return true;
 		}
 

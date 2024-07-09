@@ -1,21 +1,33 @@
 import { useEffect, useState } from "react";
 import Draggable, { type DraggableEventHandler } from "react-draggable";
 import { MOCKSI_POPUP_LOCATION } from "../../consts";
-import Divider from "./Divider";
+import Divider from "../Divider";
 import Footer from "./Footer";
 import Header from "./Header";
 
 interface PopupProps {
 	headerSubtitle?: string;
-  shouldDisplayFooter?: boolean;
-  email?: string;
-  onLogout?: () => void;
-  onChat?: () => void;
-  onClose: () => void;
-  children: React.ReactNode;
+	shouldDisplayFooter?: boolean;
+	email?: string;
+	onLogout?: () => void;
+	onChat?: () => void;
+	onSettings?: () => void;
+	onGoBack?: () => void;
+	onClose: () => void;
+	children: React.ReactNode;
 }
 
-const Popup = ({ headerSubtitle, email, shouldDisplayFooter, onLogout, onClose, onChat, children }: PopupProps) => {
+const Popup = ({
+	headerSubtitle,
+	email,
+	shouldDisplayFooter,
+	onSettings,
+	onLogout,
+	onClose,
+	onGoBack,
+	onChat,
+	children,
+}: PopupProps) => {
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 
 	const onDragStop: DraggableEventHandler = (
@@ -46,7 +58,7 @@ const Popup = ({ headerSubtitle, email, shouldDisplayFooter, onLogout, onClose, 
 		});
 	}, []);
 
-  const isFooterVisible = shouldDisplayFooter && email && onLogout && onChat;
+	const isFooterVisible = shouldDisplayFooter && email && onLogout && onChat;
 
 	return (
 		<Draggable handle=".drag-handle" position={position} onStop={onDragStop}>
@@ -55,9 +67,14 @@ const Popup = ({ headerSubtitle, email, shouldDisplayFooter, onLogout, onClose, 
 					"w-[500px] h-[596px] shadow-lg rounded-lg m-4 bg-white flex flex-col justify-between"
 				}
 			>
-				<Header subtitle={headerSubtitle} close={onClose} />
+				<Header
+					subtitle={headerSubtitle}
+					close={onClose}
+					onSettings={onSettings}
+					onGoBack={onGoBack}
+				/>
 
-        {children}
+				{children}
 
 				{/* FOOTER */}
 				{isFooterVisible && (
