@@ -1,21 +1,21 @@
+import { useContext } from "react";
 import TextField from "../../common/TextField";
-import { type RecordingState, popupContent, popupTitle } from "../../consts";
+import { popupContent, popupTitle } from "../../consts";
 import { recordingLabel } from "../../utils";
+import { AppStateContext } from "../AppStateContext";
 import { RecordButton } from "../RecordButton";
 
-interface RecordDemoProps {
-	state: RecordingState;
-	setState: (s: RecordingState) => void;
-}
+const RecordDemo = () => {
+	const { state } = useContext(AppStateContext);
 
-const RecordDemo = ({ state, setState }: RecordDemoProps) => {
 	const label = recordingLabel(state);
+
 	return (
 		<>
 			<div
 				className={"flex flex-col justify-center items-center gap-6 mt-[75px]"}
 			>
-				<RecordButton state={state} onRecordChange={setState} />
+				<RecordButton />
 				<TextField>{label}</TextField>
 			</div>
 

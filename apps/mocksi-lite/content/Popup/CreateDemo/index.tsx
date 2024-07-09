@@ -1,8 +1,8 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import type { Recording } from "../../../background";
 import Button from "../../../common/Button";
-import { RecordingState } from "../../../consts";
 import { getRecordingsStorage } from "../../../utils";
+import { AppEvent, AppState, AppStateContext } from "../../AppStateContext";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
 import DemoItem from "./DemoItem";
@@ -10,16 +10,10 @@ import DemoItem from "./DemoItem";
 interface CreateDemoProps {
 	createForm: boolean;
 	setCreateForm: (value: boolean) => void;
-	setState: (r: RecordingState) => void;
-	state: RecordingState;
 }
 
-const CreateDemo = ({
-	createForm,
-	setCreateForm,
-	setState,
-	state,
-}: CreateDemoProps) => {
+const CreateDemo = ({ createForm, setCreateForm }: CreateDemoProps) => {
+	const { state, dispatch } = useContext(AppStateContext);
 	const [recordings, setRecordings] = useState<Recording[]>([]);
 
 	const getRecordings = async () => {
@@ -39,14 +33,25 @@ const CreateDemo = ({
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
-		if (!createForm && state !== RecordingState.EDITING) {
+		if (!createForm && state !== AppState.EDITING) {
 			getRecordings();
 		}
 	}, [createForm, state]);
 
+	const handleCreateFormSubmit = () => {
+		setCreateForm(false);
+		dispatch({ event: AppEvent.CREATE_DEMO });
+	};
+
 	if (createForm) {
-		return <Form onCancel={() => setCreateForm(false)} />;
+		return (
+			<Form
+				onCancel={() => setCreateForm(false)}
+				onSubmit={handleCreateFormSubmit}
+			/>
+		);
 	}
+
 	return (
 		<div className={"flex flex-1 flex-col h-[280px] overflow-x-scroll"}>
 			{recordings.length ? (
@@ -57,7 +62,7 @@ const CreateDemo = ({
 						.filter((record) => record.url)
 						.map((record) => (
 							<Fragment key={`demo-item-${record.uuid}`}>
-								<DemoItem setState={setState} {...record} />
+								<DemoItem {...record} />
 								<div className={"px-3 w-full my-6"}>
 									<Divider />
 								</div>

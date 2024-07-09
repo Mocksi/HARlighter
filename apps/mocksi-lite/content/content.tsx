@@ -2,7 +2,6 @@ import ReactDOM from "react-dom/client";
 import {
 	MOCKSI_AUTH,
 	MOCKSI_RECORDING_STATE,
-	RecordingState,
 	STORAGE_CHANGE_EVENT,
 	SignupURL,
 } from "../consts";
@@ -13,6 +12,7 @@ import {
 	sendMessage,
 	setRootPosition,
 } from "../utils";
+import { AppState } from "./AppStateContext";
 import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
@@ -30,9 +30,8 @@ function initial() {
 	document.body.appendChild(rootDiv);
 
 	chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-		const recordingState: RecordingState | null =
-			results[MOCKSI_RECORDING_STATE];
-		if (recordingState === RecordingState.HIDDEN) {
+		const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
+		if (appState === AppState.HIDDEN) {
 			handlePlayState();
 		}
 	});
@@ -49,40 +48,33 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		root = ReactDOM.createRoot(extensionRoot);
 		getEmail().then((email) => {
 			chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-				const recordingState: RecordingState | null =
-					results[MOCKSI_RECORDING_STATE];
-				let state = recordingState;
-				console.log({ recordingState });
-				if (email && !recordingState) {
-					// we need to initialize recordingState if there's none.
+				const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
+				let state = appState;
+
+				console.log({ appState });
+
+				if (email && !appState) {
+					// we need to initialize app state if there's none.
 					chrome.storage.local.set({
-						[MOCKSI_RECORDING_STATE]: RecordingState.READY,
+						[MOCKSI_RECORDING_STATE]: AppState.CREATE,
 					});
-					state = RecordingState.READY;
+					state = AppState.CREATE;
 				}
-				if (recordingState === RecordingState.EDITING) {
-					chrome.storage.local.set({
-						[MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
-					});
-					state = RecordingState.CREATE;
-				}
-				if (recordingState === RecordingState.PLAY) {
+
+				if (appState === AppState.PLAY) {
 					sendMessage("updateToPlayIcon");
 				}
+
 				if (
-					recordingState === RecordingState.UNAUTHORIZED &&
+					appState === AppState.UNAUTHORIZED &&
 					window.location.origin !== SignupURL
 				) {
 					window.open(SignupURL);
 				}
+
 				setRootPosition(state);
-				root.render(
-					<ContentApp
-						initialState={state ?? RecordingState.READY}
-						isOpen={true}
-						email={email || ""}
-					/>,
-				);
+
+				root.render(<ContentApp isOpen={true} email={email || ""} />);
 			});
 		});
 	}
@@ -112,11 +104,10 @@ window.addEventListener("message", (event: MessageEvent) => {
 
 		if (eventData.key === MOCKSI_AUTH) {
 			chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-				const recordingState: RecordingState | null =
-					results[MOCKSI_RECORDING_STATE];
-				if (recordingState === RecordingState.UNAUTHORIZED) {
+				const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
+				if (appState === AppState.UNAUTHORIZED) {
 					chrome.storage.local.set({
-						[MOCKSI_RECORDING_STATE]: RecordingState.READY,
+						[MOCKSI_RECORDING_STATE]: AppState.READY,
 					});
 				}
 			});

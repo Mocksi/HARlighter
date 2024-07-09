@@ -7,16 +7,18 @@ import Divider from "../Divider";
 
 interface FormProps {
 	onCancel: () => void;
+	onSubmit: () => void;
 }
 
-const Form = ({ onCancel }: FormProps) => {
+const Form = ({ onCancel, onSubmit }: FormProps) => {
 	const [name, setName] = useState("");
 	const [customer, setCustomer] = useState("");
 
 	const handleSubmit = () => {
 		sendMessage("createDemo", { demo_name: name, customer_name: customer });
-		onCancel();
+		onSubmit();
 	};
+
 	return (
 		<div className={"flex-1 mt-3"}>
 			<Divider />

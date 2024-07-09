@@ -1,29 +1,23 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
-import {
-	MOCKSI_LAST_PAGE_DOM,
-	MOCKSI_RECORDING_STATE,
-	RecordingState,
-} from "../consts";
+import { MOCKSI_LAST_PAGE_DOM } from "../consts";
 import { innerHTMLToJson, setRootPosition } from "../utils";
+import { AppState, AppStateContext, AppStateProvider } from "./AppStateContext";
 import Popup from "./Popup";
 import ChatToast from "./Toast/ChatToast";
 import EditToast from "./Toast/EditToast";
-import HiddenToast from "./Toast/HiddenToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
 
 interface ContentProps {
-	initialState: RecordingState;
 	isOpen?: boolean;
 	email: string | null;
 }
 
-function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
+function ShadowContentApp({ isOpen, email }: ContentProps) {
+	const { state } = useContext(AppStateContext);
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
-	const [state, setState] = useState<RecordingState>(
-		initialState ?? RecordingState.UNAUTHORIZED,
-	);
+
 	useEffect(() => {
 		let dom_as_json = "";
 		try {
@@ -34,15 +28,6 @@ function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 		chrome.storage.local.set({ [MOCKSI_LAST_PAGE_DOM]: dom_as_json });
 	});
 
-	const onChangeState = (newState: RecordingState) => {
-		chrome.storage.local
-			.set({ [MOCKSI_RECORDING_STATE]: newState })
-			.then(() => {
-				setState(newState);
-				setRootPosition(newState);
-			});
-	};
-
 	const closeDialog = () => setIsDialogOpen(false);
 
 	if (!isDialogOpen) {
@@ -51,30 +36,20 @@ function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 
 	const renderContent = () => {
 		switch (state) {
-			case RecordingState.READY:
-			case RecordingState.CREATE:
-				return (
-					<Popup
-						state={state}
-						close={closeDialog}
-						setState={onChangeState}
-						email={email}
-					/>
-				);
-			case RecordingState.EDITING:
-				return <EditToast state={state} onChangeState={onChangeState} />;
-			case RecordingState.PLAY:
-				return <PlayToast onChangeState={onChangeState} close={closeDialog} />;
-			case RecordingState.CHAT:
-				return <ChatToast onChangeState={setState} close={closeDialog} />;
+			case AppState.EDITING:
+				return <EditToast />;
+			case AppState.PLAY:
+				return <PlayToast close={closeDialog} />;
+			case AppState.CHAT:
+				return <ChatToast onChangeState={() => {}} close={closeDialog} />;
+			case AppState.RECORDING:
+			case AppState.ANALYZING:
+				return <RecordingToast close={closeDialog} />;
+			case AppState.INIT:
+				// When initializing the application and loading state we want to show nothing, potentially this is a loading UI in the future
+				return null;
 			default:
-				return (
-					<RecordingToast
-						close={closeDialog}
-						state={state}
-						onChangeState={onChangeState}
-					/>
-				);
+				return <Popup close={closeDialog} email={email} />;
 		}
 	};
 
@@ -101,18 +76,12 @@ const extractStyles = (): string => {
 	return styles;
 };
 
-export default function ContentApp({
-	isOpen,
-	email,
-	initialState,
-}: ContentProps) {
+export default function ContentApp({ isOpen, email }: ContentProps) {
 	const styles = extractStyles();
 	return useShadow(
-		<ShadowContentApp
-			initialState={initialState}
-			isOpen={isOpen}
-			email={email}
-		/>,
+		<AppStateProvider>
+			<ShadowContentApp isOpen={isOpen} email={email} />
+		</AppStateProvider>,
 		[],
 		{
 			styleContent: styles,

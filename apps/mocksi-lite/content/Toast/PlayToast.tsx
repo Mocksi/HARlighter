@@ -1,5 +1,5 @@
+import { useContext } from "react";
 import Button, { Variant } from "../../common/Button";
-import { RecordingState } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
 import editIcon from "../../public/edit-icon.png";
 import labeledIcon from "../../public/labeled-icon.png";
@@ -10,31 +10,41 @@ import {
 	sendMessage,
 	undoModifications,
 } from "../../utils";
+import { AppEvent, AppStateContext } from "../AppStateContext";
 import { setEditorMode } from "../EditMode/editMode";
 import Toast from "./index";
 
 interface PlayToastProps {
 	close: () => void;
-	onChangeState: (r: RecordingState) => void;
 }
-const PlayToast = ({ onChangeState, close }: PlayToastProps) => {
+
+const PlayToast = ({ close }: PlayToastProps) => {
+	const { dispatch } = useContext(AppStateContext);
+
 	const handleEdit = async () => {
 		sendMessage("resetIcon");
+
 		const alterations = await getAlterations();
 		loadAlterations(alterations, true);
+
 		setEditorMode(true);
-		onChangeState(RecordingState.EDITING);
+		dispatch({ event: AppEvent.START_EDITING });
 	};
+
 	const handleHideToast = () => {
 		sendMessage("updateToPauseIcon");
-		onChangeState(RecordingState.PLAY);
+
+		dispatch({ event: AppEvent.START_PLAYING });
+
 		close();
 	};
 
 	const handleStop = () => {
 		sendMessage("resetIcon");
+
 		undoModifications();
-		onChangeState(RecordingState.CREATE);
+
+		dispatch({ event: AppEvent.STOP_PLAYING });
 	};
 
 	return (

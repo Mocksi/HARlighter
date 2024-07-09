@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import type { Recording } from "../../background";
 import Button, { Variant } from "../../common/Button";
 import TextField from "../../common/TextField";
-import { RecordingState } from "../../consts";
 import {
 	getAlterations,
 	getRecordingsStorage,
@@ -11,13 +10,14 @@ import {
 	sendMessage,
 	undoModifications,
 } from "../../utils";
+import { AppState } from "../AppStateContext";
 import { setEditorMode } from "../EditMode/editMode";
 import Divider from "../Popup/Divider";
 import Toast from "./index";
 
 interface HiddenToastProps {
 	close: () => void;
-	onChangeState: (r: RecordingState) => void;
+	onChangeState: (r: AppState) => void;
 }
 
 const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
@@ -37,7 +37,7 @@ const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
 	const handleEdit = async () => {
 		sendMessage("resetIcon");
 		const alterations = await getAlterations();
-		onChangeState(RecordingState.EDITING);
+		onChangeState(AppState.EDITING);
 		loadAlterations(alterations, true);
 		setEditorMode(true);
 	};
@@ -45,7 +45,7 @@ const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
 	const handleClose = () => {
 		undoModifications();
 		sendMessage("resetIcon");
-		onChangeState(RecordingState.CREATE);
+		onChangeState(AppState.CREATE);
 		close();
 	};
 	return (

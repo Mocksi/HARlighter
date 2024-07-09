@@ -1,16 +1,18 @@
+import { useContext } from "react";
 import Button, { Variant } from "../../common/Button";
-import { RecordingState } from "../../consts";
 import { logout } from "../../utils";
+import { AppEvent, AppStateContext } from "../AppStateContext";
 
 interface FooterProps {
 	email: string | null;
 	close: () => void;
-	setState: (r: RecordingState) => void;
 }
 
-const Footer = ({ email, close, setState }: FooterProps) => {
+const Footer = ({ email, close }: FooterProps) => {
+	const { dispatch } = useContext(AppStateContext);
+
 	const openChat = () => {
-		setState(RecordingState.CHAT);
+		dispatch({ event: AppEvent.START_CHAT });
 	};
 	return (
 		<div className={"h-[36px] flex items-center justify-end pr-3"}>

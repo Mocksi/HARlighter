@@ -15,10 +15,10 @@ import {
 	MOCKSI_MODIFICATIONS,
 	MOCKSI_RECORDING_ID,
 	MOCKSI_RECORDING_STATE,
-	RecordingState,
 	STORAGE_KEY,
 	SignupURL,
 } from "./consts";
+import { AppState } from "./content/AppStateContext";
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
 
@@ -41,14 +41,14 @@ const authOptions: auth0.AuthOptions = {
 	audience: "Mocksi Lite",
 };
 
-export const setRootPosition = (state: RecordingState | null) => {
+export const setRootPosition = (state: AppState | null) => {
 	const extensionRoot = document.getElementById("extension-root");
 	if (extensionRoot) {
 		const bottom =
-			state === RecordingState.READY ||
-			state === RecordingState.CREATE ||
-			state === RecordingState.HIDDEN ||
-			state === RecordingState.PLAY;
+			state === AppState.READY ||
+			state === AppState.CREATE ||
+			state === AppState.HIDDEN ||
+			state === AppState.PLAY;
 		extensionRoot.className = bottom ? "bottom-extension" : "top-extension";
 	}
 };
@@ -59,7 +59,7 @@ export const logout = () => {
 	chrome.storage.local.clear(() => {
 		chrome.storage.local.set(
 			{
-				[MOCKSI_RECORDING_STATE]: RecordingState.UNAUTHORIZED,
+				[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
 			},
 			() =>
 				webAuth.logout({
@@ -335,17 +335,17 @@ export const loadRecordingId = async () => {
 	});
 };
 
-export const recordingLabel = (currentStatus: RecordingState) => {
+export const recordingLabel = (currentStatus: AppState) => {
 	switch (currentStatus) {
-		case RecordingState.READY:
+		case AppState.READY:
 			return "Start recording";
-		case RecordingState.RECORDING:
+		case AppState.RECORDING:
 			return "Mocksi Recording";
-		case RecordingState.EDITING:
+		case AppState.EDITING:
 			return "Editing Template";
-		case RecordingState.ANALYZING:
+		case AppState.ANALYZING:
 			return "Analyzing...";
-		case RecordingState.UNAUTHORIZED:
+		case AppState.UNAUTHORIZED:
 			return "Login to record";
 		default:
 			return "Start recording";

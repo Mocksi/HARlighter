@@ -1,17 +1,18 @@
-import { RecordingState } from "../../consts";
+import { useContext } from "react";
 import closeIcon from "../../public/close-icon.png";
 import mocksiLogo from "../../public/mocksi-logo.png";
 import { recordingLabel } from "../../utils";
+import { AppState, AppStateContext } from "../AppStateContext";
 import { RecordButton } from "../RecordButton";
 import Toast from "./index";
 
 interface RecordingToast {
 	close: () => void;
-	state: RecordingState;
-	onChangeState: (r: RecordingState) => void;
 }
 
-const RecordingToast = ({ state, close, onChangeState }: RecordingToast) => {
+const RecordingToast = ({ close }: RecordingToast) => {
+	const { state } = useContext(AppStateContext);
+
 	return (
 		<Toast className={"h-11 w-64 mt-4 mr-8  justify-between"}>
 			<div className="flex flex-row gap-2 items-center">
@@ -29,9 +30,7 @@ const RecordingToast = ({ state, close, onChangeState }: RecordingToast) => {
 					{recordingLabel(state)}
 				</span>
 			</div>
-			{state !== RecordingState.UNAUTHORIZED && (
-				<RecordButton state={state} onRecordChange={onChangeState} />
-			)}
+			{state !== AppState.UNAUTHORIZED && <RecordButton />}
 		</Toast>
 	);
 };

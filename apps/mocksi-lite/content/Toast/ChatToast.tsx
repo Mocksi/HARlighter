@@ -1,15 +1,12 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import Toast from ".";
 import Button, { Variant } from "../../common/Button";
-import {
-	ChatWebSocketURL,
-	MOCKSI_RECORDING_STATE,
-	RecordingState,
-} from "../../consts";
+import { ChatWebSocketURL, MOCKSI_RECORDING_STATE } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
 import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
 import { getEmail, getLastPageDom, innerHTMLToJson } from "../../utils";
+import { AppState } from "../AppStateContext";
 
 interface Message {
 	role: "assistant" | "user";
@@ -24,7 +21,7 @@ interface ResponseMessage {
 
 interface ChatToastProps {
 	close: () => void;
-	onChangeState: (r: RecordingState) => void;
+	onChangeState: (r: AppState) => void;
 }
 
 interface DOMModification {
@@ -48,7 +45,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 				return;
 			}
 			const state = await chrome.storage.local.get([MOCKSI_RECORDING_STATE]);
-			if (!state || state[MOCKSI_RECORDING_STATE] !== RecordingState.CHAT) {
+			if (!state || state[MOCKSI_RECORDING_STATE] !== AppState.CHAT) {
 				return;
 			}
 
@@ -212,7 +209,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 						variant={Variant.secondary}
 						onClick={async () => {
 							await chrome.storage.local.set({
-								[MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
+								[MOCKSI_RECORDING_STATE]: AppState.CREATE,
 							});
 							close();
 						}}

@@ -1,8 +1,4 @@
-import {
-	MOCKSI_RECORDING_ID,
-	MOCKSI_RECORDING_STATE,
-	RecordingState,
-} from "../../consts";
+import { MOCKSI_RECORDING_ID } from "../../consts";
 import { persistModifications, undoModifications } from "../../utils";
 import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
@@ -12,25 +8,23 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 		if (recordingId) {
 			await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: recordingId });
 		}
-		await chrome.storage.local.set({
-			[MOCKSI_RECORDING_STATE]: RecordingState.EDITING,
-		});
+
 		blockClickableElements();
 		document.body.addEventListener("dblclick", onDoubleClickText);
 		return;
 	}
+
 	if (recordingId) {
 		await persistModifications(recordingId);
 	}
+
 	undoModifications();
-	await chrome.storage.local.set({
-		[MOCKSI_RECORDING_STATE]: RecordingState.CREATE,
-	});
 	await chrome.storage.local.remove(MOCKSI_RECORDING_ID);
 	document.body.removeEventListener("dblclick", onDoubleClickText);
 	restoreNodes();
 	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 	document.normalize();
+
 	return;
 };
 
