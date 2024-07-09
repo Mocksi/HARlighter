@@ -1,5 +1,6 @@
 import ReactDOM from "react-dom/client";
 import {
+	MOCKSI_AUTH,
 	MOCKSI_RECORDING_STATE,
 	RecordingState,
 	STORAGE_CHANGE_EVENT,
@@ -108,5 +109,17 @@ window.addEventListener("message", (event: MessageEvent) => {
 		chrome.storage.local.set({ [eventData.key]: eventData.value }).then(() => {
 			console.log(eventData.key, " set.");
 		});
+
+		if (eventData.key === MOCKSI_AUTH) {
+			chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
+				const recordingState: RecordingState | null =
+					results[MOCKSI_RECORDING_STATE];
+				if (recordingState === RecordingState.UNAUTHORIZED) {
+					chrome.storage.local.set({
+						[MOCKSI_RECORDING_STATE]: RecordingState.READY,
+					});
+				}
+			});
+		}
 	}
 });
