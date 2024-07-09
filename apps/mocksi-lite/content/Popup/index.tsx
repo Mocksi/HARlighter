@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import Draggable, { type DraggableEventHandler } from "react-draggable";
-import { MOCKSI_POPUP_LOCATION, RecordingState } from "../../consts";
-import { debounce_leading, sendMessage } from "../../utils";
+import { MOCKSI_POPUP_LOCATION } from "../../consts";
+import { sendMessage } from "../../utils";
 import CreateDemo from "./CreateDemo";
 import Divider from "./Divider";
 import Footer from "./Footer";
@@ -15,7 +15,7 @@ interface PopupProps {
 }
 
 const Popup = ({ close, email }: PopupProps) => {
-	const { state, dispatch } = useContext(AppStateContext);
+	const { state } = useContext(AppStateContext);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 	const [createForm, setCreateForm] = useState<boolean>(false);
 

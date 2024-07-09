@@ -15,7 +15,6 @@ import {
 	MOCKSI_MODIFICATIONS,
 	MOCKSI_RECORDING_ID,
 	MOCKSI_RECORDING_STATE,
-	RecordingState,
 	STORAGE_KEY,
 	SignupURL,
 } from "./consts";

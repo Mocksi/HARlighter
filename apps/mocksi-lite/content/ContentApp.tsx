@@ -2,19 +2,14 @@ import { useContext, useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
 import {
 	MOCKSI_LAST_PAGE_DOM,
-	MOCKSI_RECORDING_STATE,
-	RecordingState,
 } from "../consts";
 import { innerHTMLToJson, setRootPosition } from "../utils";
 import Popup from "./Popup";
 import ChatToast from "./Toast/ChatToast";
 import EditToast from "./Toast/EditToast";
-import HiddenToast from "./Toast/HiddenToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
 import { AppState, AppStateContext, AppStateProvider } from "./AppStateContext";
-import { RecordButton } from "./RecordButton";
-import RecordDemo from "./Popup/RecordDemo";
 
 interface ContentProps {
 	isOpen?: boolean;

@@ -111,9 +111,9 @@ window.addEventListener("message", (event: MessageEvent) => {
 
 		if (eventData.key === MOCKSI_AUTH) {
 			chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-				const recordingState: AppState | null =
+				const appState: AppState | null =
 					results[MOCKSI_RECORDING_STATE];
-				if (recordingState === AppState.UNAUTHORIZED) {
+				if (appState === AppState.UNAUTHORIZED) {
 					chrome.storage.local.set({
 						[MOCKSI_RECORDING_STATE]: AppState.READY,
 					});

@@ -1,7 +1,5 @@
 import {
 	MOCKSI_RECORDING_ID,
-	MOCKSI_RECORDING_STATE,
-	RecordingState,
 } from "../../consts";
 import { persistModifications, undoModifications } from "../../utils";
 import { applyImageChanges, cancelEditWithoutChanges } from "./actions";

@@ -23,18 +23,6 @@ export const SignupURL = "https://nest-auth-ts-merge.onrender.com";
 export const STORAGE_KEY = "mocksi-auth";
 export const CHAT_UPDATED_EVENT = "chatUpdated";
 
-export enum RecordingState {
-	UNAUTHORIZED = "UNAUTHORIZED",
-	READY = "READY",
-	RECORDING = "RECORDING",
-	ANALYZING = "ANALYZING",
-	CREATE = "CREATE",
-	EDITING = "EDITING",
-	PLAY = "PLAY",
-	HIDDEN = "HIDDEN",
-	CHAT = "CHAT",
-}
-
 export const popupTitle = "Tip & Tricks";
 
 export const popupContent = [

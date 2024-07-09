@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import Button, { Variant } from "../../common/Button";
-import { RecordingState } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
 import editIcon from "../../public/edit-icon.png";
 import labeledIcon from "../../public/labeled-icon.png";

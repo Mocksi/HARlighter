@@ -1,5 +1,4 @@
-import { useContext, useEffect } from "react";
-import { MOCKSI_RECORDING_STATE, RecordingState } from "../consts";
+import { useContext } from "react";
 import recordIcon from "../public/record-icon.png";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { AppEvent, AppState, AppStateContext } from "./AppStateContext";

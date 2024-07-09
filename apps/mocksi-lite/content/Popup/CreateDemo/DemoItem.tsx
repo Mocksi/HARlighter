@@ -5,7 +5,6 @@ import TextField from "../../../common/TextField";
 import {
 	MOCKSI_ALTERATIONS,
 	MOCKSI_RECORDING_ID,
-	RecordingState,
 } from "../../../consts";
 import editIcon from "../../../public/edit-icon.png";
 import playIcon from "../../../public/play-icon.png";
@@ -13,8 +12,7 @@ import { loadAlterations, sendMessage } from "../../../utils";
 import { setEditorMode } from "../../EditMode/editMode";
 import { AppEvent, AppStateContext } from "../../AppStateContext";
 
-interface DemoItemProps extends Recording {
-}
+interface DemoItemProps extends Recording {}
 
 const DemoItem = ({
 	uuid,
@@ -25,7 +23,7 @@ const DemoItem = ({
 }: DemoItemProps) => {
 	const { dispatch } = useContext(AppStateContext);
 	const domain = new URL(url).hostname;
-	
+
 	const handleEdit = () => {
 		setEditorMode(true, uuid);
 		loadAlterations(alterations, true);

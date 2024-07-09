@@ -1,7 +1,6 @@
 import MocksiRollbar from "./MocksiRollbar";
 import {
 	MOCKSI_RECORDING_STATE,
-	RecordingState,
 	STORAGE_KEY,
 	SignupURL,
 } from "./consts";

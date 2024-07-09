@@ -1,14 +1,12 @@
 import { useContext } from "react";
 import TextField from "../../common/TextField";
-import { type RecordingState, popupContent, popupTitle } from "../../consts";
+import { popupContent, popupTitle } from "../../consts";
 import { recordingLabel } from "../../utils";
 import { RecordButton } from "../RecordButton";
 import { AppStateContext } from "../AppStateContext";
 
-interface RecordDemoProps {}
-
-const RecordDemo = ({}: RecordDemoProps) => {
-	const { state, dispatch } = useContext(AppStateContext);
+const RecordDemo = () => {
+	const { state } = useContext(AppStateContext);
 
 	const label = recordingLabel(state);
 

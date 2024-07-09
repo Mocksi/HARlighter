@@ -1,7 +1,6 @@
 import { Fragment, useContext, useEffect, useState } from "react";
 import type { Recording } from "../../../background";
 import Button from "../../../common/Button";
-import { RecordingState } from "../../../consts";
 import { getRecordingsStorage } from "../../../utils";
 import Form from "../CreateDemo/Form";
 import Divider from "../Divider";
@@ -38,7 +37,6 @@ const CreateDemo = ({
 	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
 		if (!createForm && state !== AppState.EDITING) {
-			console.log('getting recordings')
 			getRecordings();
 		}
 	}, [createForm, state]);

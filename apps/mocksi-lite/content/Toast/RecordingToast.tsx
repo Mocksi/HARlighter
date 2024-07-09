@@ -1,5 +1,4 @@
 import { useContext } from "react";
-import { RecordingState } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
 import mocksiLogo from "../../public/mocksi-logo.png";
 import { recordingLabel } from "../../utils";

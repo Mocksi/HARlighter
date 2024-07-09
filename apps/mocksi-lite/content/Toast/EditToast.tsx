@@ -1,6 +1,5 @@
 import { useContext, useState } from "react";
 import TextField from "../../common/TextField";
-import { RecordingState } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
 import { loadRecordingId, recordingLabel } from "../../utils";
 import { setEditorMode } from "../EditMode/editMode";

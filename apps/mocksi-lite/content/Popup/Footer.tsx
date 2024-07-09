@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import Button, { Variant } from "../../common/Button";
-import { RecordingState } from "../../consts";
 import { logout } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 
@@ -10,7 +9,7 @@ interface FooterProps {
 }
 
 const Footer = ({ email, close }: FooterProps) => {
-	const { state, dispatch } = useContext(AppStateContext);
+	const { dispatch } = useContext(AppStateContext);
 
 	const openChat = () => {
 		dispatch({ event: AppEvent.START_CHAT });
