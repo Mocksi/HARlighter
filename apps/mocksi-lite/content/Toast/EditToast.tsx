@@ -7,9 +7,7 @@ import { getHighlighter } from "../EditMode/highlighter";
 import Toast from "./index";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 
-interface EditToastProps {}
-
-const EditToast = ({ }: EditToastProps) => {
+const EditToast = () => {
 	const { state, dispatch } = useContext(AppStateContext);
 
 	const [areChangesHighlighted, setAreChangesHighlighted] = useState(true);

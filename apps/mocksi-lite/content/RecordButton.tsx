@@ -3,7 +3,6 @@ import recordIcon from "../public/record-icon.png";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { AppEvent, AppState, AppStateContext } from "./AppStateContext";
 
-interface RecordButtonProps {}
 const waitTime = 2000; // 2 seconds
 
 const recordingColorAndLabel = (currentStatus: AppState) => {
@@ -19,7 +18,7 @@ const recordingColorAndLabel = (currentStatus: AppState) => {
 	}
 };
 
-export const RecordButton = ({}: RecordButtonProps) => {
+export const RecordButton = () => {
 	const { state, dispatch } = useContext(AppStateContext);
 
 	const handleStartRecording = () => {
