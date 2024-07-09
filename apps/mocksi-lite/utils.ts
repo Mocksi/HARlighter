@@ -45,7 +45,7 @@ export const setRootPosition = (state: AppState | null) => {
 	const extensionRoot = document.getElementById("extension-root");
 	if (extensionRoot) {
 		const bottom =
-			state === AppState.READY ||
+			state === AppState.READYTORECORD ||
 			state === AppState.CREATE ||
 			state === AppState.HIDDEN ||
 			state === AppState.PLAY;
@@ -337,7 +337,7 @@ export const loadRecordingId = async () => {
 
 export const recordingLabel = (currentStatus: AppState) => {
 	switch (currentStatus) {
-		case AppState.READY:
+		case AppState.READYTORECORD:
 			return "Start recording";
 		case AppState.RECORDING:
 			return "Mocksi Recording";

@@ -1,26 +1,21 @@
 import { useContext } from "react";
 import Button, { Variant } from "../../common/Button";
 import { logout } from "../../utils";
-import { AppEvent, AppStateContext } from "../AppStateContext";
 
 interface FooterProps {
 	email: string | null;
-	close: () => void;
+	onChat: () => void;
+	onLogout: () => void;
 }
 
-const Footer = ({ email, close }: FooterProps) => {
-	const { dispatch } = useContext(AppStateContext);
-
-	const openChat = () => {
-		dispatch({ event: AppEvent.START_CHAT });
-	};
+const Footer = ({ email, onChat, onLogout }: FooterProps) => {
 	return (
 		<div className={"h-[36px] flex items-center justify-end pr-3"}>
 			<div className={"text-[13px] text-[#5E5E5E] mr-2"}>{email}</div>
 			<Button
 				className="btn btn-square"
 				variant={Variant.secondary}
-				onClick={openChat}
+				onClick={onChat}
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -43,8 +38,7 @@ const Footer = ({ email, close }: FooterProps) => {
 			<div
 				className={"text-[13px] text-[#006C52] underline cursor-pointer"}
 				onClick={() => {
-					close();
-					logout();
+					onLogout();
 				}}
 				onKeyUp={(event) => {
 					// todo think something better here

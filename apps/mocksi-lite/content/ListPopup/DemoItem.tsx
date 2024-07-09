@@ -1,13 +1,13 @@
 import { useContext } from "react";
-import type { Recording } from "../../../background";
-import Button, { Variant } from "../../../common/Button";
-import TextField from "../../../common/TextField";
-import { MOCKSI_ALTERATIONS, MOCKSI_RECORDING_ID } from "../../../consts";
-import editIcon from "../../../public/edit-icon.png";
-import playIcon from "../../../public/play-icon.png";
-import { loadAlterations, sendMessage } from "../../../utils";
-import { AppEvent, AppStateContext } from "../../AppStateContext";
-import { setEditorMode } from "../../EditMode/editMode";
+import type { Recording } from "../../background";
+import Button, { Variant } from "../../common/Button";
+import TextField from "../../common/TextField";
+import { MOCKSI_ALTERATIONS, MOCKSI_RECORDING_ID } from "../../consts";
+import editIcon from "../../public/edit-icon.png";
+import playIcon from "../../public/play-icon.png";
+import { loadAlterations, sendMessage } from "../../utils";
+import { AppEvent, AppStateContext } from "../AppStateContext";
+import { setEditorMode } from "../EditMode/editMode";
 
 interface DemoItemProps extends Recording {}
 

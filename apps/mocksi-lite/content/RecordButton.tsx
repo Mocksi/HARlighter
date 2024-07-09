@@ -7,7 +7,7 @@ const waitTime = 2000; // 2 seconds
 
 const recordingColorAndLabel = (currentStatus: AppState) => {
 	switch (currentStatus) {
-		case AppState.READY:
+		case AppState.READYTORECORD:
 			return { color: "bg-green/95", label: "Start" };
 		case AppState.RECORDING:
 			return { color: "bg-crimson/95", label: "Stop" };
@@ -34,7 +34,7 @@ export const RecordButton = () => {
 
 	const { color, label } = recordingColorAndLabel(state);
 
-	if (state === AppState.READY) {
+	if (state === AppState.READYTORECORD) {
 		return (
 			<div
 				className={"cursor-pointer"}

@@ -1,7 +1,7 @@
 import auth0 from "auth0-js";
 import { API_URL, MOCKSI_AUTH } from "./consts";
 
-type HttpMethod = "GET" | "PUT" | "POST";
+type HttpMethod = "GET" | "PUT" | "POST" | "DELETE";
 
 interface ApiError extends Error {
 	response?: Response;
