@@ -47,29 +47,20 @@ export const AppStateContext = createContext<AppStateContextType>({
 
 const appStateReducer = (state: AppState, action: AppStateAction) => {
 	switch (action.event) {
-		case AppEvent.SET_INITIAL_STATE: {
+		case AppEvent.SET_INITIAL_STATE:
 			return action.payload ?? AppState.CREATE;
-		}
 		case AppEvent.START_RECORDING:
 			return AppState.RECORDING;
 		case AppEvent.STOP_RECORDING:
-			if (state === AppState.RECORDING) {
-				return AppState.ANALYZING;
-			}
+			return AppState.ANALYZING;
 		case AppEvent.STOP_ANALYZING:
-			if (state === AppState.ANALYZING) {
-				return AppState.CREATE;
-			}
+			return AppState.CREATE;
 		case AppEvent.START_EDITING:
 			return AppState.EDITING;
 		case AppEvent.CANCEL_EDITING:
-			if (state === AppState.EDITING) {
-				return AppState.CREATE;
-			}
+			return AppState.CREATE;
 		case AppEvent.SAVE_MODIFICATIONS:
-			if (state === AppState.EDITING) {
-				return AppState.CREATE;
-			}
+			return AppState.CREATE;
 		case AppEvent.START_PLAYING:
 			return AppState.PLAY;
 		case AppEvent.STOP_PLAYING:
@@ -78,6 +69,8 @@ const appStateReducer = (state: AppState, action: AppStateAction) => {
 			return AppState.CHAT;
 		case AppEvent.CREATE_DEMO:
 			return AppState.READY;
+		default:
+			return state
 	}
 };
 
