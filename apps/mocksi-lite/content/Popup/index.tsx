@@ -28,9 +28,9 @@ const Popup = ({ close, email }: PopupProps) => {
 			return (
 				<CreateDemo createForm={createForm} setCreateForm={setCreateForm} />
 			);
-		} else {
-			return <RecordDemo />;
 		}
+
+		return <RecordDemo />;
 	};
 
 	const onDragStop: DraggableEventHandler = (

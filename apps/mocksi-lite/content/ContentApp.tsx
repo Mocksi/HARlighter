@@ -48,8 +48,6 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 			case AppState.INIT:
 				// When initializing the application and loading state we want to show nothing, potentially this is a loading UI in the future
 				return null;
-			case AppState.READY:
-			case AppState.CREATE:
 			default:
 				return <Popup close={closeDialog} email={email} />;
 		}

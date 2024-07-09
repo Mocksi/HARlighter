@@ -70,7 +70,7 @@ const appStateReducer = (state: AppState, action: AppStateAction) => {
 		case AppEvent.CREATE_DEMO:
 			return AppState.READY;
 		default:
-			return state
+			return state;
 	}
 };
 
