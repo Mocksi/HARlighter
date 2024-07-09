@@ -7,13 +7,13 @@ import trashIcon from "../../public/trash-icon.png";
 import Divider from "./Divider";
 
 interface HeaderProps {
-	createForm: boolean;
+	subtitle?: string;
 	close: () => void;
 	onGoBack?: () => void;
 	onDelete?: () => void;
 }
 
-const Header = ({ createForm, close, onDelete, onGoBack }: HeaderProps) => {
+const Header = ({ subtitle, close, onDelete, onGoBack }: HeaderProps) => {
 	return (
 		<div>
 			<div className={"h-[36px] flex items-center flex-row px-2"}>
@@ -48,8 +48,8 @@ const Header = ({ createForm, close, onDelete, onGoBack }: HeaderProps) => {
 					<div>
 						<img src={labeledIcon} alt={"labeledIcon"} />
 					</div>
-					{createForm && (
-						<TextField variant={"title"}>Create New Demo</TextField>
+					{subtitle && (
+						<TextField variant="title">{subtitle}</TextField>
 					)}
 				</div>
 				{onDelete && (

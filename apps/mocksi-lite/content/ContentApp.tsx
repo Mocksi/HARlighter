@@ -1,21 +1,24 @@
 import { useContext, useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
 import { MOCKSI_LAST_PAGE_DOM } from "../consts";
-import { innerHTMLToJson, setRootPosition } from "../utils";
-import { AppState, AppStateContext, AppStateProvider } from "./AppStateContext";
-import Popup from "./Popup";
+import { innerHTMLToJson, logout, setRootPosition } from "../utils";
+import { AppEvent, AppState, AppStateContext, AppStateProvider } from "./AppStateContext";
 import ChatToast from "./Toast/ChatToast";
 import EditToast from "./Toast/EditToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
+import CreatePopup from "./CreatePopup";
+import ListPopup from "./ListPopup";
+import ReadyToRecordPopup from "./ReadyToRecordPopup";
+import SettingsPopup from "./SettingsPopup";
 
 interface ContentProps {
 	isOpen?: boolean;
-	email: string | null;
+	email?: string;
 }
 
 function ShadowContentApp({ isOpen, email }: ContentProps) {
-	const { state } = useContext(AppStateContext);
+	const { state, dispatch } = useContext(AppStateContext);
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 
 	useEffect(() => {
@@ -30,11 +33,25 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 
 	const closeDialog = () => setIsDialogOpen(false);
 
+	const handleOnChat = () => {
+		dispatch({ event: AppEvent.START_CHAT });
+	}
+
+	const handleOnLogout = () => {
+		logout()
+	}
+
 	if (!isDialogOpen) {
 		return null;
 	}
 
 	const renderContent = () => {
+		const popupProps = {
+			onClose: closeDialog,
+			email,
+			onChat: handleOnChat,
+			onLogout: handleOnLogout,
+		}
 		switch (state) {
 			case AppState.EDITING:
 				return <EditToast />;
@@ -45,11 +62,19 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 			case AppState.RECORDING:
 			case AppState.ANALYZING:
 				return <RecordingToast close={closeDialog} />;
+			case AppState.CREATE:
+				return <CreatePopup onClose={closeDialog} />;
+			case AppState.LIST:
+				return <ListPopup {...popupProps} />;
+			case AppState.SETTINGS:
+				return <SettingsPopup {...popupProps} />;
+			case AppState.READYTORECORD:
+				return <ReadyToRecordPopup {...popupProps} />;
 			case AppState.INIT:
 				// When initializing the application and loading state we want to show nothing, potentially this is a loading UI in the future
 				return null;
 			default:
-				return <Popup close={closeDialog} email={email} />;
+				return <ListPopup {...popupProps} />;
 		}
 	};
 

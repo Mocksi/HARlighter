@@ -1,19 +1,23 @@
-import { Fragment, useContext, useEffect, useState } from "react";
-import type { Recording } from "../../../background";
-import Button from "../../../common/Button";
-import { getRecordingsStorage } from "../../../utils";
-import { AppEvent, AppState, AppStateContext } from "../../AppStateContext";
-import Form from "../CreateDemo/Form";
-import Divider from "../Divider";
+import { useContext, useState, useEffect, Fragment } from "react";
+import type { Recording } from "../../background";
+import Button from "../../common/Button";
+import Divider from "../../common/Popup/Divider";
+import { getRecordingsStorage } from "../../utils";
+import { AppStateContext, AppState, AppEvent } from "../AppStateContext";
+import Form from "../CreatePopup/Form";
 import DemoItem from "./DemoItem";
+import Popup from "../../common/Popup";
 
-interface CreateDemoProps {
-	createForm: boolean;
-	setCreateForm: (value: boolean) => void;
+
+interface ListPopupProps {
+	onClose: () => void;
+	onChat: () => void;
+	onLogout: () => void;
+	email?: string;
 }
 
-const CreateDemo = ({ createForm, setCreateForm }: CreateDemoProps) => {
-	const { state, dispatch } = useContext(AppStateContext);
+const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
+	const { dispatch } = useContext(AppStateContext);
 	const [recordings, setRecordings] = useState<Recording[]>([]);
 
 	const getRecordings = async () => {
@@ -33,26 +37,15 @@ const CreateDemo = ({ createForm, setCreateForm }: CreateDemoProps) => {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
-		if (!createForm && state !== AppState.EDITING) {
-			getRecordings();
-		}
-	}, [createForm, state]);
+		getRecordings();
+	}, []);
 
-	const handleCreateFormSubmit = () => {
-		setCreateForm(false);
+	const handleCreateDemoClicked = () => {
 		dispatch({ event: AppEvent.CREATE_DEMO });
-	};
-
-	if (createForm) {
-		return (
-			<Form
-				onCancel={() => setCreateForm(false)}
-				onSubmit={handleCreateFormSubmit}
-			/>
-		);
 	}
-
+	
 	return (
+		<Popup shouldDisplayFooter email={email} onLogout={onLogout} onChat={onChat} onClose={onClose}>
 		<div className={"flex flex-1 flex-col h-[280px] overflow-x-scroll"}>
 			{recordings.length ? (
 				<div
@@ -71,13 +64,14 @@ const CreateDemo = ({ createForm, setCreateForm }: CreateDemoProps) => {
 				</div>
 			) : null}
 			<Button
-				onClick={() => setCreateForm(true)}
+				onClick={handleCreateDemoClicked}
 				className={!recordings.length ? "mt-3 self-center" : "my-3 self-center"}
 			>
 				Create New Demo
 			</Button>
 		</div>
+		</Popup>
 	);
 };
 
-export default CreateDemo;
+export default ListPopup;

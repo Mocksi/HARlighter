@@ -1,37 +1,22 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Draggable, { type DraggableEventHandler } from "react-draggable";
 import { MOCKSI_POPUP_LOCATION } from "../../consts";
-import { sendMessage } from "../../utils";
-import { AppState, AppStateContext } from "../AppStateContext";
-import CreateDemo from "./CreateDemo";
 import Divider from "./Divider";
 import Footer from "./Footer";
 import Header from "./Header";
-import RecordDemo from "./RecordDemo";
 
 interface PopupProps {
-	close: () => void;
-	email: string | null;
+	headerSubtitle?: string;
+  shouldDisplayFooter?: boolean;
+  email?: string;
+  onLogout?: () => void;
+  onChat?: () => void;
+  onClose: () => void;
+  children: React.ReactNode;
 }
 
-const Popup = ({ close, email }: PopupProps) => {
-	const { state } = useContext(AppStateContext);
+const Popup = ({ headerSubtitle, email, shouldDisplayFooter, onLogout, onClose, onChat, children }: PopupProps) => {
 	const [position, setPosition] = useState({ x: 0, y: 0 });
-	const [createForm, setCreateForm] = useState<boolean>(false);
-
-	useEffect(() => {
-		sendMessage("getRecordings");
-	}, []);
-
-	const renderContent = () => {
-		if (state === AppState.CREATE) {
-			return (
-				<CreateDemo createForm={createForm} setCreateForm={setCreateForm} />
-			);
-		}
-
-		return <RecordDemo />;
-	};
 
 	const onDragStop: DraggableEventHandler = (
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -61,6 +46,8 @@ const Popup = ({ close, email }: PopupProps) => {
 		});
 	}, []);
 
+  const isFooterVisible = shouldDisplayFooter && email && onLogout && onChat;
+
 	return (
 		<Draggable handle=".drag-handle" position={position} onStop={onDragStop}>
 			<div
@@ -68,16 +55,15 @@ const Popup = ({ close, email }: PopupProps) => {
 					"w-[500px] h-[596px] shadow-lg rounded-lg m-4 bg-white flex flex-col justify-between"
 				}
 			>
-				<Header createForm={createForm} close={close} />
+				<Header subtitle={headerSubtitle} close={onClose} />
 
-				{/* CONTENT */}
-				{renderContent()}
+        {children}
 
 				{/* FOOTER */}
-				{!createForm && (
+				{isFooterVisible && (
 					<div>
 						<Divider />
-						<Footer close={close} email={email} />
+						<Footer email={email} onLogout={onLogout} onChat={onChat} />
 					</div>
 				)}
 			</div>

@@ -4,10 +4,12 @@ import { MOCKSI_RECORDING_STATE } from "../consts";
 export enum AppState {
 	INIT = "INIT",
 	UNAUTHORIZED = "UNAUTHORIZED",
-	READY = "READY",
+	READYTORECORD = "READYTORECORD",
 	RECORDING = "RECORDING",
 	ANALYZING = "ANALYZING",
+	LIST = "LIST",
 	CREATE = "CREATE",
+	SETTINGS = "SETTINGS",
 	EDITING = "EDITING",
 	PLAY = "PLAY",
 	HIDDEN = "HIDDEN",
@@ -26,6 +28,10 @@ export enum AppEvent {
 	STOP_PLAYING = "STOP_PLAYING",
 	START_CHAT = "START_CHAT",
 	CREATE_DEMO = "CREATE_DEMO",
+	SAVE_DEMO = "SAVE_DEMO",
+	DISCARD_DEMO = "DISCARD_DEMO",
+	ENTER_SETTINGS = "ENTER_SETTINGS",
+	EXIT_SETTINGS = "EXIT_SETTINGS",
 }
 
 export const INITIAL_STATE = AppState.INIT;
@@ -48,27 +54,35 @@ export const AppStateContext = createContext<AppStateContextType>({
 const appStateReducer = (state: AppState, action: AppStateAction) => {
 	switch (action.event) {
 		case AppEvent.SET_INITIAL_STATE:
-			return action.payload ?? AppState.CREATE;
+			return action.payload ?? AppState.LIST;
 		case AppEvent.START_RECORDING:
 			return AppState.RECORDING;
 		case AppEvent.STOP_RECORDING:
 			return AppState.ANALYZING;
 		case AppEvent.STOP_ANALYZING:
-			return AppState.CREATE;
+			return AppState.LIST;
 		case AppEvent.START_EDITING:
 			return AppState.EDITING;
 		case AppEvent.CANCEL_EDITING:
-			return AppState.CREATE;
+			return AppState.LIST;
 		case AppEvent.SAVE_MODIFICATIONS:
-			return AppState.CREATE;
+			return AppState.LIST;
 		case AppEvent.START_PLAYING:
 			return AppState.PLAY;
 		case AppEvent.STOP_PLAYING:
-			return AppState.CREATE;
+			return AppState.LIST;
 		case AppEvent.START_CHAT:
 			return AppState.CHAT;
 		case AppEvent.CREATE_DEMO:
-			return AppState.READY;
+			return AppState.CREATE;
+		case AppEvent.SAVE_DEMO:
+			return AppState.READYTORECORD;
+		case AppEvent.DISCARD_DEMO:
+			return AppState.LIST;
+		case AppEvent.ENTER_SETTINGS:
+			return AppState.SETTINGS;
+		case AppEvent.EXIT_SETTINGS:
+			return AppState.LIST;
 		default:
 			return state;
 	}
