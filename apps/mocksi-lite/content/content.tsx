@@ -74,7 +74,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 				setRootPosition(state);
 
-				sendMessage("getRecordings")
+				sendMessage("getRecordings");
 
 				root.render(<ContentApp isOpen={true} email={email || ""} />);
 			});
