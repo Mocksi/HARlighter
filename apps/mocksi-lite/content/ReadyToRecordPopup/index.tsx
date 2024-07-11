@@ -15,7 +15,7 @@ const ReadyToRecordPopup = ({
 	onLogout,
 }: ReadyToRecordPopupProps) => {
 	return (
-		<Popup onClose={close} email={email} onChat={onChat} onLogout={onLogout}>
+		<Popup onClose={onClose} email={email} onChat={onChat} onLogout={onLogout}>
 			<RecordDemo />
 		</Popup>
 	);

@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", initial);
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	const extensionRoot = document.getElementById("extension-root");
+
 	if (extensionRoot) {
 		if (root) {
 			root.unmount();
@@ -73,7 +74,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				}
 
 				setRootPosition(state);
-
+				
 				sendMessage("getRecordings");
 
 				root.render(<ContentApp isOpen={true} email={email || ""} />);

@@ -117,19 +117,17 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({
 		chrome.storage.local.get(
 			[MOCKSI_RECORDING_STATE, "recordings"],
 			(result) => {
-				const recordings = JSON.parse(result.recordings);
+				const recordings = result?.recordings ? JSON.parse(result.recordings) : []
 
 				if (
 					recordings?.length &&
 					recordings.some((rec: Recording) => rec.url === window.location.href)
 				) {
-					console.log("setting initial state to list");
 					dispatch({
 						event: AppEvent.SET_INITIAL_STATE,
 						payload: result[MOCKSI_RECORDING_STATE],
 					});
 				} else {
-					console.log("setting initial state to ready to record");
 					dispatch({
 						event: AppEvent.SET_INITIAL_STATE,
 						payload: AppState.READYTORECORD,

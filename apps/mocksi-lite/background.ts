@@ -279,7 +279,7 @@ async function getRecordings() {
 	const email = await getEmail();
 
 	if (email) {
-		const response = await apiCall(`recordings?creator=${email}`).catch(
+		const response = await apiCall(`recordings?creator=${encodeURIComponent(email)}`).catch(
 			(err) => {
 				console.error(`Failed to fetch recordings: ${err}`);
 				return null;
@@ -287,7 +287,7 @@ async function getRecordings() {
 		);
 		if (!response || response.length === 0) {
 			console.error("No recordings found or failed to fetch recordings.");
-			chrome.storage.local.set({ recordings: [] });
+			chrome.storage.local.set({ recordings: "[]" });
 			return;
 		}
 		const sorted = response.sort((a: Recording, b: Recording) =>
