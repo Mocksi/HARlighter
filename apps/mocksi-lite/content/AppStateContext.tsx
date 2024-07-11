@@ -1,4 +1,5 @@
 import { type Dispatch, createContext, useEffect, useReducer } from "react";
+import type { Recording } from "../background";
 import { MOCKSI_RECORDING_STATE } from "../consts";
 
 export enum AppState {
@@ -76,7 +77,7 @@ const appStateReducer = (state: AppState, action: AppStateAction) => {
 		case AppEvent.CREATE_DEMO:
 			return AppState.CREATE;
 		case AppEvent.SAVE_DEMO:
-			return AppState.READYTORECORD;
+			return AppState.LIST;
 		case AppEvent.DISCARD_DEMO:
 			return AppState.LIST;
 		case AppEvent.ENTER_SETTINGS:
@@ -113,12 +114,29 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	// Load the initial state from chrome storage on mount
 	useEffect(() => {
-		chrome.storage.local.get([MOCKSI_RECORDING_STATE], (result) => {
-			dispatch({
-				event: AppEvent.SET_INITIAL_STATE,
-				payload: result[MOCKSI_RECORDING_STATE],
-			});
-		});
+		chrome.storage.local.get(
+			[MOCKSI_RECORDING_STATE, "recordings"],
+			(result) => {
+				const recordings = JSON.parse(result.recordings);
+
+				if (
+					recordings?.length &&
+					recordings.some((rec: Recording) => rec.url === window.location.href)
+				) {
+					console.log("setting initial state to list");
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: result[MOCKSI_RECORDING_STATE],
+					});
+				} else {
+					console.log("setting initial state to ready to record");
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: AppState.READYTORECORD,
+					});
+				}
+			},
+		);
 	}, []);
 
 	const value = {
