@@ -31,7 +31,7 @@ class MockExtensionStorage extends ExtensionStorage {
 
 describe("BackgroundSync", () => {
 	let backgroundSyncInstance: BackgroundSync;
-    let mockStorage: MockExtensionStorage;
+	let mockStorage: MockExtensionStorage;
 
 	beforeEach(() => {
 		const chromeMock: ChromeMock = {

@@ -14,8 +14,14 @@
 		"strict": true,
 		"target": "esnext",
 		"typeRoots": ["node_modules/@types", "node_modules/@chrome"],
-		"types": ["chrome"]
+		"types": ["chrome", "*.css", "node"]
 	},
-	"include": ["./"],
-	"exclude": ["node_modules", "dist", "./**/*.test.ts"]
+	"include": ["."],
+	"exclude": [
+	  "**/dist",
+	  "node_modules",
+	  "browser-extension-test-data",
+	  "__TEST__",
+	  "programs/create/templates/**"
+	]
 }

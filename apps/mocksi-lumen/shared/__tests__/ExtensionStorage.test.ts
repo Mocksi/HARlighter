@@ -53,9 +53,9 @@ describe("ExtensionStorage", () => {
 	});
 
 	it("should set and get storage items", async () => {
-		// biome-ignore lint/suspicious/noExplicitAny: tests
-		chromeMock.storage.local.set.mockImplementation((_obj: any, callback: any) =>
-			callback(),
+		chromeMock.storage.local.set.mockImplementation(
+			// biome-ignore lint/suspicious/noExplicitAny: tests
+			(_obj: any, callback: any) => callback(),
 		);
 		await storage.setStorageItem("testKey", "testValue");
 		expect(chromeMock.storage.local.set).toHaveBeenCalledWith(
@@ -63,8 +63,10 @@ describe("ExtensionStorage", () => {
 			expect.any(Function),
 		);
 
-		chromeMock.storage.local.get.mockImplementation((key, callback) =>
-			callback({ testKey: "testValue" }),
+		chromeMock.storage.local.get.mockImplementation(
+			// biome-ignore lint/suspicious/noExplicitAny: mock func
+			(key: any, callback: (arg0: { testKey: string }) => any) =>
+				callback({ testKey: "testValue" }),
 		);
 		const value = await storage.getStorageItem("testKey");
 		expect(chromeMock.storage.local.get).toHaveBeenCalledWith(
@@ -92,21 +94,28 @@ describe("ExtensionStorage", () => {
 		let storedDomains: string[] = [];
 
 		// Mock storage.local.get
-		chromeMock.storage.local.get.mockImplementation((key, callback) => {
-			if (key === "domainsVisited") {
-				callback({ domainsVisited: storedDomains });
-			} else {
-				callback({});
-			}
-		});
+		chromeMock.storage.local.get.mockImplementation(
+			(
+				key: string,
+				callback: (arg0: { domainsVisited?: string[] }) => void,
+			) => {
+				if (key === "domainsVisited") {
+					callback({ domainsVisited: storedDomains });
+				} else {
+					callback({});
+				}
+			},
+		);
 
 		// Mock storage.local.set
-		chromeMock.storage.local.set.mockImplementation((obj, callback) => {
-			if (obj.domainsVisited) {
-				storedDomains = obj.domainsVisited;
-			}
-			callback();
-		});
+		chromeMock.storage.local.set.mockImplementation(
+			(obj: { domainsVisited: string[] }, callback: () => void) => {
+				if (obj.domainsVisited) {
+					storedDomains = obj.domainsVisited;
+				}
+				callback();
+			},
+		);
 
 		// Add domains
 		await storage.addDomainVisited("example.com");
@@ -128,11 +137,14 @@ describe("ExtensionStorage", () => {
 			createdAt: "2023-07-11",
 			updatedAt: "2023-07-11",
 		};
-		chromeMock.storage.local.get.mockImplementation((key, callback) =>
-			callback({ demos: [] }),
+		chromeMock.storage.local.get.mockImplementation(
+			// biome-ignore lint/suspicious/noExplicitAny: mock func
+			(key: any, callback: (arg0: { demos: never[] }) => any) =>
+				callback({ demos: [] }),
 		);
-		chromeMock.storage.local.set.mockImplementation((obj, callback) =>
-			callback(),
+		chromeMock.storage.local.set.mockImplementation(
+			// biome-ignore lint/suspicious/noExplicitAny: mock func
+			(obj: any, callback: () => any) => callback(),
 		);
 		await storage.addDemo(demo);
 		expect(chromeMock.storage.local.set).toHaveBeenCalledWith(
@@ -140,8 +152,21 @@ describe("ExtensionStorage", () => {
 			expect.any(Function),
 		);
 
-		chromeMock.storage.local.get.mockImplementation((key, callback) =>
-			callback({ demos: [demo] }),
+		chromeMock.storage.local.get.mockImplementation(
+			(
+				// biome-ignore lint/suspicious/noExplicitAny: mock func
+				key: any,
+				callback: (arg0: {
+					demos: {
+						id: string;
+						name: string;
+						customerName: string;
+						createdAt: string;
+						updatedAt: string;
+					}[];
+					// biome-ignore lint/suspicious/noExplicitAny: mock func
+				}) => any,
+			) => callback({ demos: [demo] }),
 		);
 		const demos = await storage.getDemos();
 		expect(demos).toEqual([demo]);
@@ -156,11 +181,25 @@ describe("ExtensionStorage", () => {
 			updatedAt: "2023-07-11",
 		};
 		const updatedDemo = { ...demo, name: "Updated Demo" };
-		chromeMock.storage.local.get.mockImplementation((key, callback) =>
-			callback({ demos: [demo] }),
+		chromeMock.storage.local.get.mockImplementation(
+			(
+				// biome-ignore lint/suspicious/noExplicitAny: mock func
+				key: any,
+				callback: (arg0: {
+					demos: {
+						id: string;
+						name: string;
+						customerName: string;
+						createdAt: string;
+						updatedAt: string;
+					}[];
+					// biome-ignore lint/suspicious/noExplicitAny: mock func
+				}) => any,
+			) => callback({ demos: [demo] }),
 		);
-		chromeMock.storage.local.set.mockImplementation((obj, callback) =>
-			callback(),
+		chromeMock.storage.local.set.mockImplementation(
+			// biome-ignore lint/suspicious/noExplicitAny: mock func
+			(obj: any, callback: () => any) => callback(),
 		);
 		await storage.updateDemo(updatedDemo);
 		expect(chromeMock.storage.local.set).toHaveBeenCalledWith(
@@ -176,11 +215,13 @@ describe("ExtensionStorage", () => {
 			data: "example.com",
 			syncStatus: "pending" as const,
 		};
-		chromeMock.storage.local.get.mockImplementation((key, callback) =>
-			callback({ syncQueue: "[]" }),
+		chromeMock.storage.local.get.mockImplementation(
+			// biome-ignore lint/suspicious/noExplicitAny: mock func
+			(_key: any, callback: any) => callback({ syncQueue: "[]" }),
 		);
-		chromeMock.storage.local.set.mockImplementation((obj, callback) =>
-			callback(),
+		chromeMock.storage.local.set.mockImplementation(
+			// biome-ignore lint/suspicious/noExplicitAny: mock func
+			(_obj: any, callback: any) => callback(),
 		);
 
 		// @ts-ignore: Accessing private method for testing
