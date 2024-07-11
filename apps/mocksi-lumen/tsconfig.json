@@ -14,10 +14,13 @@
 		"strict": true,
 		"target": "esnext",
 		"typeRoots": ["node_modules/@types", "node_modules/@chrome"],
-		"types": ["chrome", "*.css", "node"]
+		"types": ["chrome", "node"]
 	},
 	"include": ["."],
 	"exclude": [
+	  "*.css",
+	  "tailwind.config.js",
+	  "postcss.config.js",
 	  "**/dist",
 	  "node_modules",
 	  "browser-extension-test-data",
