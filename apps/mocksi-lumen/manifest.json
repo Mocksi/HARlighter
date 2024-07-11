@@ -6,11 +6,13 @@
 	"background": {
 		"service_worker": "./background.ts"
 	},
+	"action": {
+		"default_popup": "./content/popup.html"
+	},
 	"content_scripts": [
 		{
 			"matches": ["<all_urls>"],
 			"js": ["./content/content.tsx"],
-			"css": ["./content/content.css"],
 			"run_at": "document_start"
 		}
 	],

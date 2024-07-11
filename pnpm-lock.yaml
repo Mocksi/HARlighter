@@ -140,6 +140,9 @@ importers:
       '@types/chrome':
         specifier: ^0.0.259
         version: 0.0.259
+      '@types/css':
+        specifier: ^0.0.37
+        version: 0.0.37
       '@types/jsdom':
         specifier: ^21.1.7
         version: 21.1.7
@@ -159,8 +162,8 @@ importers:
         specifier: ^9.0.8
         version: 9.0.8
       '@vitest/coverage-v8':
-        specifier: ^2.0.1
-        version: 2.0.1(vitest@2.0.2(@types/node@20.11.19)(@vitest/ui@2.0.2)(jsdom@24.1.0)(less@4.2.0)(sass@1.77.3)(terser@5.31.0))
+        specifier: ^2.0.2
+        version: 2.0.2(vitest@2.0.2(@types/node@20.11.19)(@vitest/ui@2.0.2)(jsdom@24.1.0)(less@4.2.0)(sass@1.77.3)(terser@5.31.0))
       '@vitest/ui':
         specifier: ^2.0.2
         version: 2.0.2(vitest@2.0.2)
@@ -168,7 +171,7 @@ importers:
         specifier: ^4.12.2
         version: 4.12.2(postcss@8.4.31)
       extension:
-        specifier: latest
+        specifier: ^1.8.0
         version: 1.8.0(browserslist@4.23.0)(type-fest@0.21.3)(typescript@5.3.3)
       react:
         specifier: ^18.1.0
@@ -1883,6 +1886,9 @@ packages:
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
+  '@types/css@0.0.37':
+    resolution: {integrity: sha512-IVhWCNH1mw3VRjkOMHsxVAcnANhee9w//TX1fqmALP628Dzf6VMG1LRnOngpptnrilcWCkmcY1tj6QkKGUy0CA==}
+
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
 
@@ -2125,6 +2131,11 @@ packages:
     resolution: {integrity: sha512-ACcSlJtWlravv0QyJSCO9rvm06msj6x0HooXouB0NXKG6PGxUN5VX4X8QEATfTMGsJlZLqWvq0dEY9W1V0rcSw==}
     peerDependencies:
       vitest: 2.0.1
+
+  '@vitest/coverage-v8@2.0.2':
+    resolution: {integrity: sha512-iA8eb4PMid3bMc++gfQSTvYE1QL//fC8pz+rKsTUDBFjdDiy/gH45hvpqyDu5K7FHhvgG0GNNCJzTMMSFKhoxg==}
+    peerDependencies:
+      vitest: 2.0.2
 
   '@vitest/expect@1.6.0':
     resolution: {integrity: sha512-ixEvFVQjycy/oNgHjqsL6AZCDduC+tflRluaHIzKIsdbzkLn2U/iBnVeJwB6HsIjQBdfMR8Z0tRxKUsvFJEeWQ==}
@@ -6837,7 +6848,7 @@ snapshots:
       '@babel/core': 7.24.6
       '@babel/helper-compilation-targets': 7.24.6
       '@babel/helper-plugin-utils': 7.24.6
-      debug: 4.3.4
+      debug: 4.3.5
       lodash.debounce: 4.0.8
       resolve: 1.22.8
     transitivePeerDependencies:
@@ -8399,6 +8410,8 @@ snapshots:
     dependencies:
       '@types/node': 20.11.19
 
+  '@types/css@0.0.37': {}
+
   '@types/eslint-scope@3.7.7':
     dependencies:
       '@types/eslint': 8.56.1
@@ -8613,7 +8626,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 5.62.0
       '@typescript-eslint/visitor-keys': 5.62.0
-      debug: 4.3.4
+      debug: 4.3.5
       globby: 11.1.0
       is-glob: 4.0.3
       semver: 7.5.4
@@ -8730,7 +8743,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@2.0.1(vitest@2.0.2(@types/node@20.11.19)(@vitest/ui@2.0.2)(jsdom@24.1.0)(less@4.2.0)(sass@1.77.3)(terser@5.31.0))':
+  '@vitest/coverage-v8@2.0.2(vitest@2.0.2(@types/node@20.11.19)(@vitest/ui@2.0.2)(jsdom@24.1.0)(less@4.2.0)(sass@1.77.3)(terser@5.31.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -8741,10 +8754,10 @@ snapshots:
       istanbul-reports: 3.1.7
       magic-string: 0.30.10
       magicast: 0.3.4
-      picocolors: 1.0.1
       std-env: 3.7.0
       strip-literal: 2.1.0
       test-exclude: 7.0.1
+      tinyrainbow: 1.2.0
       vitest: 2.0.2(@types/node@20.11.19)(@vitest/ui@2.0.2)(jsdom@24.1.0)(less@4.2.0)(sass@1.77.3)(terser@5.31.0)
     transitivePeerDependencies:
       - supports-color
@@ -10678,7 +10691,7 @@ snapshots:
     dependencies:
       basic-ftp: 5.0.3
       data-uri-to-buffer: 5.0.1
-      debug: 4.3.4
+      debug: 4.3.5
       fs-extra: 8.1.0
     transitivePeerDependencies:
       - supports-color
@@ -12846,7 +12859,7 @@ snapshots:
 
   spdy-transport@3.0.0:
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.5
       detect-node: 2.1.0
       hpack.js: 2.1.6
       obuf: 1.1.2
