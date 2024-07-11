@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"isolatedModules": false,
+		"jsx": "react-jsx",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"moduleResolution": "node",
+		"module": "esnext",
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"target": "esnext",
+		"typeRoots": ["node_modules/@types", "node_modules/@chrome"],
+		"types": ["chrome"]
+	},
+	"include": ["./"],
+	"exclude": ["node_modules", "dist", "./**/*.test.ts"]
+}
