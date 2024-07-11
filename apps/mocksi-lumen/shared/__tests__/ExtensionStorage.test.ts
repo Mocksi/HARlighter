@@ -53,7 +53,8 @@ describe("ExtensionStorage", () => {
 	});
 
 	it("should set and get storage items", async () => {
-		chromeMock.storage.local.set.mockImplementation((obj, callback) =>
+		// biome-ignore lint/suspicious/noExplicitAny: tests
+		chromeMock.storage.local.set.mockImplementation((_obj: any, callback: any) =>
 			callback(),
 		);
 		await storage.setStorageItem("testKey", "testValue");
