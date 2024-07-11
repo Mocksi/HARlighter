@@ -18,13 +18,13 @@
 	},
 	"include": ["."],
 	"exclude": [
-	  "*.css",
-	  "tailwind.config.js",
-	  "postcss.config.js",
-	  "**/dist",
-	  "node_modules",
-	  "browser-extension-test-data",
-	  "__TEST__",
-	  "programs/create/templates/**"
+		"*.css",
+		"tailwind.config.js",
+		"postcss.config.js",
+		"**/dist",
+		"node_modules",
+		"browser-extension-test-data",
+		"__TEST__",
+		"programs/create/templates/**"
 	]
 }

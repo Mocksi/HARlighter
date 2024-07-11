@@ -1,1 +1,1 @@
-console.log('hi from content.tsx')
+console.log("hi from content.tsx");
