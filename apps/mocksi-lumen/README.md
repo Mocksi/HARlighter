@@ -40,10 +40,43 @@ pnpm run start
 pnpm run build
 ```
 
+## `BackgroundSync` and `ExtensionStorage`
+
+The `BackgroundSync` and `ExtensionStorage` classes play crucial roles in managing data synchronization and storage within the Mocksi Lumen extension. These components are designed to facilitate seamless interaction between the client-side and server-side environments, ensuring data consistency and integrity.
+
+### BackgroundSync
+
+The `BackgroundSync` class is responsible for periodically synchronizing data between the client and server. It utilizes a background synchronization mechanism that keeps data consistent, ensuring that any changes made during testing or development are promptly synchronized. This reduces the need for manual updates and enhances the overall efficiency of the extension.
+
+#### Key Methods:
+
+- `start()`: Initiates the synchronization process. If the extension is not already synchronizing, it sets up an interval to call the `sync()` method every few minutes (default is 5 minutes). It also listens for the `online` event to trigger synchronization when the browser comes back online.
+- `stop()`: Stops the ongoing synchronization process by clearing the interval set by `start()`.
+- `sync()`: Attempts to synchronize data with the server. It checks if the browser is online before proceeding with the synchronization. If successful, it logs a success message; otherwise, it logs an error or skips the operation if the browser is offline.
+
+### ExtensionStorage
+
+The `ExtensionStorage` class manages the extension's data storage needs, providing methods to interact with the Chrome Storage API. It abstracts the complexities of direct API calls, offering a simplified interface for setting, getting, and updating storage items.
+
+#### Key Methods:
+
+- `setStorageItem(key: string, value: any)`: Sets a key-value pair in the extension's storage.
+- `getStorageItem(key: string)`: Retrieves the value associated with a given key from the extension's storage.
+- `addDomainVisited(domain: string)`: Adds a domain to the list of visited domains, storing it in the extension's storage.
+- `getDomainsVisited()`: Retrieves the list of visited domains from the extension's storage.
+- `addDemo(demo: any)`: Adds a demo object to the list of demos, storing it in the extension's storage.
+- `getDemos()`: Retrieves the list of demos from the extension's storage.
+- `updateDemo(updatedDemo: any)`: Updates an existing demo object in the list of demos, storing the updated object in the extension's storage.
+
+### Testing
+
+Both `BackgroundSync` and `ExtensionStorage` are thoroughly tested to ensure reliability and correctness. Unit tests cover their core functionalities, including starting and stopping synchronization, setting and getting storage items, adding and retrieving domains and demos, and handling sync queue operations. These tests mock the Chrome APIs and simulate various scenarios to validate the behavior of these components under different conditions.
+
+By leveraging these components, Mocksi Lumen offers a robust solution for managing data synchronization and storage, facilitating a smoother development and testing experience for users.
 ## Contributing
 
 Contributions to Mocksi Lumen are welcome! Please feel free to submit issues or propose enhancements through the project's repository.
 
 ## License
 
-Mocksi Lumen is licensed under the GPLV3 License. See the `LICENSE` file for more details.
+Mocksi Lumen is licensed under the GPLV3 License. See the `LICENSE` file for more details
