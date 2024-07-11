@@ -56,9 +56,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				if (email && !appState) {
 					// we need to initialize app state if there's none.
 					chrome.storage.local.set({
-						[MOCKSI_RECORDING_STATE]: AppState.CREATE,
+						[MOCKSI_RECORDING_STATE]: AppState.LIST,
 					});
-					state = AppState.CREATE;
+					state = AppState.LIST;
 				}
 
 				if (appState === AppState.PLAY) {

@@ -248,6 +248,7 @@ function onAttach(tabId: number) {
 function debuggerDetachHandler() {
 	requests.clear();
 }
+
 async function createDemo(body: Record<string, unknown>) {
 	const defaultBody = {
 		created_timestamp: new Date(),
