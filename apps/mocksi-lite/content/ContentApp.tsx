@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { useRef } from "react";
 import useShadow from "use-shadow-dom";
 import type { Recording } from "../background";
 import { MOCKSI_LAST_PAGE_DOM } from "../consts";
@@ -96,7 +97,12 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 
 const extractStyles = (): string => {
 	let styles = "";
-	const styleSheets = Array.from(document.styleSheets) as CSSStyleSheet[];
+	let styleSheets = Array.from(document.styleSheets) as CSSStyleSheet[];
+	// FIXME: this is a huge hack that only works because our stylesheets are added last. We should find a better way to do this.
+	// only use our own stylesheets: Tailwind, Base, and Draggable
+	if (styleSheets.length >= 3) {
+		styleSheets = styleSheets.slice(styleSheets.length - 3);
+	}
 
 	for (const sheet of styleSheets) {
 		try {
