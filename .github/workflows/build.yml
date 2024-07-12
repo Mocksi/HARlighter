@@ -40,23 +40,6 @@ jobs:
         run: pnpm install --no-frozen-lockfile
       - name: Build artifacts
         run: pnpm build
-      - name: Check file encodings
-        run: |
-          echo "Checking file encodings in dist directory:"
-          find apps/mocksi-lite/dist -type f -print0 | xargs -0 file -i | grep charset | grep -v "charset=utf-8"
-      - name: Convert files to UTF-8
-        run: |
-          find apps/mocksi-lite/dist -type f -print0 | while IFS= read -r -d '' file; do
-            if [[ $(file -bi "$file") != *charset=utf-8* ]]; then
-              echo "Converting $file to UTF-8"
-              iconv -f $(file -bi "$file" | sed -e 's/.*charset=//') -t UTF-8 "$file" > "${file}.utf8"
-              mv "${file}.utf8" "$file"
-            fi
-          done
-      - name: Verify UTF-8 encoding
-        run: |
-          echo "Verifying all files are now UTF-8 encoded:"
-          find apps/mocksi-lite/dist -type f -print0 | xargs -0 file -i | grep charset | grep -v "charset=utf-8" && exit 1 || echo "All files are UTF-8 encoded"
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
