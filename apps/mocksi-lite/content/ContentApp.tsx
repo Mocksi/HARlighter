@@ -78,6 +78,7 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 				return <SettingsPopup {...popupProps} />;
 			case AppState.READYTORECORD:
 				return <ReadyToRecordPopup {...popupProps} />;
+			case AppState.UNAUTHORIZED:
 			case AppState.INIT:
 				// When initializing the application and loading state we want to show nothing, potentially this is a loading UI in the future
 				return null;

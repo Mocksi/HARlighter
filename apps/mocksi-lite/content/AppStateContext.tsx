@@ -117,26 +117,33 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({
 		chrome.storage.local.get(
 			[MOCKSI_RECORDING_STATE, "recordings"],
 			(result) => {
-				if (!result || !result.recordings || result.recordings.length < 1) {
+				if (result[MOCKSI_RECORDING_STATE] === AppState.UNAUTHORIZED) {
 					dispatch({
 						event: AppEvent.SET_INITIAL_STATE,
-						payload: AppState.READYTORECORD,
+						payload: AppState.UNAUTHORIZED,
 					});
 					return;
 				}
-				const recordings = JSON.parse(result.recordings);
+
+				let recordings = [];
+
+				if (result.recordings) {
+					try {
+						recordings = JSON.parse(result.recordings);
+					} catch (e) {
+						console.error(e);
+					}
+				}
 
 				if (
 					recordings?.length &&
 					recordings.some((rec: Recording) => rec.url === window.location.href)
 				) {
-					console.log("setting initial state to list");
 					dispatch({
 						event: AppEvent.SET_INITIAL_STATE,
 						payload: result[MOCKSI_RECORDING_STATE],
 					});
 				} else {
-					console.log("setting initial state to ready to record");
 					dispatch({
 						event: AppEvent.SET_INITIAL_STATE,
 						payload: AppState.READYTORECORD,

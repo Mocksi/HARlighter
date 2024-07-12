@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", initial);
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	const extensionRoot = document.getElementById("extension-root");
+
 	if (extensionRoot) {
 		if (root) {
 			root.unmount();
@@ -66,9 +67,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				}
 
 				if (
-					appState === AppState.UNAUTHORIZED &&
+					(appState === AppState.UNAUTHORIZED || !email) &&
 					window.location.origin !== SignupURL
 				) {
+					chrome.storage.local.set({
+						[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
+					});
+					state = AppState.UNAUTHORIZED;
+
 					window.open(SignupURL);
 				}
 
