@@ -61,23 +61,15 @@ const SettingsPopup = ({
 			onClose={onClose}
 			onGoBack={handleGoBackClicked}
 		>
-			<div
-				className={
-					"mw-flex mw-flex-1 mw-flex-col mw-h-[280px] overflow-x-scroll"
-				}
-			>
+			<div className="mw-flex mw-flex-1 mw-flex-col mw-h-[280px] overflow-x-scroll">
 				{recordings.length ? (
-					<div
-						className={
-							"mw-flex-1 mw-flex mw-flex-col mw-py-8 overflow-y-scroll no-scrollbar"
-						}
-					>
+					<div className="mw-flex-1 mw-flex mw-flex-col mw-py-8 overflow-y-scroll no-scrollbar">
 						{recordings
 							.filter((record) => record.url)
 							.map((record) => (
 								<Fragment key={`demo-item-${record.uuid}`}>
 									<SettingsItem {...record} onDelete={handleDelete} />
-									<div className={"mw-px-3 mw-w-full mw-my-6"}>
+									<div className="mw-px-3 mw-w-full mw-my-6">
 										<Divider />
 									</div>
 								</Fragment>

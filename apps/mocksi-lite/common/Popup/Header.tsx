@@ -17,9 +17,7 @@ interface HeaderProps {
 const Header = ({ subtitle, close, onSettings, onGoBack }: HeaderProps) => {
 	return (
 		<div>
-			<div
-				className={"mw-h-[36px] mw-flex mw-items-center mw-flex-row mw-px-2"}
-			>
+			<div className="mw-h-[36px] mw-flex mw-items-center mw-flex-row mw-px-2">
 				<div
 					className="mw-cursor-pointer"
 					onClick={close}
@@ -29,32 +27,24 @@ const Header = ({ subtitle, close, onSettings, onGoBack }: HeaderProps) => {
 				>
 					<img src={closeIcon} alt="closeIcon" />
 				</div>
-				<div
-					className={
-						"mw-w-full mw-mr-[20px] mw-flex mw-justify-center drag-handle"
-					}
-				>
+				<div className="mw-w-full mw-mr-[20px] mw-flex mw-justify-center drag-handle">
 					<img src={menuIcon} draggable="false" alt="menuIcon" />
 				</div>
 			</div>
 			<Divider />
-			<div className={"mw-flex mw-justify-center mw-items-center mw-mt-5"}>
+			<div className="mw-flex mw-justify-center mw-items-center mw-mt-5">
 				{onGoBack && (
 					<div
-						className={"mw-absolute mw-left-9 mw-cursor-pointer"}
+						className="mw-absolute mw-left-9 mw-cursor-pointer"
 						onClick={onGoBack}
 						onKeyUp={(event) => {
 							event.key === "Enter" && onGoBack();
 						}}
 					>
-						<img src={backIcon} alt={"backIcon"} className={"mw-w-[16px]"} />
+						<img src={backIcon} alt={"backIcon"} className="mw-w-[16px]" />
 					</div>
 				)}
-				<div
-					className={
-						"mw-flex mw-flex-col mw-justify-center mw-items-center mw-gap-[5px]"
-					}
-				>
+				<div className="mw-flex mw-flex-col mw-justify-center mw-items-center mw-gap-[5px]">
 					<div>
 						<img src={labeledIcon} alt={"labeledIcon"} />
 					</div>
@@ -62,7 +52,7 @@ const Header = ({ subtitle, close, onSettings, onGoBack }: HeaderProps) => {
 				</div>
 				{onSettings && (
 					<div
-						className={"mw-absolute mw-right-9 mw-cursor-pointer"}
+						className="mw-absolute mw-right-9 mw-cursor-pointer"
 						onClick={onSettings}
 						onKeyUp={(event) => {
 							event.key === "Enter" && onSettings();

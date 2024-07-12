@@ -6,11 +6,12 @@ interface TextProps {
 
 const TextField = ({ children, variant = "regular", className }: TextProps) => {
 	const title = variant === "title" ? "mw-font-medium" : "mw-font-[380]";
+	const textFieldClassNames = `mw-text-[15px] mw-leading-[18px] mw-text-black ${title} ${
+		className ?? ""
+	}`;
 	return (
 		<div
-			className={`text-[15px] leading-[18px] text-black ${title} ${
-				className ?? ""
-			}`}
+			className={textFieldClassNames}
 		>
 			{children}
 		</div>
