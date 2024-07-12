@@ -23,19 +23,19 @@ const SettingsItem = ({
 	};
 
 	return (
-		<div className={"mw-flex mw-justify-between mw-px-6"}>
-			<div className={"mw-w-[200px]"}>
-				<TextField variant={"title"} className={"truncate"}>
+		<div className="mw-flex mw-justify-between mw-px-6">
+			<div className="mw-w-[200px]">
+				<TextField variant={"title"} className="truncate">
 					{demo_name}
 				</TextField>
-				<TextField className={"truncate"}>{customer_name}</TextField>
+				<TextField className="truncate">{customer_name}</TextField>
 				<a href={url} target={"_blank"} rel={"noreferrer"}>
-					<TextField className={"mw-text-xs mw-underline truncate"}>
+					<TextField className="mw-text-xs mw-underline truncate">
 						{domain}
 					</TextField>
 				</a>
 			</div>
-			<div className={"mw-flex mw-gap-3"}>
+			<div className="mw-flex mw-gap-3">
 				<Button variant={Variant.primary} onClick={handleDelete}>
 					Delete
 				</Button>

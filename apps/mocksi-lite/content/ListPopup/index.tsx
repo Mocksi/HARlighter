@@ -55,23 +55,15 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 			onChat={onChat}
 			onClose={onClose}
 		>
-			<div
-				className={
-					"mw-flex mw-flex-1 mw-flex-col mw-h-[280px] mw-overflow-x-scroll"
-				}
-			>
+			<div className="mw-flex mw-flex-1 mw-flex-col mw-h-[280px] mw-overflow-x-scroll">
 				{recordings.length ? (
-					<div
-						className={
-							"mw-flex-1 mw-flex mw-flex-col mw-py-8 mw-overflow-y-scroll"
-						}
-					>
+					<div className="mw-flex-1 mw-flex mw-flex-col mw-py-8 mw-overflow-y-scroll">
 						{recordings
 							.filter((record) => record.url)
 							.map((record) => (
 								<Fragment key={`demo-item-${record.uuid}`}>
 									<DemoItem {...record} />
-									<div className={"mw-px-3 mw-w-full mw-my-6"}>
+									<div className="mw-px-3 mw-w-full mw-my-6">
 										<Divider />
 									</div>
 								</Fragment>

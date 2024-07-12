@@ -245,7 +245,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 					>
 						<div className="input-group max-w-full mw-w-[500px] mw-relative mw-flex mw-items-center">
 							{isTyping && (
-								<small className="mw-absolute -mw-top-5 mw-left-0.5 animate-pulse">
+								<small className="mw-absolute -mw-top-5 mw-left-0.5 mw-animate-pulse">
 									MocksiAI is thinking...
 								</small>
 							)}
@@ -260,7 +260,9 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 								disabled={isTyping}
 							/>
 							<button
-								className={`btn btn-square ${isTyping ? "animate-pulse" : ""}`}
+								className={`mw-btn mw-btn-square ${
+									isTyping ? "mw-animate-pulse" : ""
+								}`}
 								type="submit"
 								disabled={isTyping}
 							>

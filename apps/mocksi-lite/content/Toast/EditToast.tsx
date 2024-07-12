@@ -35,11 +35,7 @@ const EditToast = () => {
 	};
 
 	return (
-		<Toast
-			className={
-				"mw-mt-3 min-w-64 mw-p-3 mw-flex mw-flex-row mw-items-center mw-gap-6"
-			}
-		>
+		<Toast className="mw-mt-3 min-w-64 mw-p-3 mw-flex mw-flex-row mw-items-center mw-gap-6">
 			<div
 				className="mw-cursor-pointer"
 				onClick={() => {
@@ -53,7 +49,7 @@ const EditToast = () => {
 			>
 				<img src={closeIcon} alt="closeIcon" />
 			</div>
-			<div className={"mw-flex mw-flex-col mw-gap-2"}>
+			<div className="mw-flex mw-flex-col mw-gap-2">
 				<TextField variant={"title"}>{recordingLabel(state)}</TextField>
 				<div className="mw-flex mw-gap-2 mw-items-center">
 					<input
@@ -62,7 +58,7 @@ const EditToast = () => {
 						type="checkbox"
 						className="mw-h-5 mw-w-5 !rounded-lg"
 					/>
-					<div className={"mw-text-[13px] leading-[15px]"}>
+					<div className="mw-text-[13px] leading-[15px]">
 						Highlight All Previous Changes
 					</div>
 				</div>

@@ -14,7 +14,7 @@ const RecordingToast = ({ close }: RecordingToast) => {
 	const { state } = useContext(AppStateContext);
 
 	return (
-		<Toast className={"mw-h-11 mw-w-64 mw-mt-4 mw-mr-8  mw-justify-between"}>
+		<Toast className="mw-h-11 mw-w-64 mw-mt-4 mw-mr-8  mw-justify-between">
 			<div className="mw-flex mw-flex-row mw-gap-2 mw-items-center">
 				<div
 					className="mw-ml-2 mw-cursor-pointer"
