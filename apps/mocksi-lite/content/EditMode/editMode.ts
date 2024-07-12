@@ -1,10 +1,11 @@
 import { MOCKSI_RECORDING_ID } from "../../consts";
-import { persistModifications, undoModifications } from "../../utils";
+import { persistModifications, sendMessage, undoModifications } from "../../utils";
 import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
 
 export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
+		sendMessage("attachDebugger");
 		if (recordingId) {
 			await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: recordingId });
 		}
@@ -18,6 +19,7 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 		await persistModifications(recordingId);
 	}
 
+	sendMessage("detachDebugger");
 	undoModifications();
 	await chrome.storage.local.remove(MOCKSI_RECORDING_ID);
 	document.body.removeEventListener("dblclick", onDoubleClickText);
