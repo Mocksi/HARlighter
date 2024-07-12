@@ -59,18 +59,12 @@ addEventListener("install", () => {
 });
 
 chrome.action.onClicked.addListener((activeTab) => {
-	let { id: currentTabId } = activeTab;
-	if (currentTabId) {
-		try {
-			chrome.debugger.detach({ tabId: currentTabId });
-		} catch (e) {
-			currentTabId = -1;
-		}
-	}
+	const { id: currentTabId } = activeTab;
 
 	if (currentTabId && currentTabId < 0) {
 		return;
 	}
+
 	let activeTabUrl = "";
 	try {
 		activeTabUrl = activeTab?.url || "";
@@ -88,30 +82,9 @@ chrome.action.onClicked.addListener((activeTab) => {
 		chrome.action.enable();
 	}
 
-	const version = "1.0";
-	if (!currentTabId) {
-		return;
-	}
-
-	try {
-		chrome.debugger.attach(
-			{ tabId: currentTabId },
-			version,
-			onAttach.bind(null, currentTabId),
-		);
-		chrome.debugger.onDetach.addListener(debuggerDetachHandler);
-		chrome.tabs.sendMessage(currentTabId || 0, {
-			text: "clickedIcon",
-		});
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	} catch (e: any) {
-		console.error("Error attaching debugger", e);
-		if (e.message === "Cannot access a chrome:// URL") {
-			console.log("Cannot attach to this target");
-			return;
-		}
-		MocksiRollbar.error("Error attaching debugger", e);
-	}
+	chrome.tabs.sendMessage(currentTabId || 0, {
+		text: "clickedIcon",
+	});
 });
 
 interface DataPayload {
@@ -247,6 +220,59 @@ function onAttach(tabId: number) {
 
 function debuggerDetachHandler() {
 	requests.clear();
+}
+
+async function attachDebugger() {
+	console.log("attaching");
+	const version = "1.0";
+
+	const [activeTab] = await chrome.tabs.query({
+		active: true,
+		lastFocusedWindow: true,
+	});
+
+	if (!activeTab || !activeTab.id) {
+		console.error("Cannot find active tab ID to attach debugger");
+		return;
+	}
+
+	try {
+		chrome.debugger.attach(
+			{ tabId: activeTab.id },
+			version,
+			onAttach.bind(null, activeTab.id),
+		);
+		chrome.debugger.onDetach.addListener(debuggerDetachHandler);
+		chrome.tabs.sendMessage(currentTabId || 0, {
+			text: "clickedIcon",
+		});
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	} catch (e: any) {
+		console.error("Error attaching debugger", e);
+		if (e.message === "Cannot access a chrome:// URL") {
+			console.log("Cannot attach to this target");
+			return;
+		}
+		MocksiRollbar.error("Error attaching debugger", e);
+	}
+}
+
+async function detachDebugger() {
+	const [activeTab] = await chrome.tabs.query({
+		active: true,
+		lastFocusedWindow: true,
+	});
+
+	if (!activeTab || !activeTab.id) {
+		console.error("Cannot find active tab ID to detach debugger");
+		return;
+	}
+
+	try {
+		await chrome.debugger.detach({ tabId: activeTab.id });
+	} catch (e) {
+		console.error("Error detaching debugger", e);
+	}
 }
 
 async function createDemo(body: Record<string, unknown>) {
@@ -496,6 +522,16 @@ chrome.runtime.onMessage.addListener(
 
 		if (request.message === "resetIcon") {
 			chrome.action.setIcon({ path: "./public/mocksi-icon.png" });
+			return true;
+		}
+
+		if (request.message === "attachDebugger") {
+			attachDebugger();
+			return true;
+		}
+
+		if (request.message === "detachDebugger") {
+			detachDebugger();
 			return true;
 		}
 
