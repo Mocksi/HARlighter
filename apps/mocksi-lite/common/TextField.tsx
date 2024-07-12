@@ -9,13 +9,7 @@ const TextField = ({ children, variant = "regular", className }: TextProps) => {
 	const textFieldClassNames = `mw-text-[15px] mw-leading-[18px] mw-text-black ${title} ${
 		className ?? ""
 	}`;
-	return (
-		<div
-			className={textFieldClassNames}
-		>
-			{children}
-		</div>
-	);
+	return <div className={textFieldClassNames}>{children}</div>;
 };
 
 export default TextField;

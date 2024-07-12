@@ -18,7 +18,7 @@ const getButtonStyles = (variant: Variant) => {
 		case Variant.primary:
 			return "mw-bg-[#E8F3EC] mw-border-[#E8F3EC] mw-px-6";
 		case Variant.icon:
-			return "mw-bg-[#E8F3EC] mow-border-[#E8F3EC] mw-p-3 !mw-max-h-[42px] !mw-h-[42px]";
+			return "mw-bg-[#E8F3EC] mw-border-[#E8F3EC] mw-p-3 !mw-max-h-[42px] !mw-h-[42px]";
 		case Variant.secondary:
 			return "mw-border-[#009875] mw-px-6";
 		default:

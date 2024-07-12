@@ -260,7 +260,9 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 								disabled={isTyping}
 							/>
 							<button
-								className={`mw-btn mw-btn-square ${isTyping ? "mw-animate-pulse" : ""}`}
+								className={`mw-btn mw-btn-square ${
+									isTyping ? "mw-animate-pulse" : ""
+								}`}
 								type="submit"
 								disabled={isTyping}
 							>
