@@ -7,10 +7,10 @@ interface ToastProps {
 }
 
 const Toast = ({ backgroundColor, className, children }: ToastProps) => {
-	const bgColor = backgroundColor ?? "bg-white";
+	const bgColor = backgroundColor ?? "mw-bg-white";
 	return (
 		<div
-			className={`border border-solid border-grey/40 rounded ${bgColor} flex flex-row items-center ${
+			className={`mw-border mw-border-solid mw-border-grey/40 mw-rounded ${bgColor} mw-flex mw-flex-row mw-items-center ${
 				className ?? ""
 			}`}
 		>

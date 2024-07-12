@@ -11,17 +11,9 @@
 		{
 			"matches": ["<all_urls>"],
 			"js": ["./content/content.tsx"],
-			"run_at": "document_start",
-			"css": [
-				"./content/base.css",
-				"./content/content.css",
-				"./content/spinner.css"
-			]
+			"run_at": "document_start"
 		}
 	],
-	"content_security_policy": {
-		"extension_pages": "script-src 'self'; object-src 'self'"
-	},
 	"permissions": [
 		"activeTab",
 		"background",

@@ -12,20 +12,17 @@ const RecordDemo = () => {
 
 	return (
 		<>
-			<div
-				className={"flex flex-col justify-center items-center gap-6 mt-[75px]"}
-			>
+			<div className="mw-flex mw-flex-col mw-justify-center mw-items-center mw-gap-6 mw-mt-[75px]">
 				<RecordButton />
 				<TextField>{label}</TextField>
 			</div>
-
-			<div className={"flex flex-col p-6 gap-4"}>
-				<TextField className={"text-[17px] font-medium leading-5"}>
+			<div className="mw-flex mw-flex-col mw-p-6 mw-gap-4">
+				<TextField className="mw-text-[17px] mw-font-medium leading-5">
 					{popupTitle}
 				</TextField>
 				{popupContent.map(({ title, text }) => (
 					<div key={`text-item-${title}`}>
-						<TextField variant={"title"} className={"mb-1"}>
+						<TextField variant={"title"} className="mw-mb-1">
 							{title}
 						</TextField>
 						<TextField>{text}</TextField>

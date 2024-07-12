@@ -20,31 +20,31 @@ const Form = ({ onCancel, onSubmit }: FormProps) => {
 	};
 
 	return (
-		<div className={"flex-1 mt-3"}>
+		<div className="mw-flex-1 mw-mt-3">
 			<Divider />
-			<div className={"flex h-full flex-col justify-between"}>
-				<div className={"p-4"}>
-					<div className={"mb-8"}>
-						<TextField variant={"title"} className={"mb-1"}>
+			<div className="mw-flex mw-h-full mw-flex-col mw-justify-between">
+				<div className="mw-p-4">
+					<div className="mw-mb-8">
+						<TextField variant={"title"} className="mw-mb-1">
 							Demo Name
 						</TextField>
 						<input
 							value={name}
 							onChange={(e) => setName(e.target.value)}
-							className={"border rounded-lg h-11 px-3 w-full"}
+							className="mw-border mw-rounded-lg mw-h-11 mw-px-3 mw-w-full"
 						/>
 					</div>
 					<div>
-						<TextField variant={"title"} className={"mb-1"}>
+						<TextField variant={"title"} className="mw-mb-1">
 							Customer
 						</TextField>
 						<input
 							value={customer}
 							onChange={(e) => setCustomer(e.target.value)}
-							className={"border rounded-lg h-11 px-3 w-full"}
+							className="mw-border mw-rounded-lg mw-h-11 mw-px-3 mw-w-full"
 						/>
 					</div>
-					<div className={"mt-[42px] flex justify-end gap-4"}>
+					<div className="mw-mt-[42px] mw-flex mw-justify-end mw-gap-4">
 						<Button onClick={onCancel} variant={Variant.secondary}>
 							Cancel
 						</Button>
@@ -53,7 +53,7 @@ const Form = ({ onCancel, onSubmit }: FormProps) => {
 						</Button>
 					</div>
 				</div>
-				<div className={"flex self-end p-2"}>
+				<div className="mw-flex self-end mw-p-2">
 					<img src={expandIcon} alt={"expandIcon"} />
 				</div>
 			</div>

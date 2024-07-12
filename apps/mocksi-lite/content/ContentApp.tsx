@@ -17,6 +17,9 @@ import EditToast from "./Toast/EditToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
 
+import("./content.css");
+import("./base.css");
+
 interface ContentProps {
 	isOpen?: boolean;
 	email?: string;

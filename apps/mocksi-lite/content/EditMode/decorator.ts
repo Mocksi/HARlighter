@@ -12,7 +12,7 @@ export function decorate(
 	} = { onSubmit: undefined, onCancel: undefined },
 ) {
 	const newSpan = document.createElement("span");
-	newSpan.style.position = "relative";
+	newSpan.style.position = "mw-relative";
 	newSpan.id = "mocksiSelectedText";
 	newSpan.appendChild(document.createTextNode(text));
 	const textArea = injectTextArea(
@@ -37,7 +37,7 @@ function injectTextArea(
 		width: width ? "120%" : "150%",
 		height: "100%",
 		border: "1px solid red",
-		position: "absolute",
+		position: "mw-absolute",
 		top: "0",
 		left: "0",
 		zIndex: "999",

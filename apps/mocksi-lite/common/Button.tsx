@@ -16,13 +16,13 @@ interface ButtonProps {
 const getButtonStyles = (variant: Variant) => {
 	switch (variant) {
 		case Variant.primary:
-			return "bg-[#E8F3EC] border-[#E8F3EC] px-6";
+			return "mw-bg-[#E8F3EC] mw-border-[#E8F3EC] mw-px-6";
 		case Variant.icon:
-			return "bg-[#E8F3EC] border-[#E8F3EC] p-3 !max-h-[42px] !h-[42px]";
+			return "mw-bg-[#E8F3EC] mw-border-[#E8F3EC] mw-p-3 !mw-max-h-[42px] !mw-h-[42px]";
 		case Variant.secondary:
-			return "border-[#009875] px-6";
+			return "mw-border-[#009875] mw-px-6";
 		default:
-			return "bg-[#E8F3EC] border-[#E8F3EC] px-6";
+			return "mw-bg-[#E8F3EC] mw-border-[#E8F3EC] mw-px-6";
 	}
 };
 const Button = ({
@@ -33,11 +33,12 @@ const Button = ({
 	disabled,
 }: ButtonProps) => {
 	const styles = getButtonStyles(variant);
+	const buttonClassNames = `mw-border mw-text-[#009875] mw-w-fit !mw-min-h-[42px] mw-rounded-full mw-flex mw-items-center mw-justify-center ${
+		disabled ? "mw-cursor-not-allowed" : "mw-cursor-pointer"
+	} ${styles} ${className ?? ""}`;
 	return (
 		<div
-			className={`border text-[#009875] w-fit !min-h-[42px] rounded-full flex items-center justify-center ${
-				disabled ? "cursor-not-allowed" : "cursor-pointer"
-			} ${styles} ${className ?? ""}`}
+			className={buttonClassNames}
 			onClick={!disabled ? onClick : undefined}
 			onKeyUp={(event) => {
 				event.key === "Enter" && onClick();
