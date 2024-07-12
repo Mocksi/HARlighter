@@ -48,8 +48,8 @@ const PlayToast = ({ close }: PlayToastProps) => {
 	};
 
 	return (
-        (<Toast className={"mw-mb-7 mw-gap-4 mw-py-3 mw-px-4"}>
-            <div
+		<Toast className={"mw-mb-7 mw-gap-4 mw-py-3 mw-px-4"}>
+			<div
 				className="mw-cursor-pointer"
 				onClick={handleHideToast}
 				onKeyUp={(event) => {
@@ -58,8 +58,8 @@ const PlayToast = ({ close }: PlayToastProps) => {
 			>
 				<img src={closeIcon} alt="closeIcon" />
 			</div>
-            <img src={labeledIcon} alt={"labeledIcon"} />
-            <div className={"mw-flex mw-gap-2"}>
+			<img src={labeledIcon} alt={"labeledIcon"} />
+			<div className={"mw-flex mw-gap-2"}>
 				<Button variant={Variant.icon} onClick={handleStop}>
 					<img src={stopIcon} alt={"stopIcon"} />
 				</Button>
@@ -67,8 +67,8 @@ const PlayToast = ({ close }: PlayToastProps) => {
 					<img src={editIcon} alt={"editIcon"} />
 				</Button>
 			</div>
-        </Toast>)
-    );
+		</Toast>
+	);
 };
 
 export default PlayToast;

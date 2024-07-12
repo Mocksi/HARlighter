@@ -125,9 +125,8 @@ function handleRequestInterception(response: WebsocketResponse) {
 	}
 }
 
-
 // biome-ignore lint/suspicious/noExplicitAny: thanks to node.js this is pretty painful to type
-let keepAliveIntervalId: any
+let keepAliveIntervalId: any;
 
 function keepAlive() {
 	if (keepAliveIntervalId !== null) {

@@ -42,8 +42,8 @@ const DemoItem = ({
 	};
 
 	return (
-        (<div className={"mw-flex mw-justify-between mw-px-6"}>
-            <div className={"mw-w-[200px]"}>
+		<div className={"mw-flex mw-justify-between mw-px-6"}>
+			<div className={"mw-w-[200px]"}>
 				<TextField variant={"title"} className={"truncate"}>
 					{demo_name}
 				</TextField>
@@ -54,7 +54,7 @@ const DemoItem = ({
 					</TextField>
 				</a>
 			</div>
-            <div className={"mw-flex mw-gap-3"}>
+			<div className={"mw-flex mw-gap-3"}>
 				<Button
 					variant={Variant.icon}
 					onClick={handleEdit}
@@ -70,8 +70,8 @@ const DemoItem = ({
 					<img src={playIcon} alt={"playIcon"} />
 				</Button>
 			</div>
-        </div>)
-    );
+		</div>
+	);
 };
 
 export default DemoItem;

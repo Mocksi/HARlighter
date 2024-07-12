@@ -52,7 +52,7 @@ const SettingsPopup = ({
 	};
 
 	return (
-        (<Popup
+		<Popup
 			headerSubtitle="Settings"
 			shouldDisplayFooter
 			email={email}
@@ -61,7 +61,11 @@ const SettingsPopup = ({
 			onClose={onClose}
 			onGoBack={handleGoBackClicked}
 		>
-            <div className={"mw-flex mw-flex-1 mw-flex-col mw-h-[280px] overflow-x-scroll"}>
+			<div
+				className={
+					"mw-flex mw-flex-1 mw-flex-col mw-h-[280px] overflow-x-scroll"
+				}
+			>
 				{recordings.length ? (
 					<div
 						className={
@@ -81,8 +85,8 @@ const SettingsPopup = ({
 					</div>
 				) : null}
 			</div>
-        </Popup>)
-    );
+		</Popup>
+	);
 };
 
 export default SettingsPopup;

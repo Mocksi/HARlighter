@@ -34,7 +34,7 @@ const Button = ({
 }: ButtonProps) => {
 	const styles = getButtonStyles(variant);
 	return (
-        (<div
+		<div
 			className={`border text-[#009875] w-fit !min-h-[42px] rounded-full flex items-center justify-center ${
 				disabled ? "mw-cursor-not-allowed" : "mw-cursor-pointer"
 			} ${styles} ${className ?? ""}`}
@@ -43,9 +43,9 @@ const Button = ({
 				event.key === "Enter" && onClick();
 			}}
 		>
-            {children}
-        </div>)
-    );
+			{children}
+		</div>
+	);
 };
 
 export default Button;

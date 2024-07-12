@@ -20,9 +20,9 @@ const Form = ({ onCancel, onSubmit }: FormProps) => {
 	};
 
 	return (
-        (<div className={"mw-flex-1 mw-mt-3"}>
-            <Divider />
-            <div className={"mw-flex mw-h-full mw-flex-col mw-justify-between"}>
+		<div className={"mw-flex-1 mw-mt-3"}>
+			<Divider />
+			<div className={"mw-flex mw-h-full mw-flex-col mw-justify-between"}>
 				<div className={"mw-p-4"}>
 					<div className={"mw-mb-8"}>
 						<TextField variant={"title"} className={"mw-mb-1"}>
@@ -57,8 +57,8 @@ const Form = ({ onCancel, onSubmit }: FormProps) => {
 					<img src={expandIcon} alt={"expandIcon"} />
 				</div>
 			</div>
-        </div>)
-    );
+		</div>
+	);
 };
 
 export default Form;

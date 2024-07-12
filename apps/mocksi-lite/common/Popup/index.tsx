@@ -61,8 +61,8 @@ const Popup = ({
 	const isFooterVisible = shouldDisplayFooter && email && onLogout && onChat;
 
 	return (
-        (<Draggable handle=".drag-handle" position={position} onStop={onDragStop}>
-            <div className="mw-w-[500px] mw-h-[596px] shadow-lg mw-rounded-lg mw-m-4 mw-bg-white mw-flex mw-flex-col mw-justify-between mw-border-solid mw-border-black">
+		<Draggable handle=".drag-handle" position={position} onStop={onDragStop}>
+			<div className="mw-w-[500px] mw-h-[596px] shadow-lg mw-rounded-lg mw-m-4 mw-bg-white mw-flex mw-flex-col mw-justify-between mw-border-solid mw-border-black">
 				<Header
 					subtitle={headerSubtitle}
 					close={onClose}
@@ -80,8 +80,8 @@ const Popup = ({
 					</div>
 				)}
 			</div>
-        </Draggable>)
-    );
+		</Draggable>
+	);
 };
 
 export default Popup;

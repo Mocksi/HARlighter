@@ -23,8 +23,8 @@ const SettingsItem = ({
 	};
 
 	return (
-        (<div className={"mw-flex mw-justify-between mw-px-6"}>
-            <div className={"mw-w-[200px]"}>
+		<div className={"mw-flex mw-justify-between mw-px-6"}>
+			<div className={"mw-w-[200px]"}>
 				<TextField variant={"title"} className={"truncate"}>
 					{demo_name}
 				</TextField>
@@ -35,13 +35,13 @@ const SettingsItem = ({
 					</TextField>
 				</a>
 			</div>
-            <div className={"mw-flex mw-gap-3"}>
+			<div className={"mw-flex mw-gap-3"}>
 				<Button variant={Variant.primary} onClick={handleDelete}>
 					Delete
 				</Button>
 			</div>
-        </div>)
-    );
+		</div>
+	);
 };
 
 export default SettingsItem;

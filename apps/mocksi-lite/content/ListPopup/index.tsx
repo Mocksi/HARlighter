@@ -47,7 +47,7 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 	};
 
 	return (
-        (<Popup
+		<Popup
 			shouldDisplayFooter
 			email={email}
 			onSettings={handleSettingsClicked}
@@ -55,7 +55,11 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 			onChat={onChat}
 			onClose={onClose}
 		>
-            <div className={"mw-flex mw-flex-1 mw-flex-col mw-h-[280px] mw-overflow-x-scroll"}>
+			<div
+				className={
+					"mw-flex mw-flex-1 mw-flex-col mw-h-[280px] mw-overflow-x-scroll"
+				}
+			>
 				{recordings.length ? (
 					<div
 						className={
@@ -83,8 +87,8 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 					Create New Demo
 				</Button>
 			</div>
-        </Popup>)
-    );
+		</Popup>
+	);
 };
 
 export default ListPopup;

@@ -35,8 +35,12 @@ const EditToast = () => {
 	};
 
 	return (
-        (<Toast className={"mw-mt-3 min-w-64 mw-p-3 mw-flex mw-flex-row mw-items-center mw-gap-6"}>
-            <div
+		<Toast
+			className={
+				"mw-mt-3 min-w-64 mw-p-3 mw-flex mw-flex-row mw-items-center mw-gap-6"
+			}
+		>
+			<div
 				className="mw-cursor-pointer"
 				onClick={() => {
 					handleCancel();
@@ -49,7 +53,7 @@ const EditToast = () => {
 			>
 				<img src={closeIcon} alt="closeIcon" />
 			</div>
-            <div className={"mw-flex mw-flex-col mw-gap-2"}>
+			<div className={"mw-flex mw-flex-col mw-gap-2"}>
 				<TextField variant={"title"}>{recordingLabel(state)}</TextField>
 				<div className="mw-flex mw-gap-2 mw-items-center">
 					<input
@@ -63,7 +67,7 @@ const EditToast = () => {
 					</div>
 				</div>
 			</div>
-            <div
+			<div
 				className="mw-cursor-pointer mw-text-[#009875]"
 				onClick={async () => {
 					handleSave();
@@ -76,8 +80,8 @@ const EditToast = () => {
 			>
 				Done
 			</div>
-        </Toast>)
-    );
+		</Toast>
+	);
 };
 
 export default EditToast;

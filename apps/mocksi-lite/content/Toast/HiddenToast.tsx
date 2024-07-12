@@ -49,20 +49,20 @@ const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
 		close();
 	};
 	return (
-        (<Toast className="mw-flex-col mw-py-4 mw-w-[244px] mw-mr-6 mw-mt-1">
-            <div className="mw-flex mw-flex-col mw-gap-1 mw-items-center mw-mb-4">
+		<Toast className="mw-flex-col mw-py-4 mw-w-[244px] mw-mr-6 mw-mt-1">
+			<div className="mw-flex mw-flex-col mw-gap-1 mw-items-center mw-mb-4">
 				<TextField variant={"title"}>{data?.demo_name ?? ""}</TextField>
 				<TextField>{data?.customer_name ?? data?.url ?? ""}</TextField>
 			</div>
-            <Divider />
-            <div className="mw-flex mw-flex-col mw-items-center mw-gap-1 mw-mt-4">
+			<Divider />
+			<div className="mw-flex mw-flex-col mw-items-center mw-gap-1 mw-mt-4">
 				<Button onClick={handleEdit}>Edit Demo</Button>
 				<Button variant={Variant.secondary} onClick={handleClose}>
 					Close Mocksi
 				</Button>
 			</div>
-        </Toast>)
-    );
+		</Toast>
+	);
 };
 
 export default HiddenToast;
