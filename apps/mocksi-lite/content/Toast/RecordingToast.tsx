@@ -14,10 +14,10 @@ const RecordingToast = ({ close }: RecordingToast) => {
 	const { state } = useContext(AppStateContext);
 
 	return (
-		<Toast className={"h-11 w-64 mt-4 mr-8  justify-between"}>
-			<div className="flex flex-row gap-2 items-center">
+        (<Toast className={"mw-h-11 mw-w-64 mw-mt-4 mw-mr-8  mw-justify-between"}>
+            <div className="mw-flex mw-flex-row mw-gap-2 mw-items-center">
 				<div
-					className="ml-2 cursor-pointer"
+					className="mw-ml-2 mw-cursor-pointer"
 					onClick={close}
 					onKeyUp={(event) => {
 						event.key === "Escape" && close();
@@ -25,14 +25,14 @@ const RecordingToast = ({ close }: RecordingToast) => {
 				>
 					<img src={closeIcon} alt="closeIcon" />
 				</div>
-				<img className="w-[30px] h-[20px]" src={mocksiLogo} alt="mocksiLogo" />
-				<span className="font-medium text-[#000F0C] text-sm">
+				<img className="mw-w-[30px] mw-h-[20px]" src={mocksiLogo} alt="mocksiLogo" />
+				<span className="mw-font-medium mw-text-[#000F0C] mw-text-sm">
 					{recordingLabel(state)}
 				</span>
 			</div>
-			{state !== AppState.UNAUTHORIZED && <RecordButton />}
-		</Toast>
-	);
+            {state !== AppState.UNAUTHORIZED && <RecordButton />}
+        </Toast>)
+    );
 };
 
 export default RecordingToast;

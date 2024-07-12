@@ -4,8 +4,7 @@ import Button from "../../common/Button";
 import Divider from "../../common/Divider";
 import Popup from "../../common/Popup";
 import { getRecordingsStorage } from "../../utils";
-import { AppEvent, AppState, AppStateContext } from "../AppStateContext";
-import Form from "../CreatePopup/Form";
+import { AppEvent, AppStateContext } from "../AppStateContext";
 import DemoItem from "./DemoItem";
 
 interface ListPopupProps {
@@ -48,7 +47,7 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 	};
 
 	return (
-		<Popup
+        (<Popup
 			shouldDisplayFooter
 			email={email}
 			onSettings={handleSettingsClicked}
@@ -56,11 +55,11 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 			onChat={onChat}
 			onClose={onClose}
 		>
-			<div className={"flex flex-1 flex-col h-[280px] overflow-x-scroll"}>
+            <div className={"mw-flex mw-flex-1 mw-flex-col mw-h-[280px] mw-overflow-x-scroll"}>
 				{recordings.length ? (
 					<div
 						className={
-							"flex-1 flex flex-col py-8 overflow-y-scroll no-scrollbar"
+							"mw-flex-1 mw-flex mw-flex-col mw-py-8 mw-overflow-y-scroll"
 						}
 					>
 						{recordings
@@ -68,7 +67,7 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 							.map((record) => (
 								<Fragment key={`demo-item-${record.uuid}`}>
 									<DemoItem {...record} />
-									<div className={"px-3 w-full my-6"}>
+									<div className={"mw-px-3 mw-w-full mw-my-6"}>
 										<Divider />
 									</div>
 								</Fragment>
@@ -78,14 +77,14 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 				<Button
 					onClick={handleCreateDemoClicked}
 					className={
-						!recordings.length ? "mt-3 self-center" : "my-3 self-center"
+						!recordings.length ? "mw-mt-3 self-center" : "mw-my-3 self-center"
 					}
 				>
 					Create New Demo
 				</Button>
 			</div>
-		</Popup>
-	);
+        </Popup>)
+    );
 };
 
 export default ListPopup;

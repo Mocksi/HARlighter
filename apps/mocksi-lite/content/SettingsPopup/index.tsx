@@ -52,7 +52,7 @@ const SettingsPopup = ({
 	};
 
 	return (
-		<Popup
+        (<Popup
 			headerSubtitle="Settings"
 			shouldDisplayFooter
 			email={email}
@@ -61,11 +61,11 @@ const SettingsPopup = ({
 			onClose={onClose}
 			onGoBack={handleGoBackClicked}
 		>
-			<div className={"flex flex-1 flex-col h-[280px] overflow-x-scroll"}>
+            <div className={"mw-flex mw-flex-1 mw-flex-col mw-h-[280px] overflow-x-scroll"}>
 				{recordings.length ? (
 					<div
 						className={
-							"flex-1 flex flex-col py-8 overflow-y-scroll no-scrollbar"
+							"mw-flex-1 mw-flex mw-flex-col mw-py-8 overflow-y-scroll no-scrollbar"
 						}
 					>
 						{recordings
@@ -73,7 +73,7 @@ const SettingsPopup = ({
 							.map((record) => (
 								<Fragment key={`demo-item-${record.uuid}`}>
 									<SettingsItem {...record} onDelete={handleDelete} />
-									<div className={"px-3 w-full my-6"}>
+									<div className={"mw-px-3 mw-w-full mw-my-6"}>
 										<Divider />
 									</div>
 								</Fragment>
@@ -81,8 +81,8 @@ const SettingsPopup = ({
 					</div>
 				) : null}
 			</div>
-		</Popup>
-	);
+        </Popup>)
+    );
 };
 
 export default SettingsPopup;
