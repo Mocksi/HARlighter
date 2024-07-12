@@ -72,9 +72,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				) {
 					chrome.storage.local.set({
 						[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
-					})
+					});
 					state = AppState.UNAUTHORIZED;
-					
+
 					window.open(SignupURL);
 				}
 
