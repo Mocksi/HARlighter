@@ -125,7 +125,7 @@ function handleRequestInterception(response: WebsocketResponse) {
 	}
 }
 
-let keepAliveIntervalId: number | null = null;
+let keepAliveIntervalId: string | number | NodeJS.Timeout | null | undefined;
 
 function keepAlive() {
 	if (keepAliveIntervalId !== null) {

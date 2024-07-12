@@ -4,7 +4,7 @@ module.exports = {
 	darkMode: "selector",
 	content: [
 		"./content/**/*.{html,js,jsx,ts,tsx,css}",
-		"./common/**/*.{html,js,jsx,ts,tsx,css}"
+		"./common/**/*.{html,js,jsx,ts,tsx,css}",
 	],
 	theme: {
 		extend: {
@@ -15,6 +15,9 @@ module.exports = {
 				orange: "#E56F0C",
 			},
 		},
+	},
+	corePlugins: {
+		preflight: false,
 	},
 	plugins: [require("daisyui")],
 };
