@@ -40,6 +40,9 @@ jobs:
         run: pnpm install --no-frozen-lockfile
       - name: Build artifacts
         run: pnpm build
+      - name: Encode dist files to UTF-8
+        run: |
+          find apps/mocksi-lite/dist -type f -exec sh -c 'iconv -f $(file -bi "{}" | sed -e "s/.*charset=//") -t UTF-8 "{}" > "{}.utf8" && mv "{}.utf8" "{}"' \;
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
