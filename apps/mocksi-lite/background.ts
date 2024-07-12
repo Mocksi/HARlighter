@@ -64,7 +64,7 @@ chrome.action.onClicked.addListener((activeTab) => {
 	if (currentTabId && currentTabId < 0) {
 		return;
 	}
-	
+
 	let activeTabUrl = "";
 	try {
 		activeTabUrl = activeTab?.url || "";
@@ -223,10 +223,13 @@ function debuggerDetachHandler() {
 }
 
 async function attachDebugger() {
-	console.log("attaching")
+	console.log("attaching");
 	const version = "1.0";
 
-	const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+	const [activeTab] = await chrome.tabs.query({
+		active: true,
+		lastFocusedWindow: true,
+	});
 
 	if (!activeTab || !activeTab.id) {
 		console.error("Cannot find active tab ID to attach debugger");
@@ -255,7 +258,10 @@ async function attachDebugger() {
 }
 
 async function detachDebugger() {
-	const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+	const [activeTab] = await chrome.tabs.query({
+		active: true,
+		lastFocusedWindow: true,
+	});
 
 	if (!activeTab || !activeTab.id) {
 		console.error("Cannot find active tab ID to detach debugger");
@@ -267,7 +273,6 @@ async function detachDebugger() {
 	} catch (e) {
 		console.error("Error detaching debugger", e);
 	}
-
 }
 
 async function createDemo(body: Record<string, unknown>) {

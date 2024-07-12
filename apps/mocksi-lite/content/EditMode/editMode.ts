@@ -1,5 +1,9 @@
 import { MOCKSI_RECORDING_ID } from "../../consts";
-import { persistModifications, sendMessage, undoModifications } from "../../utils";
+import {
+	persistModifications,
+	sendMessage,
+	undoModifications,
+} from "../../utils";
 import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
 
