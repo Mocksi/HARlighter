@@ -117,6 +117,14 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({
 		chrome.storage.local.get(
 			[MOCKSI_RECORDING_STATE, "recordings"],
 			(result) => {
+				if (result[MOCKSI_RECORDING_STATE] === AppState.UNAUTHORIZED) {
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: AppState.UNAUTHORIZED,
+					});
+					return;
+				}
+
 				const recordings = result?.recordings ? JSON.parse(result.recordings) : []
 
 				if (

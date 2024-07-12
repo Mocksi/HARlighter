@@ -67,14 +67,19 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				}
 
 				if (
-					appState === AppState.UNAUTHORIZED &&
+					(appState === AppState.UNAUTHORIZED || !email) &&
 					window.location.origin !== SignupURL
 				) {
+					chrome.storage.local.set({
+						[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
+					})
+					state = AppState.UNAUTHORIZED;
+					
 					window.open(SignupURL);
 				}
 
 				setRootPosition(state);
-				
+
 				sendMessage("getRecordings");
 
 				root.render(<ContentApp isOpen={true} email={email || ""} />);
