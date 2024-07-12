@@ -125,7 +125,9 @@ function handleRequestInterception(response: WebsocketResponse) {
 	}
 }
 
-let keepAliveIntervalId: string | number | NodeJS.Timeout | null | undefined;
+
+// biome-ignore lint/suspicious/noExplicitAny: thanks to node.js this is pretty painful to type
+let keepAliveIntervalId: any
 
 function keepAlive() {
 	if (keepAliveIntervalId !== null) {
