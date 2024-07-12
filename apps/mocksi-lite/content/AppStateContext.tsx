@@ -125,9 +125,15 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({
 					return;
 				}
 
-				const recordings = result?.recordings
-					? JSON.parse(result.recordings)
-					: [];
+				let recordings = [];
+
+				if (result.recordings) {
+					try {
+						recordings = JSON.parse(result.recordings);
+					} catch (e) {
+						console.error(e);
+					}
+				}
 
 				if (
 					recordings?.length &&
