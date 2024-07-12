@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  build_extension:
+  vitest_run:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -42,3 +42,5 @@ jobs:
         run: pnpm --prefix packages/harlight exec vitest run
       - name: Run dodom tests
         run: pnpm --prefix packages/dodom exec vitest run
+      - name: Run reactor tests
+        run: pnpm --prefix packages/reactor exec vitest run

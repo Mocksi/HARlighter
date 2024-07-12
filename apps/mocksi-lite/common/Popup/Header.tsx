@@ -17,9 +17,11 @@ interface HeaderProps {
 const Header = ({ subtitle, close, onSettings, onGoBack }: HeaderProps) => {
 	return (
 		<div>
-			<div className={"h-[36px] flex items-center flex-row px-2"}>
+			<div
+				className={"mw-h-[36px] mw-flex mw-items-center mw-flex-row mw-px-2"}
+			>
 				<div
-					className="cursor-pointer"
+					className="mw-cursor-pointer"
 					onClick={close}
 					onKeyUp={(event) => {
 						event.key === "Escape" && close();
@@ -27,25 +29,32 @@ const Header = ({ subtitle, close, onSettings, onGoBack }: HeaderProps) => {
 				>
 					<img src={closeIcon} alt="closeIcon" />
 				</div>
-				<div className={"w-full mr-[20px] flex justify-center drag-handle"}>
+				<div
+					className={
+						"mw-w-full mw-mr-[20px] mw-flex mw-justify-center drag-handle"
+					}
+				>
 					<img src={menuIcon} draggable="false" alt="menuIcon" />
 				</div>
 			</div>
-
 			<Divider />
-			<div className={"flex justify-center items-center mt-5"}>
+			<div className={"mw-flex mw-justify-center mw-items-center mw-mt-5"}>
 				{onGoBack && (
 					<div
-						className={"absolute left-9 cursor-pointer"}
+						className={"mw-absolute mw-left-9 mw-cursor-pointer"}
 						onClick={onGoBack}
 						onKeyUp={(event) => {
 							event.key === "Enter" && onGoBack();
 						}}
 					>
-						<img src={backIcon} alt={"backIcon"} className={"w-[16px]"} />
+						<img src={backIcon} alt={"backIcon"} className={"mw-w-[16px]"} />
 					</div>
 				)}
-				<div className={"flex flex-col justify-center items-center gap-[5px]"}>
+				<div
+					className={
+						"mw-flex mw-flex-col mw-justify-center mw-items-center mw-gap-[5px]"
+					}
+				>
 					<div>
 						<img src={labeledIcon} alt={"labeledIcon"} />
 					</div>
@@ -53,7 +62,7 @@ const Header = ({ subtitle, close, onSettings, onGoBack }: HeaderProps) => {
 				</div>
 				{onSettings && (
 					<div
-						className={"absolute right-9 cursor-pointer"}
+						className={"mw-absolute mw-right-9 mw-cursor-pointer"}
 						onClick={onSettings}
 						onKeyUp={(event) => {
 							event.key === "Enter" && onSettings();

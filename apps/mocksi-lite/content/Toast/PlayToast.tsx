@@ -48,9 +48,9 @@ const PlayToast = ({ close }: PlayToastProps) => {
 	};
 
 	return (
-		<Toast className={"mb-7 gap-4 py-3 px-4"}>
+		<Toast className={"mw-mb-7 mw-gap-4 mw-py-3 mw-px-4"}>
 			<div
-				className="cursor-pointer"
+				className="mw-cursor-pointer"
 				onClick={handleHideToast}
 				onKeyUp={(event) => {
 					event.key === "Escape" && handleHideToast();
@@ -59,7 +59,7 @@ const PlayToast = ({ close }: PlayToastProps) => {
 				<img src={closeIcon} alt="closeIcon" />
 			</div>
 			<img src={labeledIcon} alt={"labeledIcon"} />
-			<div className={"flex gap-2"}>
+			<div className={"mw-flex mw-gap-2"}>
 				<Button variant={Variant.icon} onClick={handleStop}>
 					<img src={stopIcon} alt={"stopIcon"} />
 				</Button>

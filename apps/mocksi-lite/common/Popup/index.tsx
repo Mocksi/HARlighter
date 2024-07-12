@@ -62,11 +62,7 @@ const Popup = ({
 
 	return (
 		<Draggable handle=".drag-handle" position={position} onStop={onDragStop}>
-			<div
-				className={
-					"w-[500px] h-[596px] shadow-lg rounded-lg m-4 bg-white flex flex-col justify-between"
-				}
-			>
+			<div className="mw-w-[500px] mw-h-[596px] shadow-lg mw-rounded-lg mw-m-4 mw-bg-white mw-flex mw-flex-col mw-justify-between mw-border-solid mw-border-black">
 				<Header
 					subtitle={headerSubtitle}
 					close={onClose}

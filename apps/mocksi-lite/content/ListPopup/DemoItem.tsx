@@ -42,19 +42,19 @@ const DemoItem = ({
 	};
 
 	return (
-		<div className={"flex justify-between px-6"}>
-			<div className={"w-[200px]"}>
+		<div className={"mw-flex mw-justify-between mw-px-6"}>
+			<div className={"mw-w-[200px]"}>
 				<TextField variant={"title"} className={"truncate"}>
 					{demo_name}
 				</TextField>
 				<TextField className={"truncate"}>{customer_name}</TextField>
 				<a href={url} target={"_blank"} rel={"noreferrer"}>
-					<TextField className={"text-xs underline truncate"}>
+					<TextField className={"mw-text-xs mw-underline truncate"}>
 						{domain}
 					</TextField>
 				</a>
 			</div>
-			<div className={"flex gap-3"}>
+			<div className={"mw-flex mw-gap-3"}>
 				<Button
 					variant={Variant.icon}
 					onClick={handleEdit}

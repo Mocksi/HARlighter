@@ -201,10 +201,10 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 
 		return (
 			<Toast
-				className="relative flex flex-col py-4 w-[800px] mr-6 mt-1 h-[900px]"
-				backgroundColor="bg-gray-300"
+				className="mw-relative mw-flex mw-flex-col mw-py-4 mw-w-[800px] mw-mr-6 mw-mt-1 mw-h-[900px]"
+				backgroundColor="mw-bg-gray-300"
 			>
-				<div className="absolute top-0 left-0 m-2">
+				<div className="mw-absolute mw-top-0 mw-left-0 mw-m-2">
 					<Button
 						variant={Variant.secondary}
 						onClick={async () => {
@@ -217,33 +217,35 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 						<img src={closeIcon} alt="closeIcon" />
 					</Button>
 				</div>
-				<div className="flex flex-col justify-center items-center gap-6 mt-[75px] h-full">
-					<div className="flex-grow overflow-auto">
+				<div className="mw-flex mw-flex-col mw-justify-center mw-items-center mw-gap-6 mw-mt-[75px] mw-h-full">
+					<div className="mw-flex-grow overflow-auto">
 						{messages.map((msg, i) => {
 							const chatKey = `chatKey${i}`;
 							const msgIcon = msg.role === "assistant" ? mocksiLogo : editIcon;
+							const responseDivClassName =
+								msg.role === "assistant" ? "mw-chat-start" : "mw-chat-end";
 							return (
-								<div
-									className={`chat ${
-										msg.role === "assistant" ? "chat-start" : "chat-end"
-									}`}
-									key={chatKey}
-								>
+								<div className={responseDivClassName} key={chatKey}>
 									<div className="chat-image avatar">
-										<div className="w-10 rounded-full">
+										<div className="mw-w-10 mw-rounded-full">
 											<img src={msgIcon} alt={`${msg.role} avatar`} />
 										</div>
 									</div>
-									<div className="chat-bubble bg-gray-200">{msg.content}</div>
+									<div className="chat-bubble mw-bg-gray-200">
+										{msg.content}
+									</div>
 								</div>
 							);
 						})}
 					</div>
 
-					<form className="form-control items-center" onSubmit={handleSubmit}>
-						<div className="input-group max-w-full w-[500px] relative flex items-center">
+					<form
+						className="form-control mw-items-center"
+						onSubmit={handleSubmit}
+					>
+						<div className="input-group max-w-full mw-w-[500px] mw-relative mw-flex mw-items-center">
 							{isTyping && (
-								<small className="absolute -top-5 left-0.5 animate-pulse">
+								<small className="mw-absolute -mw-top-5 mw-left-0.5 animate-pulse">
 									MocksiAI is thinking...
 								</small>
 							)}
@@ -251,7 +253,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 							<input
 								type="text"
 								placeholder="Ask Mocksi a question..."
-								className="input input-bordered flex-grow mr-2.5 bg-white"
+								className="input input-bordered mw-flex-grow mw-mr-2.5 mw-bg-white"
 								value={inputValue}
 								onChange={(e) => setInputValue(e.target.value)}
 								required
@@ -264,7 +266,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
-									className="h-6 w-6"
+									className="mw-h-6 mw-w-6"
 									fill="currentColor"
 									viewBox="0 0 16 16"
 								>
