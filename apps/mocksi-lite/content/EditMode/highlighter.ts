@@ -90,7 +90,7 @@ const highlight = ({
 }) => {
 	const highlightDiv = document.createElement("div");
 	highlightDiv.className = MOCKSI_HIGHLIGHTER_ID;
-	highlightDiv.style.position = "mw-absolute";
+	highlightDiv.style.position = "absolute";
 	highlightDiv.style.top = `${window.scrollY + y + -2}px`;
 	highlightDiv.style.left = `${window.scrollX + x + -2}px`;
 	// 4px more because we're removing 2px each side because of the border
