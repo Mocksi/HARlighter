@@ -122,7 +122,7 @@ export default function ContentApp({
 	const styles = extractStyles();
 	return useShadow(
 		<AppStateProvider>
-			<ShadowContentApp isOpen={isOpen} email={email} />
+			<ShadowContentApp isOpen={isOpen} email={email} initialState={initialState} />
 		</AppStateProvider>,
 		[],
 		{

@@ -106,8 +106,9 @@ const localStorageMiddleware = (reducer: typeof appStateReducer) => {
 	};
 };
 
-export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({
+export const AppStateProvider: React.FC<{ children: React.ReactNode, initialRecordings?: Recording[] }> = ({
 	children,
+	initialRecordings,
 }) => {
 	const reducer = localStorageMiddleware(appStateReducer);
 	const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
@@ -115,7 +116,7 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({
 	// Load the initial state from chrome storage on mount
 	useEffect(() => {
 		chrome.storage.local.get(
-			[MOCKSI_RECORDING_STATE, "recordings"],
+			[MOCKSI_RECORDING_STATE],
 			(result) => {
 				if (result[MOCKSI_RECORDING_STATE] === AppState.UNAUTHORIZED) {
 					dispatch({
@@ -125,19 +126,9 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({
 					return;
 				}
 
-				let recordings = [];
-
-				if (result.recordings) {
-					try {
-						recordings = JSON.parse(result.recordings);
-					} catch (e) {
-						console.error(e);
-					}
-				}
-
 				if (
-					recordings?.length &&
-					recordings.some((rec: Recording) => rec.url === window.location.href)
+					initialRecordings?.length &&
+					initialRecordings.some((rec: Recording) => rec.url === window.location.href)
 				) {
 					dispatch({
 						event: AppEvent.SET_INITIAL_STATE,
@@ -151,7 +142,7 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({
 				}
 			},
 		);
-	}, []);
+	}, [initialRecordings]);
 
 	const value = {
 		state,
