@@ -516,11 +516,19 @@ chrome.runtime.onMessage.addListener(
 		if (request.message === "getRecordings") {
 			getRecordings()
 				.then((recordings) => {
-					sendResponse({ message: "getRecordings", status: "success", body: { recordings } })
+					sendResponse({
+						message: "getRecordings",
+						status: "success",
+						body: { recordings },
+					});
 				})
 				.catch((err) => {
-					sendResponse({ message: "getRecordings", status: "error", body: { err } });
-				})
+					sendResponse({
+						message: "getRecordings",
+						status: "error",
+						body: { err },
+					});
+				});
 			return true;
 		}
 

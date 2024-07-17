@@ -1,4 +1,5 @@
 import ReactDOM from "react-dom/client";
+import type { Recording } from "../background";
 import {
 	MOCKSI_AUTH,
 	MOCKSI_RECORDING_STATE,
@@ -14,7 +15,6 @@ import {
 } from "../utils";
 import { AppState } from "./AppStateContext";
 import ContentApp from "./ContentApp";
-import type { Recording } from "../background";
 
 let root: ReactDOM.Root;
 async function handlePlayState() {
@@ -83,9 +83,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 				sendMessage("getRecordings", {}, (response) => {
 					console.log("recordings: ", response.recordings);
-					root.render(<ContentApp isOpen={true} email={email || ""} initialState={{
-						recordings: response.recordings as Recording[],
-					}} />);
+					root.render(
+						<ContentApp
+							isOpen={true}
+							email={email || ""}
+							initialState={{
+								recordings: response.recordings as Recording[],
+							}}
+						/>,
+					);
 				});
 			});
 		});

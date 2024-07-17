@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
+import type { Recording } from "../background";
 import { MOCKSI_LAST_PAGE_DOM } from "../consts";
 import { innerHTMLToJson, logout, setRootPosition } from "../utils";
 import {
@@ -16,7 +17,6 @@ import ChatToast from "./Toast/ChatToast";
 import EditToast from "./Toast/EditToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
-import type { Recording } from "../background";
 
 import("./content.css");
 import("./base.css");
@@ -26,7 +26,7 @@ interface ContentProps {
 	email?: string;
 	initialState?: {
 		recordings?: Recording[];
-	}
+	};
 }
 
 function ShadowContentApp({ isOpen, email }: ContentProps) {
@@ -114,7 +114,11 @@ const extractStyles = (): string => {
 	return styles;
 };
 
-export default function ContentApp({ isOpen, email, initialState }: ContentProps) {
+export default function ContentApp({
+	isOpen,
+	email,
+	initialState,
+}: ContentProps) {
 	const styles = extractStyles();
 	return useShadow(
 		<AppStateProvider>
