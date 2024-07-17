@@ -301,28 +301,36 @@ async function deleteDemo(data: Record<string, unknown>) {
 	apiCall(`recordings/${id}`, "DELETE").then(() => getRecordings());
 }
 
-async function getRecordings() {
+async function getRecordings(): Promise<Recording[]> {
 	const email = await getEmail();
 
-	if (email) {
+	if (!email) {
+		console.error("Email not found. Cannot fetch recordings.");
+		return [];
+	}
+
+	try {
 		const response = await apiCall(
 			`recordings?creator=${encodeURIComponent(email)}`,
-		).catch((err) => {
-			console.error(`Failed to fetch recordings: ${err}`);
-			return null;
-		});
+		);
+
 		if (!response || response.length === 0) {
 			console.error("No recordings found or failed to fetch recordings.");
 			chrome.storage.local.set({ recordings: "[]" });
-			return;
+			return [];
 		}
+
 		const sorted = response.sort((a: Recording, b: Recording) =>
 			a.updated_timestamp > b.updated_timestamp ? -1 : 0,
 		);
+
 		const recordings = JSON.stringify(sorted) || "[]";
 		chrome.storage.local.set({ recordings });
-	} else {
-		console.error("Email not found. Cannot fetch recordings.");
+
+		return sorted;
+	} catch (err) {
+		console.error(`Failed to fetch recordings: ${err}`);
+		return [];
 	}
 }
 
@@ -506,7 +514,13 @@ chrome.runtime.onMessage.addListener(
 		}
 
 		if (request.message === "getRecordings") {
-			getRecordings();
+			getRecordings()
+				.then((recordings) => {
+					sendResponse({ message: "getRecordings", status: "success", body: { recordings } })
+				})
+				.catch((err) => {
+					sendResponse({ message: "getRecordings", status: "error", body: { err } });
+				})
 			return true;
 		}
 

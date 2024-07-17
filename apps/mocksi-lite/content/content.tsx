@@ -14,6 +14,7 @@ import {
 } from "../utils";
 import { AppState } from "./AppStateContext";
 import ContentApp from "./ContentApp";
+import type { Recording } from "../background";
 
 let root: ReactDOM.Root;
 async function handlePlayState() {
@@ -80,9 +81,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 				setRootPosition(state);
 
-				sendMessage("getRecordings");
-
-				root.render(<ContentApp isOpen={true} email={email || ""} />);
+				sendMessage("getRecordings", {}, (response) => {
+					console.log("recordings: ", response.recordings);
+					root.render(<ContentApp isOpen={true} email={email || ""} initialState={{
+						recordings: response.recordings as Recording[],
+					}} />);
+				});
 			});
 		});
 	}

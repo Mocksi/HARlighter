@@ -16,6 +16,7 @@ import ChatToast from "./Toast/ChatToast";
 import EditToast from "./Toast/EditToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
+import type { Recording } from "../background";
 
 import("./content.css");
 import("./base.css");
@@ -23,6 +24,9 @@ import("./base.css");
 interface ContentProps {
 	isOpen?: boolean;
 	email?: string;
+	initialState?: {
+		recordings?: Recording[];
+	}
 }
 
 function ShadowContentApp({ isOpen, email }: ContentProps) {
@@ -110,7 +114,7 @@ const extractStyles = (): string => {
 	return styles;
 };
 
-export default function ContentApp({ isOpen, email }: ContentProps) {
+export default function ContentApp({ isOpen, email, initialState }: ContentProps) {
 	const styles = extractStyles();
 	return useShadow(
 		<AppStateProvider>
