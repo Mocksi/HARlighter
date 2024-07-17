@@ -90,7 +90,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 							isOpen={true}
 							email={email || ""}
 							initialState={{
-								recordings
+								recordings,
 							}}
 						/>,
 					);
