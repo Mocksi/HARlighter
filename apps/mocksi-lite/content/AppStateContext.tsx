@@ -126,6 +126,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode, initialReco
 					return;
 				}
 
+				console.log({ initialRecordings })
+
 				if (
 					initialRecordings?.length &&
 					initialRecordings.some((rec: Recording) => rec.url === window.location.href)

@@ -82,13 +82,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				setRootPosition(state);
 
 				sendMessage("getRecordings", {}, (response) => {
-					console.log("recordings: ", response.recordings);
+					const { body } = response;
+					const { recordings } = body as { recordings: Recording[] };
+
 					root.render(
 						<ContentApp
 							isOpen={true}
 							email={email || ""}
 							initialState={{
-								recordings: response.recordings as Recording[],
+								recordings
 							}}
 						/>,
 					);
