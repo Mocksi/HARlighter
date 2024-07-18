@@ -5,7 +5,7 @@ import { ChatWebSocketURL, MOCKSI_RECORDING_STATE } from "../../consts";
 import closeIcon from "../../public/close-icon.png";
 import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
-import { getEmail, getLastPageDom, innerHTMLToJson } from "../../utils";
+import { getEmail, getLastPageDom, htmlElementToJson } from "../../utils";
 import { AppState } from "../AppStateContext";
 
 interface Message {
@@ -102,7 +102,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 					await applyDOMModifications(data.modifications);
 					setIsTyping(false);
 					await new Promise((resolve) => window.setTimeout(resolve, 1000));
-					const updatedDomJson = innerHTMLToJson(document.body.innerHTML);
+					const updatedDomJson = htmlElementToJson(document.body);
 					setDomData(updatedDomJson);
 				} catch (error) {
 					console.error("Error applying DOM modifications:", error);
@@ -124,7 +124,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 		}, []);
 
 		useEffect(() => {
-			const dom_as_json = innerHTMLToJson(document.body.innerHTML);
+			const dom_as_json = htmlElementToJson(document.body);
 			setDomData(dom_as_json);
 
 			connectWebSocket();
@@ -201,7 +201,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 
 		return (
 			<Toast
-				className="mw-relative mw-flex mw-flex-col mw-py-4 mw-w-[800px] mw-mr-6 mw-mt-1 mw-h-[900px]"
+				className="mw-relative mw-flex mw-flex-col mw-py-4 mw-w-[800px] mw-mr-6 mw-mt-1 mw-h-[900px] mw-max-h-[95vh]"
 				backgroundColor="mw-bg-gray-300"
 			>
 				<div className="mw-absolute mw-top-0 mw-left-0 mw-m-2">

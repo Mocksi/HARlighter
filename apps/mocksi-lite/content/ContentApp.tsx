@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
 import { MOCKSI_LAST_PAGE_DOM } from "../consts";
-import { innerHTMLToJson, logout, setRootPosition } from "../utils";
+import { htmlElementToJson, logout, setRootPosition } from "../utils";
 import {
 	AppEvent,
 	AppState,
@@ -32,7 +32,7 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 	useEffect(() => {
 		let dom_as_json = "";
 		try {
-			dom_as_json = innerHTMLToJson(document.body.innerHTML);
+			dom_as_json = htmlElementToJson(document.body);
 		} catch (e) {
 			console.error("Error setting last page dom:", e);
 		}

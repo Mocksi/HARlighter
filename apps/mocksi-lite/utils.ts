@@ -35,7 +35,7 @@ type DOMModificationsType = {
 const authOptions: auth0.AuthOptions = {
 	domain: "dev-3lgt71qosvm4psf0.us.auth0.com",
 	clientID: "3XDxVDUz3W3038KmRvkJSjkIs5mGj7at",
-	redirectUri: "https://nest-auth-ts-merge.onrender.com",
+	redirectUri: SignupURL,
 	// TODO: change to include offline_access, see https://github.com/Mocksi/nest/pull/10#discussion_r1635647560
 	responseType: "id_token token",
 	audience: "Mocksi Lite",
@@ -352,39 +352,75 @@ export const recordingLabel = (currentStatus: AppState) => {
 	}
 };
 
-export const innerHTMLToJson = (innerHTML: string): string => {
-	const parser = new DOMParser();
-	const doc = parser.parseFromString(innerHTML, "text/html");
-
-	function elementToJson(element: Element): object {
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		const obj: any = {};
-
-		obj.tag = element.tagName.toLowerCase();
-
-		if (element.attributes.length > 0) {
-			obj.attributes = {};
-			for (const attr of Array.from(element.attributes)) {
-				obj.attributes[attr.name] = attr.value;
+export const htmlElementToJson = (root: HTMLElement): string => {
+	function nodeToJson(node: Node): object {
+		if (node instanceof Text) {
+			return {
+				tag: "text",
+				visible: node.parentElement ? node.parentElement.offsetWidth > 0 || node.parentElement.offsetHeight > 0 : false,
+				text: node.data,
 			}
-		}
+		} else if (node instanceof Element) {
+			const element = node;
+			const obj: any = {};
 
-		if (element.children.length > 0) {
-			obj.children = Array.from(element.children).map((child) =>
-				elementToJson(child),
-			);
+			obj.tag = element.tagName.toLowerCase();
+			obj.visible = element instanceof HTMLElement ? element.offsetWidth > 0 || element.offsetHeight > 0 : false;
+
+			if (element.attributes.length > 0) {
+				obj.attributes = {};
+				for (const attr of Array.from(element.attributes)) {
+					obj.attributes[attr.name] = attr.value;
+				}
+			}
+
+			const children = Array.from(element.childNodes).filter(textElementFilter);
+
+			// special case: if the element has only one child, and that child is a text node, then
+			// include the text directly
+			if (children.length === 1 && children[0] instanceof Text) {
+				obj.text = children[0].data;
+			} else {
+				obj.children = children.map((child) => nodeToJson(child), );
+			}
+
+			// remove text and children from script and style elements
+			if (obj.tag === "script" || obj.tag === "style") {
+				delete obj.text;
+				delete obj.children;
+			}
+		
+			// remove empty children
+			if (obj.children?.length == 0) {
+				delete obj.children;
+			}
+
+			return obj;
 		} else {
-			obj.text = element.textContent;
-		}
-
-		return obj;
+			throw new Error("Unknown node type");
+		}		
 	}
 
 	// Convert the body of the parsed document to JSON
-	const json = Array.from(doc.body.children).map((child) =>
-		elementToJson(child),
+	const json = Array.from(root.childNodes).filter(textElementFilter).map((child) =>
+		nodeToJson(child),
 	);
 	const body = json.length === 1 ? json[0] : json;
 
 	return JSON.stringify(body);
+};
+
+// TODO: may need to handle DOCUMENT_NODE also for iframes
+export const textElementFilter = (node: Node) => {
+	if (node instanceof Element) {
+		return true;
+	}
+
+	// filter out "empty" text nodes that only include whitespace
+	if (node instanceof Text) {
+		return node.data.trim().length > 0;
+	}
+
+	// ignore other nodes
+	return false;
 };
