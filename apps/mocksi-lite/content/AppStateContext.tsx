@@ -106,52 +106,44 @@ const localStorageMiddleware = (reducer: typeof appStateReducer) => {
 	};
 };
 
-export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({
-	children,
-}) => {
+export const AppStateProvider: React.FC<{
+	children: React.ReactNode;
+	initialRecordings?: Recording[];
+}> = ({ children, initialRecordings }) => {
 	const reducer = localStorageMiddleware(appStateReducer);
 	const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
 
 	// Load the initial state from chrome storage on mount
 	useEffect(() => {
-		chrome.storage.local.get(
-			[MOCKSI_RECORDING_STATE, "recordings"],
-			(result) => {
-				if (result[MOCKSI_RECORDING_STATE] === AppState.UNAUTHORIZED) {
-					dispatch({
-						event: AppEvent.SET_INITIAL_STATE,
-						payload: AppState.UNAUTHORIZED,
-					});
-					return;
-				}
+		chrome.storage.local.get([MOCKSI_RECORDING_STATE], (result) => {
+			if (result[MOCKSI_RECORDING_STATE] === AppState.UNAUTHORIZED) {
+				dispatch({
+					event: AppEvent.SET_INITIAL_STATE,
+					payload: AppState.UNAUTHORIZED,
+				});
+				return;
+			}
 
-				let recordings = [];
+			console.log({ initialRecordings });
 
-				if (result.recordings) {
-					try {
-						recordings = JSON.parse(result.recordings);
-					} catch (e) {
-						console.error(e);
-					}
-				}
-
-				if (
-					recordings?.length &&
-					recordings.some((rec: Recording) => rec.url === window.location.href)
-				) {
-					dispatch({
-						event: AppEvent.SET_INITIAL_STATE,
-						payload: result[MOCKSI_RECORDING_STATE],
-					});
-				} else {
-					dispatch({
-						event: AppEvent.SET_INITIAL_STATE,
-						payload: AppState.READYTORECORD,
-					});
-				}
-			},
-		);
-	}, []);
+			if (
+				initialRecordings?.length &&
+				initialRecordings.some(
+					(rec: Recording) => rec.url === window.location.href,
+				)
+			) {
+				dispatch({
+					event: AppEvent.SET_INITIAL_STATE,
+					payload: result[MOCKSI_RECORDING_STATE],
+				});
+			} else {
+				dispatch({
+					event: AppEvent.SET_INITIAL_STATE,
+					payload: AppState.READYTORECORD,
+				});
+			}
+		});
+	}, [initialRecordings]);
 
 	const value = {
 		state,

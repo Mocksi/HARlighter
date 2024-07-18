@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
+import type { Recording } from "../background";
 import { MOCKSI_LAST_PAGE_DOM } from "../consts";
 import { innerHTMLToJson, logout, setRootPosition } from "../utils";
 import {
@@ -23,6 +24,9 @@ import("./base.css");
 interface ContentProps {
 	isOpen?: boolean;
 	email?: string;
+	initialState?: {
+		recordings?: Recording[];
+	};
 }
 
 function ShadowContentApp({ isOpen, email }: ContentProps) {
@@ -110,10 +114,14 @@ const extractStyles = (): string => {
 	return styles;
 };
 
-export default function ContentApp({ isOpen, email }: ContentProps) {
+export default function ContentApp({
+	isOpen,
+	email,
+	initialState,
+}: ContentProps) {
 	const styles = extractStyles();
 	return useShadow(
-		<AppStateProvider>
+		<AppStateProvider initialRecordings={initialState?.recordings}>
 			<ShadowContentApp isOpen={isOpen} email={email} />
 		</AppStateProvider>,
 		[],

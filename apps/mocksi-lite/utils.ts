@@ -212,6 +212,7 @@ const getHTMLElementFromSelector = (
 export const sendMessage = (
 	message: string,
 	body?: Record<string, unknown> | null,
+	callback: (response: Record<string, unknown>) => void = () => {},
 ) => {
 	try {
 		chrome.runtime.sendMessage({ message, body }, (response) => {
@@ -220,6 +221,8 @@ export const sendMessage = (
 					`Failed to send message to background script. Received response: ${response}`,
 				);
 			}
+
+			callback(response);
 		});
 	} catch (error) {
 		console.error("Error sending message to background script:", error);

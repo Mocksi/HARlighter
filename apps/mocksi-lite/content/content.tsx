@@ -1,4 +1,5 @@
 import ReactDOM from "react-dom/client";
+import type { Recording } from "../background";
 import {
 	MOCKSI_AUTH,
 	MOCKSI_RECORDING_STATE,
@@ -80,9 +81,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 				setRootPosition(state);
 
-				sendMessage("getRecordings");
+				sendMessage("getRecordings", {}, (response) => {
+					const { body } = response;
+					const { recordings } = body as { recordings: Recording[] };
 
-				root.render(<ContentApp isOpen={true} email={email || ""} />);
+					root.render(
+						<ContentApp
+							isOpen={true}
+							email={email || ""}
+							initialState={{
+								recordings,
+							}}
+						/>,
+					);
+				});
 			});
 		});
 	}
