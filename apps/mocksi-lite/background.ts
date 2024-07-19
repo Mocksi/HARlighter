@@ -1,9 +1,15 @@
 import MocksiRollbar from "./MocksiRollbar";
-import { MOCKSI_RECORDING_STATE, STORAGE_KEY, SignupURL } from "./consts";
+import {
+	MOCKSI_ALTERATIONS,
+	MOCKSI_RECORDING_ID,
+	MOCKSI_RECORDING_STATE,
+	STORAGE_KEY,
+	SignupURL,
+} from "./consts";
 import { AppState } from "./content/AppStateContext";
 import { initializeMckSocket, sendMckSocketMessage } from "./mckSocket";
 import { apiCall } from "./networking";
-import { getEmail, getLastPageDom } from "./utils";
+import { getEmail, getLastPageDom, loadAlterations } from "./utils";
 
 export interface Alteration {
 	selector: string;
@@ -446,7 +452,8 @@ const setPlayMode = async (url?: string) => {
 		active: true,
 		lastFocusedWindow: true,
 	});
-	await chrome.tabs.create({ url });
+
+	await chrome.tabs.create({ url: url });
 	await chrome.action.setIcon({ path: "./public/pause-icon.png" });
 	await chrome.storage.local.set({
 		[MOCKSI_RECORDING_STATE]: AppState.PLAY,
@@ -573,6 +580,12 @@ chrome.runtime.onMessage.addListener(
 				console.log("Error handling requestChat:", error);
 			}
 
+			return true;
+		}
+
+		if (request.message === "playMode") {
+			const url: string = request.body?.url as string;
+			setPlayMode(url ?? "");
 			return true;
 		}
 
