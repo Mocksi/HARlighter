@@ -144,7 +144,15 @@ The user request should be a JSON string with the following structure:
 ## Examples
 
 #### Replace Text Content
+##### Before
+```html
+<div id="user-info">
+  <span id="user-name">Jane Smith</span>
+  <span id="user-email">jane.smith@example.com</span>
+</div>
+```
 
+##### Request
 Replace the text content of an element identified by its ID.
 ```json
 [{
@@ -158,19 +166,43 @@ Replace the text content of an element identified by its ID.
   ]
 }]
 ```
+##### After
+```html
+<div id="user-info">
+  <span id="user-name">John Doe</span>
+  <span id="user-email">jane.smith@example.com</span>
+</div>
+```
 
 #### Swap Image Source
-
+##### Before
+```html
+<div class="profile">
+  <img id="profile-pic" src="old-profile.jpg" alt="User profile picture">
+  <p>Welcome back, user!</p>
+</div>
+```
+##### User Request
 Swap the `src` attribute of an image element identified by its ID.
 
 ``` json 
-[{
-    "description": "Swap the profile picture.",
-    "modifications": [
-      {
-        "selector": "#profile-pic",
-        "action": "swapImage",
-        "imageUrl": "new-profile.jpg"
-      }
-}]
+{
+  "description": "Swap the profile picture.",
+  "modifications": [
+    {
+      "selector": "#profile-pic",
+      "action": "swapImage",
+      "imageUrl": "new-profile.jpg"
+    }
+  ]
+}
 ```
+##### After
+```html
+<div class="profile">
+  <img id="profile-pic" src="new-profile.jpg" alt="User profile picture">
+  <p>Welcome back, user!</p>
+</div>
+```
+
+
