@@ -3,7 +3,7 @@ import type { Recording } from "../../background";
 import Button from "../../common/Button";
 import Divider from "../../common/Divider";
 import Popup from "../../common/Popup";
-import { getRecordingsStorage } from "../../utils";
+import { getRecordingsStorage, sendMessage } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 import DemoItem from "./DemoItem";
 
@@ -19,18 +19,12 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 	const [recordings, setRecordings] = useState<Recording[]>([]);
 
 	const getRecordings = async () => {
-		let continueFetching = true;
-		while (continueFetching) {
-			try {
-				const newRecordings = await getRecordingsStorage();
-				if (newRecordings.length !== recordings.length) {
-					setRecordings(newRecordings);
-					continueFetching = false; // Stop the loop if recordings have been updated
-				}
-			} catch (error) {
-				continueFetching = false; // Stop the loop in case of an error
-			}
-		}
+		sendMessage("getRecordings", {}, (response) => {
+			const { body } = response;
+			const { recordings } = body as { recordings: Recording[] };
+
+			setRecordings(recordings);
+		})
 	};
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies:
