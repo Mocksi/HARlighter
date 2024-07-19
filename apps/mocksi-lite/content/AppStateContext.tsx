@@ -1,6 +1,11 @@
 import { type Dispatch, createContext, useEffect, useReducer } from "react";
 import type { Recording } from "../background";
-import { MOCKSI_RECORDING_STATE } from "../consts";
+import {
+	MOCKSI_ALTERATIONS,
+	MOCKSI_RECORDING_ID,
+	MOCKSI_RECORDING_STATE,
+} from "../consts";
+import { loadAlterations, sendMessage } from "../utils";
 
 export enum AppState {
 	INIT = "INIT",
@@ -115,34 +120,48 @@ export const AppStateProvider: React.FC<{
 
 	// Load the initial state from chrome storage on mount
 	useEffect(() => {
-		chrome.storage.local.get([MOCKSI_RECORDING_STATE], (result) => {
-			if (result[MOCKSI_RECORDING_STATE] === AppState.UNAUTHORIZED) {
-				dispatch({
-					event: AppEvent.SET_INITIAL_STATE,
-					payload: AppState.UNAUTHORIZED,
-				});
-				return;
-			}
+		chrome.storage.local.get(
+			[MOCKSI_RECORDING_STATE, MOCKSI_ALTERATIONS, MOCKSI_RECORDING_ID],
+			(result) => {
+				if (result[MOCKSI_RECORDING_STATE] === AppState.UNAUTHORIZED) {
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: AppState.UNAUTHORIZED,
+					});
+					return;
+				}
 
-			console.log({ initialRecordings });
+				if (result[MOCKSI_RECORDING_STATE] === AppState.PLAY) {
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: AppState.PLAY,
+					});
+					sendMessage("updateToPauseIcon");
+					loadAlterations(result[MOCKSI_ALTERATIONS], false);
 
-			if (
-				initialRecordings?.length &&
-				initialRecordings.some(
-					(rec: Recording) => rec.url === window.location.href,
-				)
-			) {
-				dispatch({
-					event: AppEvent.SET_INITIAL_STATE,
-					payload: result[MOCKSI_RECORDING_STATE],
-				});
-			} else {
-				dispatch({
-					event: AppEvent.SET_INITIAL_STATE,
-					payload: AppState.READYTORECORD,
-				});
-			}
-		});
+					return;
+				}
+
+				console.log({ initialRecordings });
+
+				if (
+					initialRecordings?.length &&
+					initialRecordings.some(
+						(rec: Recording) => rec.url === window.location.href,
+					)
+				) {
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: result[MOCKSI_RECORDING_STATE],
+					});
+				} else {
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: AppState.READYTORECORD,
+					});
+				}
+			},
+		);
 	}, [initialRecordings]);
 
 	const value = {
