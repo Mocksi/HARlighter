@@ -19,7 +19,7 @@ import ContentApp from "./ContentApp";
 let root: ReactDOM.Root;
 async function handlePlayState() {
 	const alterations = await getAlterations();
-	
+
 	if (alterations?.length) {
 		loadAlterations(alterations, false);
 	}

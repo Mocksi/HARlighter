@@ -1,5 +1,11 @@
 import MocksiRollbar from "./MocksiRollbar";
-import { MOCKSI_ALTERATIONS, MOCKSI_RECORDING_ID, MOCKSI_RECORDING_STATE, STORAGE_KEY, SignupURL } from "./consts";
+import {
+	MOCKSI_ALTERATIONS,
+	MOCKSI_RECORDING_ID,
+	MOCKSI_RECORDING_STATE,
+	STORAGE_KEY,
+	SignupURL,
+} from "./consts";
 import { AppState } from "./content/AppStateContext";
 import { initializeMckSocket, sendMckSocketMessage } from "./mckSocket";
 import { apiCall } from "./networking";
@@ -447,7 +453,7 @@ const setPlayMode = async (url?: string) => {
 		lastFocusedWindow: true,
 	});
 
-	await chrome.tabs.create({ url: url})
+	await chrome.tabs.create({ url: url });
 	await chrome.action.setIcon({ path: "./public/pause-icon.png" });
 	await chrome.storage.local.set({
 		[MOCKSI_RECORDING_STATE]: AppState.PLAY,
