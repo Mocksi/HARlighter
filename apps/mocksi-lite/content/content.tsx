@@ -19,6 +19,7 @@ import ContentApp from "./ContentApp";
 let root: ReactDOM.Root;
 async function handlePlayState() {
 	const alterations = await getAlterations();
+	
 	if (alterations?.length) {
 		loadAlterations(alterations, false);
 	}
@@ -32,7 +33,7 @@ function initial() {
 
 	chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
 		const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
-		if (appState === AppState.HIDDEN) {
+		if (appState === AppState.PLAY) {
 			handlePlayState();
 		}
 	});
