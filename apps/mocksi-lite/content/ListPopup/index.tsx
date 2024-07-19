@@ -24,7 +24,7 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 			const { recordings } = body as { recordings: Recording[] };
 
 			setRecordings(recordings);
-		})
+		});
 	};
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies:
