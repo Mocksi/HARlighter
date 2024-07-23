@@ -10,6 +10,26 @@ interface IframeWrapperProps {
 	[x: string]: any;
 }
 
+const extractStyles = (): string => {
+	let styles = "";
+	const styleSheets = Array.from(document.styleSheets) as CSSStyleSheet[];
+
+	for (const sheet of styleSheets) {
+		try {
+			if (sheet.cssRules) {
+				const cssRules = Array.from(sheet.cssRules) as CSSRule[];
+				for (const rule of cssRules) {
+					styles += rule.cssText;
+				}
+			}
+		} catch (e) {
+			console.error("Error accessing stylesheet:", e);
+		}
+	}
+
+	return styles;
+};
+
 const IframeWrapper = ({
 	children,
 	styles,
@@ -31,10 +51,14 @@ const IframeWrapper = ({
 			return;
 		}
 
-		// Inject styles
+		let baseStyles = extractStyles();
+		// Append component styles
 		if (styles) {
-			const styleElement = iframeDocument.createElement("style");
-			styleElement.textContent = styles;
+			baseStyles += styles;
+		}
+		const styleElement = iframeDocument.createElement("style");
+		if (styleElement && baseStyles) {
+			styleElement.textContent = baseStyles;
 			iframeDocument.head.appendChild(styleElement);
 		}
 
@@ -48,14 +72,17 @@ const IframeWrapper = ({
 		}
 
 		if (iframeDocument.body) {
-            iframeDocument.body.style.setProperty('background-color', 'rgba(0, 0, 0, 0.0)');
+			iframeDocument.body.style.setProperty(
+				"background-color",
+				"rgba(0, 0, 0, 0.0)",
+			);
 			setIframeBody(iframeDocument.body);
 		}
 	}, [styles, scripts]);
 
 	return (
 		<iframe ref={iframeRef} {...props} allowFullScreen>
-            {iframeBody && ReactDOM.createPortal(children, iframeBody)}
+			{iframeBody && ReactDOM.createPortal(children, iframeBody)}
 		</iframe>
 	);
 };
