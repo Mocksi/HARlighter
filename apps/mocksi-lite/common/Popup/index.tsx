@@ -64,7 +64,7 @@ const Popup = ({
 		position: "absolute", // Fixed positioning relative to the viewport
 		top: "100px",
 		width: "100%",
-		height: "100%",
+		height: "75%",
 		zIndex: 9999999,
 	};
 
