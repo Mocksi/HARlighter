@@ -35,7 +35,7 @@ function injectTextArea(
 	const ndiv = document.createElement("textarea");
 	ndiv.setAttribute("tabindex", "-1");
 
-	const padding = "5px"
+	const padding = "5px";
 	const elementStyle = {
 		width: `calc(120% + ${padding})`, // TODO: Make this dynamic based off the length of the content
 		height: `calc(100% + ${padding} + ${padding})`,

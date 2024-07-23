@@ -76,8 +76,14 @@ export const getHighlighter = () => {
 	return ContentHighlighter;
 };
 
-
-const createHighlighterStyles = (width: number, height: number, x: number, y: number, scrollY: number, scrollX: number) => ({
+const createHighlighterStyles = (
+	width: number,
+	height: number,
+	x: number,
+	y: number,
+	scrollY: number,
+	scrollX: number,
+) => ({
 	position: "absolute",
 	top: `${window.scrollY + y + -2}px`,
 	left: `${window.scrollX + x + -2}px`,
@@ -88,7 +94,7 @@ const createHighlighterStyles = (width: number, height: number, x: number, y: nu
 	border: "2px solid #FFB68B",
 	background: "rgba(229, 111, 12, 0.05)",
 	cursor: "text",
-})
+});
 
 const highlight = ({
 	x,
@@ -103,11 +109,17 @@ const highlight = ({
 	height: number;
 	highlightedElement: Node;
 }) => {
-
-	const highlighterStyles = createHighlighterStyles(width, height, x, y, window.scrollY, window.scrollX)
+	const highlighterStyles = createHighlighterStyles(
+		width,
+		height,
+		x,
+		y,
+		window.scrollY,
+		window.scrollX,
+	);
 	const highlightDiv = document.createElement("div");
 	highlightDiv.className = MOCKSI_HIGHLIGHTER_ID;
-	applyStyles(highlightDiv, highlighterStyles)
+	applyStyles(highlightDiv, highlighterStyles);
 
 	highlightDiv.ondblclick = (event: MouseEvent) => {
 		if (!highlightedElement?.parentElement) {
