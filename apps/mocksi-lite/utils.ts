@@ -355,20 +355,36 @@ export const recordingLabel = (currentStatus: AppState) => {
 	}
 };
 
+type domJSONNode = {
+	tag: string;
+	visible: boolean;
+	text?: string;
+	attributes?: Record<string, string>;
+	children?: domJSONNode[];
+};
+
 export const htmlElementToJson = (root: HTMLElement): string => {
-	function nodeToJson(node: Node): object {
+	function nodeToJson(node: Node): domJSONNode {
 		if (node instanceof Text) {
 			return {
 				tag: "text",
-				visible: node.parentElement ? node.parentElement.offsetWidth > 0 || node.parentElement.offsetHeight > 0 : false,
+				visible: node.parentElement
+					? node.parentElement.offsetWidth > 0 ||
+						node.parentElement.offsetHeight > 0
+					: false,
 				text: node.data,
-			}
-		} else if (node instanceof Element) {
-			const element = node;
-			const obj: any = {};
+			};
+		}
 
-			obj.tag = element.tagName.toLowerCase();
-			obj.visible = element instanceof HTMLElement ? element.offsetWidth > 0 || element.offsetHeight > 0 : false;
+		if (node instanceof Element) {
+			const element = node;
+			const obj: domJSONNode = {
+				tag: element.tagName.toLowerCase(),
+				visible:
+					element instanceof HTMLElement
+						? element.offsetWidth > 0 || element.offsetHeight > 0
+						: false,
+			};
 
 			if (element.attributes.length > 0) {
 				obj.attributes = {};
@@ -384,30 +400,30 @@ export const htmlElementToJson = (root: HTMLElement): string => {
 			if (children.length === 1 && children[0] instanceof Text) {
 				obj.text = children[0].data;
 			} else {
-				obj.children = children.map((child) => nodeToJson(child), );
+				obj.children = children.map((child) => nodeToJson(child));
 			}
 
 			// remove text and children from script and style elements
 			if (obj.tag === "script" || obj.tag === "style") {
-				delete obj.text;
-				delete obj.children;
+				obj.text = undefined;
+				obj.children = undefined;
 			}
-		
+
 			// remove empty children
-			if (obj.children?.length == 0) {
-				delete obj.children;
+			if (obj.children?.length === 0) {
+				obj.children = undefined;
 			}
 
 			return obj;
-		} else {
-			throw new Error("Unknown node type");
-		}		
+		}
+
+		throw new Error("Unknown node type");
 	}
 
 	// Convert the body of the parsed document to JSON
-	const json = Array.from(root.childNodes).filter(textElementFilter).map((child) =>
-		nodeToJson(child),
-	);
+	const json = Array.from(root.childNodes)
+		.filter(textElementFilter)
+		.map((child) => nodeToJson(child));
 	const body = json.length === 1 ? json[0] : json;
 
 	return JSON.stringify(body);
