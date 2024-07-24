@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { MOCKSI_HIGHLIGHTER_ID } from "../../consts";
 import { decorate } from "./decorator";
+import { applyStyles } from "./utils";
 
 class Highlighter {
 	private contentRanger = document.createRange();
@@ -75,6 +76,26 @@ export const getHighlighter = () => {
 	return ContentHighlighter;
 };
 
+const createHighlighterStyles = (
+	width: number,
+	height: number,
+	x: number,
+	y: number,
+	scrollY: number,
+	scrollX: number,
+) => ({
+	position: "absolute",
+	top: `${window.scrollY + y + -2}px`,
+	left: `${window.scrollX + x + -2}px`,
+	width: `${width}px`,
+	height: `${height}px`,
+	zIndex: "999",
+	pointerEvents: "none",
+	border: "2px solid #FFB68B",
+	background: "rgba(229, 111, 12, 0.05)",
+	cursor: "text",
+});
+
 const highlight = ({
 	x,
 	y,
@@ -88,17 +109,18 @@ const highlight = ({
 	height: number;
 	highlightedElement: Node;
 }) => {
+	const highlighterStyles = createHighlighterStyles(
+		width,
+		height,
+		x,
+		y,
+		window.scrollY,
+		window.scrollX,
+	);
 	const highlightDiv = document.createElement("div");
 	highlightDiv.className = MOCKSI_HIGHLIGHTER_ID;
-	highlightDiv.style.position = "absolute";
-	highlightDiv.style.top = `${window.scrollY + y + -2}px`;
-	highlightDiv.style.left = `${window.scrollX + x + -2}px`;
-	// 4px more because we're removing 2px each side because of the border
-	highlightDiv.style.width = `${width + 4}px`;
-	highlightDiv.style.height = `${height + 4}px`;
-	highlightDiv.style.border = "2px solid purple";
-	highlightDiv.style.backgroundColor = "transparent";
-	highlightDiv.style.cursor = "text";
+	applyStyles(highlightDiv, highlighterStyles);
+
 	highlightDiv.ondblclick = (event: MouseEvent) => {
 		if (!highlightedElement?.parentElement) {
 			return;

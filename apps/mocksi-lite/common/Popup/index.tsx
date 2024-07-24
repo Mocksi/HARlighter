@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Draggable, { type DraggableEventHandler } from "react-draggable";
 import { MOCKSI_POPUP_LOCATION } from "../../consts";
+import IframeWrapper from "../../content/IframeWrapper";
 import Divider from "../Divider";
 import Footer from "./Footer";
 import Header from "./Header";
@@ -59,6 +60,13 @@ const Popup = ({
 	}, []);
 
 	const isFooterVisible = shouldDisplayFooter && email && onLogout && onChat;
+	const iframeStyle = {
+		position: "absolute", // Fixed positioning relative to the viewport
+		top: "100px",
+		width: "100%",
+		height: "75%",
+		zIndex: 9999999,
+	};
 
 	return (
 		<Draggable handle=".drag-handle" position={position} onStop={onDragStop}>
@@ -69,8 +77,7 @@ const Popup = ({
 					onSettings={onSettings}
 					onGoBack={onGoBack}
 				/>
-
-				{children}
+				<IframeWrapper style={iframeStyle}>{children}</IframeWrapper>
 
 				{/* FOOTER */}
 				{isFooterVisible && (
