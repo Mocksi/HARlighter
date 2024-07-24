@@ -9,16 +9,27 @@ import { decorate } from "./decorator";
 
 export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
-		sendMessage("attachDebugger");
+		setupEditor(recordingId);
+	} else {
+		teardownEditor(recordingId);
+	}
+};
+
+const setupEditor = async (recordingId?: string) => {
+	sendMessage("attachDebugger");
 		if (recordingId) {
 			await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: recordingId });
 		}
 
-		blockClickableElements();
-		document.body.addEventListener("dblclick", onDoubleClickText);
-		return;
-	}
+		// blockClickableElements();
+		console.log('injecting styles');
+		injectStylesToBlockEvents();
 
+		document.body.addEventListener("dblclick", onDoubleClickText);
+
+		return;
+}
+const teardownEditor = async (recordingId?: string) => {
 	if (recordingId) {
 		await persistModifications(recordingId);
 	}
@@ -27,13 +38,14 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	undoModifications();
 	await chrome.storage.local.remove(MOCKSI_RECORDING_ID);
 	document.body.removeEventListener("dblclick", onDoubleClickText);
-	restoreNodes();
+	removeStylesToBlockEvents();
 	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
-};
+}
 
 function onDoubleClickText(event: MouseEvent) {
 	// @ts-ignore MouseEvent typing seems incomplete
 	const nodeName = event?.toElement?.nodeName;
+	console.log('we double clicked on', event.target)
 	if (nodeName === "IMG") {
 		const targetedElement: HTMLImageElement = event.target as HTMLImageElement;
 		console.log("Image clicked", targetedElement.alt);
@@ -223,6 +235,26 @@ const blockClickableElements = () => {
 		};
 	}
 };
+
+const injectStylesToBlockEvents = () => {
+	const style = document.createElement("style");
+	style.id = "mocksi-block-events-style";
+	style.innerHTML = `
+		a, button, img {
+			pointer-events: none;
+		}
+	`;
+	document.head.appendChild(style);
+}
+
+const removeStylesToBlockEvents = () => {
+	const style = document.getElementById("mocksi-block-events-style");
+	if (style) {
+		style.remove();
+	}
+}
+
+
 
 const restoreNodes = () => {
 	if (blockedNodes.length > 0) {
