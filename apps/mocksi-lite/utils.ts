@@ -435,7 +435,6 @@ export const recordingLabel = (currentStatus: AppState) => {
 			return "Start recording";
 	}
 };
-
 export const innerHTMLToJson = (innerHTML: string): string => {
 	const parser = new DOMParser();
 	const doc = parser.parseFromString(innerHTML, "text/html");
@@ -508,6 +507,5 @@ export const extractStyles = (
 			console.error("Error accessing stylesheet:", e);
 		}
 	}
-
 	return styles.trim();
 };
