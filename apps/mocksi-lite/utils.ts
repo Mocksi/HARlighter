@@ -354,5 +354,3 @@ export const recordingLabel = (currentStatus: AppState) => {
 			return "Start recording";
 	}
 };
-
-
