@@ -26,6 +26,62 @@ describe("modifyHtml", () => {
 		expect(result).toContain("Santiago Hart");
 	});
 
+	it("Should replace all with a regular expression", async () => {
+		const htmlString = `<html><body><h1 id="title">Train test</h1><div><div>Some text content here about a train</div><h2>About the train</h2><div>Trains are really cool. I use my train every day.</div></div></body></html/>`;
+		const userRequest = JSON.stringify({
+			description: "Change train to brain",
+			modifications: [
+				{
+					xpath: "//html/body/div",
+					action: "replaceAll",
+					content: "/train/brain/",
+				},
+			],
+		});
+		const result = await modifyHtml(htmlString, userRequest);
+
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(result, "text/html");
+
+		const unmodified = document.evaluate(
+			"//html/body/h1/text()[1]",
+			doc,
+			null,
+			XPathResult.FIRST_ORDERED_NODE_TYPE,
+			null,
+		).singleNodeValue;
+		expect(unmodified?.textContent).toBe("Train test");
+
+		const modified = document.evaluate(
+			"//html/body/div/div/text()[1]",
+			doc,
+			null,
+			XPathResult.FIRST_ORDERED_NODE_TYPE,
+			null,
+		).singleNodeValue;
+		expect(modified?.textContent).toBe("Some text content here about a brain");
+
+		const modified2 = document.evaluate(
+			"//html/body/div/h2/text()[1]",
+			doc,
+			null,
+			XPathResult.FIRST_ORDERED_NODE_TYPE,
+			null,
+		).singleNodeValue;
+		expect(modified2?.textContent).toBe("About the brain");
+
+		const modified3 = document.evaluate(
+			"//html/body/div/div[2]/text()[1]",
+			doc,
+			null,
+			XPathResult.FIRST_ORDERED_NODE_TYPE,
+			null,
+		).singleNodeValue;
+		expect(modified3?.textContent).toBe(
+			"Brains are really cool. I use my brain every day.",
+		);
+	});
+
 	it("should swap image source", async () => {
 		const html = `<img id="profile-pic" src="eliza.jpg" />`;
 		const userRequest = JSON.stringify({
