@@ -83,6 +83,8 @@ export async function applyModification(
 		case "addComponent":
 			element.insertAdjacentHTML("beforeend", mod.componentHtml || "");
 			break;
+		case "updateTimestampReferences":
+			break;
 		default:
 			console.warn(`Unknown action: ${mod.action}`);
 	}
