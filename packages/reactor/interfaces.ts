@@ -29,6 +29,12 @@ export interface ModificationRequest {
 
 export interface AppliedModification {
 	modificationRequest: ModificationRequest;
+
+	/**
+	 * Turn highlighting on or off for the changes made
+	 * by this request
+	 */
+	setHighlighting(highlight: boolean): void;
 }
 
 export interface DomJsonExportNode {
