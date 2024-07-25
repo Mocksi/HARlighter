@@ -6,6 +6,25 @@ import {
 } from "../../utils";
 import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
+import { getHighlighter } from "./highlighter";
+
+const observeUrlChange = (onChange: () => void) => {
+  let oldHref = document.location.href;
+  const body = document.querySelector("body");
+
+	if (!body) {
+		console.error("body not found");
+		return;
+	}
+
+  const observer = new MutationObserver(mutations => {
+    if (oldHref !== document.location.href) {
+      oldHref = document.location.href;
+      onChange()
+    }
+  });
+  observer.observe(body, { childList: true, subtree: true });
+};
 
 export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	if (turnOn) {
@@ -15,6 +34,11 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 		}
 
 		blockClickableElements();
+		observeUrlChange(() => {
+			console.log("URL changed, turning off edit mode");
+			const highlighter = getHighlighter()
+			highlighter.removeHighlightNodes();
+		});
 		document.body.addEventListener("dblclick", onDoubleClickText);
 		return;
 	}
