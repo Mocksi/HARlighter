@@ -12,6 +12,61 @@ export function parseRequest(userRequest: string): ModificationRequest {
 	}
 }
 
+function calculateNewDay(
+	originalDay: string,
+	recordedAt: string,
+	currentTime: string,
+): string {
+	const recordedDate = new Date(recordedAt);
+	const currentDate = new Date(currentTime);
+	const differenceInDays = Math.ceil(
+		Math.abs(
+			(currentDate.getTime() - recordedDate.getTime()) / (1000 * 3600 * 24),
+		),
+	);
+	const newDay = Number.parseInt(originalDay, 10) + differenceInDays;
+	return String(newDay).padStart(2, "0"); // Ensure two digits
+}
+
+function calculateNewMonth(
+	originalMonth: string,
+	recordedAt: string,
+	currentTime: string,
+): string {
+	const months = [
+		"Jan",
+		"Feb",
+		"Mar",
+		"Apr",
+		"May",
+		"Jun",
+		"Jul",
+		"Aug",
+		"Sep",
+		"Oct",
+		"Nov",
+		"Dec",
+	];
+	const recordedDate = new Date(recordedAt);
+	const currentDate = new Date(currentTime);
+	const differenceInMonths =
+		(currentDate.getFullYear() - recordedDate.getFullYear()) * 12 +
+		currentDate.getMonth() -
+		recordedDate.getMonth();
+
+	const originalMonthIndex = months.indexOf(originalMonth);
+	if (originalMonthIndex === -1) {
+		console.warn(`Invalid month: ${originalMonth}`);
+		return originalMonth;
+	}
+
+	let newMonthIndex = (originalMonthIndex + differenceInMonths) % 12;
+	if (newMonthIndex < 0) {
+		newMonthIndex += 12;
+	}
+
+	return months[newMonthIndex] || originalMonth;
+}
 export async function generateModifications(
 	request: ModificationRequest,
 	doc: Document,
@@ -83,8 +138,49 @@ export async function applyModification(
 		case "addComponent":
 			element.insertAdjacentHTML("beforeend", mod.componentHtml || "");
 			break;
-		case "updateTimestampReferences":
+		case "updateTimestampReferences": {
+			if (!mod.timestampRef) {
+				console.warn("No timestamp reference provided for modification.");
+				return;
+			}
+			const targetElement = element.querySelector(
+				'[data-column-id="issueCreatedAt"] span',
+			);
+			if (!targetElement) {
+				console.warn(
+					`Element not found for selector: [data-column-id="issueCreatedAt"] span`,
+				);
+				return;
+			}
+			const originalText = targetElement.textContent || "";
+			const originalLabel = targetElement.getAttribute("aria-label") || "";
+			const [originalMonth, originalDay] = originalText.split(" ");
+
+			if (!originalMonth || !originalDay) {
+				console.warn(`Invalid date format: ${originalText}`);
+				return;
+			}
+
+			// Calculate the new day and month based on the timestampRef
+			const newDay = calculateNewDay(
+				originalDay,
+				mod.timestampRef.recordedAt,
+				mod.timestampRef.currentTime,
+			);
+			const newMonth = calculateNewMonth(
+				originalMonth,
+				mod.timestampRef.recordedAt,
+				mod.timestampRef.currentTime,
+			);
+
+			// Update the element's textContent and aria-label with the new day and month
+			targetElement.textContent = `${newMonth} ${newDay}`;
+			// Note the space before the month to avoid concatenation with the day
+			const newLabel = originalLabel.replace(/ .+,/, ` ${newMonth} ${newDay},`);
+			targetElement.setAttribute("aria-label", newLabel);
+
 			break;
+		}
 		default:
 			console.warn(`Unknown action: ${mod.action}`);
 	}

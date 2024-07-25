@@ -161,34 +161,33 @@ describe("modifyHtml", () => {
 		expect(result).not.toContain("This should not appear");
 		expect(result).toContain("<div>Some content</div>");
 	});
-
 	it("should be able to update timestamps", async () => {
 		const html = `
-		<div id="container">
-			<div data-column-id="issueCreatedAt">
-				<span id="dateSpn" aria-label="Created Jun 17, 7:01:42 PM">Jun 17</span>
-			</div>
-		</div>`;
+			<div id="container">
+				<div data-column-id="issueCreatedAt">
+					<span id="dateSpn" aria-label="Created Jun 17, 7:01:42 PM">Jun 17</span>
+				</div>
+			</div>`;
 
 		const userRequest = JSON.stringify({
-			description: "Try to modify a non-existent element",
+			description: "Update timestamp references",
 			modifications: [
 				{
 					selector: "#container",
 					action: "updateTimestampReferences",
 					timestampRef: {
-						recordedAt: "2021-06-20T19:01:42Z",
-						currentTime: "2021-06-2319:01:42Z",
+						recordedAt: "2021-06-17T19:01:42Z",
+						currentTime: "2021-06-20T19:01:42Z",
 					},
 				},
 			],
 		});
 
 		const result = await modifyHtml(html, userRequest);
-		expect(result).toContain("dateSpn");
 
 		const domResult = new JSDOM(result);
 		const dateSpn = domResult.window.document.querySelector("#dateSpn");
+		expect(dateSpn).not.toBeNull();
 		expect(dateSpn?.textContent).toBe("Jun 20");
 		expect(dateSpn?.getAttribute("aria-label")).toBe(
 			"Created Jun 20, 7:01:42 PM",
