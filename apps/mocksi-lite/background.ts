@@ -293,18 +293,30 @@ async function createDemo(body: Record<string, unknown>) {
 			...defaultBody,
 			tab_id: result.id?.toString() ?? "",
 			url: result.url,
-		}).then(() => getRecordings());
+		})
+			.then(() => getRecordings())
+			.catch((err) => {
+				MocksiRollbar.error("Error creating demo", err);
+			});
 	});
 }
 
 function updateDemo(data: Record<string, unknown>) {
 	const { id, recording } = data;
-	apiCall(`recordings/${id}`, "POST", recording).then(() => getRecordings());
+	apiCall(`recordings/${id}`, "POST", recording)
+		.then(() => getRecordings())
+		.catch((err) => {
+			MocksiRollbar.error("Error updating demo", err);
+		});
 }
 
 async function deleteDemo(data: Record<string, unknown>) {
 	const { id } = data;
-	apiCall(`recordings/${id}`, "DELETE").then(() => getRecordings());
+	apiCall(`recordings/${id}`, "DELETE")
+		.then(() => getRecordings())
+		.catch((err) => {
+			MocksiRollbar.error("Error deleting demo", err);
+		});
 }
 
 async function getRecordings(): Promise<Recording[]> {
@@ -318,10 +330,14 @@ async function getRecordings(): Promise<Recording[]> {
 	try {
 		const response = await apiCall(
 			`recordings?creator=${encodeURIComponent(email)}`,
-		);
+		).catch((err) => {
+			MocksiRollbar.error(`Failed to fetch recordings: ${err}`);
+			chrome.storage.local.set({ recordings: "[]" });
+			return [];
+		});
 
 		if (!response || response.length === 0) {
-			console.error("No recordings found or failed to fetch recordings.");
+			MocksiRollbar.error("No recordings found.");
 			chrome.storage.local.set({ recordings: "[]" });
 			return [];
 		}
@@ -335,7 +351,7 @@ async function getRecordings(): Promise<Recording[]> {
 
 		return sorted;
 	} catch (err) {
-		console.error(`Failed to fetch recordings: ${err}`);
+		MocksiRollbar.error(`failed to fetch recordings: ${err}`);
 		return [];
 	}
 }
