@@ -94,8 +94,13 @@ function onMouseUp(event: MouseEvent) {
 
 	removeMultiSelectionDecoration();
 
-	if (!range || !selection || (range.startContainer === range.endContainer && range.startOffset === range.endOffset)) {
-		console.log('skipping because no selection');
+	if (
+		!range ||
+		!selection ||
+		(range.startContainer === range.endContainer &&
+			range.startOffset === range.endOffset)
+	) {
+		console.log("skipping because no selection");
 		return;
 	}
 
@@ -243,7 +248,7 @@ const createEditTextButton = (
 	const buttonWidth = 75;
 	const buttonHeight = 24;
 
-	const xPos = ((coords.left + coords.right) / 2) - (buttonWidth / 2);
+	const xPos = (coords.left + coords.right) / 2 - buttonWidth / 2;
 	const yPos = coords.top - buttonHeight - 8;
 
 	button.id = "mocksiMultiSelectEditButton";
@@ -254,13 +259,13 @@ const createEditTextButton = (
 		left: `${xPos}px`,
 		zIndex: "999",
 		backgroundColor: "white",
-		border: 'none',
+		border: "none",
 		cursor: "pointer",
 		padding: "5px",
 		color: "#009875",
 		width: `${buttonWidth}px`,
 		height: `${buttonHeight}px`,
-	}
+	};
 
 	applyStyles(button, buttonStyles);
 
@@ -273,7 +278,7 @@ function decorateMultiSelection(
 ) {
 	const button = createEditTextButton(targetedElement, selection);
 
-	console.log('attaching button');
+	console.log("attaching button");
 	document.body.appendChild(button);
 }
 
@@ -308,7 +313,7 @@ function applyEditor(
 function removeMultiSelectionDecoration() {
 	const existingButton = document.querySelector("#mocksiMultiSelectEditButton");
 	if (existingButton) {
-		console.log('removing button');
+		console.log("removing button");
 		existingButton.remove();
 	}
 }
