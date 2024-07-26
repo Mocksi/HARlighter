@@ -80,7 +80,6 @@ chrome.action.onClicked.addListener((activeTab) => {
 	}
 
 	if (activeTabUrl === "" || activeTabUrl.startsWith("chrome://")) {
-		chrome.action.disable();
 		return;
 	}
 
