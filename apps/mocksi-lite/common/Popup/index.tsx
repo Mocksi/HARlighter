@@ -65,7 +65,8 @@ const Popup = ({
 		top: "100px",
 		width: "100%",
 		height: "75%",
-		zIndex: 9999999,
+		zIndex: 9999998,
+		border: "none",
 	};
 
 	return (

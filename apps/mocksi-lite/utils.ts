@@ -279,6 +279,18 @@ export const getEmail = async (): Promise<string | null> => {
 	const storedData = value[STORAGE_KEY] || "{}";
 	try {
 		const parsedData = JSON.parse(storedData);
+		if (!parsedData.email) {
+			const configPayload = {
+				payload: {
+					person: {
+						id: parsedData.userId,
+						email: parsedData.email,
+					},
+				},
+			};
+			console.log("configuring rollbar with user data", parsedData);
+			MocksiRollbar.configure(configPayload);
+		}
 		return parsedData.email;
 	} catch (error) {
 		console.log("Error parsing data from storage: ", error);
