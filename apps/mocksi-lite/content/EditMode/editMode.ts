@@ -90,6 +90,12 @@ function onMouseUp(event: MouseEvent) {
 	}
 
 	const selection = window.getSelection();
+	
+	if (!selection?.anchorNode) {
+		removeMultiSelectionDecoration();
+		return;
+	}
+	
 	const range = selection?.getRangeAt(0);
 
 	removeMultiSelectionDecoration();
