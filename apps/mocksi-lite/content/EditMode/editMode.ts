@@ -290,6 +290,7 @@ function applyEditor(
 	if (selectedRange === null || selectedRange.anchorNode === null) {
 		return;
 	}
+
 	if (selectedRange.anchorNode === selectedRange.focusNode) {
 		for (const node of targetedElement.childNodes) {
 			if (
@@ -298,7 +299,7 @@ function applyEditor(
 			) {
 				targetedElement.replaceChild(
 					decorateTextTag(
-						selectedRange.anchorNode?.textContent || "",
+						selectedRange.anchorNode.textContent || "",
 						targetedElement.clientWidth?.toString() || "",
 						shiftMode,
 						selectedRange.getRangeAt(0),
