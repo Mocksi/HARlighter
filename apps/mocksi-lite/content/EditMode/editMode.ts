@@ -7,7 +7,6 @@ import {
 import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
 import { getHighlighter } from "./highlighter";
-import { applyStyles } from "./utils";
 
 const observeUrlChange = (onChange: () => void) => {
 	let oldHref = document.location.href;
@@ -41,7 +40,6 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 			highlighter.removeHighlightNodes();
 		});
 		document.body.addEventListener("dblclick", onDoubleClickText);
-		document.body.addEventListener("mouseup", onMouseUp);
 		return;
 	}
 
@@ -53,7 +51,6 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 	undoModifications();
 	await chrome.storage.local.remove(MOCKSI_RECORDING_ID);
 	document.body.removeEventListener("dblclick", onDoubleClickText);
-	document.body.removeEventListener("mouseup", onMouseUp);
 	restoreNodes();
 	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 };
@@ -79,33 +76,6 @@ function onDoubleClickText(event: MouseEvent) {
 			document.getElementById("mocksiTextArea")?.focus();
 		}
 	}
-}
-
-function onMouseUp(event: MouseEvent) {
-	// @ts-ignore MouseEvent typing seems incomplete
-	const nodeName = event?.toElement?.nodeName;
-
-	if (nodeName === "IMG" || nodeName === "TEXTAREA") {
-		return;
-	}
-
-	const selection = window.getSelection();
-	const range = selection?.getRangeAt(0);
-
-	removeMultiSelectionDecoration();
-
-	if (
-		!range ||
-		!selection ||
-		(range.startContainer === range.endContainer &&
-			range.startOffset === range.endOffset)
-	) {
-		console.log("skipping because no selection");
-		return;
-	}
-
-	const targetedElement: HTMLElement = event.target as HTMLElement;
-	decorateMultiSelection(targetedElement, selection);
 }
 
 function openImageUploadModal(targetedElement: HTMLImageElement) {
@@ -222,66 +192,6 @@ function decorateTextTag(
 	return fragment;
 }
 
-const createEditTextButton = (
-	targetedElement: HTMLElement,
-	selection: Selection,
-) => {
-	const button = document.createElement("button");
-	const container = document.createElement("span");
-	container.style.position = "relative";
-
-	button.onclick = (event) => {
-		event.stopPropagation();
-
-		applyEditor(targetedElement, selection, false);
-		document.getElementById("mocksiTextArea")?.focus();
-
-		button.remove();
-	};
-	button.onmouseup = (event) => {
-		event.stopPropagation();
-	};
-
-	const range = selection.getRangeAt(0);
-	const coords = range.getBoundingClientRect();
-
-	const buttonWidth = 75;
-	const buttonHeight = 24;
-
-	const xPos = (coords.left + coords.right) / 2 - buttonWidth / 2;
-	const yPos = coords.top - buttonHeight - 8;
-
-	button.id = "mocksiMultiSelectEditButton";
-	button.innerText = "Edit Text";
-	const buttonStyles = {
-		position: "absolute",
-		top: `${yPos}px`,
-		left: `${xPos}px`,
-		zIndex: "999",
-		backgroundColor: "white",
-		border: "none",
-		cursor: "pointer",
-		padding: "5px",
-		color: "#009875",
-		width: `${buttonWidth}px`,
-		height: `${buttonHeight}px`,
-	};
-
-	applyStyles(button, buttonStyles);
-
-	return button;
-};
-
-function decorateMultiSelection(
-	targetedElement: HTMLElement,
-	selection: Selection,
-) {
-	const button = createEditTextButton(targetedElement, selection);
-
-	console.log("attaching button");
-	document.body.appendChild(button);
-}
-
 function applyEditor(
 	targetedElement: HTMLElement,
 	selectedRange: Selection | null,
@@ -307,14 +217,6 @@ function applyEditor(
 				);
 			}
 		}
-	}
-}
-
-function removeMultiSelectionDecoration() {
-	const existingButton = document.querySelector("#mocksiMultiSelectEditButton");
-	if (existingButton) {
-		console.log("removing button");
-		existingButton.remove();
 	}
 }
 
