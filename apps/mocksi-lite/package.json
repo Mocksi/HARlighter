@@ -42,6 +42,8 @@
 		"lint": "biome ci .",
 		"start": "extension start",
 		"test": "vitest --config ./vitest.config.ts"
+		"@repo/dodom": "workspace:*",
+		"css-selector-generator": "^3.6.8",
 	},
 	"version": "0.0.0"
 }
