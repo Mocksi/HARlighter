@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
 import type { Recording } from "../background";
 import { MOCKSI_LAST_PAGE_DOM } from "../consts";
-import { extractStyles, innerHTMLToJson, logout } from "../utils";
+import { extractStyles, logout } from "../utils";
 import {
 	AppEvent,
 	AppState,

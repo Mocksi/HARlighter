@@ -1,17 +1,24 @@
 import { DOMManipulator } from "@repo/dodom";
+import { ModificationRequest, modifyDom } from "@repo/reactor";
+import { getCssSelector } from "css-selector-generator";
 import { saveModification } from "../../utils";
 import { getHighlighter } from "./highlighter";
 
-export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
+export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null): Text | null {
 	if (nodeWithTextArea) {
 		const parentElement = nodeWithTextArea?.parentElement;
+		const newChild = document.createTextNode(nodeWithTextArea.innerText);
+
 		// cancel previous input.
 		nodeWithTextArea?.parentElement?.replaceChild(
-			document.createTextNode(nodeWithTextArea.innerText),
+			newChild,
 			nodeWithTextArea,
 		);
 		parentElement?.normalize();
+		return newChild;
 	}
+
+	return null;
 }
 
 export function applyChanges(
@@ -20,14 +27,30 @@ export function applyChanges(
 	oldValue: string,
 ) {
 	if (nodeWithTextArea) {
-		cancelEditWithoutChanges(nodeWithTextArea);
+		const newChildNode = cancelEditWithoutChanges(nodeWithTextArea);
+
+		const modification: ModificationRequest = {
+			description: `Change ${oldValue} to ${newValue}`,
+			modifications: [
+			  {
+				//selector: getCssSelector(newChildNode?.parentElement),
+				selector: "body",
+				action: "replaceAll",
+				content: `/${oldValue}/${newValue}/`,
+			  }
+			]
+		}
+		console.log(modification);
+		
+		modifyDom(document, modification);
+
 		// TODO: check if we should keep the singleton behavior we had before
-		const domManipulator = new DOMManipulator(
-			fragmentTextNode,
-			getHighlighter(),
-			saveModification,
-		);
-		domManipulator.addPattern(oldValue, newValue);
+		//const domManipulator = new DOMManipulator(
+		//	fragmentTextNode,
+		//	getHighlighter(),
+		//	saveModification,
+		//);
+		//domManipulator.addPattern(oldValue, newValue);
 	}
 }
 

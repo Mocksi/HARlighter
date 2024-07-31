@@ -1,5 +1,3 @@
-import { EventEmitter } from 'events';
-
 export interface Modification {
 	selector?: string;
 	xpath?: string;
@@ -34,7 +32,7 @@ export interface AppliedModification {
 	 * Turn highlighting on or off for the changes made
 	 * by this request
 	 */
-	setHighlighting(highlight: boolean): void;
+	setHighlight(highlight: boolean): void;
 }
 
 export interface DomJsonExportNode {
@@ -45,34 +43,17 @@ export interface DomJsonExportNode {
 	children?: DomJsonExportNode[];
 }
 
-interface ReactorEvents {
-	/**
-	 * Called when a url is loaded by the browser. Can be used to modify the list
-	 * of applied modifications.
-	 * @param url the url that was loaded
-	 */
-	onUrlLoaded: (url: string) => void;
-
-	/**
-	 * Called when a new page in an SPA is loaded by the browser. Can be used to
-	 * modify the list of applied modifications.
-	 * @param url the url that was loaded
-	 * @param page the page that was loaded
-	 */
-	onPageLoaded: (url: string, page: string) => void;
-}
-
 /**
  * Reactor applied modifications to the current page. Modifications
  * are applied in the order they were added. Removing a modification
  * unapplies it.
  */
-interface Reactor extends EventEmitter {
+export interface Reactor {
 	/**
 	 * Attach Reactor to the current tab. Reactor will start generating
 	 * events and apply any modifications.
 	 */
-	attach(): void;
+	attach(root: Document): void;
 
 	/**
 	 * Detach Reactor from the current tab. Reactor will remove any applied
@@ -101,14 +82,4 @@ interface Reactor extends EventEmitter {
 	 * is the equivalent of calling getAppliedModifications().pop()
 	 */
 	removeLastModification(): void;
-
-	/**
-	 * Event listeners
-	 */
-	on: <K extends keyof ReactorEvents>(event: K, listener: ReactorEvents[K]) => this;
-  	
-	/**
-	 * Event emitters
-	 */
-	emit: <K extends keyof ReactorEvents>(event: K, ...args: Parameters<ReactorEvents[K]>) => boolean;
 }

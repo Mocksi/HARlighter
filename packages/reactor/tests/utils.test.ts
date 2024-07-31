@@ -25,6 +25,71 @@ describe("Utils", () => {
 			expect(element.innerHTML).toBe("<p>New Content</p>");
 		});
 
+		it("should replace all content correctly", async () => {
+			const modification: Modification = {
+				action: "replaceAll",
+				content: "/old/new/"
+			}
+		
+			const element = doc.createElement("div");
+			element.innerHTML= "<p>Old Content</p>";
+			await applyModification(element, modification, doc);
+		
+			expect(element.innerHTML).toBe("<p>New Content</p>");
+		});
+
+		it("should preserve capitals in replacement", async () => {
+			const modification: Modification = {
+				action: "replaceAll",
+				content: "/old/new/"
+			}
+		
+			const element = doc.createElement("div");
+			element.innerHTML= "<p>Old Content is old</p>";
+			await applyModification(element, modification, doc);
+		
+			expect(element.innerHTML).toBe("<p>New Content is new</p>");
+		});
+
+		it("should preserve plurals in replacement", async () => {
+			const modification: Modification = {
+				action: "replaceAll",
+				content: "/train/brain/"
+			}
+		
+			const element = doc.createElement("div");
+			element.innerHTML= "<p>Trains are great! I love my train.</p>";
+			await applyModification(element, modification, doc);
+		
+			expect(element.innerHTML).toBe("<p>Brains are great! I love my brain.</p>");
+		});
+
+		it("should only replace whole words", async () => {
+			const modification: Modification = {
+				action: "replaceAll",
+				content: "/train/brain/"
+			}
+		
+			const element = doc.createElement("div");
+			element.innerHTML= "<p>I was in training about trains, but it was a strain to train.</p>";
+			await applyModification(element, modification, doc);
+		
+			expect(element.innerHTML).toBe("<p>I was in training about brains, but it was a strain to brain.</p>");
+		});
+
+		it("should handle more complicated HTML", async () => {
+			const modification: Modification = {
+				action: "replaceAll",
+				content: "/train/brain/"
+			}
+		
+			const element = doc.createElement("div");
+			element.innerHTML= "<h1>Trains</h1><p>Trains are great! <a href=\"train.jpg\">A picture of a <i>train</i></a></p><p>Trains are great! I love my train.</p>";
+			await applyModification(element, modification, doc);
+		
+			expect(element.innerHTML).toBe("<h1>Brains</h1><p>Brains are great! <a href=\"train.jpg\">A picture of a <i>brain</i></a></p><p>Brains are great! I love my brain.</p>");
+		});
+
 		it("should append content correctly", async () => {
 			const modification: Modification = {
 				action: "append",

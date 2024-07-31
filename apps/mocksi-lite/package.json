@@ -27,11 +27,12 @@
 		"format": "biome check --apply . && biome lint --apply ."
 	},
 	"dependencies": {
+		"@repo/dodom": "workspace:*",
 		"@repo/harlight": "workspace:*",
 		"@repo/reactor": "workspace:*",
-		"@repo/dodom": "workspace:*",
 		"@rollbar/react": "0.12.0-beta",
 		"auth0-js": "^9.26.1",
+		"css-selector-generator": "^3.6.8",
 		"react-draggable": "^4.4.6",
 		"rollbar": "^2.26.4",
 		"sanitize-html": "^2.13.0",

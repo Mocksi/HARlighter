@@ -168,21 +168,29 @@ function replaceText(pattern: string): (node: Node) => void {
 		if (patternRegexp.test(node.textContent)) {
 			node.nodeValue = node.nodeValue.replace(
 				patternRegexp,
-				replaceFirstLetterCase(replacement),
+				replaceFirstLetterCaseAndPlural(replacement),
 			);
 		}
 	};
 }
 
-function replaceFirstLetterCase(value: string) {
+function replaceFirstLetterCaseAndPlural(value: string) {
 	return (match: string) => {
+		let out = value;
+
+		// change the case if the first letter of the match is uppercase
 		if (match[0]?.toLowerCase() !== match[0]?.toUpperCase()) {
-			// Check if the first character is alphabetical
 			if (match[0] === match[0]?.toUpperCase()) {
-				return value.charAt(0).toUpperCase() + value.slice(1);
+				out = out.charAt(0).toUpperCase() + out.slice(1);
 			}
 		}
-		return value;
+
+		// if the match is plural, add an s
+		if (match.endsWith("s")) {
+			out = out + "s";
+		}
+
+		return out;
 	};
 }
 
@@ -197,7 +205,7 @@ function toRegExpPattern(pattern: string): {
 	}
 
 	return {
-		patternRegexp: new RegExp(match[1], "gi"),
+		patternRegexp: new RegExp('\\b' + match[1] + 's?\\b', "gi"),
 		replacement: match[2],
 	};
 }
