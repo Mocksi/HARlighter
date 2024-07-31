@@ -38,9 +38,13 @@ jobs:
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+      - name: Build dependencies
+        run: pnpm build
       - name: Run harlight tests
         run: pnpm --prefix packages/harlight exec vitest run
       - name: Run dodom tests
         run: pnpm --prefix packages/dodom exec vitest run
       - name: Run reactor tests
         run: pnpm --prefix packages/reactor exec vitest run
+      - name: Run mocksi-lite tests
+        run: pnpm --prefix apps/mocksi-lite exec vitest run
