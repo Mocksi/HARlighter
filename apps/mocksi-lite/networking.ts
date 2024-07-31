@@ -1,4 +1,5 @@
 import auth0 from "auth0-js";
+import MocksiRollbar from "./MocksiRollbar";
 import { API_URL, MOCKSI_AUTH } from "./consts";
 
 type HttpMethod = "GET" | "PUT" | "POST" | "DELETE";
@@ -18,16 +19,19 @@ const auth0Client = new auth0.WebAuth({
 const getAuthToken = async (): Promise<string> => {
 	try {
 		const storageAuth = await chrome.storage.local.get(MOCKSI_AUTH);
+		MocksiRollbar.log("Retrieved auth from storage:", storageAuth);
 		const mocksiAuth = JSON.parse(storageAuth[MOCKSI_AUTH]);
+		MocksiRollbar.log("Parsed auth token:", mocksiAuth.accessToken);
 		return mocksiAuth.accessToken ?? "";
 	} catch (err) {
-		console.error("Failed to retrieve auth token:", err);
+		MocksiRollbar.error(`Failed to retrieve auth token: ${err}`);
 		return "";
 	}
 };
 
 const refreshToken = async (): Promise<string> => {
 	return new Promise((resolve, reject) => {
+		MocksiRollbar.log("Refreshing token");
 		auth0Client.checkSession(
 			{},
 			(err: auth0.Auth0Error | null, result: auth0.Auth0Result | undefined) => {
@@ -74,39 +78,50 @@ export const apiCall = async (
 	method: HttpMethod = "GET",
 	// biome-ignore lint/suspicious/noExplicitAny: we haven't defined the type of body yet
 	body?: any,
-	// biome-ignore lint/suspicious/noExplicitAny: we haven't defined the type of body yet
+	// biome-ignore lint/suspicious/noExplicitAny: we haven't defined the type of the response yet
 ): Promise<any> => {
-	try {
-		let token = await getAuthToken();
-
-		let res = await fetch(`${API_URL}/v1/${url}`, {
+	const makeRequest = async (token: string) => {
+		const options: RequestInit = {
 			method,
 			headers: {
 				"Content-Type": "application/json",
 				"Accepts-Version": "v1",
 				Authorization: `Bearer ${token}`,
 			},
-			body: JSON.stringify(body),
-		});
+		};
 
-		if (res.status === 401) {
-			// Unauthorized, likely due to expired token
-			token = await refreshToken();
-
-			res = await fetch(`${API_URL}/v1/${url}`, {
-				method,
-				headers: {
-					"Content-Type": "application/json",
-					"Accepts-Version": "v1",
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify(body),
-			});
+		if (body && (method === "POST" || method === "PUT")) {
+			options.body = JSON.stringify(body);
 		}
 
-		return await handleApiResponse(res);
+		const response = await fetch(`${API_URL}/v1/${url}`, options);
+
+		if (!response.ok) {
+			if (response.status === 401) {
+				throw new Error("Unauthorized");
+			}
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		return handleApiResponse(response);
+	};
+
+	try {
+		let token = await getAuthToken();
+
+		try {
+			return await makeRequest(token);
+		} catch (error) {
+			if (error instanceof Error && error.message === "Unauthorized") {
+				MocksiRollbar.log("Received 401 from API, refreshing token");
+				token = await refreshToken();
+				return await makeRequest(token);
+			}
+			throw error;
+		}
 	} catch (err) {
 		const errorMessage = err instanceof Error ? err.message : String(err);
+		MocksiRollbar.error("API call failed: ", errorMessage);
 		throw new Error(`API call failed: ${errorMessage}`);
 	}
 };
