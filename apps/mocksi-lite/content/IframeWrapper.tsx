@@ -13,9 +13,15 @@ interface IframeWrapperProps {
 const extractStyles = (): string => {
 	let styles = "";
 	const styleSheets = Array.from(document.styleSheets) as CSSStyleSheet[];
+	// FIXME: This is a hack to prevent styles leaking from the page being edited
+	const lastFourStyles = styleSheets.slice(-4);
 
-	for (const sheet of styleSheets) {
+	for (const sheet of lastFourStyles) {
 		try {
+			// Skip external stylesheets
+			if (sheet.href) {
+				continue;
+			}
 			if (sheet.cssRules) {
 				const cssRules = Array.from(sheet.cssRules) as CSSRule[];
 				for (const rule of cssRules) {

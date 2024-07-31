@@ -98,8 +98,14 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 const extractStyles = (): string => {
 	let styles = "";
 	const styleSheets = Array.from(document.styleSheets) as CSSStyleSheet[];
+	// FIXME: This is a hack to prevent styles leaking from the page being edited
+	const lastFiveStyles = styleSheets.slice(-5);
 
-	for (const sheet of styleSheets) {
+	for (const sheet of lastFiveStyles) {
+		// Skip external stylesheets
+		if (sheet.href) {
+			continue;
+		}
 		try {
 			if (sheet.cssRules) {
 				const cssRules = Array.from(sheet.cssRules) as CSSRule[];
