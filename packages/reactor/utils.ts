@@ -12,11 +12,16 @@ export function parseRequest(userRequest: string): ModificationRequest {
 	}
 }
 
-function calculateNewDay(
+function calculateNewDate(
 	originalDay: string,
+	originalMonth: string,
 	recordedAt: string,
 	currentTime: string,
-): string {
+): { newDay: string, newMonth: string } {
+	const months = [
+		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+	];
 	const recordedDate = new Date(recordedAt);
 	const currentDate = new Date(currentTime);
 	const differenceInDays = Math.ceil(
@@ -24,49 +29,19 @@ function calculateNewDay(
 			(currentDate.getTime() - recordedDate.getTime()) / (1000 * 3600 * 24),
 		),
 	);
-	const newDay = Number.parseInt(originalDay, 10) + differenceInDays;
-	return String(newDay).padStart(2, "0"); // Ensure two digits
+
+	const originalDate = new Date(recordedDate);
+	originalDate.setDate(Number.parseInt(originalDay, 10));
+
+	const newDate = new Date(originalDate);
+	newDate.setDate(originalDate.getDate() + differenceInDays);
+
+	const newDay = String(newDate.getDate()).padStart(2, "0");
+	const newMonth = months[newDate.getMonth()] || originalMonth;
+
+	return { newDay, newMonth };
 }
 
-function calculateNewMonth(
-	originalMonth: string,
-	recordedAt: string,
-	currentTime: string,
-): string {
-	const months = [
-		"Jan",
-		"Feb",
-		"Mar",
-		"Apr",
-		"May",
-		"Jun",
-		"Jul",
-		"Aug",
-		"Sep",
-		"Oct",
-		"Nov",
-		"Dec",
-	];
-	const recordedDate = new Date(recordedAt);
-	const currentDate = new Date(currentTime);
-	const differenceInMonths =
-		(currentDate.getFullYear() - recordedDate.getFullYear()) * 12 +
-		currentDate.getMonth() -
-		recordedDate.getMonth();
-
-	const originalMonthIndex = months.indexOf(originalMonth);
-	if (originalMonthIndex === -1) {
-		console.warn(`Invalid month: ${originalMonth}`);
-		return originalMonth;
-	}
-
-	let newMonthIndex = (originalMonthIndex + differenceInMonths) % 12;
-	if (newMonthIndex < 0) {
-		newMonthIndex += 12;
-	}
-
-	return months[newMonthIndex] || originalMonth;
-}
 export async function generateModifications(
 	request: ModificationRequest,
 	doc: Document,
@@ -86,7 +61,6 @@ export async function generateModifications(
 			}
 
 			if (elements.length === 0) {
-				console.warn(`Element not found for selector: ${mod.selector}`);
 				continue;
 			}
 
@@ -143,12 +117,13 @@ export async function applyModification(
 				console.warn("No timestamp reference provided for modification.");
 				return;
 			}
-			const targetElement = element.querySelector(
-				'[data-column-id="issueCreatedAt"] span',
-			);
+			let targetElement = element;
+			if (mod.selector) {
+				targetElement = element.querySelector(mod.selector) || element;
+			}
 			if (!targetElement) {
 				console.warn(
-					`Element not found for selector: [data-column-id="issueCreatedAt"] span`,
+					`Element not found for selector: ${mod.selector || "self"}`,
 				);
 				return;
 			}
@@ -162,12 +137,8 @@ export async function applyModification(
 			}
 
 			// Calculate the new day and month based on the timestampRef
-			const newDay = calculateNewDay(
+			const { newDay, newMonth } = calculateNewDate(
 				originalDay,
-				mod.timestampRef.recordedAt,
-				mod.timestampRef.currentTime,
-			);
-			const newMonth = calculateNewMonth(
 				originalMonth,
 				mod.timestampRef.recordedAt,
 				mod.timestampRef.currentTime,

@@ -173,7 +173,7 @@ describe("modifyHtml", () => {
 			description: "Update timestamp references",
 			modifications: [
 				{
-					selector: "#container",
+					selector: "#dateSpn",
 					action: "updateTimestampReferences",
 					timestampRef: {
 						recordedAt: "2021-06-17T19:01:42Z",
@@ -192,5 +192,60 @@ describe("modifyHtml", () => {
 		expect(dateSpn?.getAttribute("aria-label")).toBe(
 			"Created Jun 20, 7:01:42 PM",
 		);
+	});
+
+	it("should update the timestamp to a date in August", async () => {
+		// Yes, this is nasty but it's from a real-world example
+		const html = `
+			<div>
+				<div>
+					<div>
+						<main>
+							<div>
+								<div>
+									<div>
+										<div>
+											<div>
+												<div>
+													<a>
+														<div>
+															<div>
+																<div>
+																	<span aria-label="Updated Jul 30, 3:19:31 PM" class="sc-dmyCSP sc-jXIZMl gnkGht fFHTkV">Jul 30</span>
+																</div>
+															</div>
+														</div>
+													</a>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</main>
+					</div>
+				</div>
+			</div>`;
+	
+		const userRequest = JSON.stringify({
+			modifications: [
+				{
+					selector: "span[aria-label^='Updated']",
+					action: "updateTimestampReferences",
+					timestampRef: {
+						recordedAt: "2024-07-23T22:05:07.682Z",
+						currentTime: "2024-07-31T03:11:31.607Z",
+					},
+				},
+			],
+		});
+	
+		const result = await modifyHtml(html, userRequest);
+	
+		const domResult = new JSDOM(result);
+		const span = domResult.window.document.querySelector("span[aria-label^='Updated']");
+		expect(span).not.toBeNull();
+		expect(span?.textContent).toContain("Aug");
+		expect(span?.getAttribute("aria-label")).toContain("Aug");
 	});
 });

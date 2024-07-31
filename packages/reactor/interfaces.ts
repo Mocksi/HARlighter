@@ -15,6 +15,7 @@ export interface Modification {
 		| "swapImage"
 		| "highlight"
 		| "toast"
+		| "updateTimestampReferences"
 		| "addComponent"
 		| "updateTimestampReferences"
 		| "unknown";
