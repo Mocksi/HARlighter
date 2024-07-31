@@ -15,17 +15,20 @@
 		"react-dom": "^18.1.0",
 		"tailwindcss": "^3.4.1",
 		"typescript": "5.3.3",
+		"vitest": "^2.0.1",
 		"xslt-processor": "^3.0.0"
 	},
 	"scripts": {
 		"dev": "extension dev",
 		"start": "extension start",
 		"build": "extension build",
+		"test": "vitest",
 		"lint": "biome ci .",
 		"format": "biome check --apply . && biome lint --apply ."
 	},
 	"dependencies": {
 		"@repo/harlight": "workspace:*",
+		"@repo/reactor": "workspace:*",
 		"@rollbar/react": "0.12.0-beta",
 		"auth0-js": "^9.26.1",
 		"react-draggable": "^4.4.6",
