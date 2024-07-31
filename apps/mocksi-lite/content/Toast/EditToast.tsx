@@ -3,7 +3,11 @@ import TextField from "../../common/TextField";
 import closeIcon from "../../public/close-icon.png";
 import { loadRecordingId, recordingLabel } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
-import { applyReadOnlyMode, removeReadOnlyMode, setEditorMode } from "../EditMode/editMode";
+import {
+	applyReadOnlyMode,
+	removeReadOnlyMode,
+	setEditorMode,
+} from "../EditMode/editMode";
 import { getHighlighter } from "../EditMode/highlighter";
 import IframeWrapper from "../IframeWrapper";
 import Toast from "./index";
@@ -35,7 +39,7 @@ const EditToast = () => {
 
 			return newVal;
 		});
-	}
+	};
 
 	const handleSave = async () => {
 		const recordingId = await loadRecordingId();

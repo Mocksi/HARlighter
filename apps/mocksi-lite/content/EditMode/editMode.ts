@@ -255,8 +255,8 @@ const removeStylesToBlockEvents = () => {
 
 export const applyReadOnlyMode = () => {
 	injectStylesToBlockEvents();
-}
+};
 
 export const removeReadOnlyMode = () => {
 	removeStylesToBlockEvents();
-}
+};
