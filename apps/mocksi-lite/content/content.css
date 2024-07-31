@@ -15,3 +15,7 @@
 .bottom-extension {
   bottom: 0;
 }
+
+.mcksi-frame-include {
+  --mcksi-frame-include: true;
+}

@@ -8,6 +8,12 @@ module.exports = {
 	],
 	theme: {
 		extend: {
+			// Extend the utilities
+			utilities: {
+				".mcksi-frame-include": {
+					"--mcksi-frame-include": "true",
+				},
+			},
 			colors: {
 				grey: "#819590",
 				green: "#006C52",
