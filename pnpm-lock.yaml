@@ -14,6 +14,9 @@ importers:
       '@repo/harlight':
         specifier: workspace:*
         version: link:packages/harlight
+      '@repo/reactor':
+        specifier: workspace:*
+        version: link:packages/reactor
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -30,6 +33,9 @@ importers:
 
   apps/mocksi-lite:
     dependencies:
+      '@repo/dodom':
+        specifier: workspace:*
+        version: link:../../packages/dodom
       '@repo/harlight':
         specifier: workspace:*
         version: link:../../packages/harlight
