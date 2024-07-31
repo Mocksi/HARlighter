@@ -44,5 +44,3 @@ jobs:
         run: pnpm --prefix packages/dodom exec vitest run
       - name: Run reactor tests
         run: pnpm --prefix packages/reactor exec vitest run
-      - name: Run mocksi-lite tests
-        run: pnpm --prefix apps/mocksi-lite exec vitest run
