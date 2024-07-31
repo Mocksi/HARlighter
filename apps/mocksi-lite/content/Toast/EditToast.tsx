@@ -3,7 +3,7 @@ import TextField from "../../common/TextField";
 import closeIcon from "../../public/close-icon.png";
 import { loadRecordingId, recordingLabel } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
-import { setEditorMode } from "../EditMode/editMode";
+import { applyReadOnlyMode, removeReadOnlyMode, setEditorMode } from "../EditMode/editMode";
 import { getHighlighter } from "../EditMode/highlighter";
 import IframeWrapper from "../IframeWrapper";
 import Toast from "./index";
@@ -12,6 +12,7 @@ const EditToast = () => {
 	const { state, dispatch } = useContext(AppStateContext);
 
 	const [areChangesHighlighted, setAreChangesHighlighted] = useState(true);
+	const [isReadOnlyModeEnabled, setIsReadOnlyModeEnabled] = useState(true);
 
 	const ContentHighlighter = getHighlighter();
 
@@ -21,6 +22,20 @@ const EditToast = () => {
 			return !prevValue;
 		});
 	};
+
+	const onReadOnlyChecked = () => {
+		setIsReadOnlyModeEnabled((prevValue) => {
+			const newVal = !prevValue;
+
+			if (newVal) {
+				applyReadOnlyMode();
+			} else {
+				removeReadOnlyMode();
+			}
+
+			return newVal;
+		});
+	}
 
 	const handleSave = async () => {
 		const recordingId = await loadRecordingId();
@@ -69,6 +84,18 @@ const EditToast = () => {
 						/>
 						<div className="mw-text-[13px] leading-[15px]">
 							Highlight All Previous Changes
+						</div>
+					</div>
+
+					<div className="mw-flex mw-gap-2 mw-items-center">
+						<input
+							checked={isReadOnlyModeEnabled}
+							onChange={() => onReadOnlyChecked()}
+							type="checkbox"
+							className="mw-h-5 mw-w-5 !rounded-lg"
+						/>
+						<div className="mw-text-[13px] leading-[15px]">
+							{isReadOnlyModeEnabled ? "Disable" : "Enable"} Read-Only Mode
 						</div>
 					</div>
 				</div>
