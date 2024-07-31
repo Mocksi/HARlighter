@@ -1,5 +1,7 @@
-import { MOCKSI_RECORDING_ID } from "../../consts";
+import { MOCKSI_READONLY_STATE, MOCKSI_RECORDING_ID } from "../../consts";
 import {
+	getAlterations,
+	loadAlterations,
 	persistModifications,
 	sendMessage,
 	undoModifications,
@@ -43,12 +45,22 @@ const setupEditor = async (recordingId?: string) => {
 
 	observeUrlChange(() => {
 		console.log("URL changed, turning off highlights");
-		const highlighter = getHighlighter();
-		highlighter.removeHighlightNodes();
+		getAlterations().then((alterations) => {
+			console.log(alterations);
+			loadAlterations(alterations, true);
+		});
 	});
 
-	console.log("injecting styles");
-	injectStylesToBlockEvents();
+	const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
+
+	// If value exists and is true or if the value doesn't exist at all, apply read-only mode
+	if (
+		results[MOCKSI_READONLY_STATE] === undefined ||
+		results[MOCKSI_READONLY_STATE]
+	) {
+		console.log("injecting styles");
+		applyReadOnlyMode();
+	}
 
 	document.body.addEventListener("dblclick", onDoubleClickText);
 
@@ -64,10 +76,13 @@ const teardownEditor = async (recordingId?: string) => {
 
 	undoModifications();
 
-	await chrome.storage.local.remove(MOCKSI_RECORDING_ID);
+	await chrome.storage.local.remove([
+		MOCKSI_RECORDING_ID,
+		MOCKSI_READONLY_STATE,
+	]);
 
 	document.body.removeEventListener("dblclick", onDoubleClickText);
-	removeStylesToBlockEvents();
+	disableReadOnlyMode();
 
 	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 };
@@ -242,6 +257,10 @@ const injectStylesToBlockEvents = () => {
 		a, button, img, input, textarea, select, option, checkbox, radio, label {
 			pointer-events: none;
 		}
+
+		:is(#mocksi-editor-toast) * {
+			pointer-events: unset;
+		}
 	`;
 	document.head.appendChild(style);
 };
@@ -254,9 +273,15 @@ const removeStylesToBlockEvents = () => {
 };
 
 export const applyReadOnlyMode = () => {
+	chrome.storage.local.set({
+		[MOCKSI_READONLY_STATE]: true,
+	});
 	injectStylesToBlockEvents();
 };
 
-export const removeReadOnlyMode = () => {
+export const disableReadOnlyMode = () => {
+	chrome.storage.local.set({
+		[MOCKSI_READONLY_STATE]: false,
+	});
 	removeStylesToBlockEvents();
 };

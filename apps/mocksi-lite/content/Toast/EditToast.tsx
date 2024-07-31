@@ -5,18 +5,24 @@ import { loadRecordingId, recordingLabel } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 import {
 	applyReadOnlyMode,
-	removeReadOnlyMode,
+	disableReadOnlyMode,
 	setEditorMode,
 } from "../EditMode/editMode";
 import { getHighlighter } from "../EditMode/highlighter";
 import IframeWrapper from "../IframeWrapper";
 import Toast from "./index";
 
-const EditToast = () => {
+type EditToastProps = {
+	initialReadOnlyState?: boolean;
+};
+
+const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const { state, dispatch } = useContext(AppStateContext);
 
 	const [areChangesHighlighted, setAreChangesHighlighted] = useState(true);
-	const [isReadOnlyModeEnabled, setIsReadOnlyModeEnabled] = useState(true);
+	const [isReadOnlyModeEnabled, setIsReadOnlyModeEnabled] = useState(
+		initialReadOnlyState ?? true,
+	);
 
 	const ContentHighlighter = getHighlighter();
 
@@ -34,7 +40,7 @@ const EditToast = () => {
 			if (newVal) {
 				applyReadOnlyMode();
 			} else {
-				removeReadOnlyMode();
+				disableReadOnlyMode();
 			}
 
 			return newVal;
@@ -63,7 +69,10 @@ const EditToast = () => {
 
 	return (
 		<IframeWrapper style={iframeStyle}>
-			<Toast className="mw-mt-3 min-w-64 mw-p-3 mw-flex mw-flex-row mw-items-center mw-gap-6">
+			<Toast
+				id="mocksi-editor-toast"
+				className="mw-mt-3 min-w-64 mw-p-3 mw-flex mw-flex-row mw-items-center mw-gap-6"
+			>
 				<div
 					className="mw-cursor-pointer"
 					onClick={() => {

@@ -2,6 +2,7 @@ import ReactDOM from "react-dom/client";
 import type { Recording } from "../background";
 import {
 	MOCKSI_AUTH,
+	MOCKSI_READONLY_STATE,
 	MOCKSI_RECORDING_STATE,
 	STORAGE_CHANGE_EVENT,
 	SignupURL,
@@ -15,6 +16,7 @@ import {
 } from "../utils";
 import { AppState } from "./AppStateContext";
 import ContentApp from "./ContentApp";
+import { setEditorMode } from "./EditMode/editMode";
 
 let root: ReactDOM.Root;
 async function handlePlayState() {
@@ -23,6 +25,16 @@ async function handlePlayState() {
 	if (alterations?.length) {
 		loadAlterations(alterations, false);
 	}
+}
+
+async function handleEditState() {
+	const alterations = await getAlterations();
+
+	if (alterations?.length) {
+		loadAlterations(alterations, true);
+	}
+
+	setEditorMode(true);
 }
 
 function initial() {
@@ -35,6 +47,10 @@ function initial() {
 		const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 		if (appState === AppState.PLAY) {
 			handlePlayState();
+		}
+
+		if (appState === AppState.EDITING) {
+			handleEditState();
 		}
 	});
 }
@@ -50,53 +66,57 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		}
 		root = ReactDOM.createRoot(extensionRoot);
 		getEmail().then((email) => {
-			chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-				const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
-				let state = appState;
+			chrome.storage.local.get(
+				[MOCKSI_RECORDING_STATE, MOCKSI_READONLY_STATE],
+				(results) => {
+					const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
+					let state = appState;
 
-				console.log({ appState });
+					console.log({ appState });
 
-				if (email && !appState) {
-					// we need to initialize app state if there's none.
-					chrome.storage.local.set({
-						[MOCKSI_RECORDING_STATE]: AppState.LIST,
+					if (email && !appState) {
+						// we need to initialize app state if there's none.
+						chrome.storage.local.set({
+							[MOCKSI_RECORDING_STATE]: AppState.LIST,
+						});
+						state = AppState.LIST;
+					}
+
+					if (appState === AppState.PLAY) {
+						sendMessage("updateToPlayIcon");
+					}
+
+					if (
+						(appState === AppState.UNAUTHORIZED || !email) &&
+						window.location.origin !== SignupURL
+					) {
+						chrome.storage.local.set({
+							[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
+						});
+						state = AppState.UNAUTHORIZED;
+
+						window.open(SignupURL);
+					}
+
+					setRootPosition(state);
+
+					sendMessage("getRecordings", {}, (response) => {
+						const { body } = response;
+						const { recordings } = body as { recordings: Recording[] };
+
+						root.render(
+							<ContentApp
+								isOpen={true}
+								email={email || ""}
+								initialState={{
+									recordings,
+									readOnly: results[MOCKSI_READONLY_STATE],
+								}}
+							/>,
+						);
 					});
-					state = AppState.LIST;
-				}
-
-				if (appState === AppState.PLAY) {
-					sendMessage("updateToPlayIcon");
-				}
-
-				if (
-					(appState === AppState.UNAUTHORIZED || !email) &&
-					window.location.origin !== SignupURL
-				) {
-					chrome.storage.local.set({
-						[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
-					});
-					state = AppState.UNAUTHORIZED;
-
-					window.open(SignupURL);
-				}
-
-				setRootPosition(state);
-
-				sendMessage("getRecordings", {}, (response) => {
-					const { body } = response;
-					const { recordings } = body as { recordings: Recording[] };
-
-					root.render(
-						<ContentApp
-							isOpen={true}
-							email={email || ""}
-							initialState={{
-								recordings,
-							}}
-						/>,
-					);
-				});
-			});
+				},
+			);
 		});
 	}
 	sendResponse({ status: "success" });
