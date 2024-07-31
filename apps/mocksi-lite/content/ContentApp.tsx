@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
 import type { Recording } from "../background";
 import { MOCKSI_LAST_PAGE_DOM } from "../consts";
-import { logout, setRootPosition } from "../utils";
+import { extractStyles, innerHTMLToJson, logout } from "../utils";
 import {
 	AppEvent,
 	AppState,
@@ -95,41 +95,17 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 	return renderContent();
 }
 
-const extractStyles = (): string => {
-	let styles = "";
-	const styleSheets = Array.from(document.styleSheets) as CSSStyleSheet[];
-	// FIXME: This is a hack to prevent styles leaking from the page being edited
-	const lastFiveStyles = styleSheets.slice(-5);
-
-	for (const sheet of lastFiveStyles) {
-		// Skip external stylesheets
-		if (sheet.href) {
-			continue;
-		}
-		try {
-			if (sheet.cssRules) {
-				const cssRules = Array.from(sheet.cssRules) as CSSRule[];
-				for (const rule of cssRules) {
-					styles += rule.cssText;
-				}
-			}
-		} catch (e) {
-			console.error("Error accessing stylesheet:", e);
-		}
-	}
-
-	return styles;
-};
-
 export default function ContentApp({
 	isOpen,
 	email,
 	initialState,
 }: ContentProps) {
-	const styles = extractStyles();
+	const styles = extractStyles(document.styleSheets);
 	return useShadow(
 		<AppStateProvider initialRecordings={initialState?.recordings}>
-			<ShadowContentApp isOpen={isOpen} email={email} />
+			<div className="mcksi-frame-include">
+				<ShadowContentApp isOpen={isOpen} email={email} />
+			</div>
 		</AppStateProvider>,
 		[],
 		{

@@ -366,3 +366,42 @@ export const recordingLabel = (currentStatus: AppState) => {
 			return "Start recording";
 	}
 };
+
+// This function is used to extract styles from the stylesheets that contain the "--mcksi-frame-include: true;" rule
+export const extractStyles = (
+	stylesheets: DocumentOrShadowRoot["styleSheets"],
+): string => {
+	let styles = "";
+	const styleSheets = Array.from(stylesheets) as CSSStyleSheet[];
+	for (const sheet of styleSheets) {
+		// Skip external stylesheets
+		if (sheet.href) {
+			continue;
+		}
+		try {
+			if (sheet.cssRules) {
+				const cssRules = Array.from(sheet.cssRules) as CSSRule[];
+				// Check if the stylesheet contains the "--mcksi-frame-include: true;" rule
+				const includesMcksiFrameInclude = cssRules.some((rule) => {
+					if ("style" in rule) {
+						return (
+							(rule as CSSStyleRule).style.getPropertyValue(
+								"--mcksi-frame-include",
+							) === "true"
+						);
+					}
+					return false;
+				});
+				if (includesMcksiFrameInclude) {
+					for (const rule of cssRules) {
+						styles += `${rule.cssText}\n`;
+					}
+				}
+			}
+		} catch (e) {
+			console.error("Error accessing stylesheet:", e);
+		}
+	}
+
+	return styles.trim();
+};
