@@ -39,14 +39,13 @@ const setupEditor = async (recordingId?: string) => {
 
 	if (recordingId) {
 		await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: recordingId });
-		observeUrlChange(() => {
-			console.log("URL changed, turning off edit mode");
-			const highlighter = getHighlighter();
-			highlighter.removeHighlightNodes();
-		});
-		document.body.addEventListener("dblclick", onDoubleClickText);
-		return;
 	}
+
+	observeUrlChange(() => {
+		console.log("URL changed, turning off highlights");
+		const highlighter = getHighlighter();
+		highlighter.removeHighlightNodes();
+	});
 
 	console.log("injecting styles");
 	injectStylesToBlockEvents();
@@ -55,16 +54,21 @@ const setupEditor = async (recordingId?: string) => {
 
 	return;
 };
+
 const teardownEditor = async (recordingId?: string) => {
+	sendMessage("detachDebugger");
+
 	if (recordingId) {
 		await persistModifications(recordingId);
 	}
 
-	sendMessage("detachDebugger");
 	undoModifications();
+
 	await chrome.storage.local.remove(MOCKSI_RECORDING_ID);
+
 	document.body.removeEventListener("dblclick", onDoubleClickText);
 	removeStylesToBlockEvents();
+
 	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 };
 
@@ -72,6 +76,7 @@ function onDoubleClickText(event: MouseEvent) {
 	// @ts-ignore MouseEvent typing seems incomplete
 	const nodeName = event?.toElement?.nodeName;
 	console.log("we double clicked on", event.target);
+
 	if (nodeName === "IMG") {
 		const targetedElement: HTMLImageElement = event.target as HTMLImageElement;
 		console.log("Image clicked", targetedElement.alt);
@@ -80,8 +85,10 @@ function onDoubleClickText(event: MouseEvent) {
 	}
 	if (nodeName !== "TEXTAREA") {
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
+
 		const targetedElement: HTMLElement = event.target as HTMLElement;
 		const selection = window.getSelection();
+
 		if (selection?.toString()?.trim()) {
 			applyEditor(targetedElement, selection, event.shiftKey);
 			document.getElementById("mocksiTextArea")?.focus();
@@ -216,52 +223,17 @@ function applyEditor(
 	}
 
 	if (selectedRange.anchorNode === selectedRange.focusNode) {
-		for (const node of targetedElement.childNodes) {
-			if (
-				node === selectedRange.anchorNode ||
-				[...node.childNodes].includes(selectedRange.anchorNode as ChildNode)
-			) {
-				targetedElement.replaceChild(
-					decorateTextTag(
-						selectedRange.anchorNode.textContent || "",
-						targetedElement.clientWidth?.toString() || "",
-						shiftMode,
-						selectedRange.getRangeAt(0),
-					),
-					node,
-				);
-			}
-		}
+		selectedRange.anchorNode.parentElement?.replaceChild(
+			decorateTextTag(
+				selectedRange.anchorNode.textContent || "",
+				targetedElement.clientWidth?.toString() || "",
+				shiftMode,
+				selectedRange.getRangeAt(0),
+			),
+			selectedRange.anchorNode,
+		);
 	}
 }
-
-// biome-ignore lint/suspicious/noExplicitAny: need to look after a proper type, but mainly are html nodes
-const blockedNodes: any[] = [];
-
-const blockClickableElements = () => {
-	const clickableElements = [
-		...document.querySelectorAll("a"),
-		...document.querySelectorAll("button"),
-		...document.querySelectorAll("img"),
-	];
-	for (const clickableElement of clickableElements) {
-		const { href, className, style, onclick, src } =
-			clickableElement as HTMLAnchorElement &
-				HTMLButtonElement &
-				HTMLImageElement;
-		blockedNodes.push({ href, className, onclick, style: { ...style }, src });
-		if (clickableElement instanceof HTMLAnchorElement) {
-			clickableElement.removeAttribute("href");
-			clickableElement.removeAttribute("src");
-		}
-		clickableElement.style.cursor = "text";
-		clickableElement.onclick = (event) => {
-			event.stopPropagation();
-			event.preventDefault();
-			console.log("BLOCKED!");
-		};
-	}
-};
 
 const injectStylesToBlockEvents = () => {
 	const style = document.createElement("style");
@@ -278,29 +250,5 @@ const removeStylesToBlockEvents = () => {
 	const style = document.getElementById("mocksi-block-events-style");
 	if (style) {
 		style.remove();
-	}
-};
-
-const restoreNodes = () => {
-	if (blockedNodes.length > 0) {
-		const clickableElements = [
-			...document.querySelectorAll("a"),
-			...document.querySelectorAll("button"),
-			...document.querySelectorAll("img"),
-		];
-		let index = 0;
-		for (const readonlyElem of clickableElements) {
-			if (blockedNodes[index]) {
-				const { href, style, onclick } = blockedNodes[index];
-				if (readonlyElem instanceof HTMLAnchorElement) {
-					readonlyElem.href = href;
-				}
-				readonlyElem.style.cursor = style.cursor;
-				readonlyElem.onclick = onclick;
-				index++;
-			} else {
-				break;
-			}
-		}
 	}
 };
