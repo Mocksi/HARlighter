@@ -36,7 +36,7 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 
 const setupEditor = async (recordingId?: string) => {
 	sendMessage("attachDebugger");
-	
+
 	if (recordingId) {
 		await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: recordingId });
 		observeUrlChange(() => {
