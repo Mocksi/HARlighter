@@ -1,5 +1,3 @@
-// utils.ts
-
 import type { Modification, ModificationRequest } from "./interfaces";
 
 export function parseRequest(userRequest: string): ModificationRequest {

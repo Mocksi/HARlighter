@@ -21,6 +21,7 @@ export interface Alteration {
 
 export interface Recording {
 	updated_timestamp: Date;
+	created_timestamp: Date;
 	alterations: Alteration[];
 	creator: string;
 	customer_name: string;

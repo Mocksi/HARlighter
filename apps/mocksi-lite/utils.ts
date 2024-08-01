@@ -1,6 +1,8 @@
 import { DOMManipulator } from "@repo/dodom";
+import { modifyHtml } from "@repo/reactor";
 import auth0, { type WebAuth } from "auth0-js";
 import sanitizeHtml from "sanitize-html";
+import { debug } from "webpack";
 import MocksiRollbar from "./MocksiRollbar";
 import type { Alteration } from "./background";
 import type { Recording } from "./background";
@@ -120,9 +122,10 @@ export const undoModifications = () => {
 };
 
 // v2 of loading alterations, this is from backend
-export const loadAlterations = (
+export const loadAlterations = async (
 	alterations: Alteration[] | null,
 	withHighlights: boolean,
+	createdAt?: Date,
 ) => {
 	undoModifications();
 	if (!alterations?.length) {
@@ -150,6 +153,98 @@ export const loadAlterations = (
 			}
 		}
 	}
+
+	function getTimestamps(): { selector: string; date: Date }[] {
+		const dateRegex = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{1,2}$/;
+		const allSpans = document.querySelectorAll("span");
+		const timestamps: { selector: string; date: Date }[] = [];
+
+		for (const span of allSpans) {
+			const text = span.textContent?.trim();
+			if (text && dateRegex.test(text)) {
+				const date = parseDate(text);
+				if (date) {
+					const selector = getCssSelector(span);
+					timestamps.push({ selector, date });
+				}
+			}
+		}
+
+		return timestamps;
+	}
+
+	function parseDate(dateText: string): Date | null {
+		const currentYear = new Date().getFullYear();
+		const fullDateText = `${dateText}, ${currentYear}`;
+		const date = new Date(fullDateText);
+
+		if (Number.isNaN(date.getTime())) {
+			return null;
+		}
+
+		// If the parsed date is in the future, assume it's for the previous year
+		if (date > new Date()) {
+			date.setFullYear(currentYear - 1);
+		}
+
+		return date;
+	}
+
+	function getCssSelector(element: Element): string {
+		if (!(element instanceof Element)) {
+			return "";
+		}
+		let selector = element.className
+			.split(" ")
+			.map((c) => `.${c}`)
+			.join("");
+		const parentWithClass = element.closest("[class]");
+		if (parentWithClass && parentWithClass !== element) {
+			selector = `${parentWithClass.className.split(" ")[0]} ${selector}`;
+		}
+		return selector;
+	}
+
+	const timestamps = getTimestamps();
+	const now = new Date();
+	await Promise.all(
+		timestamps.map(async (timestamp) => {
+			const userRequest = JSON.stringify({
+				modifications: [
+					{
+						selector: timestamp.selector,
+						action: "updateTimestampReferences",
+						timestampRef: {
+							recordedAt: createdAt?.toString(),
+							currentTime: now.toISOString(),
+						},
+					},
+				],
+			});
+			console.log("userRequest", userRequest);
+			const contents = document.querySelectorAll(timestamp.selector);
+			for (const content of contents) {
+				try {
+					const result = await modifyHtml(content.outerHTML, userRequest);
+					const parser = new DOMParser();
+					const doc = parser.parseFromString(result, "text/html");
+
+					if (doc.body) {
+						// Replace the original content with the modified content
+						content.outerHTML = doc.body.innerHTML;
+					} else {
+						console.error("Parsed document body is null or undefined");
+					}
+				} catch (error) {
+					console.error(
+						"Error updating innerHTML for",
+						timestamp.selector,
+						error,
+					);
+				}
+			}
+		}),
+	);
 };
 
 // This is from chrome.storage.local
