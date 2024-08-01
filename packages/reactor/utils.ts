@@ -1,4 +1,5 @@
-import type { Modification, ModificationRequest } from "./interfaces";
+import { throws } from "assert";
+import type { Modification, ModificationRequest, AppliedModifications } from "./interfaces";
 
 export function parseRequest(userRequest: string): ModificationRequest {
 	try {
@@ -10,10 +11,36 @@ export function parseRequest(userRequest: string): ModificationRequest {
 	}
 }
 
+abstract class AppliableModification {
+	abstract apply(): void;
+	abstract unapply(): void;
+}
+
+export class AppliedModificationsImpl implements AppliedModifications {
+	modificationRequest: ModificationRequest;
+	modifications: Array<AppliableModification> = [];
+
+	constructor(modificationRequest: ModificationRequest) {
+		this.modificationRequest = modificationRequest;
+	}
+
+	unapply(): void {
+		for (const mod of this.modifications) {
+			mod.unapply();
+		}
+	}
+
+	setHighlight(highlight: boolean): void {
+		throw new Error("Method not implemented.");
+	}
+}
+
 export async function generateModifications(
 	request: ModificationRequest,
 	doc: Document,
-): Promise<void> {
+): Promise<AppliedModificationsImpl> {
+	const appliedModifications = new AppliedModificationsImpl(request);
+
 	try {
 		for (const mod of request.modifications) {
 			let elements: Array<Element>;
@@ -60,7 +87,8 @@ export async function generateModifications(
 			}
 
 			for (const element of elements) {
-				await applyModification(element, mod, doc);
+				const appliedModification = await applyModification(element, mod, doc);
+				appliedModifications.modifications.push(appliedModification);
 			}
 
 			// Add a small delay between modifications
@@ -71,48 +99,218 @@ export async function generateModifications(
 		console.error("Error generating modifications:", error);
 		throw new Error(`Error generating modifications: ${error}`);
 	}
+
+	return appliedModifications;
+}
+
+class ReplaceModification extends AppliableModification {
+	element: Element;
+	oldValue: string;
+	newValue: string;
+
+	constructor(element: Element, newValue: string) {
+		super();
+		this.element = element;
+		this.newValue = newValue;
+		this.oldValue = element.innerHTML;
+	}
+
+	apply(): void {
+		this.element.innerHTML = this.newValue;
+	}
+
+	unapply(): void {
+		this.element.innerHTML = this.oldValue;
+	}
+}
+
+class AdjacentHTMLModification extends AppliableModification {
+	element: Element;
+	position: InsertPosition;
+	oldValue: string;
+	newValue: string;
+
+	constructor(element: Element, position: InsertPosition, newValue: string) {
+		super();
+		this.element = element;
+		this.position = position;
+		this.newValue = newValue;
+		this.oldValue = element.outerHTML;
+	}
+
+	apply(): void {
+		this.element.insertAdjacentHTML(this.position, this.newValue);
+	}
+
+	unapply(): void {
+		this.element.outerHTML = this.oldValue;
+	}
+}
+
+class RemoveModification extends AppliableModification {
+	element: Element;
+	parent: Element | null;
+	nextSibling: Element | null;
+
+	constructor(element: Element) {
+		super();
+		this.element = element;
+		this.parent = element.parentElement;
+		this.nextSibling = element.nextElementSibling;
+	}
+
+	apply(): void {
+		this.element.remove();
+	}
+
+	unapply(): void {
+		this.parent?.insertBefore(this.element, this.nextSibling);
+	}
+}
+
+class SwapImageModification extends AppliableModification {
+	element: Element;
+	imageUrl: string;
+	previousUrl: string | null;
+
+	constructor(element: Element, imageUrl: string) {
+		super();
+		this.element = element;
+		this.imageUrl = imageUrl;
+
+		if (this.element instanceof HTMLImageElement) {
+			this.previousUrl = this.element.getAttribute("src");
+		} else {
+			this.previousUrl = null;
+		}
+	}
+
+	apply(): void {
+		if (this.element instanceof HTMLImageElement) {
+			this.element.src = this.imageUrl;
+		}
+	}
+
+	unapply(): void {
+		if (this.element instanceof HTMLImageElement && this.previousUrl) {
+			this.element.setAttribute("src", this.previousUrl);
+		}
+	}
+}
+
+class ToastModification extends AppliableModification {
+	message: string;
+	doc: Document;
+	duration: number;
+
+	constructor(message: string, doc: Document, duration: number) {
+		super();
+		this.message = message;
+		this.doc = doc;
+		this.duration = duration;
+	}
+
+	apply(): void {
+		createToast(this.message, this.doc, this.duration);
+	}
+
+	unapply(): void {
+		// can't undo
+	}
+}
+
+class HighlightModification extends AppliableModification {
+	element: Element;
+	highlightStyle: string;
+	prevBorder: string;
+
+	constructor(element: Element, highlightStyle: string) {
+		super();
+		this.element = element;
+		this.highlightStyle = highlightStyle;
+		this.prevBorder = "";
+
+		if (this.element instanceof HTMLElement) {
+			this.prevBorder = this.element.style.border;
+		}
+	}
+
+	apply(): void {
+		if (this.element instanceof HTMLElement) {
+			this.element.style.border = this.highlightStyle;
+		}
+	}
+
+	unapply(): void {
+		if (this.element instanceof HTMLElement) {
+			this.element.style.border = this.prevBorder;
+		}
+	}
+}
+
+class NoopModification extends AppliableModification {
+	action: string;
+
+	constructor(action: string) {
+		super();	
+		this.action = action;
+	}
+
+	apply(): void {
+		console.warn(`Unknown action: ${this.action}`);
+	}
+
+	unapply(): void {}
 }
 
 export async function applyModification(
 	element: Element,
 	mod: Modification,
 	doc: Document,
-): Promise<void> {
+): Promise<AppliableModification> {
+	let modification: AppliableModification;
+	
 	switch (mod.action) {
 		case "replace":
-			element.innerHTML = mod.content || "";
+			modification = new ReplaceModification(element, mod.content || "");
 			break;
-		case "replaceAll":
-			walkTree(element, replaceText(mod.content || ""));
-			break;
+		// case "replaceAll":
+		// 	walkTree(element, replaceText(mod.content || ""));
+		// 	break;
 		case "append":
-			element.insertAdjacentHTML("beforeend", mod.content || "");
+			modification = new AdjacentHTMLModification(
+				element, "beforeend", mod.content || ""
+			);
 			break;
 		case "prepend":
-			element.insertAdjacentHTML("afterbegin", mod.content || "");
+			modification = new AdjacentHTMLModification(
+				element, "afterbegin", mod.content || ""
+			);
 			break;
 		case "remove":
-			element.remove();
+			modification = new RemoveModification(element);
 			break;
 		case "swapImage":
-			if (element instanceof HTMLImageElement) {
-				element.src = mod.imageUrl || "";
-			}
+			modification = new SwapImageModification(element, mod.imageUrl || "");
 			break;
 		case "highlight":
-			if (element instanceof HTMLElement) {
-				element.style.border = mod.highlightStyle || "2px solid red";
-			}
+			modification = new HighlightModification(element, mod.highlightStyle || "2px solid red");
 			break;
 		case "toast":
-			createToast(mod.toastMessage || "Notification", doc, mod.duration);
+			modification = new ToastModification(mod.toastMessage || "Notification", doc, mod.duration || 3000);
 			break;
 		case "addComponent":
-			element.insertAdjacentHTML("beforeend", mod.componentHtml || "");
-			break;
+			modification = new AdjacentHTMLModification(
+				element, "beforeend", mod.componentHtml || ""
+			)
+		 	break;
 		default:
-			console.warn(`Unknown action: ${mod.action}`);
+			modification = new NoopModification(mod.action);
+			break;
 	}
+
+	modification.apply();
+	return modification;
 }
 
 export function createToast(
