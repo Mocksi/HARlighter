@@ -1,6 +1,4 @@
 // utils.ts
-
-import { throws } from "assert";
 import type { Modification, ModificationRequest, AppliedModifications } from "./interfaces";
 
 export function parseRequest(userRequest: string): ModificationRequest {
@@ -35,6 +33,36 @@ export class AppliedModificationsImpl implements AppliedModifications {
 	setHighlight(highlight: boolean): void {
 		throw new Error("Method not implemented.");
 	}
+}
+
+function calculateNewDate(
+	originalDay: string,
+	originalMonth: string,
+	recordedAt: string,
+	currentTime: string,
+): { newDay: string, newMonth: string } {
+	const months = [
+		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+	];
+	const recordedDate = new Date(recordedAt);
+	const currentDate = new Date(currentTime);
+	const differenceInDays = Math.ceil(
+		Math.abs(
+			(currentDate.getTime() - recordedDate.getTime()) / (1000 * 3600 * 24),
+		),
+	);
+
+	const originalDate = new Date(recordedDate);
+	originalDate.setDate(Number.parseInt(originalDay, 10));
+
+	const newDate = new Date(originalDate);
+	newDate.setDate(originalDate.getDate() + differenceInDays);
+
+	const newDay = String(newDate.getDate()).padStart(2, "0");
+	const newMonth = months[newDate.getMonth()] || originalMonth;
+
+	return { newDay, newMonth };
 }
 
 export async function generateModifications(
@@ -306,6 +334,46 @@ export async function applyModification(
 				element, "beforeend", mod.componentHtml || ""
 			)
 		 	break;
+		// case "updateTimestampReferences": {
+		// 	if (!mod.timestampRef) {
+		// 		console.warn("No timestamp reference provided for modification.");
+		// 		return;
+		// 	}
+		// 	let targetElement = element;
+		// 	if (mod.selector) {
+		// 		targetElement = element.querySelector(mod.selector) || element;
+		// 	}
+		// 	if (!targetElement) {
+		// 		console.warn(
+		// 			`Element not found for selector: ${mod.selector || "self"}`,
+		// 		);
+		// 		return;
+		// 	}
+		// 	const originalText = targetElement.textContent || "";
+		// 	const originalLabel = targetElement.getAttribute("aria-label") || "";
+		// 	const [originalMonth, originalDay] = originalText.split(" ");
+
+		// 	if (!originalMonth || !originalDay) {
+		// 		console.warn(`Invalid date format: ${originalText}`);
+		// 		return;
+		// 	}
+
+		// 	// Calculate the new day and month based on the timestampRef
+		// 	const { newDay, newMonth } = calculateNewDate(
+		// 		originalDay,
+		// 		originalMonth,
+		// 		mod.timestampRef.recordedAt,
+		// 		mod.timestampRef.currentTime,
+		// 	);
+
+		// 	// Update the element's textContent and aria-label with the new day and month
+		// 	targetElement.textContent = `${newMonth} ${newDay}`;
+		// 	// Note the space before the month to avoid concatenation with the day
+		// 	const newLabel = originalLabel.replace(/ .+,/, ` ${newMonth} ${newDay},`);
+		// 	targetElement.setAttribute("aria-label", newLabel);
+
+		// 	break;
+		// }
 		default:
 			modification = new NoopModification(mod.action);
 			break;

@@ -1,3 +1,10 @@
+interface TimeStampReference {
+	// NOTE: this is a iso8601 date string
+	recordedAt: string;
+	// NOTE: this is a iso8601 date string
+	currentTime: string;
+}
+
 export interface Modification {
 	selector?: string;
 	xpath?: string;
@@ -11,6 +18,7 @@ export interface Modification {
 		| "highlight"
 		| "toast"
 		| "addComponent"
+		| "updateTimestampReferences"
 		| "unknown";
 	content?: string;
 	imageUrl?: string;
@@ -18,6 +26,7 @@ export interface Modification {
 	componentHtml?: string;
 	highlightStyle?: string;
 	duration?: number;
+	timestampRef?: TimeStampReference;
 }
 
 export interface ModificationRequest {
