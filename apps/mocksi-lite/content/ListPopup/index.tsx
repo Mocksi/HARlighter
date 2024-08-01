@@ -66,7 +66,9 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 				) : null}
 				<Button
 					className={
-						!recordings.length ? "mw-mt-3 self-center" : "mw-my-3 self-center"
+						!recordings.length
+							? "mw-mt-3 mw-self-center"
+							: "mw-my-3 mw-self-center"
 					}
 					onClick={handleCreateDemoClicked}
 				>
