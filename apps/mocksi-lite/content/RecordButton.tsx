@@ -2,7 +2,6 @@ import { useContext } from "react";
 import recordIcon from "../public/record-icon.png";
 import { AppEvent, AppState, AppStateContext } from "./AppStateContext";
 import { LoadingSpinner } from "./LoadingSpinner";
-import("./spinner.css");
 
 const waitTime = 2000; // 2 seconds
 
