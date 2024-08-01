@@ -18,8 +18,24 @@ import EditToast from "./Toast/EditToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
 
-import("./content.css");
-import("./base.css");
+import(
+	/* webpackChunkName: "content_content_css" */
+	/* webpackPrefetch: true */
+	/* webpackPreload: true */
+	"./content.css"
+);
+import(
+	/* webpackChunkName: "content_base_css" */
+	/* webpackPrefetch: true */
+	/* webpackPreload: true */
+	"./base.css"
+);
+import(
+	/* webpackChunkName: "content_spinner_css" */
+	/* webpackPrefetch: true */
+	/* webpackPreload: true */
+	"./spinner.css"
+);
 
 interface ContentProps {
 	isOpen?: boolean;

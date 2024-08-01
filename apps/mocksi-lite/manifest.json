@@ -38,6 +38,7 @@
 				"./content/content.tsx",
 				"/*.map",
 				"web_accessible_resources/*",
+				"web_accessible_resources/*.js",
 				"/*.json",
 				"/*.js",
 				"/*.css"
