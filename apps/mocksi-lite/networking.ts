@@ -1,6 +1,7 @@
 import auth0 from "auth0-js";
 import MocksiRollbar from "./MocksiRollbar";
-import { API_URL, MOCKSI_AUTH } from "./consts";
+import { API_URL, MOCKSI_AUTH, MOCKSI_RECORDING_STATE } from "./consts";
+import { AppState } from "./content/AppStateContext";
 
 type HttpMethod = "GET" | "PUT" | "POST" | "DELETE";
 
@@ -33,7 +34,9 @@ const refreshToken = async (): Promise<string> => {
 	return new Promise((resolve, reject) => {
 		MocksiRollbar.log("Refreshing token");
 		auth0Client.checkSession(
-			{},
+			{
+				responseType: "token"
+			},
 			(err: auth0.Auth0Error | null, result: auth0.Auth0Result | undefined) => {
 				if (err) {
 					return reject(err);
@@ -98,6 +101,9 @@ export const apiCall = async (
 
 		if (!response.ok) {
 			if (response.status === 401) {
+				await chrome.storage.local.set({
+					[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
+				});
 				throw new Error("Unauthorized");
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
@@ -112,11 +118,11 @@ export const apiCall = async (
 		try {
 			return await makeRequest(token);
 		} catch (error) {
-			if (error instanceof Error && error.message === "Unauthorized") {
-				MocksiRollbar.log("Received 401 from API, refreshing token");
-				token = await refreshToken();
-				return await makeRequest(token);
-			}
+			// if (error instanceof Error && error.message === "Unauthorized") {
+			// 	MocksiRollbar.log("Received 401 from API, refreshing token");
+			// 	token = await refreshToken();
+			// 	return await makeRequest(token);
+			// }
 			throw error;
 		}
 	} catch (err) {
