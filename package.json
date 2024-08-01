@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@repo/harlight": "workspace:*",
+    "@repo/reactor": "workspace:*",
     "@repo/dodom": "workspace:*"
   }
 }

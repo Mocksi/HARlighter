@@ -17,4 +17,8 @@
     100% {
         transform: rotate(360deg);
     }
-} 
+}
+
+.mcksi-frame-include {
+    --mcksi-frame-include: true;
+}
