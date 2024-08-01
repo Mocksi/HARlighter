@@ -337,7 +337,6 @@ async function getRecordings(): Promise<Recording[]> {
 		});
 
 		if (!response || response.length === 0) {
-			MocksiRollbar.error("No recordings found.");
 			chrome.storage.local.set({ recordings: "[]" });
 			return [];
 		}
