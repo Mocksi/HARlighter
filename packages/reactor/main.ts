@@ -1,4 +1,4 @@
-import type { DomJsonExportNode, ModificationRequest } from "./interfaces";
+import type { DomJsonExportNode, ModificationRequest, AppliedModifications } from "./interfaces";
 import { generateModifications, parseRequest } from "./utils";
 
 export async function modifyHtml(
@@ -25,9 +25,9 @@ export async function modifyHtml(
 export async function modifyDom(
 	root: Document,
 	modificationRequest: ModificationRequest,
-): Promise<void> {
+): Promise<AppliedModifications> {
 	try {
-		await generateModifications(modificationRequest, root);
+		return generateModifications(modificationRequest, root);
 	} catch (e) {
 		console.error("Error modifying DOM:", e);
 		throw new Error(`Error modifying DOM: ${e}`);

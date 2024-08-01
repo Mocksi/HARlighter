@@ -25,7 +25,7 @@ export interface ModificationRequest {
 	modifications: Modification[];
 }
 
-export interface AppliedModification {
+export interface AppliedModifications {
 	modificationRequest: ModificationRequest;
 
 	/**
@@ -41,45 +41,4 @@ export interface DomJsonExportNode {
 	text?: string;
 	attributes?: Record<string, string>;
 	children?: DomJsonExportNode[];
-}
-
-/**
- * Reactor applied modifications to the current page. Modifications
- * are applied in the order they were added. Removing a modification
- * unapplies it.
- */
-export interface Reactor {
-	/**
-	 * Attach Reactor to the current tab. Reactor will start generating
-	 * events and apply any modifications.
-	 */
-	attach(root: Document): void;
-
-	/**
-	 * Detach Reactor from the current tab. Reactor will remove any applied
-	 * modifications and stop generating events.
-	 */
-	detach(): void;
-
-	/**
-	 * Get the list of currently applied modifications. This
-	 * list is backed by the appliedModifications themselves, so
-	 * make a change to the list will also apply/unapply any
-	 * modifications as needed.
-	 * 
-	 * @returns The list of applied modifications
-	 */
-	getAppliedModifications(): AppliedModification[];
-
-	/** 
-	 * Shortcut to add a modification. This is the equivalent of calling
-	 * getAppliedModifications().push(modificationRequest)
-	 */
-	addModification(modificationRequest: ModificationRequest): void;
-	
-	/**
-	 * Shortcut to remove the most recently added modification. This
-	 * is the equivalent of calling getAppliedModifications().pop()
-	 */
-	removeLastModification(): void;
 }

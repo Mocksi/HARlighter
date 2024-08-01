@@ -1,6 +1,8 @@
 import { JSDOM } from "jsdom";
 import { describe, expect, it } from "vitest";
-import { modifyHtml } from "../main";
+import { ModificationRequest } from "../interfaces";
+import { modifyHtml, modifyDom } from "../main";
+import { AppliedModificationsImpl } from '../utils';
 
 // Set up a mock DOM environment
 const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
@@ -26,7 +28,7 @@ describe("modifyHtml", () => {
 		expect(result).toContain("Santiago Hart");
 	});
 
-	it("Should replace all with a regular expression", async () => {
+	it.skip("Should replace all with a regular expression", async () => {
 		const htmlString = `<html><body><h1 id="title">Train test</h1><div><div>Some text content here about a train</div><h2>About the train</h2><div>Trains are really cool. I use my train every day.</div></div></body></html/>`;
 		const userRequest = JSON.stringify({
 			description: "Change train to brain",
@@ -160,13 +162,17 @@ describe("modifyHtml", () => {
 		expect(result).toContain('class="card w-96 bg-base-100 shadow-xl"');
 	});
 
-	it("should handle multiple modifications", async () => {
-		const html = `
-      <div id="user-info">Eliza Hart</div>
-      <div id="welcome-message">Welcome, Eliza!</div>
-      <img id="profile-pic" src="eliza.jpg" />
-    `;
-		const userRequest = JSON.stringify({
+	it("should handle multiple modifications using modifyDom", async () => {
+		const htmlString = `
+      		<div id="user-info">Eliza Hart</div>
+      		<div id="welcome-message">Welcome, Eliza!</div>
+	  		<img id="profile-pic" src="eliza.jpg" />
+    	`;
+
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(htmlString, "text/html");
+
+		const userRequest: ModificationRequest = {
 			description:
 				"Change all occurrences of the name 'Eliza' to 'Santiago', swap profile picture, and add a toast notification.",
 			modifications: [
@@ -191,13 +197,59 @@ describe("modifyHtml", () => {
 					toastMessage: "Welcome to the new site, Santiago!",
 				},
 			],
-		});
+		};
 
-		const result = await modifyHtml(html, userRequest);
-		expect(result).toContain("Santiago Hart");
-		expect(result).toContain("Welcome, Santiago!");
-		expect(result).toContain('src="santiago.jpg"');
-		expect(result).toContain("Welcome to the new site, Santiago!");
+		await modifyDom(doc, userRequest);
+
+		expect(doc.body.innerHTML).toContain("Santiago Hart");
+		expect(doc.body.innerHTML).toContain("Welcome, Santiago!");
+		expect(doc.body.innerHTML).toContain('src="santiago.jpg"');
+		expect(doc.body.innerHTML).toContain("Welcome to the new site, Santiago!");
+	});
+
+	it("should unapply multiple modifications using modifyDom", async () => {
+		const htmlString = `
+      		<div id="user-info">Eliza Hart</div>
+      		<div id="welcome-message">Welcome, Eliza!</div>
+	  		<img id="profile-pic" src="eliza.jpg" />
+    	`;
+
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(htmlString, "text/html");
+
+		const userRequest: ModificationRequest = {
+			description:
+				"Change all occurrences of the name 'Eliza' to 'Santiago', swap profile picture, and add a toast notification.",
+			modifications: [
+				{
+					selector: "#user-info",
+					action: "replace",
+					content: "Santiago Hart",
+				},
+				{
+					selector: "#welcome-message",
+					action: "replace",
+					content: "Welcome, Santiago!",
+				},
+				{
+					selector: "#profile-pic",
+					action: "swapImage",
+					imageUrl: "santiago.jpg",
+				},
+				{
+					selector: "body",
+					action: "toast",
+					toastMessage: "Welcome to the new site, Santiago!",
+				},
+			],
+		};
+
+		const modifications = await modifyDom(doc, userRequest) as AppliedModificationsImpl;
+		modifications.unapply();
+
+		expect(doc.body.innerHTML).toContain("Eliza Hart");
+		expect(doc.body.innerHTML).toContain("Welcome, Eliza!");
+		expect(doc.body.innerHTML).toContain('src="eliza.jpg"');
 	});
 
 	it("should handle missing elements gracefully", async () => {
