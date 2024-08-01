@@ -155,7 +155,8 @@ export const loadAlterations = async (
 	}
 
 	function getTimestamps(): { selector: string; date: Date }[] {
-		const dateRegex = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{1,2}$/;
+		const dateRegex =
+			/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{1,2}$/;
 		const allSpans = document.querySelectorAll("span");
 		const timestamps: { selector: string; date: Date }[] = [];
 
