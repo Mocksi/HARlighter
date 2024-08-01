@@ -2,6 +2,7 @@ import { type Dispatch, createContext, useEffect, useReducer } from "react";
 import type { Recording } from "../background";
 import {
 	MOCKSI_ALTERATIONS,
+	MOCKSI_RECORDING_CREATED_AT,
 	MOCKSI_RECORDING_ID,
 	MOCKSI_RECORDING_STATE,
 } from "../consts";
@@ -121,7 +122,12 @@ export const AppStateProvider: React.FC<{
 	// Load the initial state from chrome storage on mount
 	useEffect(() => {
 		chrome.storage.local.get(
-			[MOCKSI_RECORDING_STATE, MOCKSI_ALTERATIONS, MOCKSI_RECORDING_ID],
+			[
+				MOCKSI_RECORDING_STATE,
+				MOCKSI_ALTERATIONS,
+				MOCKSI_RECORDING_ID,
+				MOCKSI_RECORDING_CREATED_AT,
+			],
 			(result) => {
 				if (result[MOCKSI_RECORDING_STATE] === AppState.UNAUTHORIZED) {
 					dispatch({
@@ -137,7 +143,11 @@ export const AppStateProvider: React.FC<{
 						payload: AppState.PLAY,
 					});
 					sendMessage("updateToPauseIcon");
-					loadAlterations(result[MOCKSI_ALTERATIONS], false);
+					loadAlterations(
+						result[MOCKSI_ALTERATIONS],
+						false,
+						result[MOCKSI_RECORDING_CREATED_AT],
+					);
 
 					return;
 				}
