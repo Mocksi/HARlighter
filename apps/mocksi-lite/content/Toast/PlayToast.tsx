@@ -1,9 +1,7 @@
 import { useContext } from "react";
 import Button, { Variant } from "../../common/Button";
-import closeIcon from "../../public/close-icon.png";
-import editIcon from "../../public/edit-icon.png";
-import labeledIcon from "../../public/labeled-icon.png";
-import stopIcon from "../../public/stop-icon.png";
+import { CloseIcon, EditIcon, StopIcon } from "../../common/Icons";
+import { Logo } from "../../common/Logos";
 import {
 	getAlterations,
 	loadAlterations,
@@ -23,48 +21,42 @@ const PlayToast = ({ close }: PlayToastProps) => {
 
 	const handleEdit = async () => {
 		sendMessage("resetIcon");
-
 		const alterations = await getAlterations();
 		loadAlterations(alterations, true);
-
 		setEditorMode(true);
 		dispatch({ event: AppEvent.START_EDITING });
 	};
 
 	const handleHideToast = () => {
 		sendMessage("updateToPauseIcon");
-
 		dispatch({ event: AppEvent.START_PLAYING });
-
 		close();
 	};
 
 	const handleStop = () => {
 		sendMessage("resetIcon");
-
 		undoModifications();
-
 		dispatch({ event: AppEvent.STOP_PLAYING });
 	};
 
 	return (
 		<Toast className="mw-gap-4 mw-mb-7 mw-px-4 mw-py-3">
 			<div
-				className="mw-cursor-pointer"
+				className="mw-flex mw-justify-center mw-bg-[#F3F0EF] mw-p-1.5 mw-rounded-full mw-align-center mw-cursor-pointer"
 				onClick={handleHideToast}
 				onKeyUp={(event) => {
 					event.key === "Escape" && handleHideToast();
 				}}
 			>
-				<img alt="closeIcon" src={closeIcon} />
+				<CloseIcon />
 			</div>
-			<img alt={"labeledIcon"} src={labeledIcon} />
+			<Logo />
 			<div className="mw-flex mw-gap-2">
 				<Button onClick={handleStop} variant={Variant.icon}>
-					<img alt={"stopIcon"} src={stopIcon} />
+					<StopIcon />
 				</Button>
 				<Button onClick={handleEdit} variant={Variant.icon}>
-					<img alt={"editIcon"} src={editIcon} />
+					<EditIcon />
 				</Button>
 			</div>
 		</Toast>

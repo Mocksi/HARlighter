@@ -20,7 +20,7 @@ interface HiddenToastProps {
 	onChangeState: (r: AppState) => void;
 }
 
-const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
+const HiddenToast = ({ close, onChangeState }: HiddenToastProps) => {
 	const [data, setData] = useState<Recording>();
 
 	const getData = async () => {
@@ -48,16 +48,17 @@ const HiddenToast = ({ onChangeState, close }: HiddenToastProps) => {
 		onChangeState(AppState.CREATE);
 		close();
 	};
+
 	return (
-		<Toast className="mw-flex-col mw-py-4 mw-w-[244px] mw-mr-6 mw-mt-1">
-			<div className="mw-flex mw-flex-col mw-gap-1 mw-items-center mw-mb-4">
+		<Toast className="mw-flex-col mw-mt-1 mw-mr-6 mw-py-4 mw-w-[244px]">
+			<div className="mw-flex mw-flex-col mw-items-center mw-gap-1 mw-mb-4">
 				<TextField variant={"title"}>{data?.demo_name ?? ""}</TextField>
 				<TextField>{data?.customer_name ?? data?.url ?? ""}</TextField>
 			</div>
 			<Divider />
 			<div className="mw-flex mw-flex-col mw-items-center mw-gap-1 mw-mt-4">
 				<Button onClick={handleEdit}>Edit Demo</Button>
-				<Button variant={Variant.secondary} onClick={handleClose}>
+				<Button onClick={handleClose} variant={Variant.secondary}>
 					Close Mocksi
 				</Button>
 			</div>

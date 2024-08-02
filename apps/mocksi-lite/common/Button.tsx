@@ -1,4 +1,31 @@
-import type { ReactNode } from "react";
+export function ButtonIconSmall({
+	children,
+	onClick,
+	onKeyUp,
+}: {
+	children: React.ReactNode;
+	onClick: () => void;
+	onKeyUp?: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
+}) {
+	function handleKeyUp(event: React.KeyboardEvent<HTMLButtonElement>) {
+		if (onKeyUp) {
+			onKeyUp(event);
+		} else {
+			event.key === "Escape" && onClick();
+		}
+	}
+
+	return (
+		<button
+			className="mw-flex mw-justify-center mw-bg-[#F3F0EF] mw-p-1.5 mw-border-none mw-rounded-full mw-align-center mw-outline-none mw-cursor-pointer"
+			onClick={onClick}
+			onKeyUp={(event) => handleKeyUp(event)}
+			type="button"
+		>
+			{children}
+		</button>
+	);
+}
 
 export enum Variant {
 	primary = "primary",
@@ -6,7 +33,7 @@ export enum Variant {
 	icon = "icon",
 }
 interface ButtonProps {
-	children: ReactNode;
+	children: React.ReactNode;
 	className?: string;
 	disabled?: boolean;
 	variant?: Variant;
