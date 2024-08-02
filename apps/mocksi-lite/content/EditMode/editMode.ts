@@ -8,7 +8,6 @@ import {
 } from "../../utils";
 import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
-import { getHighlighter } from "./highlighter";
 
 const observeUrlChange = (onChange: () => void) => {
 	let oldHref = document.location.href;
@@ -62,7 +61,7 @@ const setupEditor = async (recordingId?: string) => {
 		applyReadOnlyMode();
 	}
 
-	document.body.addEventListener("dblclick", onDoubleClickText);
+	document.body.addEventListener("dblclick", onDoubleClickText(recordingId));
 
 	return;
 };
@@ -83,13 +82,13 @@ const teardownEditor = async (recordingId?: string) => {
 		MOCKSI_READONLY_STATE,
 	]);
 
-	document.body.removeEventListener("dblclick", onDoubleClickText);
+	document.body.removeEventListener("dblclick", onDoubleClickText(recordingId));
 	disableReadOnlyMode();
 
 	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 };
 
-function onDoubleClickText(event: MouseEvent) {
+const onDoubleClickText = (recordingId?: string) => (event: MouseEvent) => {
 	// @ts-ignore MouseEvent typing seems incomplete
 	const nodeName = event?.toElement?.nodeName;
 	console.log("we double clicked on", event.target);
@@ -106,8 +105,16 @@ function onDoubleClickText(event: MouseEvent) {
 		const targetedElement: HTMLElement = event.target as HTMLElement;
 		const selection = window.getSelection();
 
+		const onSubmit = async () => {
+			console.log('submitting')
+			if (recordingId) {
+				console.log('submitting 2', recordingId);
+				await persistModifications(recordingId);
+			}
+		}
+
 		if (selection?.toString()?.trim()) {
-			applyEditor(targetedElement, selection, event.shiftKey);
+			applyEditor(targetedElement, selection, event.shiftKey, onSubmit);
 			document.getElementById("mocksiTextArea")?.focus();
 		} else {
 			decorateClickable(targetedElement);
@@ -212,6 +219,8 @@ function decorateTextTag(
 	width: string,
 	shiftMode: boolean,
 	{ startOffset, endOffset }: { startOffset: number; endOffset: number },
+	onSubmit?: () => void,
+	onCancel?: () => void
 ) {
 	const fragment = document.createDocumentFragment();
 	if (startOffset > 0) {
@@ -220,7 +229,7 @@ function decorateTextTag(
 		);
 	}
 	fragment.appendChild(
-		decorate(text.substring(startOffset, endOffset), width, shiftMode),
+		decorate(text.substring(startOffset, endOffset), width, shiftMode, { onSubmit, onCancel }),
 	);
 	if (endOffset < text.length) {
 		fragment.appendChild(
@@ -234,6 +243,7 @@ function applyEditor(
 	targetedElement: HTMLElement,
 	selectedRange: Selection | null,
 	shiftMode: boolean,
+	onSubmit?: () => void,
 ) {
 	if (selectedRange === null || selectedRange.anchorNode === null) {
 		return;
@@ -246,6 +256,7 @@ function applyEditor(
 				targetedElement.clientWidth?.toString() || "",
 				shiftMode,
 				selectedRange.getRangeAt(0),
+				onSubmit
 			),
 			selectedRange.anchorNode,
 		);
