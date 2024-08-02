@@ -69,7 +69,7 @@ const setupEditor = async (recordingId?: string) => {
 const teardownEditor = async (recordingId?: string) => {
 	sendMessage("detachDebugger");
 
-	console.log('tearing down', recordingId)
+	console.log("tearing down", recordingId);
 
 	if (recordingId) {
 		await persistModifications(recordingId);
@@ -212,7 +212,7 @@ function decorateTextTag(
 	shiftMode: boolean,
 	{ startOffset, endOffset }: { startOffset: number; endOffset: number },
 	onSubmit?: () => void,
-	onCancel?: () => void
+	onCancel?: () => void,
 ) {
 	const fragment = document.createDocumentFragment();
 	if (startOffset > 0) {
@@ -221,7 +221,10 @@ function decorateTextTag(
 		);
 	}
 	fragment.appendChild(
-		decorate(text.substring(startOffset, endOffset), width, shiftMode, { onSubmit, onCancel }),
+		decorate(text.substring(startOffset, endOffset), width, shiftMode, {
+			onSubmit,
+			onCancel,
+		}),
 	);
 	if (endOffset < text.length) {
 		fragment.appendChild(
@@ -248,7 +251,7 @@ function applyEditor(
 				targetedElement.clientWidth?.toString() || "",
 				shiftMode,
 				selectedRange.getRangeAt(0),
-				onSubmit
+				onSubmit,
 			),
 			selectedRange.anchorNode,
 		);
