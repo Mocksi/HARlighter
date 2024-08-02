@@ -235,13 +235,15 @@ function debuggerDetachHandler() {
 async function attachDebugger() {
 	const version = "1.0";
 
-	const [activeTab] = await chrome.tabs.query({
-		active: true,
-		lastFocusedWindow: true,
-	}).catch((err) => {
-		console.error("Error querying active tab", err);
-		return [];
-	});
+	const [activeTab] = await chrome.tabs
+		.query({
+			active: true,
+			lastFocusedWindow: true,
+		})
+		.catch((err) => {
+			console.error("Error querying active tab", err);
+			return [];
+		});
 
 	if (!activeTab || !activeTab.id) {
 		console.error("Cannot find active tab ID to attach debugger");
