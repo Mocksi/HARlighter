@@ -2,7 +2,6 @@ import { useState } from "react";
 import Button, { Variant } from "../../common/Button";
 import Divider from "../../common/Divider";
 import TextField from "../../common/TextField";
-import expandIcon from "../../public/expand-icon.png";
 import { sendMessage } from "../../utils";
 
 interface FormProps {
@@ -52,9 +51,6 @@ const Form = ({ onCancel, onSubmit }: FormProps) => {
 							Save Demo
 						</Button>
 					</div>
-				</div>
-				<div className="mw-flex mw-p-2 self-end">
-					<img alt={"expandIcon"} src={expandIcon} />
 				</div>
 			</div>
 		</div>
