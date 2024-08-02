@@ -1,10 +1,7 @@
 import TextField from "../../common/TextField";
-import backIcon from "../../public/back-icon.png";
-import closeIcon from "../../public/close-icon.png";
-import labeledIcon from "../../public/labeled-icon.png";
-import menuIcon from "../../public/menu-icon.png";
-import trashIcon from "../../public/trash-icon.png";
 import Divider from "../Divider";
+import { CloseIcon, LeftArrowIcon, MenuIcon, TrashIcon } from "../Icons";
+import { Logo } from "../Logos";
 
 interface HeaderProps {
 	shouldDisplaySettings?: string;
@@ -25,10 +22,10 @@ const Header = ({ close, onGoBack, onSettings, subtitle }: HeaderProps) => {
 						event.key === "Escape" && close();
 					}}
 				>
-					<img alt="closeIcon" src={closeIcon} />
+					<CloseIcon />
 				</div>
 				<div className="mw-flex mw-justify-center mw-mr-[20px] mw-w-full drag-handle">
-					<img alt="menuIcon" draggable="false" src={menuIcon} />
+					<MenuIcon />
 				</div>
 			</div>
 			<Divider />
@@ -41,12 +38,12 @@ const Header = ({ close, onGoBack, onSettings, subtitle }: HeaderProps) => {
 							event.key === "Enter" && onGoBack();
 						}}
 					>
-						<img alt={"backIcon"} className="mw-w-[16px]" src={backIcon} />
+						<LeftArrowIcon />
 					</div>
 				)}
 				<div className="mw-flex mw-flex-col mw-justify-center mw-items-center mw-gap-[5px]">
 					<div>
-						<img alt={"labeledIcon"} src={labeledIcon} />
+						<Logo />
 					</div>
 					{subtitle && <TextField variant="title">{subtitle}</TextField>}
 				</div>
@@ -58,7 +55,7 @@ const Header = ({ close, onGoBack, onSettings, subtitle }: HeaderProps) => {
 							event.key === "Enter" && onSettings();
 						}}
 					>
-						<img alt={"trashIcon"} src={trashIcon} />
+						<TrashIcon />
 					</div>
 				)}
 			</div>

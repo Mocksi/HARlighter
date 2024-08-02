@@ -22,6 +22,7 @@ export function EditIcon() {
 	);
 }
 
+// aka "back icon"
 export function LeftArrowIcon() {
 	return (
 		<svg fill="none" height="20" width="10" xmlns="http://www.w3.org/2000/svg">
