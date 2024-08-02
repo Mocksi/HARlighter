@@ -48,7 +48,7 @@ const PlayToast = ({ close }: PlayToastProps) => {
 	};
 
 	return (
-		<Toast className="mw-mb-7 mw-gap-4 mw-py-3 mw-px-4">
+		<Toast className="mw-gap-4 mw-mb-7 mw-px-4 mw-py-3">
 			<div
 				className="mw-cursor-pointer"
 				onClick={handleHideToast}
@@ -56,15 +56,15 @@ const PlayToast = ({ close }: PlayToastProps) => {
 					event.key === "Escape" && handleHideToast();
 				}}
 			>
-				<img src={closeIcon} alt="closeIcon" />
+				<img alt="closeIcon" src={closeIcon} />
 			</div>
-			<img src={labeledIcon} alt={"labeledIcon"} />
+			<img alt={"labeledIcon"} src={labeledIcon} />
 			<div className="mw-flex mw-gap-2">
-				<Button variant={Variant.icon} onClick={handleStop}>
-					<img src={stopIcon} alt={"stopIcon"} />
+				<Button onClick={handleStop} variant={Variant.icon}>
+					<img alt={"stopIcon"} src={stopIcon} />
 				</Button>
-				<Button variant={Variant.icon} onClick={handleEdit}>
-					<img src={editIcon} alt={"editIcon"} />
+				<Button onClick={handleEdit} variant={Variant.icon}>
+					<img alt={"editIcon"} src={editIcon} />
 				</Button>
 			</div>
 		</Toast>
