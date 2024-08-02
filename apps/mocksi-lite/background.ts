@@ -21,6 +21,7 @@ export interface Alteration {
 
 export interface Recording {
 	updated_timestamp: Date;
+	created_timestamp: Date;
 	alterations: Alteration[];
 	creator: string;
 	customer_name: string;
@@ -336,7 +337,6 @@ async function getRecordings(): Promise<Recording[]> {
 		});
 
 		if (!response || response.length === 0) {
-			MocksiRollbar.error("No recordings found.");
 			chrome.storage.local.set({ recordings: "[]" });
 			return [];
 		}

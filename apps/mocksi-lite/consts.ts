@@ -12,6 +12,7 @@ export const MOCKSI_AUTH = "mocksi-auth";
 export const MOCKSI_HIGHLIGHTER_ID = "mocksi-highlighter";
 export const MOCKSI_IMAGE_REPLACER_ID = "mocksi-image-replacer";
 export const MOCKSI_LAST_PAGE_DOM = "mocksi-last-page-dom";
+export const MOCKSI_RECORDING_CREATED_AT = "mocksi-recording-created-at";
 
 export const MOCKSI_POPUP_LOCATION = "mocksi-popup-location";
 // FIXME: Move to an environment variable

@@ -2,7 +2,11 @@ import { useContext } from "react";
 import type { Recording } from "../../background";
 import Button, { Variant } from "../../common/Button";
 import TextField from "../../common/TextField";
-import { MOCKSI_ALTERATIONS, MOCKSI_RECORDING_ID } from "../../consts";
+import {
+	MOCKSI_ALTERATIONS,
+	MOCKSI_RECORDING_CREATED_AT,
+	MOCKSI_RECORDING_ID,
+} from "../../consts";
 import editIcon from "../../public/edit-icon.png";
 import playIcon from "../../public/play-icon.png";
 import { loadAlterations, sendMessage } from "../../utils";
@@ -17,6 +21,7 @@ const DemoItem = ({
 	customer_name,
 	alterations,
 	url,
+	created_timestamp,
 }: DemoItemProps) => {
 	const { dispatch } = useContext(AppStateContext);
 	const domain = new URL(url).hostname;
@@ -38,11 +43,12 @@ const DemoItem = ({
 		await chrome.storage.local.set({
 			[MOCKSI_ALTERATIONS]: alterations,
 			[MOCKSI_RECORDING_ID]: uuid,
+			[MOCKSI_RECORDING_CREATED_AT]: created_timestamp,
 		});
 
 		if (window.location.href === url) {
 			sendMessage("updateToPauseIcon");
-			loadAlterations(alterations, false);
+			loadAlterations(alterations, false, created_timestamp);
 			dispatch({ event: AppEvent.START_PLAYING });
 		} else {
 			sendMessage("playMode", { url });

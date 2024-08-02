@@ -1,6 +1,7 @@
 // biome-ignore lint/style/useImportType: types are messy
 import { ReactNode, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
+import { extractStyles } from "../utils";
 
 interface IframeWrapperProps {
 	children: ReactNode;
@@ -9,26 +10,6 @@ interface IframeWrapperProps {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	[x: string]: any;
 }
-
-const extractStyles = (): string => {
-	let styles = "";
-	const styleSheets = Array.from(document.styleSheets) as CSSStyleSheet[];
-
-	for (const sheet of styleSheets) {
-		try {
-			if (sheet.cssRules) {
-				const cssRules = Array.from(sheet.cssRules) as CSSRule[];
-				for (const rule of cssRules) {
-					styles += rule.cssText;
-				}
-			}
-		} catch (e) {
-			console.error("Error accessing stylesheet:", e);
-		}
-	}
-
-	return styles;
-};
 
 const IframeWrapper = ({
 	children,
@@ -51,7 +32,7 @@ const IframeWrapper = ({
 			return;
 		}
 
-		let baseStyles = extractStyles();
+		let baseStyles = extractStyles(document.styleSheets);
 		// Append component styles
 		if (styles) {
 			baseStyles += styles;

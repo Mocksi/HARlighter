@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import useShadow from "use-shadow-dom";
 import type { Recording } from "../background";
 import { MOCKSI_LAST_PAGE_DOM } from "../consts";
-import { innerHTMLToJson, logout, setRootPosition } from "../utils";
+import { extractStyles, innerHTMLToJson, logout } from "../utils";
 import {
 	AppEvent,
 	AppState,
@@ -18,8 +18,24 @@ import EditToast from "./Toast/EditToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
 
-import("./content.css");
-import("./base.css");
+import(
+	/* webpackChunkName: "content_content_css" */
+	/* webpackPrefetch: true */
+	/* webpackPreload: true */
+	"./content.css"
+);
+import(
+	/* webpackChunkName: "content_base_css" */
+	/* webpackPrefetch: true */
+	/* webpackPreload: true */
+	"./base.css"
+);
+import(
+	/* webpackChunkName: "content_spinner_css" */
+	/* webpackPrefetch: true */
+	/* webpackPreload: true */
+	"./spinner.css"
+);
 
 interface ContentProps {
 	isOpen?: boolean;
@@ -95,39 +111,21 @@ function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 	return renderContent();
 }
 
-const extractStyles = (): string => {
-	let styles = "";
-	const styleSheets = Array.from(document.styleSheets) as CSSStyleSheet[];
-
-	for (const sheet of styleSheets) {
-		try {
-			if (sheet.cssRules) {
-				const cssRules = Array.from(sheet.cssRules) as CSSRule[];
-				for (const rule of cssRules) {
-					styles += rule.cssText;
-				}
-			}
-		} catch (e) {
-			console.error("Error accessing stylesheet:", e);
-		}
-	}
-
-	return styles;
-};
-
 export default function ContentApp({
 	isOpen,
 	email,
 	initialState,
 }: ContentProps) {
-	const styles = extractStyles();
+	const styles = extractStyles(document.styleSheets);
 	return useShadow(
 		<AppStateProvider initialRecordings={initialState?.recordings}>
-			<ShadowContentApp
-				isOpen={isOpen}
-				email={email}
-				initialState={initialState}
-			/>
+			<div className="mcksi-frame-include">
+				<ShadowContentApp
+					isOpen={isOpen}
+					email={email}
+					initialState={initialState}
+				/>
+			</div>
 		</AppStateProvider>,
 		[],
 		{

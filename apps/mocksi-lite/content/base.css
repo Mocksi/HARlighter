@@ -11,4 +11,8 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
+  /* Add the custom utility */
+  .mcksi-frame-include {
+    --mcksi-frame-include: true;
+  }
 }
