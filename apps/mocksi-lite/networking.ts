@@ -20,9 +20,7 @@ const auth0Client = new auth0.WebAuth({
 const getAuthToken = async (): Promise<string> => {
 	try {
 		const storageAuth = await chrome.storage.local.get(MOCKSI_AUTH);
-		MocksiRollbar.log("Retrieved auth from storage:", storageAuth);
 		const mocksiAuth = JSON.parse(storageAuth[MOCKSI_AUTH]);
-		MocksiRollbar.log("Parsed auth token:", mocksiAuth.accessToken);
 		return mocksiAuth.accessToken ?? "";
 	} catch (err) {
 		MocksiRollbar.error(`Failed to retrieve auth token: ${err}`);
