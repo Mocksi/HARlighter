@@ -15,7 +15,6 @@ export const buildQuerySelector = (
 	parentElement: HTMLElement,
 	newValue: string,
 ) => {
-	console.log("building query selector");
 	const { localName, id, classList } = parentElement;
 	let keyToSave = localName;
 	if (id) {

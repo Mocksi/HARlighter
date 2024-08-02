@@ -32,8 +32,6 @@ const DemoItem = ({
 			[MOCKSI_RECORDING_ID]: uuid,
 		});
 
-		console.log(demo_name, alterations);
-
 		setEditorMode(true, uuid);
 		loadAlterations(alterations, true);
 		dispatch({ event: AppEvent.START_EDITING });

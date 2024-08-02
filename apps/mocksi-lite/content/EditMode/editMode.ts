@@ -45,7 +45,6 @@ const setupEditor = async (recordingId?: string) => {
 	observeUrlChange(() => {
 		console.log("URL changed, turning off highlights");
 		getAlterations().then((alterations) => {
-			console.log(alterations);
 			loadAlterations(alterations, true);
 		});
 	});
@@ -57,7 +56,6 @@ const setupEditor = async (recordingId?: string) => {
 		results[MOCKSI_READONLY_STATE] === undefined ||
 		results[MOCKSI_READONLY_STATE]
 	) {
-		console.log("injecting styles");
 		applyReadOnlyMode();
 	}
 
@@ -68,8 +66,6 @@ const setupEditor = async (recordingId?: string) => {
 
 const teardownEditor = async (recordingId?: string) => {
 	sendMessage("detachDebugger");
-
-	console.log("tearing down", recordingId);
 
 	if (recordingId) {
 		await persistModifications(recordingId);
