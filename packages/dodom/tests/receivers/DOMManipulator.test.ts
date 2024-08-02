@@ -1,14 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DOMManipulator } from "../../receivers/DOMManipulator";
-import { replaceFirstLetterCase, cleanPattern } from "../../receivers/DOMManipulator";
+import {
+	cleanPattern,
+	replaceFirstLetterCase,
+} from "../../receivers/DOMManipulator";
 
-const mockFragmentTextNode = vi.fn((fragmentsToHighlight, matches, textNode, newText) => {
-	const fragment = document.createDocumentFragment();
-	const span = document.createElement("span");
-	span.textContent = textNode.nodeValue?.replace(matches[0][0], newText) || "";
-	fragment.appendChild(span);
-	return fragment;
-});
+const mockFragmentTextNode = vi.fn(
+	(fragmentsToHighlight, matches, textNode, newText) => {
+		const fragment = document.createDocumentFragment();
+		const span = document.createElement("span");
+		span.textContent =
+			textNode.nodeValue?.replace(matches[0][0], newText) || "";
+		fragment.appendChild(span);
+		return fragment;
+	},
+);
 const mockContentHighlighter = {
 	highlightNode: vi.fn(),
 	removeHighlightNode: vi.fn(),
@@ -119,7 +125,9 @@ describe("DOMManipulator", () => {
 		`;
 		domManipulator.addPattern("engineering", "marketing");
 
-		const smallElement = document.querySelector('[data-testid="event-type-slug-1"]');
+		const smallElement = document.querySelector(
+			'[data-testid="event-type-slug-1"]',
+		);
 		expect(smallElement?.textContent).toBe("/marketing/15min");
 	});
 });
