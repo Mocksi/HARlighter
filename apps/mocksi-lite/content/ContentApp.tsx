@@ -42,10 +42,11 @@ interface ContentProps {
 	email?: string;
 	initialState?: {
 		recordings?: Recording[];
+		readOnly?: boolean;
 	};
 }
 
-function ShadowContentApp({ isOpen, email }: ContentProps) {
+function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 	const { state, dispatch } = useContext(AppStateContext);
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 
@@ -82,7 +83,7 @@ function ShadowContentApp({ isOpen, email }: ContentProps) {
 		};
 		switch (state) {
 			case AppState.EDITING:
-				return <EditToast />;
+				return <EditToast initialReadOnlyState={initialState?.readOnly} />;
 			case AppState.PLAY:
 				return <PlayToast close={closeDialog} />;
 			case AppState.CHAT:
@@ -119,7 +120,11 @@ export default function ContentApp({
 	return useShadow(
 		<AppStateProvider initialRecordings={initialState?.recordings}>
 			<div className="mcksi-frame-include">
-				<ShadowContentApp isOpen={isOpen} email={email} />
+				<ShadowContentApp
+					isOpen={isOpen}
+					email={email}
+					initialState={initialState}
+				/>
 			</div>
 		</AppStateProvider>,
 		[],

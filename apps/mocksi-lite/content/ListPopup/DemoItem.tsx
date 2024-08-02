@@ -26,7 +26,12 @@ const DemoItem = ({
 	const { dispatch } = useContext(AppStateContext);
 	const domain = new URL(url).hostname;
 
-	const handleEdit = () => {
+	const handleEdit = async () => {
+		await chrome.storage.local.set({
+			[MOCKSI_ALTERATIONS]: alterations,
+			[MOCKSI_RECORDING_ID]: uuid,
+		});
+
 		setEditorMode(true, uuid);
 		loadAlterations(alterations, true);
 		dispatch({ event: AppEvent.START_EDITING });
@@ -38,6 +43,7 @@ const DemoItem = ({
 			[MOCKSI_RECORDING_ID]: uuid,
 			[MOCKSI_RECORDING_CREATED_AT]: created_timestamp,
 		});
+
 		if (window.location.href === url) {
 			sendMessage("updateToPauseIcon");
 			loadAlterations(alterations, false, created_timestamp);
