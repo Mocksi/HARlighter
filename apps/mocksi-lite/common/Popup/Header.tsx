@@ -1,4 +1,5 @@
 import TextField from "../../common/TextField";
+import { ButtonIconSmall } from "../Button";
 import Divider from "../Divider";
 import { CloseIcon, LeftArrowIcon, MenuIcon, TrashIcon } from "../Icons";
 import { Logo } from "../Logos";
@@ -15,15 +16,9 @@ const Header = ({ close, onGoBack, onSettings, subtitle }: HeaderProps) => {
 	return (
 		<div>
 			<div className="mw-flex mw-flex-row mw-items-center mw-px-2 mw-h-[36px]">
-				<div
-					className="mw-cursor-pointer"
-					onClick={close}
-					onKeyUp={(event) => {
-						event.key === "Escape" && close();
-					}}
-				>
+				<ButtonIconSmall onClick={close}>
 					<CloseIcon />
-				</div>
+				</ButtonIconSmall>
 				<div className="mw-flex mw-justify-center mw-mr-[20px] mw-w-full drag-handle">
 					<MenuIcon />
 				</div>

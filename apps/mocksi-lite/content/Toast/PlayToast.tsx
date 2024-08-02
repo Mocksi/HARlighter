@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import Button, { Variant } from "../../common/Button";
+import Button, { ButtonIconSmall, Variant } from "../../common/Button";
 import { CloseIcon, EditIcon, StopIcon } from "../../common/Icons";
 import { Logo } from "../../common/Logos";
 import {
@@ -41,15 +41,9 @@ const PlayToast = ({ close }: PlayToastProps) => {
 
 	return (
 		<Toast className="mw-gap-4 mw-mb-7 mw-px-4 mw-py-3">
-			<div
-				className="mw-flex mw-justify-center mw-bg-[#F3F0EF] mw-p-1.5 mw-rounded-full mw-align-center mw-cursor-pointer"
-				onClick={handleHideToast}
-				onKeyUp={(event) => {
-					event.key === "Escape" && handleHideToast();
-				}}
-			>
+			<ButtonIconSmall onClick={handleHideToast}>
 				<CloseIcon />
-			</div>
+			</ButtonIconSmall>
 			<Logo />
 			<div className="mw-flex mw-gap-2">
 				<Button onClick={handleStop} variant={Variant.icon}>

@@ -1,6 +1,7 @@
 import { useContext } from "react";
-import closeIcon from "../../public/close-icon.png";
-import mocksiLogo from "../../public/mocksi-logo.png";
+import { ButtonIconSmall } from "../../common/Button";
+import { CloseIcon } from "../../common/Icons";
+import { LogoBirdy } from "../../common/Logos";
 import { recordingLabel } from "../../utils";
 import { AppState, AppStateContext } from "../AppStateContext";
 import IframeWrapper from "../IframeWrapper";
@@ -15,29 +16,19 @@ const RecordingToast = ({ close }: RecordingToast) => {
 	const { state } = useContext(AppStateContext);
 
 	const iframeStyle = {
+		border: "none",
 		position: "relative",
 		zIndex: 9999998,
-		border: "none",
 	};
 
 	return (
 		<IframeWrapper style={iframeStyle}>
-			<Toast className="mw-h-11 mw-w-64 mw-mt-4 mw-mr-8  mw-justify-between">
-				<div className="mw-flex mw-flex-row mw-gap-2 mw-items-center">
-					<div
-						className="mw-ml-2 mw-cursor-pointer"
-						onClick={close}
-						onKeyUp={(event) => {
-							event.key === "Escape" && close();
-						}}
-					>
-						<img src={closeIcon} alt="closeIcon" />
-					</div>
-					<img
-						className="mw-w-[30px] mw-h-[20px]"
-						src={mocksiLogo}
-						alt="mocksiLogo"
-					/>
+			<Toast className="mw-justify-between mw-mt-4 mw-mr-8 mw-h-11 mw-w-64">
+				<div className="mw-flex mw-flex-row mw-items-center mw-gap-2">
+					<ButtonIconSmall onClick={close}>
+						<CloseIcon />
+					</ButtonIconSmall>
+					<LogoBirdy />
 					<span className="mw-font-medium mw-text-[#000F0C] mw-text-sm">
 						{recordingLabel(state)}
 					</span>
