@@ -61,7 +61,7 @@ const setupEditor = async (recordingId?: string) => {
 		applyReadOnlyMode();
 	}
 
-	document.body.addEventListener("dblclick", onDoubleClickText(recordingId));
+	document.body.addEventListener("dblclick", onDoubleClickText);
 
 	return;
 };
@@ -82,13 +82,13 @@ const teardownEditor = async (recordingId?: string) => {
 		MOCKSI_READONLY_STATE,
 	]);
 
-	document.body.removeEventListener("dblclick", onDoubleClickText(recordingId));
+	document.body.removeEventListener("dblclick", onDoubleClickText);
 	disableReadOnlyMode();
 
 	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 };
 
-const onDoubleClickText = (recordingId?: string) => (event: MouseEvent) => {
+function onDoubleClickText(event: MouseEvent) {
 	// @ts-ignore MouseEvent typing seems incomplete
 	const nodeName = event?.toElement?.nodeName;
 	console.log("we double clicked on", event.target);
@@ -105,16 +105,8 @@ const onDoubleClickText = (recordingId?: string) => (event: MouseEvent) => {
 		const targetedElement: HTMLElement = event.target as HTMLElement;
 		const selection = window.getSelection();
 
-		const onSubmit = async () => {
-			console.log('submitting')
-			if (recordingId) {
-				console.log('submitting 2', recordingId);
-				await persistModifications(recordingId);
-			}
-		}
-
 		if (selection?.toString()?.trim()) {
-			applyEditor(targetedElement, selection, event.shiftKey, onSubmit);
+			applyEditor(targetedElement, selection, event.shiftKey);
 			document.getElementById("mocksiTextArea")?.focus();
 		} else {
 			decorateClickable(targetedElement);

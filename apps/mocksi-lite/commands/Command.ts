@@ -15,13 +15,15 @@ export const buildQuerySelector = (
 	parentElement: HTMLElement,
 	newValue: string,
 ) => {
+	console.log('building query selector');
 	const { localName, id, classList } = parentElement;
 	let keyToSave = localName;
 	if (id) {
 		keyToSave += `#${id}`;
 	}
 	if (classList.length) {
-		keyToSave += `.${[...classList].join(".")}`;
+		const filteredClasses = [...classList].filter((cls) => !cls.includes(':'))
+		keyToSave += `.${filteredClasses.join(".")}`;
 	}
 	let elements: NodeListOf<Element>;
 	try {
