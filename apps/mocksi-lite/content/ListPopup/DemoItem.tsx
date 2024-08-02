@@ -1,14 +1,13 @@
 import { useContext } from "react";
 import type { Recording } from "../../background";
 import Button, { Variant } from "../../common/Button";
+import { EditIcon, PlayIcon } from "../../common/Icons";
 import TextField from "../../common/TextField";
 import {
 	MOCKSI_ALTERATIONS,
 	MOCKSI_RECORDING_CREATED_AT,
 	MOCKSI_RECORDING_ID,
 } from "../../consts";
-import editIcon from "../../public/edit-icon.png";
-import playIcon from "../../public/play-icon.png";
 import { loadAlterations, sendMessage } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 import { setEditorMode } from "../EditMode/editMode";
@@ -16,12 +15,12 @@ import { setEditorMode } from "../EditMode/editMode";
 interface DemoItemProps extends Recording {}
 
 const DemoItem = ({
-	uuid,
-	demo_name,
-	customer_name,
 	alterations,
-	url,
 	created_timestamp,
+	customer_name,
+	demo_name,
+	url,
+	uuid,
 }: DemoItemProps) => {
 	const { dispatch } = useContext(AppStateContext);
 	const domain = new URL(url).hostname;
@@ -40,8 +39,8 @@ const DemoItem = ({
 	const handlePlay = async () => {
 		await chrome.storage.local.set({
 			[MOCKSI_ALTERATIONS]: alterations,
-			[MOCKSI_RECORDING_ID]: uuid,
 			[MOCKSI_RECORDING_CREATED_AT]: created_timestamp,
+			[MOCKSI_RECORDING_ID]: uuid,
 		});
 
 		if (window.location.href === url) {
@@ -56,11 +55,11 @@ const DemoItem = ({
 	return (
 		<div className="mw-flex mw-justify-between mw-px-6">
 			<div className="mw-w-[200px]">
-				<TextField variant={"title"} className="truncate">
+				<TextField className="truncate" variant={"title"}>
 					{demo_name}
 				</TextField>
 				<TextField className="truncate">{customer_name}</TextField>
-				<a href={url} target={"_blank"} rel={"noreferrer"}>
+				<a href={url} rel={"noreferrer"} target={"_blank"}>
 					<TextField className="mw-text-xs mw-underline truncate">
 						{domain}
 					</TextField>
@@ -68,18 +67,18 @@ const DemoItem = ({
 			</div>
 			<div className="mw-flex mw-gap-3">
 				<Button
-					variant={Variant.icon}
-					onClick={handleEdit}
 					disabled={!url.includes(window.location.hostname)}
+					onClick={handleEdit}
+					variant={Variant.icon}
 				>
-					<img src={editIcon} alt={"editIcon"} />
+					<EditIcon />
 				</Button>
 				<Button
-					variant={Variant.icon}
-					onClick={handlePlay}
 					disabled={!alterations || !alterations.length}
+					onClick={handlePlay}
+					variant={Variant.icon}
 				>
-					<img src={playIcon} alt={"playIcon"} />
+					<PlayIcon />
 				</Button>
 			</div>
 		</div>
