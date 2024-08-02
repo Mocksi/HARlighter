@@ -96,6 +96,9 @@ export const saveModification = (
 
 export const persistModifications = async (recordingId: string) => {
 	const alterations: Alteration[] = buildAlterations();
+
+	console.log('persisting', alterations);
+
 	chrome.storage.local.set({
 		[MOCKSI_MODIFICATIONS]: JSON.stringify(domainModifications),
 	});

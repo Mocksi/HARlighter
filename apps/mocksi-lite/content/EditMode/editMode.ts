@@ -70,6 +70,8 @@ const setupEditor = async (recordingId?: string) => {
 const teardownEditor = async (recordingId?: string) => {
 	sendMessage("detachDebugger");
 
+	console.log('tearing down', recordingId)
+
 	if (recordingId) {
 		await persistModifications(recordingId);
 	}
