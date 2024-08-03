@@ -1,11 +1,11 @@
-export function ButtonIconSmall({
-	children,
+import { CloseIcon } from "./Icons";
+
+export function CloseButton({
 	onClick,
 	onKeyUp,
 }: {
-	children: React.ReactNode;
 	onClick: () => void;
-	onKeyUp?: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
+	onKeyUp?: (event?: React.KeyboardEvent<HTMLButtonElement>) => void;
 }) {
 	function handleKeyUp(event: React.KeyboardEvent<HTMLButtonElement>) {
 		if (onKeyUp) {
@@ -16,10 +16,26 @@ export function ButtonIconSmall({
 	}
 
 	return (
+		<ButtonIconSmall onClick={onClick} onKeyUp={handleKeyUp}>
+			<CloseIcon />
+		</ButtonIconSmall>
+	);
+}
+
+export function ButtonIconSmall({
+	children,
+	onClick,
+	onKeyUp,
+}: {
+	children: React.ReactNode;
+	onClick: () => void;
+	onKeyUp: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
+}) {
+	return (
 		<button
 			className="mw-flex mw-justify-center mw-bg-[#F3F0EF] mw-p-1.5 mw-border-none mw-rounded-full mw-align-center mw-outline-none mw-cursor-pointer"
 			onClick={onClick}
-			onKeyUp={(event) => handleKeyUp(event)}
+			onKeyUp={onKeyUp}
 			type="button"
 		>
 			{children}

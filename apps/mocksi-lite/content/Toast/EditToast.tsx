@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
+import { CloseButton } from "../../common/Button";
 import TextField from "../../common/TextField";
-import closeIcon from "../../public/close-icon.png";
 import { loadRecordingId, recordingLabel } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 import {
@@ -17,7 +17,7 @@ type EditToastProps = {
 };
 
 const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
-	const { state, dispatch } = useContext(AppStateContext);
+	const { dispatch, state } = useContext(AppStateContext);
 
 	const [areChangesHighlighted, setAreChangesHighlighted] = useState(true);
 	const [isReadOnlyModeEnabled, setIsReadOnlyModeEnabled] = useState(
@@ -61,51 +61,39 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	};
 
 	const iframeStyle = {
-		position: "relative",
-		zIndex: 9999998,
 		border: "none",
+		position: "relative",
 		width: "355px",
+		zIndex: 9999998,
 	};
 
 	return (
 		<IframeWrapper style={iframeStyle}>
 			<Toast
+				className="mw-flex mw-flex-row mw-items-center mw-gap-6 mw-mt-3 mw-p-3 min-w-64"
 				id="mocksi-editor-toast"
-				className="mw-mt-3 min-w-64 mw-p-3 mw-flex mw-flex-row mw-items-center mw-gap-6"
 			>
-				<div
-					className="mw-cursor-pointer"
-					onClick={() => {
-						handleCancel();
-					}}
-					onKeyUp={async (event) => {
-						if (event.key === "Escape") {
-							handleCancel();
-						}
-					}}
-				>
-					<img src={closeIcon} alt="closeIcon" />
-				</div>
+				<CloseButton onClick={handleCancel} />
 				<div className="mw-flex mw-flex-col mw-gap-2">
 					<TextField variant={"title"}>{recordingLabel(state)}</TextField>
-					<div className="mw-flex mw-gap-2 mw-items-center">
+					<div className="mw-flex mw-items-center mw-gap-2">
 						<input
 							checked={areChangesHighlighted}
+							className="!rounded-lg mw-h-5 mw-w-5"
 							onChange={() => onChecked()}
 							type="checkbox"
-							className="mw-h-5 mw-w-5 !rounded-lg"
 						/>
 						<div className="mw-text-[13px] leading-[15px]">
 							Highlight All Previous Changes
 						</div>
 					</div>
 
-					<div className="mw-flex mw-gap-2 mw-items-center">
+					<div className="mw-flex mw-items-center mw-gap-2">
 						<input
 							checked={isReadOnlyModeEnabled}
+							className="!rounded-lg mw-h-5 mw-w-5"
 							onChange={() => onReadOnlyChecked()}
 							type="checkbox"
-							className="mw-h-5 mw-w-5 !rounded-lg"
 						/>
 						<div className="mw-text-[13px] leading-[15px]">
 							{isReadOnlyModeEnabled ? "Disable" : "Enable"} Read-Only Mode
@@ -113,7 +101,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 					</div>
 				</div>
 				<div
-					className="mw-cursor-pointer mw-text-[#009875]"
+					className="mw-text-[#009875] mw-cursor-pointer"
 					onClick={async () => {
 						handleSave();
 					}}

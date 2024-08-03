@@ -1,6 +1,5 @@
 import { useContext } from "react";
-import { ButtonIconSmall } from "../../common/Button";
-import { CloseIcon } from "../../common/Icons";
+import { CloseButton } from "../../common/Button";
 import { LogoBirdy } from "../../common/Logos";
 import { recordingLabel } from "../../utils";
 import { AppState, AppStateContext } from "../AppStateContext";
@@ -25,9 +24,7 @@ const RecordingToast = ({ close }: RecordingToast) => {
 		<IframeWrapper style={iframeStyle}>
 			<Toast className="mw-justify-between mw-mt-4 mw-mr-8 mw-h-11 mw-w-64">
 				<div className="mw-flex mw-flex-row mw-items-center mw-gap-2 mw-pl-2">
-					<ButtonIconSmall onClick={close}>
-						<CloseIcon />
-					</ButtonIconSmall>
+					<CloseButton onClick={close} />
 					<LogoBirdy />
 					<span className="mw-font-medium mw-text-[#000F0C] mw-text-sm">
 						{recordingLabel(state)}

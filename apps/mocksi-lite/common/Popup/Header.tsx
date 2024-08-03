@@ -1,5 +1,5 @@
 import TextField from "../../common/TextField";
-import { ButtonIconSmall } from "../Button";
+import { CloseButton } from "../Button";
 import Divider from "../Divider";
 import { CloseIcon, LeftArrowIcon, MenuIcon, TrashIcon } from "../Icons";
 import { Logo } from "../Logos";
@@ -16,9 +16,7 @@ const Header = ({ close, onGoBack, onSettings, subtitle }: HeaderProps) => {
 	return (
 		<div>
 			<div className="mw-flex mw-flex-row mw-items-center mw-px-2 mw-h-[36px]">
-				<ButtonIconSmall onClick={close}>
-					<CloseIcon />
-				</ButtonIconSmall>
+				<CloseButton onClick={close} />
 				<div className="mw-flex mw-justify-center mw-mr-[20px] mw-w-full drag-handle">
 					<MenuIcon />
 				</div>

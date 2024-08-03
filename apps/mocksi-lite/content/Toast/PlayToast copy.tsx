@@ -1,7 +1,11 @@
 import { useContext } from "react";
-import Button, { CloseButton, Variant } from "../../common/Button";
-import { EditIcon, StopIcon } from "../../common/Icons";
+import Button, { Variant } from "../../common/Button";
+import { CloseIcon, EditIcon, StopIcon } from "../../common/Icons";
 import { Logo } from "../../common/Logos";
+import closeIcon from "../../public/close-icon.png";
+import editIcon from "../../public/edit-icon.png";
+import labeledIcon from "../../public/labeled-icon.png";
+import stopIcon from "../../public/stop-icon.png";
 import {
 	getAlterations,
 	loadAlterations,
@@ -21,27 +25,41 @@ const PlayToast = ({ close }: PlayToastProps) => {
 
 	const handleEdit = async () => {
 		sendMessage("resetIcon");
+
 		const alterations = await getAlterations();
 		loadAlterations(alterations, true);
+
 		setEditorMode(true);
 		dispatch({ event: AppEvent.START_EDITING });
 	};
 
 	const handleHideToast = () => {
 		sendMessage("updateToPauseIcon");
+
 		dispatch({ event: AppEvent.START_PLAYING });
+
 		close();
 	};
 
 	const handleStop = () => {
 		sendMessage("resetIcon");
+
 		undoModifications();
+
 		dispatch({ event: AppEvent.STOP_PLAYING });
 	};
 
 	return (
 		<Toast className="mw-gap-4 mw-mb-7 mw-px-4 mw-py-3">
-			<CloseButton onClick={handleHideToast} />
+			<div
+				className="mw-flex mw-justify-center mw-bg-[#F3F0EF] mw-p-1.5 mw-rounded-full mw-align-center mw-cursor-pointer"
+				onClick={handleHideToast}
+				onKeyUp={(event) => {
+					event.key === "Escape" && handleHideToast();
+				}}
+			>
+				<CloseIcon />
+			</div>
 			<Logo />
 			<div className="mw-flex mw-gap-2">
 				<Button onClick={handleStop} variant={Variant.icon}>
