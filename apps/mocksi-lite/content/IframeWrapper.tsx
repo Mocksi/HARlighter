@@ -4,21 +4,21 @@ import ReactDOM from "react-dom";
 import { extractStyles } from "../utils";
 
 interface IframeWrapperProps {
-	children: ReactNode;
-	styles?: string;
-	scripts?: string[];
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	[x: string]: any;
+	children: ReactNode;
+	scripts?: string[];
+	styles?: string;
 }
 
 const IframeWrapper = ({
 	children,
-	styles,
 	scripts,
+	styles,
 	...props
 }: IframeWrapperProps) => {
 	const iframeRef = useRef<HTMLIFrameElement>(null); // Explicitly type the ref
-	const [iframeBody, setIframeBody] = useState<HTMLElement | null>(null);
+	const [iframeBody, setIframeBody] = useState<null | HTMLElement>(null);
 
 	useEffect(() => {
 		const iframe = iframeRef.current;
