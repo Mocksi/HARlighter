@@ -1,5 +1,10 @@
 // utils.ts
-import type { Modification, ModificationRequest, AppliedModifications } from "./interfaces";
+const cssSelector = require("css-selector-generator");
+import type {
+	AppliedModifications,
+	Modification,
+	ModificationRequest,
+} from "./interfaces";
 
 export function parseRequest(userRequest: string): ModificationRequest {
 	try {
@@ -12,6 +17,12 @@ export function parseRequest(userRequest: string): ModificationRequest {
 }
 
 abstract class AppliableModification {
+	doc: Document;
+
+	constructor(doc: Document) {
+		this.doc = doc;
+	}
+
 	abstract apply(): void;
 	abstract unapply(): void;
 }
@@ -25,7 +36,8 @@ export class AppliedModificationsImpl implements AppliedModifications {
 	}
 
 	unapply(): void {
-		for (const mod of this.modifications) {
+		const reversedModifications = [...this.modifications].reverse();
+		for (const mod of reversedModifications) {
 			mod.unapply();
 		}
 	}
@@ -33,36 +45,6 @@ export class AppliedModificationsImpl implements AppliedModifications {
 	setHighlight(highlight: boolean): void {
 		throw new Error("Method not implemented.");
 	}
-}
-
-function calculateNewDate(
-	originalDay: string,
-	originalMonth: string,
-	recordedAt: string,
-	currentTime: string,
-): { newDay: string, newMonth: string } {
-	const months = [
-		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-	];
-	const recordedDate = new Date(recordedAt);
-	const currentDate = new Date(currentTime);
-	const differenceInDays = Math.ceil(
-		Math.abs(
-			(currentDate.getTime() - recordedDate.getTime()) / (1000 * 3600 * 24),
-		),
-	);
-
-	const originalDate = new Date(recordedDate);
-	originalDate.setDate(Number.parseInt(originalDay, 10));
-
-	const newDate = new Date(originalDate);
-	newDate.setDate(originalDate.getDate() + differenceInDays);
-
-	const newDay = String(newDate.getDate()).padStart(2, "0");
-	const newMonth = months[newDate.getMonth()] || originalMonth;
-
-	return { newDay, newMonth };
 }
 
 export async function generateModifications(
@@ -134,23 +116,73 @@ export async function generateModifications(
 }
 
 class ReplaceModification extends AppliableModification {
-	element: Element;
+	elementSelector: string;
 	oldValue: string;
 	newValue: string;
 
-	constructor(element: Element, newValue: string) {
-		super();
-		this.element = element;
+	constructor(doc: Document, element: Element, newValue: string) {
+		super(doc);
+		this.elementSelector = cssSelector.getCssSelector(element);
 		this.newValue = newValue;
 		this.oldValue = element.innerHTML;
 	}
 
 	apply(): void {
-		this.element.innerHTML = this.newValue;
+		const element = this.doc.querySelector(this.elementSelector);
+		if (element) {
+			element.innerHTML = this.newValue;
+		}
 	}
 
 	unapply(): void {
-		this.element.innerHTML = this.oldValue;
+		const element = this.doc.querySelector(this.elementSelector);
+		if (element) {
+			element.innerHTML = this.oldValue;
+		}
+	}
+}
+
+class ReplaceAllModification extends AppliableModification {
+	element: Element;
+	content: string;
+	changes: TreeChange[] = [];
+
+	constructor(doc: Document, element: Element, content: string) {
+		super(doc);
+		this.element = element;
+		this.content = content;
+	}
+
+	apply(): void {
+		this.changes = walkTree(
+			this.element,
+			checkText(this.content),
+			replaceText(this.content),
+		);
+	}
+
+	unapply(): void {
+		const reverseChanges = [...this.changes].reverse();
+		for (const change of reverseChanges) {
+			const parentElement = this.doc.querySelector(change.parentSelector);
+			if (!parentElement) {
+				continue;
+			}
+
+			const nextSibling =
+				parentElement.childNodes[change.replaceStart + change.replaceCount] ||
+				null;
+			for (let i = change.replaceCount; i > 0; i--) {
+				const removeNode =
+					parentElement.childNodes[change.replaceStart + i - 1];
+				if (removeNode) {
+					removeNode.remove();
+				}
+			}
+
+			const newTextNode = this.doc.createTextNode(change.origText);
+			parentElement.insertBefore(newTextNode, nextSibling);
+		}
 	}
 }
 
@@ -160,8 +192,13 @@ class AdjacentHTMLModification extends AppliableModification {
 	oldValue: string;
 	newValue: string;
 
-	constructor(element: Element, position: InsertPosition, newValue: string) {
-		super();
+	constructor(
+		doc: Document,
+		element: Element,
+		position: InsertPosition,
+		newValue: string,
+	) {
+		super(doc);
 		this.element = element;
 		this.position = position;
 		this.newValue = newValue;
@@ -179,64 +216,89 @@ class AdjacentHTMLModification extends AppliableModification {
 
 class RemoveModification extends AppliableModification {
 	element: Element;
-	parent: Element | null;
-	nextSibling: Element | null;
+	parentSelector: string | null;
+	nextSiblingSelector: string | null = null;
 
-	constructor(element: Element) {
-		super();
+	constructor(doc: Document, element: Element) {
+		super(doc);
 		this.element = element;
-		this.parent = element.parentElement;
-		this.nextSibling = element.nextElementSibling;
+		this.parentSelector = element.parentElement
+			? cssSelector.getCssSelector(element.parentElement)
+			: null;
 	}
 
 	apply(): void {
+		// get the element's next sibling
+		const nextSibling = this.element.nextElementSibling;
 		this.element.remove();
+		// now get the selector for the sibling after the element was
+		// removed
+		this.nextSiblingSelector = nextSibling
+			? cssSelector.getCssSelector(nextSibling)
+			: null;
 	}
 
 	unapply(): void {
-		this.parent?.insertBefore(this.element, this.nextSibling);
+		let parent: Element | null = null;
+		if (this.parentSelector) {
+			parent = this.doc.querySelector(this.parentSelector);
+		}
+		if (!parent) {
+			return;
+		}
+
+		let nextSibling: Element | null = null;
+		if (this.nextSiblingSelector) {
+			nextSibling = this.doc.querySelector(this.nextSiblingSelector);
+		}
+
+		if (nextSibling) {
+			parent.insertBefore(this.element, nextSibling);
+		} else {
+			parent.appendChild(this.element);
+		}
 	}
 }
 
 class SwapImageModification extends AppliableModification {
-	element: Element;
+	elementSelector: string;
 	imageUrl: string;
 	previousUrl: string | null;
 
-	constructor(element: Element, imageUrl: string) {
-		super();
-		this.element = element;
+	constructor(doc: Document, element: Element, imageUrl: string) {
+		super(doc);
+		this.elementSelector = cssSelector.getCssSelector(element);
 		this.imageUrl = imageUrl;
 
-		if (this.element instanceof HTMLImageElement) {
-			this.previousUrl = this.element.getAttribute("src");
+		if (element instanceof HTMLImageElement) {
+			this.previousUrl = element.getAttribute("src");
 		} else {
 			this.previousUrl = null;
 		}
 	}
 
 	apply(): void {
-		if (this.element instanceof HTMLImageElement) {
-			this.element.src = this.imageUrl;
+		const element = this.doc.querySelector(this.elementSelector);
+		if (element && element instanceof HTMLImageElement) {
+			element.src = this.imageUrl;
 		}
 	}
 
 	unapply(): void {
-		if (this.element instanceof HTMLImageElement && this.previousUrl) {
-			this.element.setAttribute("src", this.previousUrl);
+		const element = this.doc.querySelector(this.elementSelector);
+		if (this.previousUrl && element && element instanceof HTMLImageElement) {
+			element.setAttribute("src", this.previousUrl);
 		}
 	}
 }
 
 class ToastModification extends AppliableModification {
 	message: string;
-	doc: Document;
 	duration: number;
 
-	constructor(message: string, doc: Document, duration: number) {
-		super();
+	constructor(doc: Document, message: string, duration: number) {
+		super(doc);
 		this.message = message;
-		this.doc = doc;
 		this.duration = duration;
 	}
 
@@ -250,30 +312,82 @@ class ToastModification extends AppliableModification {
 }
 
 class HighlightModification extends AppliableModification {
-	element: Element;
+	elementSelector: string;
 	highlightStyle: string;
 	prevBorder: string;
 
-	constructor(element: Element, highlightStyle: string) {
-		super();
-		this.element = element;
+	constructor(doc: Document, element: Element, highlightStyle: string) {
+		super(doc);
+		this.elementSelector = cssSelector.getCssSelector(element);
 		this.highlightStyle = highlightStyle;
 		this.prevBorder = "";
 
-		if (this.element instanceof HTMLElement) {
-			this.prevBorder = this.element.style.border;
+		if (element instanceof HTMLElement) {
+			this.prevBorder = element.style.border;
 		}
 	}
 
 	apply(): void {
-		if (this.element instanceof HTMLElement) {
-			this.element.style.border = this.highlightStyle;
+		const element = this.doc.querySelector(this.elementSelector);
+		if (element && element instanceof HTMLElement) {
+			element.style.border = this.highlightStyle;
 		}
 	}
 
 	unapply(): void {
-		if (this.element instanceof HTMLElement) {
-			this.element.style.border = this.prevBorder;
+		const element = this.doc.querySelector(this.elementSelector);
+		if (element && element instanceof HTMLElement) {
+			element.style.border = this.prevBorder;
+		}
+	}
+}
+
+class TimestampModification extends AppliableModification {
+	elementSelector: string;
+	timestampRef: TimestampRef | undefined;
+	originalText: string | undefined;
+	originalLabel: string | undefined;
+
+	constructor(
+		doc: Document,
+		element: Element,
+		timestampRef: TimestampRef | undefined,
+	) {
+		super(doc);
+		this.elementSelector = cssSelector.getCssSelector(element);
+		this.timestampRef = timestampRef;
+	}
+
+	apply(): void {
+		if (!this.timestampRef) {
+			console.warn("No timestamp reference provided for modification.");
+			return;
+		}
+
+		const element = this.doc.querySelector(this.elementSelector);
+		if (!element) {
+			return;
+		}
+
+		const { originalText, originalLabel } = modifyTimestamp(
+			element,
+			this.timestampRef,
+		);
+		this.originalText = originalText;
+		this.originalLabel = originalLabel;
+	}
+
+	unapply(): void {
+		const element = this.doc.querySelector(this.elementSelector);
+		if (!element) {
+			return;
+		}
+
+		if (this.originalText) {
+			element.textContent = this.originalText;
+		}
+		if (this.originalLabel) {
+			element.setAttribute("aria-label", this.originalLabel);
 		}
 	}
 }
@@ -281,8 +395,8 @@ class HighlightModification extends AppliableModification {
 class NoopModification extends AppliableModification {
 	action: string;
 
-	constructor(action: string) {
-		super();	
+	constructor(doc: Document, action: string) {
+		super(doc);
 		this.action = action;
 	}
 
@@ -299,83 +413,71 @@ export async function applyModification(
 	doc: Document,
 ): Promise<AppliableModification> {
 	let modification: AppliableModification;
-	
+
 	switch (mod.action) {
 		case "replace":
-			modification = new ReplaceModification(element, mod.content || "");
+			modification = new ReplaceModification(doc, element, mod.content || "");
 			break;
-		// case "replaceAll":
-		// 	walkTree(element, replaceText(mod.content || ""));
-		// 	break;
+		case "replaceAll":
+			modification = new ReplaceAllModification(
+				doc,
+				element,
+				mod.content || "",
+			);
+			break;
 		case "append":
 			modification = new AdjacentHTMLModification(
-				element, "beforeend", mod.content || ""
+				doc,
+				element,
+				"beforeend",
+				mod.content || "",
 			);
 			break;
 		case "prepend":
 			modification = new AdjacentHTMLModification(
-				element, "afterbegin", mod.content || ""
+				doc,
+				element,
+				"afterbegin",
+				mod.content || "",
 			);
 			break;
 		case "remove":
-			modification = new RemoveModification(element);
+			modification = new RemoveModification(doc, element);
 			break;
 		case "swapImage":
-			modification = new SwapImageModification(element, mod.imageUrl || "");
+			modification = new SwapImageModification(
+				doc,
+				element,
+				mod.imageUrl || "",
+			);
 			break;
 		case "highlight":
-			modification = new HighlightModification(element, mod.highlightStyle || "2px solid red");
+			modification = new HighlightModification(
+				doc,
+				element,
+				mod.highlightStyle || "2px solid red",
+			);
 			break;
 		case "toast":
-			modification = new ToastModification(mod.toastMessage || "Notification", doc, mod.duration || 3000);
+			modification = new ToastModification(
+				doc,
+				mod.toastMessage || "Notification",
+				mod.duration || 3000,
+			);
 			break;
 		case "addComponent":
 			modification = new AdjacentHTMLModification(
-				element, "beforeend", mod.componentHtml || ""
-			)
-		 	break;
-		// case "updateTimestampReferences": {
-		// 	if (!mod.timestampRef) {
-		// 		console.warn("No timestamp reference provided for modification.");
-		// 		return;
-		// 	}
-		// 	let targetElement = element;
-		// 	if (mod.selector) {
-		// 		targetElement = element.querySelector(mod.selector) || element;
-		// 	}
-		// 	if (!targetElement) {
-		// 		console.warn(
-		// 			`Element not found for selector: ${mod.selector || "self"}`,
-		// 		);
-		// 		return;
-		// 	}
-		// 	const originalText = targetElement.textContent || "";
-		// 	const originalLabel = targetElement.getAttribute("aria-label") || "";
-		// 	const [originalMonth, originalDay] = originalText.split(" ");
-
-		// 	if (!originalMonth || !originalDay) {
-		// 		console.warn(`Invalid date format: ${originalText}`);
-		// 		return;
-		// 	}
-
-		// 	// Calculate the new day and month based on the timestampRef
-		// 	const { newDay, newMonth } = calculateNewDate(
-		// 		originalDay,
-		// 		originalMonth,
-		// 		mod.timestampRef.recordedAt,
-		// 		mod.timestampRef.currentTime,
-		// 	);
-
-		// 	// Update the element's textContent and aria-label with the new day and month
-		// 	targetElement.textContent = `${newMonth} ${newDay}`;
-		// 	// Note the space before the month to avoid concatenation with the day
-		// 	const newLabel = originalLabel.replace(/ .+,/, ` ${newMonth} ${newDay},`);
-		// 	targetElement.setAttribute("aria-label", newLabel);
-
-		// 	break;
-		// }
+				doc,
+				element,
+				"beforeend",
+				mod.componentHtml || "",
+			);
+			break;
+		case "updateTimestampReferences":
+			modification = new TimestampModification(doc, element, mod.timestampRef);
+			break;
 		default:
-			modification = new NoopModification(mod.action);
+			modification = new NoopModification(doc, mod.action);
 			break;
 	}
 
@@ -398,7 +500,96 @@ export function createToast(
 	}, duration);
 }
 
-function walkTree(rootElement: Node, iterator: (textNode: Node) => void) {
+type TimestampRef = {
+	recordedAt: string;
+	currentTime: string;
+};
+
+export function modifyTimestamp(
+	element: Element,
+	timestampRef: TimestampRef,
+): { originalText: string; originalLabel: string } {
+	const originalText = element.textContent || "";
+	const originalLabel = element.getAttribute("aria-label") || "";
+	const [originalMonth, originalDay] = originalText.split(" ");
+
+	if (!originalMonth || !originalDay) {
+		console.warn(`Invalid date format: ${originalText}`);
+		return { originalText, originalLabel };
+	}
+
+	// Calculate the new day and month based on the timestampRef
+	const { newDay, newMonth } = calculateNewDate(
+		originalDay,
+		originalMonth,
+		timestampRef.recordedAt,
+		timestampRef.currentTime,
+	);
+
+	// Update the element's textContent and aria-label with the new day and month
+	element.textContent = `${newMonth} ${newDay}`;
+	// Note the space before the month to avoid concatenation with the day
+	const newLabel = originalLabel.replace(/ .+,/, ` ${newMonth} ${newDay},`);
+	element.setAttribute("aria-label", newLabel);
+
+	return { originalText, originalLabel };
+}
+
+function calculateNewDate(
+	originalDay: string,
+	originalMonth: string,
+	recordedAt: string,
+	currentTime: string,
+): { newDay: string; newMonth: string } {
+	const months = [
+		"Jan",
+		"Feb",
+		"Mar",
+		"Apr",
+		"May",
+		"Jun",
+		"Jul",
+		"Aug",
+		"Sep",
+		"Oct",
+		"Nov",
+		"Dec",
+	];
+	const recordedDate = new Date(recordedAt);
+	const currentDate = new Date(currentTime);
+	const differenceInDays = Math.ceil(
+		Math.abs(
+			(currentDate.getTime() - recordedDate.getTime()) / (1000 * 3600 * 24),
+		),
+	);
+
+	const originalDate = new Date(recordedDate);
+	originalDate.setDate(Number.parseInt(originalDay, 10));
+
+	const newDate = new Date(originalDate);
+	newDate.setDate(originalDate.getDate() + differenceInDays);
+
+	const newDay = String(newDate.getDate()).padStart(2, "0");
+	const newMonth = months[newDate.getMonth()] || originalMonth;
+
+	return { newDay, newMonth };
+}
+
+type TreeChange = {
+	parentSelector: string;
+	origText: string;
+	replaceStart: number;
+	replaceCount: number;
+};
+
+function walkTree(
+	rootElement: Node,
+	checker: (textNode: Node) => boolean,
+	changer: (textNode: Node) => TreeChange | null,
+): TreeChange[] {
+	const changeNodes: Node[] = [];
+	const changes: TreeChange[] = [];
+
 	const treeWalker = document.createTreeWalker(
 		rootElement,
 		NodeFilter.SHOW_TEXT,
@@ -415,28 +606,82 @@ function walkTree(rootElement: Node, iterator: (textNode: Node) => void) {
 	let textNode: Node;
 	do {
 		textNode = treeWalker.currentNode;
-		if (textNode.nodeValue === null || !textNode?.textContent?.trim()) {
+		if (textNode.nodeValue === null || !textNode?.nodeValue?.trim()) {
 			continue;
 		}
 
-		iterator(textNode);
+		if (checker(textNode)) {
+			changeNodes.push(textNode);
+		}
 	} while (treeWalker.nextNode());
+
+	for (const node of changeNodes) {
+		const change = changer(node);
+		if (change) {
+			changes.push(change);
+		}
+	}
+
+	return changes;
 }
 
-function replaceText(pattern: string): (node: Node) => void {
-	const { patternRegexp, replacement } = toRegExpPattern(pattern);
+function checkText(pattern: string): (node: Node) => boolean {
+	const { patternRegexp } = toRegExpPattern(pattern);
 
 	return (node: Node) => {
 		if (!node.textContent || !node.nodeValue) {
-			return;
+			return false;
 		}
 
-		if (patternRegexp.test(node.textContent)) {
-			node.nodeValue = node.nodeValue.replace(
-				patternRegexp,
-				replaceFirstLetterCaseAndPlural(replacement),
-			);
+		patternRegexp.lastIndex = 0;
+		return patternRegexp.test(node.nodeValue || "");
+	};
+}
+
+function replaceText(pattern: string): (node: Node) => TreeChange | null {
+	const { patternRegexp, replacement } = toRegExpPattern(pattern);
+
+	return (node: Node) => {
+		let split = node.nodeValue?.split(patternRegexp) || [];
+		split = split.map((part, index) => {
+			if (index % 2 === 0) {
+				return part;
+			}
+			return replaceFirstLetterCaseAndPlural(replacement)(part);
+		});
+
+		const parentElement = node.parentElement;
+		if (!parentElement) {
+			return null;
 		}
+		const parentSelector = cssSelector.getCssSelector(parentElement);
+
+		let replaceStart = 0;
+		const nextSibling = node.nextSibling;
+		if (nextSibling) {
+			for (let i = 0; i < parentElement.childNodes.length; i++) {
+				if (parentElement.childNodes[i] === nextSibling) {
+					replaceStart = i - 1;
+					break;
+				}
+			}
+		}
+
+		parentElement.removeChild(node);
+
+		for (let i = 0; i < split.length; i++) {
+			if (typeof split[i] !== "undefined") {
+				const textNode = document.createTextNode(split[i] || "");
+				parentElement.insertBefore(textNode, nextSibling);
+			}
+		}
+
+		return {
+			parentSelector: parentSelector,
+			origText: node.nodeValue || "",
+			replaceStart: replaceStart,
+			replaceCount: split.length,
+		};
 	};
 }
 
@@ -453,7 +698,7 @@ function replaceFirstLetterCaseAndPlural(value: string) {
 
 		// if the match is plural, add an s
 		if (match.endsWith("s")) {
-			out = out + "s";
+			out = `${out}s`;
 		}
 
 		return out;
@@ -471,7 +716,7 @@ function toRegExpPattern(pattern: string): {
 	}
 
 	return {
-		patternRegexp: new RegExp('\\b' + match[1] + 's?\\b', "gi"),
+		patternRegexp: new RegExp(`(\\b${match[1]}s?\\b)`, "gi"),
 		replacement: match[2],
 	};
 }

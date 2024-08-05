@@ -1,4 +1,8 @@
-import type { DomJsonExportNode, ModificationRequest, AppliedModifications } from "./interfaces";
+import type {
+	AppliedModifications,
+	DomJsonExportNode,
+	ModificationRequest,
+} from "./interfaces";
 import { generateModifications, parseRequest } from "./utils";
 
 export async function modifyHtml(

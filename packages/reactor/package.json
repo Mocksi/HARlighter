@@ -26,6 +26,7 @@
 		"vitest": "^2.0.1"
 	},
 	"dependencies": {
+		"css-selector-generator": "^3.6.8",
 		"uuid": "^9.0.1"
 	}
 }

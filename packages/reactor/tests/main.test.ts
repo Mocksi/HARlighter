@@ -1,8 +1,8 @@
 import { JSDOM } from "jsdom";
 import { describe, expect, it } from "vitest";
-import { ModificationRequest } from "../interfaces";
-import { modifyHtml, modifyDom } from "../main";
-import { AppliedModificationsImpl } from '../utils';
+import type { ModificationRequest } from "../interfaces";
+import { modifyDom, modifyHtml } from "../main";
+import type { AppliedModificationsImpl } from "../utils";
 
 // Set up a mock DOM environment
 const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
@@ -28,7 +28,7 @@ describe("modifyHtml", () => {
 		expect(result).toContain("Santiago Hart");
 	});
 
-	it.skip("Should replace all with a regular expression", async () => {
+	it("Should replace all with a regular expression", async () => {
 		const htmlString = `<html><body><h1 id="title">Train test</h1><div><div>Some text content here about a train</div><h2>About the train</h2><div>Trains are really cool. I use my train every day.</div></div></body></html/>`;
 		const userRequest = JSON.stringify({
 			description: "Change train to brain",
@@ -244,7 +244,50 @@ describe("modifyHtml", () => {
 			],
 		};
 
-		const modifications = await modifyDom(doc, userRequest) as AppliedModificationsImpl;
+		const modifications = (await modifyDom(
+			doc,
+			userRequest,
+		)) as AppliedModificationsImpl;
+		modifications.unapply();
+
+		expect(doc.body.innerHTML).toContain("Eliza Hart");
+		expect(doc.body.innerHTML).toContain("Welcome, Eliza!");
+		expect(doc.body.innerHTML).toContain('src="eliza.jpg"');
+	});
+
+	it("should unapply a remove of multiple elements correctly", async () => {
+		const htmlString = `
+      		<div id="user-info">Eliza Hart</div>
+      		<div id="welcome-message">Welcome, Eliza!</div>
+	  		<img id="profile-pic" src="eliza.jpg" />
+    	`;
+
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(htmlString, "text/html");
+
+		const userRequest: ModificationRequest = {
+			description:
+				"Change all occurrences of the name 'Eliza' to 'Santiago', swap profile picture, and add a toast notification.",
+			modifications: [
+				{
+					selector: "#user-info",
+					action: "remove",
+				},
+				{
+					selector: "#welcome-message",
+					action: "remove",
+				},
+				{
+					selector: "#profile-pic",
+					action: "remove",
+				},
+			],
+		};
+
+		const modifications = (await modifyDom(
+			doc,
+			userRequest,
+		)) as AppliedModificationsImpl;
 		modifications.unapply();
 
 		expect(doc.body.innerHTML).toContain("Eliza Hart");
@@ -269,6 +312,25 @@ describe("modifyHtml", () => {
 		expect(result).not.toContain("This should not appear");
 		expect(result).toContain("<div>Some content</div>");
 	});
+
+	it("should ignore invalid selectors", async () => {
+		const html = "<p>Old content</p>";
+		const userRequest = JSON.stringify({
+			description: "Try to modify an element with a bad selector",
+			modifications: [
+				{
+					action: "replace",
+					content: "<p>New Content</p>",
+					selector: "#;3s92hn",
+				},
+			],
+		});
+
+		const result = await modifyHtml(html, userRequest);
+		expect(result).not.toContain("<p>New content</p>");
+		expect(result).toContain("<p>Old content</p>");
+	});
+
 	it("should be able to update timestamps", async () => {
 		const html = `
 			<div id="container">
@@ -334,7 +396,7 @@ describe("modifyHtml", () => {
 					</div>
 				</div>
 			</div>`;
-	
+
 		const userRequest = JSON.stringify({
 			modifications: [
 				{
@@ -347,11 +409,13 @@ describe("modifyHtml", () => {
 				},
 			],
 		});
-	
+
 		const result = await modifyHtml(html, userRequest);
-	
+
 		const domResult = new JSDOM(result);
-		const span = domResult.window.document.querySelector("span[aria-label^='Updated']");
+		const span = domResult.window.document.querySelector(
+			"span[aria-label^='Updated']",
+		);
 		expect(span).not.toBeNull();
 		expect(span?.textContent).toContain("Aug");
 		expect(span?.getAttribute("aria-label")).toContain("Aug");

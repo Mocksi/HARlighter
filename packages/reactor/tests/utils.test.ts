@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { a } from "vitest/dist/suite-BWgaIsVn";
 import type { Modification, ModificationRequest } from "../interfaces";
 // utils.test.ts
-import { 
-	applyModification, 
+import {
+	applyModification,
 	createToast,
-	generateModifications 
+	generateModifications,
 } from "../utils";
 
 describe("Utils", () => {
@@ -22,6 +23,7 @@ describe("Utils", () => {
 				content: "<p>New Content</p>",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			element.innerHTML = "<p>Old Content</p>";
 			await applyModification(element, modification, doc);
 
@@ -34,76 +36,145 @@ describe("Utils", () => {
 				content: "<p>New Content</p>",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			element.innerHTML = "<p>Old Content</p>";
 			const modifications = await applyModification(element, modification, doc);
 			modifications.unapply();
 
 			expect(element.innerHTML).toBe("<p>Old Content</p>");
-		})
+		});
 
-		it.skip("should replace all content correctly", async () => {
+		it("should replace all content correctly", async () => {
 			const modification: Modification = {
 				action: "replaceAll",
-				content: "/old/new/"
-			}
-		
+				content: "/old/new/",
+			};
+
 			const element = doc.createElement("div");
-			element.innerHTML= "<p>Old Content</p>";
+			doc.body.appendChild(element);
+			element.innerHTML = "<p>Old Content</p>";
 			await applyModification(element, modification, doc);
-		
+
 			expect(element.innerHTML).toBe("<p>New Content</p>");
 		});
 
-		it.skip("should preserve capitals in replacement", async () => {
+		it("should unapply replace all correctly", async () => {
 			const modification: Modification = {
 				action: "replaceAll",
-				content: "/old/new/"
-			}
-		
+				content: "/old/new/",
+			};
+
 			const element = doc.createElement("div");
-			element.innerHTML= "<p>Old Content is old</p>";
+			doc.body.appendChild(element);
+			element.innerHTML = "<p>Old Content</p>";
+			const modifications = await applyModification(element, modification, doc);
+			modifications.unapply();
+
+			expect(element.innerHTML).toBe("<p>Old Content</p>");
+		});
+
+		it("should preserve capitals in replacement", async () => {
+			const modification: Modification = {
+				action: "replaceAll",
+				content: "/old/new/",
+			};
+
+			const element = doc.createElement("div");
+			doc.body.appendChild(element);
+			element.innerHTML = "<p>Old Content is old</p>";
 			await applyModification(element, modification, doc);
-		
+
 			expect(element.innerHTML).toBe("<p>New Content is new</p>");
 		});
 
-		it.skip("should preserve plurals in replacement", async () => {
+		it("should preserve plurals in replacement", async () => {
 			const modification: Modification = {
 				action: "replaceAll",
-				content: "/train/brain/"
-			}
-		
+				content: "/train/brain/",
+			};
+
 			const element = doc.createElement("div");
-			element.innerHTML= "<p>Trains are great! I love my train.</p>";
+			doc.body.appendChild(element);
+			element.innerHTML = "<p>Trains are great! I love my train.</p>";
 			await applyModification(element, modification, doc);
-		
-			expect(element.innerHTML).toBe("<p>Brains are great! I love my brain.</p>");
+
+			expect(element.innerHTML).toBe(
+				"<p>Brains are great! I love my brain.</p>",
+			);
 		});
 
-		it.skip("should only replace whole words", async () => {
+		it("should only replace whole words", async () => {
 			const modification: Modification = {
 				action: "replaceAll",
-				content: "/train/brain/"
-			}
-		
+				content: "/train/brain/",
+			};
+
 			const element = doc.createElement("div");
-			element.innerHTML= "<p>I was in training about trains, but it was a strain to train.</p>";
+			doc.body.appendChild(element);
+			element.innerHTML =
+				"<p>I was in training about trains, but it was a strain to train.</p>";
 			await applyModification(element, modification, doc);
-		
-			expect(element.innerHTML).toBe("<p>I was in training about brains, but it was a strain to brain.</p>");
+
+			expect(element.innerHTML).toBe(
+				"<p>I was in training about brains, but it was a strain to brain.</p>",
+			);
 		});
 
-		it.skip("should handle more complicated HTML", async () => {
+		it("should handle more complicated HTML", async () => {
 			const modification: Modification = {
 				action: "replaceAll",
-				content: "/train/brain/"
-			}
-		
+				content: "/train/brain/",
+			};
+
 			const element = doc.createElement("div");
-			element.innerHTML= "<h1>Trains</h1><p>Trains are great! <a href=\"train.jpg\">A picture of a <i>train</i></a></p><p>Trains are great! I love my train.</p>";
+			doc.body.appendChild(element);
+			element.innerHTML =
+				'<h1>Trains</h1><p>Trains are great! <a href="train.jpg">A picture of a <i>train</i></a></p><p>Trains are great! I love my train.</p>';
 			await applyModification(element, modification, doc);
-		
-			expect(element.innerHTML).toBe("<h1>Brains</h1><p>Brains are great! <a href=\"train.jpg\">A picture of a <i>brain</i></a></p><p>Brains are great! I love my brain.</p>");
+
+			expect(element.innerHTML).toBe(
+				'<h1>Brains</h1><p>Brains are great! <a href="train.jpg">A picture of a <i>brain</i></a></p><p>Brains are great! I love my brain.</p>',
+			);
+		});
+
+		it("should unapply replaceall properly on more complicated HTML", async () => {
+			const modification: Modification = {
+				action: "replaceAll",
+				content: "/train/brain/",
+			};
+
+			const element = doc.createElement("div");
+			doc.body.appendChild(element);
+			element.innerHTML =
+				'<h1>Trains</h1><p>Trains are great! <a href="train.jpg">A picture of a <i>train</i></a></p><p>Trains are great! I love my train.</p>';
+			const modifications = await applyModification(element, modification, doc);
+			modifications.unapply();
+
+			expect(element.innerHTML).toBe(
+				'<h1>Trains</h1><p>Trains are great! <a href="train.jpg">A picture of a <i>train</i></a></p><p>Trains are great! I love my train.</p>',
+			);
+		});
+
+		it("should work with multiple text nodes", async () => {
+			const modification: Modification = {
+				action: "replaceAll",
+				content: "/train/brain/",
+			};
+
+			const element = doc.createElement("div");
+			doc.body.appendChild(element);
+			const t1 = doc.createTextNode("Trains node 1 ");
+			const t2 = doc.createTextNode("Trains node 2 ");
+			const t3 = doc.createTextNode("Trains node 3");
+			element.appendChild(t1);
+			element.appendChild(t2);
+			element.appendChild(t3);
+
+			await applyModification(element, modification, doc);
+
+			expect(element.innerHTML).toBe(
+				"Brains node 1 Brains node 2 Brains node 3",
+			);
 		});
 
 		it("should append content correctly", async () => {
@@ -112,6 +183,7 @@ describe("Utils", () => {
 				content: "<p>New Content</p>",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			const inner = doc.createElement("div");
 			inner.innerHTML = "<p>Initial Content</p>";
 			element.appendChild(inner);
@@ -128,16 +200,15 @@ describe("Utils", () => {
 				content: "<p>New Content<p>",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			const inner = doc.createElement("div");
 			inner.innerHTML = "<p>Initial Content</p>";
 			element.appendChild(inner);
 			const modifications = await applyModification(inner, modification, doc);
 			modifications.unapply();
 
-			expect(element.innerHTML).toBe(
-				"<div><p>Initial Content</p></div>",
-			);
-		})
+			expect(element.innerHTML).toBe("<div><p>Initial Content</p></div>");
+		});
 
 		it("should prepend content correctly", async () => {
 			const modification: Modification = {
@@ -145,6 +216,7 @@ describe("Utils", () => {
 				content: "<p>New Content</p>",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			const inner = doc.createElement("div");
 			inner.innerHTML = "<p>Initial Content</p>";
 			element.appendChild(inner);
@@ -161,15 +233,14 @@ describe("Utils", () => {
 				content: "<p>New Content</p>",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			const inner = doc.createElement("div");
 			inner.innerHTML = "<p>Initial Content</p>";
 			element.appendChild(inner);
 			const modifications = await applyModification(inner, modification, doc);
 			modifications.unapply();
 
-			expect(element.innerHTML).toBe(
-				"<div><p>Initial Content</p></div>",
-			);
+			expect(element.innerHTML).toBe("<div><p>Initial Content</p></div>");
 		});
 
 		it("should remove the element correctly", async () => {
@@ -177,14 +248,13 @@ describe("Utils", () => {
 				action: "remove",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			const inner = doc.createElement("p");
 			inner.innerHTML = "Initial Content";
 			element.appendChild(inner);
 			await applyModification(inner, modification, doc);
 
-			expect(element.outerHTML).toBe(
-				"<div></div>",
-			);
+			expect(element.outerHTML).toBe("<div></div>");
 		});
 
 		it("should unapply the remove element correctly", async () => {
@@ -192,15 +262,14 @@ describe("Utils", () => {
 				action: "remove",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			const inner = doc.createElement("p");
 			inner.innerHTML = "Initial Content";
 			element.appendChild(inner);
 			const modifications = await applyModification(inner, modification, doc);
 			modifications.unapply();
 
-			expect(element.outerHTML).toBe(
-				"<div><p>Initial Content</p></div>",
-			);
+			expect(element.outerHTML).toBe("<div><p>Initial Content</p></div>");
 		});
 
 		it("should remove the element correctly with siblings", async () => {
@@ -208,6 +277,7 @@ describe("Utils", () => {
 				action: "remove",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			const inner1 = doc.createElement("p");
 			inner1.innerHTML = "Inner child 1";
 			element.appendChild(inner1);
@@ -229,6 +299,7 @@ describe("Utils", () => {
 				action: "remove",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			const inner1 = doc.createElement("p");
 			inner1.innerHTML = "Inner child 1";
 			element.appendChild(inner1);
@@ -246,41 +317,13 @@ describe("Utils", () => {
 			);
 		});
 
-		it("should unapply the remove element correctly", async () => {
-			const modification: Modification = {
-				action: "remove",
-			};
-			const element = doc.createElement("div");
-			const inner = doc.createElement("p");
-			inner.innerHTML = "Initial Content";
-			element.appendChild(inner);
-			const modifications = await applyModification(inner, modification, doc);
-			modifications.unapply();
-
-			expect(element.outerHTML).toBe(
-				"<div><p>Initial Content</p></div>",
-			);
-		});
-
-		it("should ignore invalid selectors", async () => {
-			const modification: Modification = {
-				action: "replace",
-				content: "<p>New Content</p>",
-				selector: "#;3s92hn",
-			};
-			const element = doc.createElement("div");
-			element.innerHTML = "<p>Old Content</p>";
-			await applyModification(element, modification, doc);
-
-			expect(element.parentElement).toBeNull();
-		});
-
 		it("should swap image source correctly", async () => {
 			const modification: Modification = {
 				action: "swapImage",
 				imageUrl: "new-image-url.jpg",
 			};
 			const element = doc.createElement("img");
+			doc.body.appendChild(element);
 			element.src = "old-image-url.jpg";
 			await applyModification(element, modification, doc);
 
@@ -293,8 +336,9 @@ describe("Utils", () => {
 				imageUrl: "new-image-url.jpg",
 			};
 			const element = doc.createElement("img");
+			doc.body.appendChild(element);
 			element.src = "old-image-url.jpg";
-			let modifications = await applyModification(element, modification, doc);
+			const modifications = await applyModification(element, modification, doc);
 			modifications.unapply();
 
 			expect(element.src).toBe("old-image-url.jpg");
@@ -306,6 +350,7 @@ describe("Utils", () => {
 				highlightStyle: "2px solid green",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			element.innerHTML = "<p>Content</p>";
 			await applyModification(element, modification, doc);
 
@@ -336,12 +381,15 @@ describe("Utils", () => {
 				componentHtml: "<span>Component Content</span>",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			const inner = doc.createElement("p");
 			inner.innerHTML = "Initial Content";
 			element.appendChild(inner);
 			await applyModification(inner, modification, doc);
 
-			expect(element.innerHTML).toBe("<p>Initial Content<span>Component Content</span></p>");
+			expect(element.innerHTML).toBe(
+				"<p>Initial Content<span>Component Content</span></p>",
+			);
 		});
 
 		it("should unapply the add component correctly", async () => {
@@ -350,10 +398,11 @@ describe("Utils", () => {
 				componentHtml: "<span>Component Content</span>",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			const inner = doc.createElement("p");
 			inner.innerHTML = "Initial Content";
 			element.appendChild(inner);
-			let modifications = await applyModification(inner, modification, doc);
+			const modifications = await applyModification(inner, modification, doc);
 			modifications.unapply();
 
 			expect(element.innerHTML).toBe("<p>Initial Content</p>");
@@ -365,6 +414,7 @@ describe("Utils", () => {
 				componentHtml: "<span>Component Content</span>",
 			};
 			const element = doc.createElement("div");
+			doc.body.appendChild(element);
 			element.innerHTML = "<p>Initial Content</p>";
 			await applyModification(element, modification, doc);
 
