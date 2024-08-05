@@ -1,7 +1,7 @@
 import TextField from "../../common/TextField";
 import { CloseButton } from "../Button";
 import Divider from "../Divider";
-import { CloseIcon, LeftArrowIcon, MenuIcon, TrashIcon } from "../Icons";
+import { LeftArrowIcon, MenuIcon, TrashIcon } from "../Icons";
 import { Logo } from "../Logos";
 
 interface HeaderProps {
