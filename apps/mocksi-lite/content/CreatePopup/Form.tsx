@@ -2,7 +2,6 @@ import { useState } from "react";
 import Button, { Variant } from "../../common/Button";
 import Divider from "../../common/Divider";
 import TextField from "../../common/TextField";
-import expandIcon from "../../public/expand-icon.png";
 import { sendMessage } from "../../utils";
 
 interface FormProps {
@@ -15,36 +14,36 @@ const Form = ({ onCancel, onSubmit }: FormProps) => {
 	const [customer, setCustomer] = useState("");
 
 	const handleSubmit = () => {
-		sendMessage("createDemo", { demo_name: name, customer_name: customer });
+		sendMessage("createDemo", { customer_name: customer, demo_name: name });
 		onSubmit();
 	};
 
 	return (
 		<div className="mw-flex-1 mw-mt-3">
 			<Divider />
-			<div className="mw-flex mw-h-full mw-flex-col mw-justify-between">
+			<div className="mw-flex mw-flex-col mw-justify-between mw-h-full">
 				<div className="mw-p-4">
 					<div className="mw-mb-8">
-						<TextField variant={"title"} className="mw-mb-1">
+						<TextField className="mw-mb-1" variant={"title"}>
 							Demo Name
 						</TextField>
 						<input
-							value={name}
+							className="mw-px-3 mw-border mw-rounded-lg mw-h-11 mw-w-full"
 							onChange={(e) => setName(e.target.value)}
-							className="mw-border mw-rounded-lg mw-h-11 mw-px-3 mw-w-full"
+							value={name}
 						/>
 					</div>
 					<div>
-						<TextField variant={"title"} className="mw-mb-1">
+						<TextField className="mw-mb-1" variant={"title"}>
 							Customer
 						</TextField>
 						<input
-							value={customer}
+							className="mw-px-3 mw-border mw-rounded-lg mw-h-11 mw-w-full"
 							onChange={(e) => setCustomer(e.target.value)}
-							className="mw-border mw-rounded-lg mw-h-11 mw-px-3 mw-w-full"
+							value={customer}
 						/>
 					</div>
-					<div className="mw-mt-[42px] mw-flex mw-justify-end mw-gap-4">
+					<div className="mw-flex mw-justify-end mw-gap-4 mw-mt-[42px]">
 						<Button onClick={onCancel} variant={Variant.secondary}>
 							Cancel
 						</Button>
@@ -52,9 +51,6 @@ const Form = ({ onCancel, onSubmit }: FormProps) => {
 							Save Demo
 						</Button>
 					</div>
-				</div>
-				<div className="mw-flex self-end mw-p-2">
-					<img src={expandIcon} alt={"expandIcon"} />
 				</div>
 			</div>
 		</div>

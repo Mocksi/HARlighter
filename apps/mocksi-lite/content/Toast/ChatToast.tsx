@@ -1,16 +1,15 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Toast from ".";
-import Button, { Variant } from "../../common/Button";
+import { CloseButton } from "../../common/Button";
 import { ChatWebSocketURL, MOCKSI_RECORDING_STATE } from "../../consts";
-import closeIcon from "../../public/close-icon.png";
 import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
-import { getEmail, getLastPageDom, innerHTMLToJson } from "../../utils";
+import { getEmail, innerHTMLToJson } from "../../utils";
 import { AppState } from "../AppStateContext";
 
 interface Message {
-	role: "assistant" | "user";
 	content: string;
+	role: "assistant" | "user";
 }
 
 interface ResponseMessage {
@@ -25,20 +24,20 @@ interface ChatToastProps {
 }
 
 interface DOMModification {
-	selector: string;
 	action: string;
 	content: string;
+	selector: string;
 }
 
 const ChatToast: React.FC<ChatToastProps> = React.memo(
-	({ onChangeState, close }) => {
+	({ close, onChangeState }) => {
 		const [messages, setMessages] = useState<Message[]>([]);
 		const [isTyping, setIsTyping] = useState<boolean>(false);
 		const [inputValue, setInputValue] = useState<string>("");
 		const [email, setEmail] = useState<string>("");
 		const [domData, setDomData] = useState<string>("");
-		const wsRef = useRef<WebSocket | null>(null);
-		const reconnectTimeoutRef = useRef<number | null>(null);
+		const wsRef = useRef<null | WebSocket>(null);
+		const reconnectTimeoutRef = useRef<null | number>(null);
 
 		const connectWebSocket = useCallback(async () => {
 			if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -61,14 +60,14 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 			};
 
 			wsRef.current.onmessage = async (event) => {
-				let response: ResponseMessage | undefined;
+				let response: undefined | ResponseMessage;
 				try {
 					response = JSON.parse(event.data);
 				} catch (error) {
 					console.error("Error parsing JSON:", error);
 					setMessages((prevMessages) => [
 						...prevMessages,
-						{ role: "assistant", content: "Please try again." },
+						{ content: "Please try again.", role: "assistant" },
 					]);
 					return;
 				}
@@ -77,7 +76,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 					console.error("Invalid response:", response);
 					setMessages((prevMessages) => [
 						...prevMessages,
-						{ role: "assistant", content: "Please try again." },
+						{ content: "Please try again.", role: "assistant" },
 					]);
 					return;
 				}
@@ -88,14 +87,14 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 					console.error("Invalid data:", data);
 					setMessages((prevMessages) => [
 						...prevMessages,
-						{ role: "assistant", content: "Please try again." },
+						{ content: "Please try again.", role: "assistant" },
 					]);
 					return;
 				}
 
 				setMessages((prevMessages) => [
 					...prevMessages,
-					{ role: "assistant", content: data.description },
+					{ content: data.description, role: "assistant" },
 				]);
 
 				try {
@@ -152,9 +151,6 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 				}
 
 				switch (mod.action) {
-					case "replace":
-						element.innerHTML = mod.content;
-						break;
 					case "append":
 						element.insertAdjacentHTML("beforeend", mod.content);
 						break;
@@ -163,6 +159,9 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 						break;
 					case "remove":
 						element.remove();
+						break;
+					case "replace":
+						element.innerHTML = mod.content;
 						break;
 					default:
 						console.warn(`Unknown action: ${mod.action}`);
@@ -192,7 +191,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 		const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 			if (inputValue.trim()) {
-				const newMessage: Message = { role: "user", content: inputValue };
+				const newMessage: Message = { content: inputValue, role: "user" };
 				setMessages((prevMessages) => [...prevMessages, newMessage]);
 				setInputValue("");
 				sendReply({ messages: [...messages, newMessage] });
@@ -201,21 +200,18 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 
 		return (
 			<Toast
-				className="mw-relative mw-flex mw-flex-col mw-py-4 mw-w-[800px] mw-mr-6 mw-mt-1 mw-h-[900px]"
 				backgroundColor="mw-bg-gray-300"
+				className="mw-relative mw-flex mw-flex-col mw-mt-1 mw-mr-6 mw-py-4 mw-h-[900px] mw-w-[800px]"
 			>
-				<div className="mw-absolute mw-top-0 mw-left-0 mw-m-2">
-					<Button
-						variant={Variant.secondary}
+				<div className="mw-top-0 mw-left-0 mw-absolute mw-m-2">
+					<CloseButton
 						onClick={async () => {
 							await chrome.storage.local.set({
 								[MOCKSI_RECORDING_STATE]: AppState.CREATE,
 							});
 							close();
 						}}
-					>
-						<img src={closeIcon} alt="closeIcon" />
-					</Button>
+					/>
 				</div>
 				<div className="mw-flex mw-flex-col mw-justify-center mw-items-center mw-gap-6 mw-mt-[75px] mw-h-full">
 					<div className="mw-flex-grow overflow-auto">
@@ -226,12 +222,12 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 								msg.role === "assistant" ? "mw-chat-start" : "mw-chat-end";
 							return (
 								<div className={responseDivClassName} key={chatKey}>
-									<div className="chat-image avatar">
-										<div className="mw-w-10 mw-rounded-full">
-											<img src={msgIcon} alt={`${msg.role} avatar`} />
+									<div className="avatar chat-image">
+										<div className="mw-rounded-full mw-w-10">
+											<img alt={`${msg.role} avatar`} src={msgIcon} />
 										</div>
 									</div>
-									<div className="chat-bubble mw-bg-gray-200">
+									<div className="mw-bg-gray-200 chat-bubble">
 										{msg.content}
 									</div>
 								</div>
@@ -240,37 +236,36 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 					</div>
 
 					<form
-						className="form-control mw-items-center"
+						className="mw-items-center form-control"
 						onSubmit={handleSubmit}
 					>
-						<div className="input-group max-w-full mw-w-[500px] mw-relative mw-flex mw-items-center">
+						<div className="mw-relative mw-flex mw-items-center mw-w-[500px] max-w-full input-group">
 							{isTyping && (
-								<small className="mw-absolute -mw-top-5 mw-left-0.5 mw-animate-pulse">
+								<small className="-mw-top-5 mw-left-0.5 mw-absolute mw-animate-pulse">
 									MocksiAI is thinking...
 								</small>
 							)}
-
 							<input
-								type="text"
-								placeholder="Ask Mocksi a question..."
-								className="input input-bordered mw-flex-grow mw-mr-2.5 mw-bg-white"
-								value={inputValue}
-								onChange={(e) => setInputValue(e.target.value)}
-								required
+								className="mw-flex-grow mw-bg-white mw-mr-2.5 input-bordered input"
 								disabled={isTyping}
+								onChange={(e) => setInputValue(e.currentTarget.value)}
+								placeholder="Ask Mocksi a question..."
+								required
+								type="text"
+								value={inputValue}
 							/>
 							<button
 								className={`mw-btn mw-btn-square ${
 									isTyping ? "mw-animate-pulse" : ""
 								}`}
-								type="submit"
 								disabled={isTyping}
+								type="submit"
 							>
 								<svg
-									xmlns="http://www.w3.org/2000/svg"
 									className="mw-h-6 mw-w-6"
 									fill="currentColor"
 									viewBox="0 0 16 16"
+									xmlns="http://www.w3.org/2000/svg"
 								>
 									<title>Send</title>
 									<path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z" />

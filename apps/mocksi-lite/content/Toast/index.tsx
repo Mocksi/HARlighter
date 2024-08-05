@@ -1,20 +1,20 @@
 import type { ReactNode } from "react";
 
 interface ToastProps {
-	children: ReactNode;
-	id?: string;
-	className?: string;
 	backgroundColor?: string;
+	children: ReactNode;
+	className?: string;
+	id?: string;
 }
 
-const Toast = ({ backgroundColor, className, id, children }: ToastProps) => {
+const Toast = ({ backgroundColor, children, className, id }: ToastProps) => {
 	const bgColor = backgroundColor ?? "mw-bg-white";
 	return (
 		<div
-			id={id}
 			className={`mw-border mw-border-solid mw-border-grey/40 mw-rounded ${bgColor} mw-flex mw-flex-row mw-items-center ${
 				className ?? ""
 			}`}
+			id={id}
 		>
 			{children}
 		</div>
