@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Toast from ".";
-import Button, { Variant } from "../../common/Button";
+import { CloseButton } from "../../common/Button";
 import { ChatWebSocketURL, MOCKSI_RECORDING_STATE } from "../../consts";
-import closeIcon from "../../public/close-icon.png";
 import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
-import { getEmail, getLastPageDom, innerHTMLToJson } from "../../utils";
+import { getEmail, innerHTMLToJson } from "../../utils";
 import { AppState } from "../AppStateContext";
 
 interface Message {
@@ -205,17 +204,14 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 				className="mw-relative mw-flex mw-flex-col mw-mt-1 mw-mr-6 mw-py-4 mw-h-[900px] mw-w-[800px]"
 			>
 				<div className="mw-top-0 mw-left-0 mw-absolute mw-m-2">
-					<Button
+					<CloseButton
 						onClick={async () => {
 							await chrome.storage.local.set({
 								[MOCKSI_RECORDING_STATE]: AppState.CREATE,
 							});
 							close();
 						}}
-						variant={Variant.secondary}
-					>
-						<img alt="closeIcon" src={closeIcon} />
-					</Button>
+					/>
 				</div>
 				<div className="mw-flex mw-flex-col mw-justify-center mw-items-center mw-gap-6 mw-mt-[75px] mw-h-full">
 					<div className="mw-flex-grow overflow-auto">
