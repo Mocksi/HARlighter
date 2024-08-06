@@ -1,4 +1,4 @@
-import { MOCKSI_READONLY_STATE, MOCKSI_RECORDING_ID } from "../../consts";
+import { MOCKSI_ALTERATIONS, MOCKSI_READONLY_STATE, MOCKSI_RECORDING_ID } from "../../consts";
 import {
 	getAlterations,
 	loadAlterations,
@@ -76,6 +76,7 @@ const teardownEditor = async (recordingId?: string) => {
 	await chrome.storage.local.remove([
 		MOCKSI_RECORDING_ID,
 		MOCKSI_READONLY_STATE,
+		MOCKSI_ALTERATIONS,
 	]);
 
 	document.body.removeEventListener("dblclick", onDoubleClickText);

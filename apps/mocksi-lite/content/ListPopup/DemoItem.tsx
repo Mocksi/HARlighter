@@ -26,6 +26,8 @@ const DemoItem = ({
 	const domain = new URL(url).hostname;
 
 	const handleEdit = async () => {
+		console.log('handleEdit', alterations)
+		
 		await chrome.storage.local.set({
 			[MOCKSI_ALTERATIONS]: alterations,
 			[MOCKSI_RECORDING_ID]: uuid,

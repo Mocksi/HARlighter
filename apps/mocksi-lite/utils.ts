@@ -100,7 +100,7 @@ export const persistModifications = async (recordingId: string) => {
 	const alterations: Alteration[] = buildAlterations();
 
 	chrome.storage.local.set({
-		[MOCKSI_MODIFICATIONS]: JSON.stringify(domainModifications),
+		[MOCKSI_ALTERATIONS]: JSON.stringify(domainModifications),
 	});
 	const updated_timestamp = new Date();
 	await updateRecordingsStorage({
@@ -115,8 +115,8 @@ export const persistModifications = async (recordingId: string) => {
 };
 
 export const undoModifications = () => {
-	loadPreviousModifications();
-	chrome.storage.local.remove(MOCKSI_MODIFICATIONS);
+	loadPreviousModifications(); // revert
+	chrome.storage.local.remove(MOCKSI_ALTERATIONS);
 	getHighlighter().removeHighlightNodes();
 	// clean the domainModifications
 	domainModifications = {};
@@ -128,16 +128,17 @@ export const loadAlterations = async (
 	withHighlights: boolean,
 	createdAt?: Date,
 ) => {
-	undoModifications();
 	if (!alterations?.length) {
 		// FIXME: we should warn the user that there are no alterations for this demo
 		return [] as Alteration[];
 	}
+
 	const domManipulator = new DOMManipulator(
 		fragmentTextNode,
 		getHighlighter(),
 		saveModification,
 	);
+
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before, type } = alteration;
 		const elemToModify = getHTMLElementFromSelector(selector);
@@ -250,6 +251,7 @@ export const loadAlterations = async (
 };
 
 // This is from chrome.storage.local
+// this should be called "revertModifications"
 export const loadPreviousModifications = () => {
 	for (const [
 		querySelector,
