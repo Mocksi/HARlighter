@@ -1,19 +1,18 @@
 import { DOMManipulator } from "@repo/dodom";
-import { ModificationRequest, modifyDom } from "@repo/reactor";
-import { getCssSelector } from "css-selector-generator";
+import type { ModificationRequest } from "@repo/reactor";
+import Reactor from "../../reactorSingleton";
 import { saveModification } from "../../utils";
 import { getHighlighter } from "./highlighter";
 
-export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null): Text | null {
+export function cancelEditWithoutChanges(
+	nodeWithTextArea: HTMLElement | null,
+): Text | null {
 	if (nodeWithTextArea) {
 		const parentElement = nodeWithTextArea?.parentElement;
 		const newChild = document.createTextNode(nodeWithTextArea.innerText);
 
 		// cancel previous input.
-		nodeWithTextArea?.parentElement?.replaceChild(
-			newChild,
-			nodeWithTextArea,
-		);
+		nodeWithTextArea?.parentElement?.replaceChild(newChild, nodeWithTextArea);
 		parentElement?.normalize();
 		return newChild;
 	}
@@ -32,17 +31,17 @@ export function applyChanges(
 		const modification: ModificationRequest = {
 			description: `Change ${oldValue} to ${newValue}`,
 			modifications: [
-			  {
-				//selector: getCssSelector(newChildNode?.parentElement),
-				selector: "body",
-				action: "replaceAll",
-				content: `/${oldValue}/${newValue}/`,
-			  }
-			]
-		}
+				{
+					//selector: getCssSelector(newChildNode?.parentElement),
+					selector: "body",
+					action: "replaceAll",
+					content: `/${oldValue}/${newValue}/`,
+				},
+			],
+		};
 		console.log(modification);
-		
-		modifyDom(document, modification);
+
+		Reactor.pushModification(modification);
 
 		// TODO: check if we should keep the singleton behavior we had before
 		//const domManipulator = new DOMManipulator(

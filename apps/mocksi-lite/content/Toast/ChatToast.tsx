@@ -1,10 +1,10 @@
-import { htmlElementToJson, modifyDom } from "@repo/reactor";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Toast from ".";
 import { CloseButton } from "../../common/Button";
 import { ChatWebSocketURL, MOCKSI_RECORDING_STATE } from "../../consts";
 import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
+import Reactor from "../../reactorSingleton";
 import { getEmail, getLastPageDom } from "../../utils";
 import { AppState } from "../AppStateContext";
 
@@ -99,10 +99,10 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 				]);
 
 				try {
-					await modifyDom(document, data);
+					await Reactor.pushModification(data);
 					setIsTyping(false);
 					await new Promise((resolve) => window.setTimeout(resolve, 1000));
-					const updatedDomJson = htmlElementToJson(document.body);
+					const updatedDomJson = Reactor.exportDOM();
 					setDomData(JSON.stringify(updatedDomJson));
 				} catch (error) {
 					console.error("Error applying DOM modifications:", error);
@@ -124,7 +124,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 		}, []);
 
 		useEffect(() => {
-			const dom_as_json = htmlElementToJson(document.body);
+			const dom_as_json = Reactor.exportDOM(document.body);
 			setDomData(JSON.stringify(dom_as_json));
 
 			connectWebSocket();

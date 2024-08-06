@@ -1,6 +1,7 @@
 // Import the function you want to test
 import { describe, expect, it } from "vitest";
-import { type ModificationRequest, modifyDom, modifyHtml } from "../index";
+import type { ModificationRequest } from "../interfaces";
+import { modifyDom, modifyHtml } from "../main";
 
 describe("modifyHtml should perform basic HTML modification", {}, () => {
 	it("changes text content, swaps image sources, highlights elements, creates toast notifications, adds DaisyUI components, handles multiple modifications, and gracefully handles missing elements", async () => {

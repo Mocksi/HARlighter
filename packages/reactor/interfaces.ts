@@ -1,4 +1,4 @@
-interface TimeStampReference {
+export interface TimeStampReference {
 	// NOTE: this is a iso8601 date string
 	recordedAt: string;
 	// NOTE: this is a iso8601 date string

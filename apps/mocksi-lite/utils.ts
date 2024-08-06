@@ -1,5 +1,5 @@
 import { DOMManipulator } from "@repo/dodom";
-import { modifyHtml } from "@repo/reactor";
+import type { ModificationRequest } from "@repo/reactor";
 import auth0, { type WebAuth } from "auth0-js";
 import sanitizeHtml from "sanitize-html";
 import { debug } from "webpack";
@@ -23,6 +23,7 @@ import {
 import { AppState } from "./content/AppStateContext";
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
+import Reactor from "./reactorSingleton";
 
 type DomAlteration = {
 	type: "text" | "image";
@@ -211,40 +212,22 @@ export const loadAlterations = async (
 	const now = new Date();
 	await Promise.all(
 		timestamps.map(async (timestamp) => {
-			const userRequest = JSON.stringify({
+			const userRequest: ModificationRequest = {
+				description: "Update timestamps",
 				modifications: [
 					{
 						selector: timestamp.selector,
 						action: "updateTimestampReferences",
 						timestampRef: {
-							recordedAt: createdAt?.toString(),
+							recordedAt: createdAt?.toString() || now.toISOString(),
 							currentTime: now.toISOString(),
 						},
 					},
 				],
-			});
+			};
 			console.log("userRequest", userRequest);
-			const contents = document.querySelectorAll(timestamp.selector);
-			for (const content of contents) {
-				try {
-					const result = await modifyHtml(content.outerHTML, userRequest);
-					const parser = new DOMParser();
-					const doc = parser.parseFromString(result, "text/html");
 
-					if (doc.body) {
-						// Replace the original content with the modified content
-						content.outerHTML = doc.body.innerHTML;
-					} else {
-						console.error("Parsed document body is null or undefined");
-					}
-				} catch (error) {
-					console.error(
-						"Error updating innerHTML for",
-						timestamp.selector,
-						error,
-					);
-				}
-			}
+			await Reactor.pushModification(userRequest);
 		}),
 	);
 };

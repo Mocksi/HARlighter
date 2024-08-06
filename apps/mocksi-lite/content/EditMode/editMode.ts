@@ -1,4 +1,5 @@
 import { MOCKSI_READONLY_STATE, MOCKSI_RECORDING_ID } from "../../consts";
+import Reactor from "../../reactorSingleton";
 import {
 	getAlterations,
 	loadAlterations,
@@ -38,6 +39,8 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 const setupEditor = async (recordingId?: string) => {
 	sendMessage("attachDebugger");
 
+	await Reactor.attach(document);
+
 	if (recordingId) {
 		await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: recordingId });
 	}
@@ -70,6 +73,8 @@ const teardownEditor = async (recordingId?: string) => {
 	if (recordingId) {
 		await persistModifications(recordingId);
 	}
+
+	await Reactor.detach();
 
 	undoModifications();
 
