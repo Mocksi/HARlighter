@@ -13,7 +13,7 @@ function Draggable({
 
 	const initRef = React.useRef(true);
 	const dragElRef = React.useRef<HTMLDivElement>(null);
-	const lastSavedPosition = React.useRef({ x: 0, y: 0 });
+	const lastSavedPosition = React.useRef(position);
 
 	function persistPosition() {
 		if (position.x !== 0 && position.y !== 0) {
@@ -57,7 +57,7 @@ function Draggable({
 		}
 	};
 
-	React.useLayoutEffect(() => {
+	React.useEffect(() => {
 		if (initRef.current) {
 			chrome.storage.local.get([MOCKSI_POPUP_LOCATION], (results) => {
 				const storedPosition = results[MOCKSI_POPUP_LOCATION];
