@@ -15,7 +15,7 @@ function Draggable({
 	const dragElRef = React.useRef<HTMLDivElement>(null);
 	const lastSavedPosition = React.useRef(position);
 
-	function persistPosition() {
+	const persistPosition = React.useCallback(() => {
 		if (position.x !== 0 && position.y !== 0) {
 			if (
 				lastSavedPosition.current.x !== position.x ||
@@ -27,7 +27,7 @@ function Draggable({
 				lastSavedPosition.current = position;
 			}
 		}
-	}
+	}, [position]);
 
 	function stopDragging() {
 		setDragging(false);
