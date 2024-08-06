@@ -1,10 +1,4 @@
-import {
-	type MouseEvent,
-	useCallback,
-	useLayoutEffect,
-	useRef,
-	useState,
-} from "react";
+import React from "react";
 import { MOCKSI_POPUP_LOCATION } from "../../consts";
 
 function Draggable({
@@ -14,13 +8,14 @@ function Draggable({
 	children: React.ReactNode;
 	className?: string;
 }) {
-	const [dragging, setDragging] = useState(false);
-	const [position, setPosition] = useState({ x: 0, y: 0 });
-	const initRef = useRef(true);
-	const dragElRef = useRef<HTMLDivElement>(null);
-	const lastSavedPosition = useRef({ x: 0, y: 0 });
+	const [dragging, setDragging] = React.useState(false);
+	const [position, setPosition] = React.useState({ x: 0, y: 0 });
 
-	const persistPosition = useCallback(() => {
+	const initRef = React.useRef(true);
+	const dragElRef = React.useRef<HTMLDivElement>(null);
+	const lastSavedPosition = React.useRef({ x: 0, y: 0 });
+
+	function persistPosition() {
 		if (position.x !== 0 && position.y !== 0) {
 			if (
 				lastSavedPosition.current.x !== position.x ||
@@ -32,42 +27,20 @@ function Draggable({
 				lastSavedPosition.current = position;
 			}
 		}
-	}, [position]);
+	}
 
-	function bodyOnMouseUpEventHandler() {
+	function stopDragging() {
 		setDragging(false);
 	}
 
-	useLayoutEffect(() => {
-		if (initRef.current) {
-			chrome.storage.local.get([MOCKSI_POPUP_LOCATION], (results) => {
-				const storedPosition = results[MOCKSI_POPUP_LOCATION];
-				if (storedPosition.x && storedPosition.y) {
-					setPosition(storedPosition);
-				}
-			});
-			window.addEventListener("mouseup", bodyOnMouseUpEventHandler);
-			initRef.current = false;
-		} else {
-			if (!dragging) {
-				persistPosition();
-			}
-			if (dragElRef.current?.style) {
-				dragElRef.current.style.transform = `translate(${position.x}px, ${position.y}px)`;
-			}
-		}
-		return () => {
-			window.removeEventListener("mouseup", bodyOnMouseUpEventHandler);
-			persistPosition();
-		};
-	}, [bodyOnMouseUpEventHandler, dragging, persistPosition, position]);
-
-	const updatePosition = (event: MouseEvent) => {
+	const updatePosition = (event: React.MouseEvent) => {
 		if (dragging) {
 			const bounds = dragElRef.current?.getBoundingClientRect();
 			const leftBound = bounds?.left ?? 0;
-			let x = position.x;
-			let y = position.y;
+			let { x, y } = position;
+			// Make sure the popup is partially visible in the viewport when moved
+			// towards edges, offset is larger on right side of screen to give room
+			// for dragging the popup without hitting the close button
 			if (
 				Math.abs(position.x + event.movementX) < window.innerWidth - 50 &&
 				leftBound + event.movementX < window.innerWidth - 100
@@ -84,15 +57,33 @@ function Draggable({
 		}
 	};
 
-	function stopDragging(e: MouseEvent) {
-		e.stopPropagation();
-		e.preventDefault();
-		setDragging(false);
-	}
+	React.useLayoutEffect(() => {
+		if (initRef.current) {
+			chrome.storage.local.get([MOCKSI_POPUP_LOCATION], (results) => {
+				const storedPosition = results[MOCKSI_POPUP_LOCATION];
+				if (storedPosition) {
+					setPosition(storedPosition);
+				}
+			});
+			window.addEventListener("mouseup", stopDragging);
+			initRef.current = false;
+		} else {
+			if (!dragging) {
+				persistPosition();
+			}
+			if (dragElRef.current?.style) {
+				dragElRef.current.style.transform = `translate(${position.x}px, ${position.y}px)`;
+			}
+		}
+		return () => {
+			persistPosition();
+			window.removeEventListener("mouseup", stopDragging);
+		};
+	}, [stopDragging, dragging, persistPosition, position]);
 
 	return (
 		<div
-			className={`${className}·mw-ease-in-out`}
+			className={`${className}·mw-ease-in`}
 			onMouseDown={() => setDragging(true)}
 			onMouseLeave={stopDragging}
 			onMouseMove={updatePosition}
