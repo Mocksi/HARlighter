@@ -8,12 +8,11 @@ interface SettingsItemProps extends Recording {
 }
 
 const SettingsItem = ({
-	uuid,
-	demo_name,
 	customer_name,
-	alterations,
-	url,
+	demo_name,
 	onDelete,
+	url,
+	uuid,
 }: SettingsItemProps) => {
 	const domain = new URL(url).hostname;
 
@@ -25,18 +24,18 @@ const SettingsItem = ({
 	return (
 		<div className="mw-flex mw-justify-between mw-px-6">
 			<div className="mw-w-[200px]">
-				<TextField variant={"title"} className="truncate">
+				<TextField className="truncate" variant={"title"}>
 					{demo_name}
 				</TextField>
 				<TextField className="truncate">{customer_name}</TextField>
-				<a href={url} target={"_blank"} rel={"noreferrer"}>
+				<a href={url} rel={"noreferrer"} target={"_blank"}>
 					<TextField className="mw-text-xs mw-underline truncate">
 						{domain}
 					</TextField>
 				</a>
 			</div>
 			<div className="mw-flex mw-gap-3">
-				<Button variant={Variant.primary} onClick={handleDelete}>
+				<Button onClick={handleDelete} variant={Variant.primary}>
 					Delete
 				</Button>
 			</div>

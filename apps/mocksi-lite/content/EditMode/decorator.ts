@@ -1,3 +1,4 @@
+import { persistModifications } from "../../utils";
 import { applyChanges, cancelEditWithoutChanges } from "./actions";
 import { applyStyles } from "./utils";
 

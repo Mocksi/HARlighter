@@ -152,6 +152,17 @@ export const AppStateProvider: React.FC<{
 					return;
 				}
 
+				if (result[MOCKSI_RECORDING_STATE] === AppState.EDITING) {
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: AppState.EDITING,
+					});
+					sendMessage("attachDebugger");
+					loadAlterations(result[MOCKSI_ALTERATIONS], true);
+
+					return;
+				}
+
 				console.log({ initialRecordings });
 
 				if (
