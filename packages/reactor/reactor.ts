@@ -1,5 +1,6 @@
 import type { AppliedModifications, ModificationRequest } from "./interfaces";
 import { ReactorMutationObserver } from "./mutationObserver";
+import { generateModifications, AppliedModificationsImpl } from "./utils";
 
 /**
  * Reactor applied modifications to the current page. Modifications
@@ -10,7 +11,9 @@ class Reactor {
 	private mutationObserver: ReactorMutationObserver;
 	private attached = false;
 
-	private appliedModifications: AppliedModifications[] = [];
+	private doc: Document | undefined = undefined;
+	private modifications: ModificationRequest[] = [];
+	private appliedModifications: AppliedModificationsImpl[] = [];
 
 	constructor() {
 		this.mutationObserver = new ReactorMutationObserver();
@@ -22,9 +25,21 @@ class Reactor {
 	 *
 	 * @param root The document to attach to
 	 */
-	attach(root: Document): void {
+	async attach(root: Document): Promise<void> {
+		if (this.attached) {
+			throw new Error('Reactor is already attached');	
+		}
+
+		this.doc = root;
 		this.mutationObserver.attach(root);
 		this.attached = true;
+		
+		// apply all modifications
+		for (const modification of this.modifications) {
+			this.appliedModifications.push(
+				await generateModifications(modification, root),
+			)
+		}
 	}
 
 	/**
@@ -40,9 +55,12 @@ class Reactor {
 	 * Detach Reactor from the current tab. Reactor will remove any applied
 	 * modifications and stop generating events.
 	 */
-	detach(): void {
+	async detach(): Promise<void> {
 		this.mutationObserver.detach();
 		this.attached = false;
+
+		// clear any applied modifications
+		this.appliedModifications = [];
 	}
 
 	getAppliedModifications(): Iterable<AppliedModifications> {
@@ -69,21 +87,47 @@ class Reactor {
 	 * @param {ModificationRequest | ModificationRequest[]} modificationRequest - The modification request or array of modification requests to be pushed.
 	 * @return {ModificationRequest | ModificationRequest[]} the applied modifications
 	 */
-	pushModification(
+	async pushModification(
 		modificationRequest: ModificationRequest | ModificationRequest[],
-	): Promise<AppliedModifications | AppliedModifications[]> {
-		throw new Error("Method not implemented.");
+	): Promise<AppliedModifications[]> {
+		const out: AppliedModifications[] = [];
+
+		const toApply = Array.isArray(modificationRequest) ? modificationRequest : [modificationRequest];
+		for (const modification of toApply) {
+			this.modifications.push(modification);
+
+			if (this.isAttached()) {
+				const applied = await generateModifications(modification, this.doc!);
+				out.push(applied);
+				this.appliedModifications.push(applied);
+			}
+		}
+
+		return out;
 	}
 
 	/**
 	 * Removes the specified number of modifications from the stack.
 	 *
 	 * @param {number} count - The number of modifications to remove. Defaults to 1.
-	 * @return {ModificationRequest | ModificationRequest[]} the applied modifications
+	 * @return {AppliedModification[]} the applied modifications
 	 */
-	popModification(
-		count = 1,
-	): Promise<AppliedModifications | AppliedModifications[]> {
-		throw new Error("Method not implemented.");
+	async popModification(
+		count: number = 1,
+	): Promise<AppliedModifications[]> {
+		const out: AppliedModifications[] = [];
+		for (let i = 0; i < count; i++) {
+			const modification = this.modifications.pop();
+
+			if (this.isAttached()) {
+				const applied = this.appliedModifications.pop();
+				if (applied) {
+					applied!.unapply();
+					out.push(applied!);
+				}
+			}
+		}
+
+		return out;
 	}
 }
