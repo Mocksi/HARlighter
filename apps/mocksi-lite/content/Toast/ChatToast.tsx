@@ -171,7 +171,6 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 
 		return (
 			<Toast
-				className="mw-relative mw-flex mw-flex-col mw-py-4 mw-w-[800px] mw-mr-6 mw-mt-1 mw-h-[900px] mw-max-h-[95vh]"
 				backgroundColor="mw-bg-gray-300"
 				className="mw-relative mw-flex mw-flex-col mw-mt-1 mw-mr-6 mw-py-4 mw-h-[900px] mw-w-[800px]"
 			>
