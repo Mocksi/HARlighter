@@ -1,16 +1,13 @@
 export class ReactorMutationObserver {
-	private observer: MutationObserver;
-
-	constructor() {
-		this.observer = new MutationObserver(this.handleMutations.bind(this));
-	}
+	private observer: MutationObserver | undefined;
 
 	attach(root: Document) {
+		this.observer = new MutationObserver(this.handleMutations.bind(this));
 		this.observer.observe(root, { childList: true, subtree: true });
 	}
 
 	detach() {
-		this.observer.disconnect();
+		this.observer?.disconnect();
 	}
 
 	handleMutations(mutations: MutationRecord[]) {

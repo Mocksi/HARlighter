@@ -48,9 +48,6 @@ importers:
       auth0-js:
         specifier: ^9.26.1
         version: 9.26.1
-      css-selector-generator:
-        specifier: ^3.6.8
-        version: 3.6.8
       rollbar:
         specifier: ^2.26.4
         version: 2.26.4

@@ -4,6 +4,7 @@ import type {
 	AppliedModifications,
 	Modification,
 	ModificationRequest,
+	TimeStampReference,
 } from "./interfaces";
 
 export function parseRequest(userRequest: string): ModificationRequest {
@@ -344,14 +345,14 @@ class HighlightModification extends AppliableModification {
 
 class TimestampModification extends AppliableModification {
 	elementSelector: string;
-	timestampRef: TimestampRef | undefined;
+	timestampRef: TimeStampReference | undefined;
 	originalText: string | undefined;
 	originalLabel: string | undefined;
 
 	constructor(
 		doc: Document,
 		element: Element,
-		timestampRef: TimestampRef | undefined,
+		timestampRef: TimeStampReference | undefined,
 	) {
 		super(doc);
 		this.elementSelector = cssSelector.getCssSelector(element);
@@ -500,14 +501,9 @@ export function createToast(
 	}, duration);
 }
 
-type TimestampRef = {
-	recordedAt: string;
-	currentTime: string;
-};
-
 export function modifyTimestamp(
 	element: Element,
-	timestampRef: TimestampRef,
+	timestampRef: TimeStampReference,
 ): { originalText: string; originalLabel: string } {
 	const originalText = element.textContent || "";
 	const originalLabel = element.getAttribute("aria-label") || "";
