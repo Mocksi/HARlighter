@@ -31,13 +31,13 @@ export class DOMManipulator {
 		return this.patterns.length;
 	}
 
-	addPattern(pattern: string | RegExp, replace: string) {
+	addPattern(pattern: string, replace: string) {
 		const replacePattern = { pattern: toRegExpPattern(pattern), replace };
 		this.patterns.push(replacePattern);
 		this.seekAndReplaceAllPage(replacePattern.pattern, replacePattern.replace);
 	}
 
-	removePattern(pattern: string | RegExp) {
+	removePattern(pattern: string) {
 		const pattern_ = toRegExpPattern(pattern);
 		const idx = this.patterns.findIndex(
 			(p) => p.pattern.source === pattern_.source,
@@ -160,8 +160,11 @@ export class DOMManipulator {
 	}
 }
 
-const cleanPattern = (pattern: RegExp) =>
-	pattern.toString().replaceAll("/", "").replace("gi", "");
+export const cleanPattern = (pattern: RegExp) => {
+	const patternString = pattern.toString();
+	// Remove leading and trailing slashes and flags
+	return patternString.replace(/^\/|\/[gimuy]*$/g, "");
+};
 
 const createTreeWalker = (
 	rootElement: Node,
@@ -211,16 +214,20 @@ const fillReplacements = (
 			textNode,
 			newText,
 		);
-		replacements.push({
-			nodeToReplace: textNode,
-			replacement: fragmentedTextNode as Node,
-		});
-		saveModification(
-			textNode.parentElement as HTMLElement,
-			newText,
-			cleanPattern(oldTextPattern),
-			"text",
-		);
+		if (fragmentedTextNode) {
+			replacements.push({
+				nodeToReplace: textNode,
+				replacement: fragmentedTextNode as Node,
+			});
+			saveModification(
+				textNode.parentElement as HTMLElement,
+				newText,
+				cleanPattern(oldTextPattern),
+				"text",
+			);
+		} else {
+			console.log("fragmentTextNode returned null or invalid value");
+		}
 	}
 };
 
@@ -237,9 +244,5 @@ export const replaceFirstLetterCase = (value: string) => {
 };
 
 const toRegExpPattern = (pattern: string | RegExp) => {
-	if (typeof pattern === "string") {
-		return new RegExp(pattern, "ig");
-	}
-
-	return pattern;
+	return new RegExp(pattern, "ig");
 };

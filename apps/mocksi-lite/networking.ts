@@ -1,6 +1,7 @@
 import auth0 from "auth0-js";
 import MocksiRollbar from "./MocksiRollbar";
-import { API_URL, MOCKSI_AUTH } from "./consts";
+import { API_URL, MOCKSI_AUTH, MOCKSI_RECORDING_STATE } from "./consts";
+import { AppState } from "./content/AppStateContext";
 
 type HttpMethod = "GET" | "PUT" | "POST" | "DELETE";
 
@@ -19,42 +20,12 @@ const auth0Client = new auth0.WebAuth({
 const getAuthToken = async (): Promise<string> => {
 	try {
 		const storageAuth = await chrome.storage.local.get(MOCKSI_AUTH);
-		MocksiRollbar.log("Retrieved auth from storage:", storageAuth);
 		const mocksiAuth = JSON.parse(storageAuth[MOCKSI_AUTH]);
-		MocksiRollbar.log("Parsed auth token:", mocksiAuth.accessToken);
 		return mocksiAuth.accessToken ?? "";
 	} catch (err) {
 		MocksiRollbar.error(`Failed to retrieve auth token: ${err}`);
 		return "";
 	}
-};
-
-const refreshToken = async (): Promise<string> => {
-	return new Promise((resolve, reject) => {
-		MocksiRollbar.log("Refreshing token");
-		auth0Client.checkSession(
-			{},
-			(err: auth0.Auth0Error | null, result: auth0.Auth0Result | undefined) => {
-				if (err) {
-					return reject(err);
-				}
-				if (!result || !result.accessToken) {
-					const errorMessage = !result
-						? "No result from checkSession"
-						: "No access token in result";
-					return reject(new Error(errorMessage));
-				}
-
-				const accessToken = result.accessToken;
-				chrome.storage.local.set(
-					{ [MOCKSI_AUTH]: JSON.stringify(result) },
-					() => {
-						resolve(accessToken);
-					},
-				);
-			},
-		);
-	});
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: we haven't defined the type of body yet
@@ -98,6 +69,9 @@ export const apiCall = async (
 
 		if (!response.ok) {
 			if (response.status === 401) {
+				await chrome.storage.local.set({
+					[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
+				});
 				throw new Error("Unauthorized");
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
@@ -107,18 +81,8 @@ export const apiCall = async (
 	};
 
 	try {
-		let token = await getAuthToken();
-
-		try {
-			return await makeRequest(token);
-		} catch (error) {
-			if (error instanceof Error && error.message === "Unauthorized") {
-				MocksiRollbar.log("Received 401 from API, refreshing token");
-				token = await refreshToken();
-				return await makeRequest(token);
-			}
-			throw error;
-		}
+		const token = await getAuthToken();
+		return await makeRequest(token);
 	} catch (err) {
 		const errorMessage = err instanceof Error ? err.message : String(err);
 		MocksiRollbar.error("API call failed: ", errorMessage);

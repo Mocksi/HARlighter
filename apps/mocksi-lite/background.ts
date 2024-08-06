@@ -220,8 +220,12 @@ function handleChatResponse(response: ChatResponse) {
 }
 
 function onAttach(tabId: number) {
-	chrome.debugger.sendCommand({ tabId: tabId }, "Network.enable");
-	chrome.debugger.onEvent.addListener(allEventHandler);
+	try {
+		chrome.debugger.sendCommand({ tabId: tabId }, "Network.enable");
+		chrome.debugger.onEvent.addListener(allEventHandler);
+	} catch (e) {
+		console.error("Error enabling network:", e);
+	}
 }
 
 function debuggerDetachHandler() {
@@ -229,13 +233,17 @@ function debuggerDetachHandler() {
 }
 
 async function attachDebugger() {
-	console.log("attaching");
 	const version = "1.0";
 
-	const [activeTab] = await chrome.tabs.query({
-		active: true,
-		lastFocusedWindow: true,
-	});
+	const [activeTab] = await chrome.tabs
+		.query({
+			active: true,
+			lastFocusedWindow: true,
+		})
+		.catch((err) => {
+			console.error("Error querying active tab", err);
+			return [];
+		});
 
 	if (!activeTab || !activeTab.id) {
 		console.error("Cannot find active tab ID to attach debugger");
@@ -259,7 +267,6 @@ async function attachDebugger() {
 			console.log("Cannot attach to this target");
 			return;
 		}
-		MocksiRollbar.error("Error attaching debugger", e);
 	}
 }
 

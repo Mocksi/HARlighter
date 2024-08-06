@@ -1,17 +1,16 @@
 import { Fragment, useContext, useEffect, useState } from "react";
 import type { Recording } from "../../background";
-import Button from "../../common/Button";
 import Divider from "../../common/Divider";
 import Popup from "../../common/Popup";
 import { getRecordingsStorage } from "../../utils";
-import { AppEvent, AppState, AppStateContext } from "../AppStateContext";
+import { AppEvent, AppStateContext } from "../AppStateContext";
 import SettingsItem from "./SettingsItem";
 
 interface SettingsPopupProps {
-	onClose: () => void;
-	onChat: () => void;
-	onLogout: () => void;
 	email?: string;
+	onChat: () => void;
+	onClose: () => void;
+	onLogout: () => void;
 }
 
 const SettingsPopup = ({
@@ -53,23 +52,23 @@ const SettingsPopup = ({
 
 	return (
 		<Popup
-			headerSubtitle="Settings"
-			shouldDisplayFooter
 			email={email}
-			onLogout={onLogout}
+			headerSubtitle="Settings"
 			onChat={onChat}
 			onClose={onClose}
 			onGoBack={handleGoBackClicked}
+			onLogout={onLogout}
+			shouldDisplayFooter
 		>
-			<div className="mw-flex mw-flex-1 mw-flex-col mw-h-[280px] overflow-x-scroll">
+			<div className="mw-flex mw-flex-col mw-flex-1 mw-h-[280px] overflow-x-scroll">
 				{recordings.length ? (
-					<div className="mw-flex-1 mw-flex mw-flex-col mw-py-8 overflow-y-scroll no-scrollbar">
+					<div className="mw-flex mw-flex-col mw-flex-1 mw-py-8 overflow-y-scroll no-scrollbar">
 						{recordings
 							.filter((record) => record.url)
 							.map((record) => (
 								<Fragment key={`demo-item-${record.uuid}`}>
 									<SettingsItem {...record} onDelete={handleDelete} />
-									<div className="mw-px-3 mw-w-full mw-my-6">
+									<div className="mw-my-6 mw-px-3 mw-w-full">
 										<Divider />
 									</div>
 								</Fragment>

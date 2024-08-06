@@ -1,12 +1,13 @@
-import { MOCKSI_RECORDING_ID } from "../../consts";
+import { MOCKSI_READONLY_STATE, MOCKSI_RECORDING_ID } from "../../consts";
 import {
+	getAlterations,
+	loadAlterations,
 	persistModifications,
 	sendMessage,
 	undoModifications,
 } from "../../utils";
 import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
-import { getHighlighter } from "./highlighter";
 
 const observeUrlChange = (onChange: () => void) => {
 	let oldHref = document.location.href;
@@ -43,12 +44,20 @@ const setupEditor = async (recordingId?: string) => {
 
 	observeUrlChange(() => {
 		console.log("URL changed, turning off highlights");
-		const highlighter = getHighlighter();
-		highlighter.removeHighlightNodes();
+		getAlterations().then((alterations) => {
+			loadAlterations(alterations, true);
+		});
 	});
 
-	console.log("injecting styles");
-	injectStylesToBlockEvents();
+	const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
+
+	// If value exists and is true or if the value doesn't exist at all, apply read-only mode
+	if (
+		results[MOCKSI_READONLY_STATE] === undefined ||
+		results[MOCKSI_READONLY_STATE]
+	) {
+		applyReadOnlyMode();
+	}
 
 	document.body.addEventListener("dblclick", onDoubleClickText);
 
@@ -64,10 +73,13 @@ const teardownEditor = async (recordingId?: string) => {
 
 	undoModifications();
 
-	await chrome.storage.local.remove(MOCKSI_RECORDING_ID);
+	await chrome.storage.local.remove([
+		MOCKSI_RECORDING_ID,
+		MOCKSI_READONLY_STATE,
+	]);
 
 	document.body.removeEventListener("dblclick", onDoubleClickText);
-	removeStylesToBlockEvents();
+	disableReadOnlyMode();
 
 	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 };
@@ -195,6 +207,8 @@ function decorateTextTag(
 	width: string,
 	shiftMode: boolean,
 	{ startOffset, endOffset }: { startOffset: number; endOffset: number },
+	onSubmit?: () => void,
+	onCancel?: () => void,
 ) {
 	const fragment = document.createDocumentFragment();
 	if (startOffset > 0) {
@@ -203,7 +217,10 @@ function decorateTextTag(
 		);
 	}
 	fragment.appendChild(
-		decorate(text.substring(startOffset, endOffset), width, shiftMode),
+		decorate(text.substring(startOffset, endOffset), width, shiftMode, {
+			onSubmit,
+			onCancel,
+		}),
 	);
 	if (endOffset < text.length) {
 		fragment.appendChild(
@@ -217,6 +234,7 @@ function applyEditor(
 	targetedElement: HTMLElement,
 	selectedRange: Selection | null,
 	shiftMode: boolean,
+	onSubmit?: () => void,
 ) {
 	if (selectedRange === null || selectedRange.anchorNode === null) {
 		return;
@@ -229,6 +247,7 @@ function applyEditor(
 				targetedElement.clientWidth?.toString() || "",
 				shiftMode,
 				selectedRange.getRangeAt(0),
+				onSubmit,
 			),
 			selectedRange.anchorNode,
 		);
@@ -242,6 +261,10 @@ const injectStylesToBlockEvents = () => {
 		a, button, img, input, textarea, select, option, checkbox, radio, label {
 			pointer-events: none;
 		}
+
+		:is(#mocksi-editor-toast) * {
+			pointer-events: unset;
+		}
 	`;
 	document.head.appendChild(style);
 };
@@ -254,9 +277,15 @@ const removeStylesToBlockEvents = () => {
 };
 
 export const applyReadOnlyMode = () => {
+	chrome.storage.local.set({
+		[MOCKSI_READONLY_STATE]: true,
+	});
 	injectStylesToBlockEvents();
 };
 
-export const removeReadOnlyMode = () => {
+export const disableReadOnlyMode = () => {
+	chrome.storage.local.set({
+		[MOCKSI_READONLY_STATE]: false,
+	});
 	removeStylesToBlockEvents();
 };
