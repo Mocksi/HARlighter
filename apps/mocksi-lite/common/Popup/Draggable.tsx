@@ -35,22 +35,25 @@ function Draggable({
 
 	const updatePosition = (event: React.MouseEvent) => {
 		if (dragging) {
-			const bounds = dragElRef.current?.getBoundingClientRect();
-			const leftBound = bounds?.left ?? 0;
-			let { x, y } = position;
 			// Make sure the popup is partially visible in the viewport when moved
 			// towards edges, offset is larger on right side of screen to give room
 			// for dragging the popup without hitting the close button
-			if (
-				Math.abs(position.x + event.movementX) < window.innerWidth - 50 &&
-				leftBound + event.movementX < window.innerWidth - 100
-			) {
+			const bounds = dragElRef.current?.getBoundingClientRect();
+			let { x, y } = position;
+
+			// x-axis
+			const rightBoundCheck =
+				Math.abs(position.x + event.movementX) < window.innerWidth - 50;
+			const leftBoundCheck =
+				bounds?.left ?? 0 + event.movementX < window.innerWidth - 100;
+			if (rightBoundCheck && leftBoundCheck) {
 				x = position.x + event.movementX;
 			}
-			if (
-				Math.abs(position.y + event.movementY) < window.innerHeight - 50 &&
-				position.y + event.movementY > 0
-			) {
+			// y-axis
+			const bottomBoundCheck =
+				Math.abs(position.y + event.movementY) < window.innerHeight - 50;
+			const topBoundCheck = position.y + event.movementY > 0;
+			if (bottomBoundCheck && topBoundCheck) {
 				y = position.y + event.movementY;
 			}
 			setPosition({ x, y });
