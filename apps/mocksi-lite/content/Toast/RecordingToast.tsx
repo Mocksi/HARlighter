@@ -22,7 +22,7 @@ const RecordingToast = ({ close }: RecordingToast) => {
 
 	return (
 		<IframeWrapper style={iframeStyle}>
-			<Toast className="mw-justify-between mw-mt-4 mw-mr-8 mw-h-11 mw-w-64">
+			<Toast className="mw-justify-between mw-m-2 mw-h-11 mw-w-64">
 				<div className="mw-flex mw-flex-row mw-items-center mw-gap-2 mw-pl-2">
 					<CloseButton onClick={close} />
 					<LogoBirdy />
