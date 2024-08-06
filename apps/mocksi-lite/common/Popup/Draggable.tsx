@@ -29,9 +29,9 @@ function Draggable({
 		}
 	}, [position]);
 
-	function stopDragging() {
+	const stopDragging = React.useCallback(() => {
 		setDragging(false);
-	}
+	}, []);
 
 	const updatePosition = (event: React.MouseEvent) => {
 		if (dragging) {
