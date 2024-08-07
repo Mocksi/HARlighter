@@ -78,6 +78,8 @@ export const persistModifications = async (
 		alterations,
 	});
 
+	// Return a promise here so we can "await" the response
+	// This allows us to ensure the demo has been updated before taking the next action (ie. closing the editor)
 	return new Promise((resolve) => {
 		sendMessage(
 			"updateDemo",
