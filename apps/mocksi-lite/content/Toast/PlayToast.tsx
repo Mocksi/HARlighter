@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import type { Alteration } from "../../background";
 import Button, { CloseButton, Variant } from "../../common/Button";
 import { EditIcon, StopIcon } from "../../common/Icons";
 import { Logo } from "../../common/Logos";
@@ -12,7 +13,6 @@ import {
 } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 import Toast from "./index";
-import { Alteration } from "../../background";
 
 interface PlayToastProps {
 	close: () => void;

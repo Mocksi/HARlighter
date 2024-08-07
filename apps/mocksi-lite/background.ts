@@ -530,10 +530,9 @@ chrome.runtime.onMessage.addListener(
 			if (!request.body) {
 				return false;
 			}
-			updateDemo(request.body)
-				.then(() => {
-					sendResponse({ message: request.message, status: "success" });
-				})
+			updateDemo(request.body).then(() => {
+				sendResponse({ message: request.message, status: "success" });
+			});
 			return true;
 		}
 

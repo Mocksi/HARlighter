@@ -79,13 +79,17 @@ export const persistModifications = async (
 	});
 
 	return new Promise((resolve) => {
-		sendMessage("updateDemo", {
-			id: recordingId,
-			recording: { updated_timestamp, alterations },
-		}, (response) => {
-			resolve(response);
-		});
-	})
+		sendMessage(
+			"updateDemo",
+			{
+				id: recordingId,
+				recording: { updated_timestamp, alterations },
+			},
+			(response) => {
+				resolve(response);
+			},
+		);
+	});
 };
 
 export const undoModifications = async (alterations: Alteration[]) => {
