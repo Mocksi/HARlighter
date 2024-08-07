@@ -27,3 +27,4 @@ module.exports = {
 	},
 	plugins: [require("daisyui")],
 };
+//# sourceMappingURL=tailwind.config.js.map
