@@ -2,7 +2,7 @@
 const fs = require("fs");
 // biome-ignore lint/style/useNodejsImportProtocol: Required for Node.js path operations
 const path = require("path");
-const TerserPlugin = require('terser-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = (env, argv) => {
 	const isProd = argv.mode === "production";

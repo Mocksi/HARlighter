@@ -39,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
       - name: Build production release
-        run: BUILD_MODE=production pnpm prod_release
+        run: BUILD_MODE=production pnpm run prod_release
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
