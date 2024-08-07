@@ -1,5 +1,4 @@
 import { DOMManipulator } from "@repo/dodom";
-import { saveModification } from "../../utils";
 import { getHighlighter } from "./highlighter";
 import { ApplyAlteration } from "../Toast/EditToast";
 
@@ -83,7 +82,7 @@ export function applyImageChanges(
 	const domManipulator = new DOMManipulator(
 		fragmentTextNode,
 		getHighlighter(),
-		saveModification,
+		() => {}
 	);
 	domManipulator.replaceImage(targetedElement.src, newSrc);
 }

@@ -13,7 +13,7 @@ import IframeWrapper from "../IframeWrapper";
 import Toast from "./index";
 import { MOCKSI_ALTERATIONS, MOCKSI_READONLY_STATE, MOCKSI_RECORDING_ID } from "../../consts";
 import { cancelEditWithoutChanges } from "../EditMode/actions";
-import { buildQuerySelector } from "../../commands/Command";
+import { buildQuerySelector } from "../EditMode/utils";
 
 type EditToastProps = {
 	initialReadOnlyState?: boolean;

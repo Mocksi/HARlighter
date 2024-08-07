@@ -7,11 +7,6 @@ import MocksiRollbar from "./MocksiRollbar";
 import type { Alteration } from "./background";
 import type { Recording } from "./background";
 import {
-	type Command,
-	SaveModificationCommand,
-	buildQuerySelector,
-} from "./commands/Command";
-import {
 	MOCKSI_ALTERATIONS,
 	MOCKSI_LAST_PAGE_DOM,
 	MOCKSI_MODIFICATIONS,
@@ -72,30 +67,6 @@ export const logout = () => {
 	});
 };
 
-const commandsExecuted: Command[] = [];
-
-let domainModifications: DOMModificationsType = {};
-
-export const saveModification = (
-	parentElement: HTMLElement,
-	newValue: string,
-	oldValue: string,
-	type: "text" | "image" = "text",
-) => {
-	const saveModificationCommand = new SaveModificationCommand(
-		domainModifications,
-		{
-			previousKey: buildQuerySelector(parentElement, oldValue),
-			keyToSave: buildQuerySelector(parentElement, newValue),
-			newValue: sanitizeHtml(newValue),
-			oldValue,
-			type,
-		},
-	);
-	commandsExecuted.push(saveModificationCommand);
-	saveModificationCommand.execute();
-};
-
 export const persistModifications = async (recordingId: string, alterations: any[]) => {
 	const updated_timestamp = new Date();
 	await updateRecordingsStorage({
@@ -113,8 +84,6 @@ export const undoModifications = async (alterations: any[]) => {
 	loadPreviousModifications(alterations); // revert
 	await chrome.storage.local.remove(MOCKSI_ALTERATIONS);
 	getHighlighter().removeHighlightNodes();
-	// clean the domainModifications
-	domainModifications = {};
 };
 
 // v2 of loading alterations, this is from backend
@@ -324,23 +293,6 @@ export const sendMessage = (
 		logout();
 	}
 };
-
-const buildAlterations = (): Alteration[] => {
-	return modificationsIterable().map(
-		([querySelector, { newValue, oldValue, type }]) => ({
-			selector: querySelector,
-			action: oldValue ? "modified" : "added",
-			dom_before: oldValue || "",
-			dom_after: newValue,
-			type,
-		}),
-	);
-};
-
-function modificationsIterable() {
-	return Object.entries(domainModifications).filter(([, values]) => values);
-}
-
 // biome-ignore lint/suspicious/noExplicitAny: dynamic arguments
 export function debounce_leading<T extends (...args: any[]) => void>(
 	func: T,
