@@ -18,6 +18,7 @@
 		"react-dom": "^18.1.0",
 		"style-loader": "^4.0.0",
 		"tailwindcss": "^3.4.1",
+		"terser-webpack-plugin": "^5.3.10",
 		"ts-loader": "^9.5.1",
 		"typescript": "5.3.3",
 		"vitest": "^2.0.1",
@@ -28,7 +29,8 @@
 	"scripts": {
 		"dev": "./scripts/build.sh && ./scripts/dev.sh",
 		"build": "./scripts/build.sh",
-		"zip": "./scripts/build.sh &&./scripts/zip.sh",
+		"zip": "./scripts/build.sh && ./scripts/zip.sh",
+		"prod_release": "BUILD_MODE=production ./scripts/build.sh && BUILD_MODE=production ./scripts/zip.sh",
 		"test": "vitest",
 		"lint": "biome ci .",
 		"format": "biome check --apply . && biome lint --apply ."

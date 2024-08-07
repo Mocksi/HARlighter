@@ -2,37 +2,8 @@
 const fs = require("fs");
 // biome-ignore lint/style/useNodejsImportProtocol: Required for Node.js path operations
 const path = require("path");
-function scanFilesInFolder(dirPath, fileExtension) {
-	if (!fs.existsSync(dirPath) || !fs.statSync(dirPath).isDirectory()) {
-		return [];
-	}
-	const files = [];
-	function recurse(currentPath) {
-		const entries = fs.readdirSync(currentPath, { withFileTypes: true });
-		for (const entry of entries) {
-			const entryPath = path.join(currentPath, entry.name);
-			if (entry.isDirectory()) {
-				recurse(entryPath);
-			} else if (entry.isFile() && entry.name.endsWith(fileExtension)) {
-				files.push(entryPath);
-			}
-		}
-	}
-	recurse(currentPath);
-	return files;
-}
-function generateEntries(includes, outputPath) {
-	if (!includes || !includes.length) {
-		return {};
-	}
-	return includes.reduce((acc, include) => {
-		const extname = path.extname(include);
-		const filename = path.basename(include, extname);
-		return Object.assign(Object.assign({}, acc), {
-			[`${outputPath}/${filename}`]: include,
-		});
-	}, {});
-}
+const TerserPlugin = require('terser-webpack-plugin');
+
 module.exports = (env, argv) => {
 	const isProd = argv.mode === "production";
 	return {
@@ -83,8 +54,16 @@ module.exports = (env, argv) => {
 		target: "web",
 		optimization: {
 			minimize: isProd,
+			minimizer: [
+				new TerserPlugin({
+					terserOptions: {
+						output: {
+							ascii_only: true,
+						},
+					},
+				}),
+			],
 		},
 		devtool: isProd ? false : "source-map",
 	};
 };
-//# sourceMappingURL=webpack.config.js.map
