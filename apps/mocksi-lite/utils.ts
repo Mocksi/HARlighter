@@ -67,7 +67,10 @@ export const logout = () => {
 	});
 };
 
-export const persistModifications = async (recordingId: string, alterations: any[]) => {
+export const persistModifications = async (
+	recordingId: string,
+	alterations: Alteration[],
+) => {
 	const updated_timestamp = new Date();
 	await updateRecordingsStorage({
 		uuid: recordingId,
@@ -80,7 +83,7 @@ export const persistModifications = async (recordingId: string, alterations: any
 	});
 };
 
-export const undoModifications = async (alterations: any[]) => {
+export const undoModifications = async (alterations: Alteration[]) => {
 	loadPreviousModifications(alterations); // revert
 	await chrome.storage.local.remove(MOCKSI_ALTERATIONS);
 	getHighlighter().removeHighlightNodes();
@@ -89,13 +92,13 @@ export const undoModifications = async (alterations: any[]) => {
 // v2 of loading alterations, this is from backend
 export const loadAlterations = async (
 	alterations: Alteration[] | null,
-	options: { withHighlights: boolean; createdAt?: Date }
+	options: { withHighlights: boolean; createdAt?: Date },
 ) => {
 	const { withHighlights, createdAt } = options;
 
 	if (!alterations?.length) {
 		// FIXME: we should warn the user that there are no alterations for this demo
-		console.debug('No alterations found while trying to load, cancelling load');
+		console.debug("No alterations found while trying to load, cancelling load");
 		return;
 	}
 
@@ -218,10 +221,10 @@ export const loadAlterations = async (
 
 // This is from chrome.storage.local
 // this should be called "revertModifications"
-export const loadPreviousModifications = (alterations: any[]) => {
-	for (let alteration of alterations) {
+export const loadPreviousModifications = (alterations: Alteration[]) => {
+	for (const alteration of alterations) {
 		const { selector, dom_before, dom_after, type } = alteration;
-		
+
 		const sanitizedOldValue = sanitizeHtml(dom_before);
 		const elemToModify = getHTMLElementFromSelector(selector);
 		// here newValue and oldValue is in altered order because we want to revert the changes

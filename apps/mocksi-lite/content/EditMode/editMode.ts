@@ -1,13 +1,6 @@
-import { MOCKSI_ALTERATIONS, MOCKSI_READONLY_STATE, MOCKSI_RECORDING_ID } from "../../consts";
-import {
-	getAlterations,
-	loadAlterations,
-	persistModifications,
-	sendMessage,
-	undoModifications,
-} from "../../utils";
-import { ApplyAlteration } from "../Toast/EditToast";
-import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
+import { MOCKSI_READONLY_STATE } from "../../consts";
+import type { ApplyAlteration } from "../Toast/EditToast";
+import { applyImageChanges } from "./actions";
 import { decorate } from "./decorator";
 
 function openImageUploadModal(targetedElement: HTMLImageElement) {
@@ -91,7 +84,7 @@ function decorateTextTag(
 	width: string,
 	shiftMode: boolean,
 	{ startOffset, endOffset }: { startOffset: number; endOffset: number },
-	applyAlteration: ApplyAlteration
+	applyAlteration: ApplyAlteration,
 ) {
 	const fragment = document.createDocumentFragment();
 	if (startOffset > 0) {
@@ -100,7 +93,12 @@ function decorateTextTag(
 		);
 	}
 	fragment.appendChild(
-		decorate(text.substring(startOffset, endOffset), width, shiftMode, applyAlteration),
+		decorate(
+			text.substring(startOffset, endOffset),
+			width,
+			shiftMode,
+			applyAlteration,
+		),
 	);
 	if (endOffset < text.length) {
 		fragment.appendChild(

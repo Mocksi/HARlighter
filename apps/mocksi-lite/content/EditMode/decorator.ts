@@ -1,5 +1,5 @@
 import { persistModifications } from "../../utils";
-import { ApplyAlteration } from "../Toast/EditToast";
+import type { ApplyAlteration } from "../Toast/EditToast";
 import { applyChanges, cancelEditWithoutChanges } from "./actions";
 import { applyStyles } from "./utils";
 
@@ -18,7 +18,7 @@ export function decorate(
 	const textArea = injectTextArea(
 		shiftMode ? width : undefined,
 		text,
-		applyAlteration
+		applyAlteration,
 	);
 	newSpan.appendChild(textArea);
 	return newSpan;

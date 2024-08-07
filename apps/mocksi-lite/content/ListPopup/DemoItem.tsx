@@ -25,7 +25,7 @@ const DemoItem = ({
 	const domain = new URL(url).hostname;
 
 	const handleEdit = async () => {
-		console.log('handleEdit', alterations)
+		console.log("handleEdit", alterations);
 
 		await chrome.storage.local.set({
 			[MOCKSI_ALTERATIONS]: alterations,
@@ -44,7 +44,7 @@ const DemoItem = ({
 
 		if (window.location.href === url) {
 			sendMessage("updateToPauseIcon");
-			loadAlterations(alterations, { withHighlights: false, createdAt: created_timestamp });
+
 			dispatch({ event: AppEvent.START_PLAYING });
 		} else {
 			sendMessage("playMode", { url });
