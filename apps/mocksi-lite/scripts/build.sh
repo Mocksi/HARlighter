@@ -2,7 +2,7 @@
 
 TEMP_DIR=/tmp/mocksi-lite-dev
 # Step 0: Clean the dist folder
-rm -rf dist || mkdir dist ## Empty or create dist folder
+rm -rf dist
 mkdir -p dist/chrome/icon
 
 # Step 1: Compile TypeScript and run Tailwind
