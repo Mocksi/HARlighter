@@ -2,8 +2,9 @@ import { v4 as uuidv4 } from "uuid";
 import { MOCKSI_HIGHLIGHTER_ID } from "../../consts";
 import { decorate } from "./decorator";
 import { applyStyles } from "./utils";
+import { Highlighter } from "@repo/reactor";
 
-class Highlighter {
+class HighlighterImpl implements Highlighter {
 	private contentRanger = document.createRange();
 	private highlightedNodes: { highlightedElem: Node; highlightId: string }[] =
 		[];
@@ -67,11 +68,11 @@ class Highlighter {
 	};
 }
 
-let ContentHighlighter: Highlighter;
+let ContentHighlighter: HighlighterImpl;
 
 export const getHighlighter = () => {
 	if (!ContentHighlighter) {
-		ContentHighlighter = new Highlighter();
+		ContentHighlighter = new HighlighterImpl();
 	}
 	return ContentHighlighter;
 };

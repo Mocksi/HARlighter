@@ -1,11 +1,15 @@
 import type {
 	AppliedModifications,
 	DomJsonExportNode,
+	Highlighter,
 	ModificationRequest,
 } from "./interfaces";
 import { htmlElementToJson } from "./main";
+import {
+	AppliedModificationsImpl,
+	generateModifications,
+} from "./modifications";
 import { ReactorMutationObserver } from "./mutationObserver";
-import { AppliedModificationsImpl, generateModifications } from "./utils";
 
 /**
  * Reactor applied modifications to the current page. Modifications
@@ -17,6 +21,7 @@ export class Reactor {
 	private attached = false;
 
 	private doc: Document | undefined = undefined;
+	private highlighter: Highlighter | undefined = undefined;
 	private modifications: ModificationRequest[] = [];
 	private appliedModifications: AppliedModificationsImpl[] = [];
 
@@ -30,12 +35,13 @@ export class Reactor {
 	 *
 	 * @param root The document to attach to
 	 */
-	async attach(root: Document): Promise<void> {
+	async attach(root: Document, highlighter: Highlighter): Promise<void> {
 		if (this.attached) {
 			throw new Error("Reactor is already attached");
 		}
 
 		this.doc = root;
+		this.highlighter = highlighter;
 		this.mutationObserver.attach(root);
 		this.attached = true;
 

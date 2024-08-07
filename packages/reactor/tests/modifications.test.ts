@@ -1,11 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Modification, ModificationRequest } from "../interfaces";
 // utils.test.ts
-import {
-	applyModification,
-	createToast,
-	generateModifications,
-} from "../utils";
+import { applyModification, generateModifications } from "../modifications";
+import { createToast } from "../modifications/toast";
 
 describe("Utils", () => {
 	let doc: Document;

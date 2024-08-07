@@ -2,7 +2,7 @@ import { JSDOM } from "jsdom";
 import { describe, expect, it } from "vitest";
 import type { ModificationRequest } from "../interfaces";
 import { modifyDom, modifyHtml } from "../main";
-import type { AppliedModificationsImpl } from "../utils";
+import type { AppliedModificationsImpl } from "../modifications";
 
 // Set up a mock DOM environment
 const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
