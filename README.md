@@ -17,17 +17,25 @@ This is a monorepo project built with [Turborepo](https://turbo.build/repo) and 
 
 ### Development
 
+0. Install [pnpm](https://pnpm.io/installation) globally.
+
 To start developing the Chrome extension, you need to install the dependencies and start the development server.
 
-1. Install [pnpm](https://pnpm.io/installation) globally.
+1. Navigate to the `apps/mocksi-lite` directory.
 2. Run `pnpm install` to install the dependencies.
 3. Run `pnpm dev` to start the chrome extension test browser.
 
+### Manual Test Release
 
-### Manual Release
-1. Install [pnpm](https://pnpm.io/installation) globally.
+1. Navigate to the `apps/mocksi-lite` directory.
 2. Run `pnpm install` to install the dependencies.
 3. Run `pnpm zip` to get a zip with your latest local changes.
+
+### Production Build
+
+1. Navigate to the `apps/mocksi-lite` directory.
+2. Run `pnpm install` to install the dependencies.
+3. Run `pnpm run prod_release` to build the extension for production.
 
 
 ### Linting
