@@ -5,4 +5,3 @@ module.exports = {
 		autoprefixer: {},
 	},
 };
-//# sourceMappingURL=postcss.config.js.map

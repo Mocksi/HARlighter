@@ -38,13 +38,5 @@ jobs:
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
-      - name: Build production release
-        run:  pnpm run build
-      - name: Build production release
-        run: BUILD_MODE=production pnpm --prefix apps/mocksi-lite run prod_release
-      - name: Archive artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: mocksi-lite dist
-          path: |
-            apps/mocksi-lite/dist/builds
+      - name: Build artifacts
+        run: pnpm build

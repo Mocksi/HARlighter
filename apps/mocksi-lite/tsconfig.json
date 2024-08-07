@@ -1,43 +1,24 @@
 {
-	"$schema": "https://json.schemastore.org/tsconfig",
 	"compilerOptions": {
 		"allowJs": true,
-		"noImplicitAny": true,
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"isolatedModules": false,
 		"jsx": "react-jsx",
-		"lib": ["dom", "dom.iterable", "esnext", "es2022"],
+		"lib": ["dom", "dom.iterable", "esnext"],
 		"moduleResolution": "node",
-		"module": "ESNext",
+		"module": "esnext",
 		"resolveJsonModule": true,
 		"strict": true,
 		"sourceMap": false,
 		"noEmitOnError": true,
 		"skipDefaultLibCheck": false,
-		"skipLibCheck": true,
-		"target": "ES2015",
+		"skipLibCheck": false,
+		"target": "esnext",
 		"typeRoots": ["node_modules/@types", "node_modules/@chrome"],
-		"types": ["node", "chrome"],
-		"outDir": "dist/chrome",
-		"composite": false,
-		"declaration": true,
-		"declarationMap": true,
-		"inlineSources": false,
-		"noUnusedLocals": false,
-		"noUnusedParameters": false,
-		"preserveWatchOutput": true
+		"types": ["chrome"]
 	},
-	"include": ["./", "typings.d.ts", "."],
-	"exclude": [
-		"node_modules",
-		"dist",
-		"chrome_dev_build",
-		"./**/*.test.ts",
-		"**/dist",
-		"browser-extension-test-data",
-		"__TEST__",
-		"programs/create/templates/**"
-	]
+	"include": ["./", "typings.d.ts"],
+	"exclude": ["node_modules", "dist", "./**/*.test.ts"]
 }
