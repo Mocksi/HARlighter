@@ -1,4 +1,5 @@
 import { persistModifications } from "../../utils";
+import type { ApplyAlteration } from "../Toast/EditToast";
 import { applyChanges, cancelEditWithoutChanges } from "./actions";
 import { applyStyles } from "./utils";
 
@@ -8,10 +9,7 @@ export function decorate(
 	text: string,
 	width: string,
 	shiftMode: boolean,
-	functions: {
-		onSubmit: (() => void) | undefined;
-		onCancel: (() => void) | undefined;
-	} = { onSubmit: undefined, onCancel: undefined },
+	applyAlteration: ApplyAlteration,
 ) {
 	const newSpan = document.createElement("span");
 	newSpan.style.position = "relative";
@@ -20,8 +18,7 @@ export function decorate(
 	const textArea = injectTextArea(
 		shiftMode ? width : undefined,
 		text,
-		functions.onSubmit,
-		functions.onCancel,
+		applyAlteration,
 	);
 	newSpan.appendChild(textArea);
 	return newSpan;
@@ -30,8 +27,7 @@ export function decorate(
 function injectTextArea(
 	width: string | undefined,
 	value: string,
-	onSubmit?: () => void,
-	onCancel?: () => void,
+	applyAlteration: ApplyAlteration,
 ) {
 	const ndiv = document.createElement("textarea");
 	ndiv.setAttribute("tabindex", "-1");
@@ -60,7 +56,6 @@ function injectTextArea(
 			}
 			event.preventDefault(); // Prevents the addition of a new line in the text field
 		} else if (event.key === "Escape") {
-			onCancel?.();
 			cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 		}
 	};
@@ -68,8 +63,7 @@ function injectTextArea(
 		const selectedText = document.getElementById("mocksiSelectedText");
 		// @ts-ignore I don't know why the value property is no inside the target object
 		const newValue = event.target?.value;
-		onSubmit?.();
-		applyChanges(selectedText, newValue, value);
+		applyChanges(selectedText, newValue, value, applyAlteration);
 	};
 
 	//@ts-ignore

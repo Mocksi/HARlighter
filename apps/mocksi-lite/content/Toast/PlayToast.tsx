@@ -1,15 +1,17 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
+import type { Alteration } from "../../background";
 import Button, { CloseButton, Variant } from "../../common/Button";
 import { EditIcon, StopIcon } from "../../common/Icons";
 import { Logo } from "../../common/Logos";
+import { MOCKSI_ALTERATIONS, MOCKSI_RECORDING_CREATED_AT } from "../../consts";
 import {
 	getAlterations,
 	loadAlterations,
+	loadPreviousModifications,
 	sendMessage,
 	undoModifications,
 } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
-import { setEditorMode } from "../EditMode/editMode";
 import Toast from "./index";
 
 interface PlayToastProps {
@@ -18,12 +20,29 @@ interface PlayToastProps {
 
 const PlayToast = ({ close }: PlayToastProps) => {
 	const { dispatch } = useContext(AppStateContext);
+	const [alterations, setAlterations] = useState<Alteration[]>([]);
 
-	const handleEdit = async () => {
+	useEffect(() => {
+		chrome.storage.local
+			.get([MOCKSI_ALTERATIONS, MOCKSI_RECORDING_CREATED_AT])
+			.then((result) => {
+				const alterations = result[MOCKSI_ALTERATIONS];
+				setAlterations(alterations);
+
+				const createdAt = result[MOCKSI_RECORDING_CREATED_AT];
+
+				loadAlterations(alterations, {
+					withHighlights: false,
+					createdAt,
+				});
+			});
+	}, []);
+
+	const handleEdit = () => {
 		sendMessage("resetIcon");
-		const alterations = await getAlterations();
-		loadAlterations(alterations, true);
-		setEditorMode(true);
+
+		loadPreviousModifications(alterations);
+
 		dispatch({ event: AppEvent.START_EDITING });
 	};
 
@@ -35,7 +54,7 @@ const PlayToast = ({ close }: PlayToastProps) => {
 
 	const handleStop = () => {
 		sendMessage("resetIcon");
-		undoModifications();
+		undoModifications(alterations);
 		dispatch({ event: AppEvent.STOP_PLAYING });
 	};
 
