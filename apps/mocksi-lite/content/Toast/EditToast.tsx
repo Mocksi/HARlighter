@@ -67,10 +67,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const [recordingId, setRecordingId] = useState<string | null>(null);
 
 	useEffect(() => {
-		console.log("alterations changed", alterations);
-	}, [alterations]);
-
-	useEffect(() => {
 		// get alterations that were set in DemoItem.tsx and load them into state
 		chrome.storage.local
 			.get([MOCKSI_ALTERATIONS, MOCKSI_RECORDING_ID])

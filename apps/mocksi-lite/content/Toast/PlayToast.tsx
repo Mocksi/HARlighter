@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import type { Alteration } from "../../background";
 import Button, { CloseButton, Variant } from "../../common/Button";
 import { EditIcon, StopIcon } from "../../common/Icons";
 import { Logo } from "../../common/Logos";
@@ -7,11 +6,13 @@ import { MOCKSI_ALTERATIONS, MOCKSI_RECORDING_CREATED_AT } from "../../consts";
 import {
 	getAlterations,
 	loadAlterations,
+	loadPreviousModifications,
 	sendMessage,
 	undoModifications,
 } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 import Toast from "./index";
+import { Alteration } from "../../background";
 
 interface PlayToastProps {
 	close: () => void;
@@ -37,8 +38,10 @@ const PlayToast = ({ close }: PlayToastProps) => {
 			});
 	}, []);
 
-	const handleEdit = async () => {
+	const handleEdit = () => {
 		sendMessage("resetIcon");
+
+		loadPreviousModifications(alterations);
 
 		dispatch({ event: AppEvent.START_EDITING });
 	};
