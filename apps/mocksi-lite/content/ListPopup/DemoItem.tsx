@@ -10,7 +10,6 @@ import {
 } from "../../consts";
 import { loadAlterations, sendMessage } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
-import { setEditorMode } from "../EditMode/editMode";
 
 interface DemoItemProps extends Recording {}
 
@@ -27,15 +26,13 @@ const DemoItem = ({
 
 	const handleEdit = async () => {
 		console.log('handleEdit', alterations)
-		
+
 		await chrome.storage.local.set({
 			[MOCKSI_ALTERATIONS]: alterations,
 			[MOCKSI_RECORDING_ID]: uuid,
 		});
 
-		setEditorMode(true, uuid);
-		loadAlterations(alterations, true);
-		dispatch({ event: AppEvent.START_EDITING });
+		dispatch({ event: AppEvent.START_EDITING }); // changes the extension state (a different popup)
 	};
 
 	const handlePlay = async () => {
@@ -47,7 +44,7 @@ const DemoItem = ({
 
 		if (window.location.href === url) {
 			sendMessage("updateToPauseIcon");
-			loadAlterations(alterations, false, created_timestamp);
+			loadAlterations(alterations, { withHighlights: false, createdAt: created_timestamp });
 			dispatch({ event: AppEvent.START_PLAYING });
 		} else {
 			sendMessage("playMode", { url });

@@ -6,111 +6,9 @@ import {
 	sendMessage,
 	undoModifications,
 } from "../../utils";
+import { ApplyAlteration } from "../Toast/EditToast";
 import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
-
-const observeUrlChange = (onChange: () => void) => {
-	let oldHref = document.location.href;
-	const body = document.querySelector("body");
-
-	if (!body) {
-		console.error("body not found");
-		return;
-	}
-
-	const observer = new MutationObserver((mutations) => {
-		if (oldHref !== document.location.href) {
-			oldHref = document.location.href;
-			onChange();
-		}
-	});
-	observer.observe(body, { childList: true, subtree: true });
-};
-
-export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
-	if (turnOn) {
-		setupEditor(recordingId);
-	} else {
-		teardownEditor(recordingId);
-	}
-};
-
-const setupEditor = async (recordingId?: string) => {
-	sendMessage("attachDebugger");
-
-	if (recordingId) {
-		await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: recordingId });
-	}
-
-	observeUrlChange(() => {
-		console.log("URL changed, turning off highlights");
-		getAlterations().then((alterations) => {
-			loadAlterations(alterations, true);
-		});
-	});
-
-	const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
-
-	// If value exists and is true or if the value doesn't exist at all, apply read-only mode
-	if (
-		results[MOCKSI_READONLY_STATE] === undefined ||
-		results[MOCKSI_READONLY_STATE]
-	) {
-		applyReadOnlyMode();
-	}
-
-	document.body.addEventListener("dblclick", onDoubleClickText);
-
-	return;
-};
-
-const teardownEditor = async (recordingId?: string) => {
-	sendMessage("detachDebugger");
-
-	if (recordingId) {
-		await persistModifications(recordingId);
-	}
-
-	undoModifications();
-
-	await chrome.storage.local.remove([
-		MOCKSI_RECORDING_ID,
-		MOCKSI_READONLY_STATE,
-		MOCKSI_ALTERATIONS,
-	]);
-
-	document.body.removeEventListener("dblclick", onDoubleClickText);
-	disableReadOnlyMode();
-
-	cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
-};
-
-function onDoubleClickText(event: MouseEvent) {
-	// @ts-ignore MouseEvent typing seems incomplete
-	const nodeName = event?.toElement?.nodeName;
-	console.log("we double clicked on", event.target);
-
-	if (nodeName === "IMG") {
-		const targetedElement: HTMLImageElement = event.target as HTMLImageElement;
-		console.log("Image clicked", targetedElement.alt);
-		openImageUploadModal(targetedElement);
-		return;
-	}
-	if (nodeName !== "TEXTAREA") {
-		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
-
-		const targetedElement: HTMLElement = event.target as HTMLElement;
-		const selection = window.getSelection();
-
-		if (selection?.toString()?.trim()) {
-			applyEditor(targetedElement, selection, event.shiftKey);
-			document.getElementById("mocksiTextArea")?.focus();
-		} else {
-			decorateClickable(targetedElement);
-			document.getElementById("mocksiTextArea")?.focus();
-		}
-	}
-}
 
 function openImageUploadModal(targetedElement: HTMLImageElement) {
 	// Create a container for the shadow DOM
@@ -188,28 +86,12 @@ function convertImageToDataUri(file: File): Promise<string> {
 	});
 }
 
-function decorateClickable(targetedElement: HTMLElement) {
-	const [textNode] = targetedElement.childNodes;
-	if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
-		return;
-	}
-	targetedElement.replaceChild(
-		decorate(
-			textNode.textContent || "",
-			`${targetedElement.clientWidth}`,
-			false,
-		),
-		textNode,
-	);
-}
-
 function decorateTextTag(
 	text: string,
 	width: string,
 	shiftMode: boolean,
 	{ startOffset, endOffset }: { startOffset: number; endOffset: number },
-	onSubmit?: () => void,
-	onCancel?: () => void,
+	applyAlteration: ApplyAlteration
 ) {
 	const fragment = document.createDocumentFragment();
 	if (startOffset > 0) {
@@ -218,10 +100,7 @@ function decorateTextTag(
 		);
 	}
 	fragment.appendChild(
-		decorate(text.substring(startOffset, endOffset), width, shiftMode, {
-			onSubmit,
-			onCancel,
-		}),
+		decorate(text.substring(startOffset, endOffset), width, shiftMode, applyAlteration),
 	);
 	if (endOffset < text.length) {
 		fragment.appendChild(
@@ -231,11 +110,11 @@ function decorateTextTag(
 	return fragment;
 }
 
-function applyEditor(
+export function applyEditor(
 	targetedElement: HTMLElement,
 	selectedRange: Selection | null,
 	shiftMode: boolean,
-	onSubmit?: () => void,
+	applyAlteration: ApplyAlteration,
 ) {
 	if (selectedRange === null || selectedRange.anchorNode === null) {
 		return;
@@ -248,7 +127,7 @@ function applyEditor(
 				targetedElement.clientWidth?.toString() || "",
 				shiftMode,
 				selectedRange.getRangeAt(0),
-				onSubmit,
+				applyAlteration,
 			),
 			selectedRange.anchorNode,
 		);

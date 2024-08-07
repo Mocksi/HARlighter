@@ -1,6 +1,7 @@
 import { DOMManipulator } from "@repo/dodom";
 import { saveModification } from "../../utils";
 import { getHighlighter } from "./highlighter";
+import { ApplyAlteration } from "../Toast/EditToast";
 
 export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
 	if (nodeWithTextArea) {
@@ -18,6 +19,7 @@ export function applyChanges(
 	nodeWithTextArea: HTMLElement | null,
 	newValue: string,
 	oldValue: string,
+	applyAlteration: ApplyAlteration
 ) {
 	if (nodeWithTextArea) {
 		cancelEditWithoutChanges(nodeWithTextArea);
@@ -25,7 +27,7 @@ export function applyChanges(
 		const domManipulator = new DOMManipulator(
 			fragmentTextNode,
 			getHighlighter(),
-			saveModification,
+			applyAlteration, // TODO: replace this by communicating back into react
 		);
 		domManipulator.addPattern(oldValue, newValue);
 	}

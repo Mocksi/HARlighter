@@ -96,12 +96,7 @@ export const saveModification = (
 	saveModificationCommand.execute();
 };
 
-export const persistModifications = async (recordingId: string) => {
-	const alterations: Alteration[] = buildAlterations();
-
-	chrome.storage.local.set({
-		[MOCKSI_ALTERATIONS]: JSON.stringify(domainModifications),
-	});
+export const persistModifications = async (recordingId: string, alterations: any[]) => {
 	const updated_timestamp = new Date();
 	await updateRecordingsStorage({
 		uuid: recordingId,
@@ -114,9 +109,9 @@ export const persistModifications = async (recordingId: string) => {
 	});
 };
 
-export const undoModifications = () => {
-	loadPreviousModifications(); // revert
-	chrome.storage.local.remove(MOCKSI_ALTERATIONS);
+export const undoModifications = async (alterations: any[]) => {
+	loadPreviousModifications(alterations); // revert
+	await chrome.storage.local.remove(MOCKSI_ALTERATIONS);
 	getHighlighter().removeHighlightNodes();
 	// clean the domainModifications
 	domainModifications = {};
@@ -125,18 +120,20 @@ export const undoModifications = () => {
 // v2 of loading alterations, this is from backend
 export const loadAlterations = async (
 	alterations: Alteration[] | null,
-	withHighlights: boolean,
-	createdAt?: Date,
+	options: { withHighlights: boolean; createdAt?: Date }
 ) => {
+	const { withHighlights, createdAt } = options;
+
 	if (!alterations?.length) {
 		// FIXME: we should warn the user that there are no alterations for this demo
-		return [] as Alteration[];
+		console.debug('No alterations found while trying to load, cancelling load');
+		return;
 	}
 
 	const domManipulator = new DOMManipulator(
 		fragmentTextNode,
 		getHighlighter(),
-		saveModification,
+		() => {},
 	);
 
 	for (const alteration of alterations) {
@@ -252,21 +249,20 @@ export const loadAlterations = async (
 
 // This is from chrome.storage.local
 // this should be called "revertModifications"
-export const loadPreviousModifications = () => {
-	for (const [
-		querySelector,
-		{ oldValue, newValue, type },
-	] of modificationsIterable()) {
-		const sanitizedOldValue = sanitizeHtml(oldValue);
-		const elemToModify = getHTMLElementFromSelector(querySelector);
+export const loadPreviousModifications = (alterations: any[]) => {
+	for (let alteration of alterations) {
+		const { selector, dom_before, dom_after, type } = alteration;
+		
+		const sanitizedOldValue = sanitizeHtml(dom_before);
+		const elemToModify = getHTMLElementFromSelector(selector);
 		// here newValue and oldValue is in altered order because we want to revert the changes
 		if (type === "text" && elemToModify) {
 			elemToModify.innerHTML = elemToModify.innerHTML.replaceAll(
-				newValue,
+				dom_after,
 				sanitizedOldValue,
 			);
 		} else if (type === "image" && elemToModify instanceof HTMLImageElement) {
-			elemToModify.src = oldValue;
+			elemToModify.src = dom_before;
 		}
 	}
 };
