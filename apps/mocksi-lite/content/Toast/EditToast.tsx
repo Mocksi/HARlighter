@@ -68,6 +68,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const [recordingId, setRecordingId] = useState<string | null>(null);
 	const [url, setUrl] = useState<string>(document.location.href);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: only run this on mount
 	useEffect(() => {
 		// get alterations that were set in DemoItem.tsx and load them into state
 		chrome.storage.local
@@ -84,7 +85,9 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 				setAlterations(storedAlterations);
 
 				// TODO: would be nice if it was like loadAlterations(alterations, { withHighlights: true })
-				loadAlterations(storedAlterations, { withHighlights: areChangesHighlighted });
+				loadAlterations(storedAlterations, {
+					withHighlights: areChangesHighlighted,
+				});
 
 				setupEditor();
 			})
@@ -94,10 +97,11 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	}, []);
 
 	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
+	// biome-ignore lint/correctness/useExhaustiveDependencies: we dont use the url but want to run this whenever it changes
 	useEffect(() => {
 		getHighlighter().removeHighlightNodes();
 		loadAlterations(alterations, { withHighlights: areChangesHighlighted });
-	}, [url])
+	}, [url]);
 
 	const setupEditor = async () => {
 		sendMessage("attachDebugger");
