@@ -23,33 +23,18 @@ function Draggable({
 	const dragElRef = React.useRef<HTMLDivElement>(null);
 	const prevTransform = React.useRef(transform);
 
-	function debounce<T, A>(fn: T, delay: number): (args?: A) => void {
-		let timeout: number;
-		return (args?: A) => {
-			clearTimeout(timeout);
-			timeout = window.setTimeout(() => {
-				if (typeof fn === "function") {
-					fn(args);
-				}
-			}, delay);
-		};
-	}
-
-	const persistTransform = React.useCallback(
-		debounce(async () => {
-			if (
-				prevTransform.current.x !== transform.x ||
-				prevTransform.current.y !== transform.y
-			) {
-				// x y transform validated before state is updated
-				await chrome.storage.local.set({
-					[MOCKSI_POPUP_LOCATION]: transform,
-				});
-				prevTransform.current = transform;
-			}
-		}, 5),
-		[],
-	);
+	const persistTransform = React.useCallback(async () => {
+		if (
+			prevTransform.current.x !== transform.x ||
+			prevTransform.current.y !== transform.y
+		) {
+			// x y transform validated before state is updated
+			await chrome.storage.local.set({
+				[MOCKSI_POPUP_LOCATION]: transform,
+			});
+			prevTransform.current = transform;
+		}
+	}, [transform]);
 
 	const stopDragging = React.useCallback(async () => {
 		setDragging(false);
@@ -90,17 +75,28 @@ function Draggable({
 		return { x, y };
 	};
 
-	const updateTransformOnDrag: React.MouseEventHandler<HTMLDivElement> = (
-		event,
-	) => {
-		if (dragging) {
-			const validTransform = getValidTransform(
-				event.movementX,
-				event.movementY,
-			);
-			setTransform(validTransform);
-		}
-	};
+	function debounce<T, A>(fn: T, delay: number): (args?: A) => void {
+		let timeout: number;
+		return (args?: A) => {
+			clearTimeout(timeout);
+			timeout = window.setTimeout(() => {
+				if (typeof fn === "function") {
+					fn(args);
+				}
+			}, delay);
+		};
+	}
+
+	const updateTransformOnDrag: React.MouseEventHandler<HTMLDivElement> =
+		debounce((event: React.MouseEvent) => {
+			if (dragging) {
+				const validTransform = getValidTransform(
+					event.movementX,
+					event.movementY,
+				);
+				setTransform(validTransform);
+			}
+		}, 5);
 
 	const initFromStorage = React.useCallback(async () => {
 		if (window.innerWidth < 1000) {
