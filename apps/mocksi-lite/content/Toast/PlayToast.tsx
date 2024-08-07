@@ -40,7 +40,7 @@ const PlayToast = ({ close }: PlayToastProps) => {
 	};
 
 	return (
-		<Toast className="mw-gap-4 mw-mb-7 mw-px-4 mw-py-3">
+		<Toast className="mw-gap-4 mw-m-2 mw-px-4 mw-py-3">
 			<CloseButton onClick={handleHideToast} />
 			<Logo />
 			<div className="mw-flex mw-gap-2">

@@ -33,7 +33,7 @@ export function ButtonIconSmall({
 }) {
 	return (
 		<button
-			className="mw-flex mw-justify-center mw-bg-[#F3F0EF] mw-p-1.5 mw-border-none mw-rounded-full mw-align-center mw-outline-none mw-cursor-pointer"
+			className="mw-flex mw-flex-shrink-0 mw-justify-center mw-bg-[#F3F0EF] mw-p-1.5 mw-border-none mw-rounded-full mw-align-center mw-outline-none mw-cursor-pointer"
 			onClick={onClick}
 			onKeyUp={onKeyUp}
 			type="button"
@@ -59,13 +59,13 @@ interface ButtonProps {
 const getButtonStyles = (variant: Variant) => {
 	switch (variant) {
 		case Variant.icon:
-			return "mw-bg-[#E8F3EC] mw-border-[#E8F3EC] mw-py-0.75 mw-px-2.5 !mw-max-h-[42px] !mw-h-[42px]";
+			return "mw-bg-[#E8F3EC] mw-border-[#E8F3EC] mw-py-[10px] mw-px-[12px] mw-min-w-[28px] mw-max-w-[28px] mw-min-h-[32px] mw-max-h-[32px]";
 		case Variant.primary:
-			return "mw-bg-[#E8F3EC] mw-border-[#E8F3EC] mw-px-6";
+			return "mw-bg-[#E8F3EC] !mw-min-h-[42px] mw-border-[#E8F3EC] mw-px-6";
 		case Variant.secondary:
-			return "mw-border-[#009875] mw-px-6";
+			return "mw-border-[#009875] !mw-min-h-[42px] mw-px-6 mw-min-w-[100px]";
 		default:
-			return "mw-bg-[#E8F3EC] mw-border-[#E8F3EC] mw-px-6";
+			return "mw-bg-[#E8F3EC] !mw-min-h-[42px] mw-border-[#E8F3EC] mw-px-6";
 	}
 };
 
@@ -77,7 +77,7 @@ const Button = ({
 	variant = Variant.primary,
 }: ButtonProps) => {
 	const styles = getButtonStyles(variant);
-	const buttonClassNames = `mw-border mw-text-[#009875] mw-w-fit !mw-min-h-[42px] mw-rounded-full mw-flex mw-items-center mw-justify-center ${
+	const buttonClassNames = `mw-border mw-text-[#009875] mw-rounded-full mw-flex mw-flex-row mw-flex-nowrap mw-items-center mw-justify-center ${
 		disabled ? "mw-cursor-not-allowed" : "mw-cursor-pointer"
 	} ${styles} ${className ?? ""}`;
 	return (

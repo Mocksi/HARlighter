@@ -70,7 +70,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	return (
 		<IframeWrapper style={iframeStyle}>
 			<Toast
-				className="mw-flex mw-flex-row mw-items-center mw-gap-6 mw-mt-3 mw-p-3 min-w-64"
+				className="mw-flex mw-flex-row mw-items-center mw-gap-6 mw-m-2 mw-p-3 min-w-64"
 				id="mocksi-editor-toast"
 			>
 				<CloseButton onClick={handleCancel} />
