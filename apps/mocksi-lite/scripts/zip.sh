@@ -16,5 +16,7 @@ mkdir -p dist/builds
 # Step 3: zip the temporary directory and add it to dist
 zip -r "dist/builds/mocksi-lite-$VERSION-$GIT_COMMIT-$BUILD_MODE.zip" "$DIST_DIR"
 
-# Step 4: open the dist folder
-open "dist/builds"
+# Step 4: open the dist folder only if the build mode is development
+if [ "$BUILD_MODE" == "development" ]; then
+  open "dist/builds"
+fi
