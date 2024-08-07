@@ -3,7 +3,8 @@ import type {
 	DomJsonExportNode,
 	ModificationRequest,
 } from "./interfaces";
-import { generateModifications, parseRequest } from "./utils";
+import { generateModifications } from "./modifications";
+import { parseRequest } from "./utils";
 
 export async function modifyHtml(
 	htmlString: string,

@@ -9,6 +9,7 @@ import {
 } from "../../utils";
 import { applyImageChanges, cancelEditWithoutChanges } from "./actions";
 import { decorate } from "./decorator";
+import { getHighlighter } from "./highlighter";
 
 const observeUrlChange = (onChange: () => void) => {
 	let oldHref = document.location.href;
@@ -39,7 +40,7 @@ export const setEditorMode = async (turnOn: boolean, recordingId?: string) => {
 const setupEditor = async (recordingId?: string) => {
 	sendMessage("attachDebugger");
 
-	await Reactor.attach(document);
+	await Reactor.attach(document, getHighlighter());
 
 	if (recordingId) {
 		await chrome.storage.local.set({ [MOCKSI_RECORDING_ID]: recordingId });

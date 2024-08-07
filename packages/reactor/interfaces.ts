@@ -51,3 +51,28 @@ export interface DomJsonExportNode {
 	attributes?: Record<string, string>;
 	children?: DomJsonExportNode[];
 }
+
+export interface Highlighter {
+	highlightNode(elementToHighlight: Node): void;
+	removeHighlightNode(elementToUnhighlight: Node): void;
+}
+
+export abstract class AppliableModification {
+	doc: Document;
+	highlightNodeSelectors: string[] = [];
+
+	constructor(doc: Document) {
+		this.doc = doc;
+	}
+
+	abstract apply(): void;
+	abstract unapply(): void;
+
+	getHighlightNodeSelectors(): string[] {
+		return this.highlightNodeSelectors;
+	}
+
+	addHighlightNodeSelector(selector: string): void {
+		this.highlightNodeSelectors.push(selector);
+	}
+}
