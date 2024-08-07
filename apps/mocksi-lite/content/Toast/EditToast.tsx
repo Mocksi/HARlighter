@@ -1,4 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
+import type { Alteration } from "../../background";
 import { CloseButton } from "../../common/Button";
 import TextField from "../../common/TextField";
 import {
@@ -9,7 +10,6 @@ import {
 import {
 	getAlterations,
 	loadAlterations,
-	loadRecordingId,
 	persistModifications,
 	recordingLabel,
 	sendMessage,
@@ -25,7 +25,6 @@ import {
 import { getHighlighter } from "../EditMode/highlighter";
 import { buildQuerySelector } from "../EditMode/utils";
 import IframeWrapper from "../IframeWrapper";
-import type { Alteration } from "../types";
 import Toast from "./index";
 
 type EditToastProps = {
@@ -203,6 +202,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 					selector: buildQuerySelector(element, newText),
 					dom_after: newText,
 					dom_before: cleanPattern,
+					action: "",
 					type: type,
 				},
 			];

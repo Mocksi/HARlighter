@@ -8,7 +8,7 @@ import {
 	MOCKSI_RECORDING_CREATED_AT,
 	MOCKSI_RECORDING_ID,
 } from "../../consts";
-import { loadAlterations, sendMessage } from "../../utils";
+import { sendMessage } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 
 interface DemoItemProps extends Recording {}
