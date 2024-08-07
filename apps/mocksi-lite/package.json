@@ -26,8 +26,9 @@
 		"xslt-processor": "^3.0.0"
 	},
 	"scripts": {
-		"dev": "./scripts/dev.sh",
+		"dev": "./scripts/build.sh && ./scripts/dev.sh",
 		"build": "./scripts/build.sh",
+		"zip": "./scripts/build.sh &&./scripts/zip.sh",
 		"test": "vitest",
 		"lint": "biome ci .",
 		"format": "biome check --apply . && biome lint --apply ."
