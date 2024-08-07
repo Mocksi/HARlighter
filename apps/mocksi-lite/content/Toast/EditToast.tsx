@@ -233,7 +233,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	};
 
 	const handleSave = async () => {
-		teardownEditor();
+		await teardownEditor();
 
 		dispatch({ event: AppEvent.SAVE_MODIFICATIONS });
 	};
