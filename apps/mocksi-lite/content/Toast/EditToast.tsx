@@ -95,7 +95,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		sendMessage("attachDebugger");
 
 		observeUrlChange(() => {
-			console.log("URL changed, turning off highlights");
 			loadAlterations(alterations, { withHighlights: true });
 		});
 
@@ -120,8 +119,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		if (recordingId) {
 			await persistModifications(recordingId, alterations);
 		}
-
-		console.log("tearing down", recordingId, alterations);
 
 		undoModifications(alterations);
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
@@ -155,7 +152,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const onDoubleClickText = useCallback((event: MouseEvent) => {
 		// @ts-ignore MouseEvent typing seems incomplete
 		const nodeName = event?.toElement?.nodeName;
-		console.log("we double clicked on", event.target);
 
 		// if (nodeName === "IMG") {
 		// 	const targetedElement: HTMLImageElement = event.target as HTMLImageElement;

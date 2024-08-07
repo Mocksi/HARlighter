@@ -26,7 +26,7 @@ export function applyChanges(
 		const domManipulator = new DOMManipulator(
 			fragmentTextNode,
 			getHighlighter(),
-			applyAlteration, // TODO: replace this by communicating back into react
+			applyAlteration,
 		);
 		domManipulator.addPattern(oldValue, newValue);
 	}
