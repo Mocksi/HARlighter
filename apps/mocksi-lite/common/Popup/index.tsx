@@ -31,15 +31,14 @@ const Popup = ({
 	const iframeStyle = {
 		border: "none",
 		height: "75%",
-		position: "absolute", // Fixed positioning relative to the viewport
-		top: "100px",
+		top: "110px",
 		width: "100%",
 		zIndex: 9999998,
 	};
 
 	return (
 		<Draggable>
-			<div className="mw-flex mw-flex-col mw-justify-between mw-bg-white shadow-lg mw-m-2 mw-border-black mw-border-solid mw-rounded-lg mw-h-[596px] mw-w-[500px]">
+			<div className="mw-flex mw-flex-col mw-justify-between mw-bg-white shadow-lg mw-m-2 mw-border-black mw-border-solid mw-rounded-lg mw-h-[596px] mw-w-[480px]">
 				<Header
 					close={onClose}
 					onGoBack={onGoBack}

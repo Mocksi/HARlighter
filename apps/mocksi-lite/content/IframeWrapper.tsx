@@ -57,7 +57,7 @@ const IframeWrapper = ({
 				"background-color",
 				"rgba(0, 0, 0, 0.0)",
 			);
-			iframeDocument.body.style.setProperty("min-width", "500px");
+
 			setIframeBody(iframeDocument.body);
 		}
 	}, [styles, scripts]);

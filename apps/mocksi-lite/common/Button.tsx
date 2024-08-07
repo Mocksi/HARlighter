@@ -63,7 +63,7 @@ const getButtonStyles = (variant: Variant) => {
 		case Variant.primary:
 			return "mw-bg-[#E8F3EC] !mw-min-h-[42px] mw-border-[#E8F3EC] mw-px-6";
 		case Variant.secondary:
-			return "mw-border-[#009875] !mw-min-h-[42px] mw-px-6";
+			return "mw-border-[#009875] !mw-min-h-[42px] mw-px-6 mw-min-w-[100px]";
 		default:
 			return "mw-bg-[#E8F3EC] !mw-min-h-[42px] mw-border-[#E8F3EC] mw-px-6";
 	}
@@ -77,7 +77,7 @@ const Button = ({
 	variant = Variant.primary,
 }: ButtonProps) => {
 	const styles = getButtonStyles(variant);
-	const buttonClassNames = `mw-border mw-text-[#009875] mw-rounded-full mw-flex mw-items-center mw-justify-center ${
+	const buttonClassNames = `mw-border mw-text-[#009875] mw-rounded-full mw-flex mw-flex-row mw-flex-nowrap mw-items-center mw-justify-center ${
 		disabled ? "mw-cursor-not-allowed" : "mw-cursor-pointer"
 	} ${styles} ${className ?? ""}`;
 	return (

@@ -1,6 +1,11 @@
 import React from "react";
 import { MOCKSI_POPUP_LOCATION } from "../../consts";
 
+const rightOffset = 30;
+const leftOffset = 20;
+const topOffset = 20;
+const bottomOffset = 20;
+
 function Draggable({
 	children,
 	className,
@@ -9,87 +14,139 @@ function Draggable({
 	className?: string;
 }) {
 	const [dragging, setDragging] = React.useState(false);
-	const [position, setPosition] = React.useState({ x: 0, y: 0 });
+	const [transform, setTransform] = React.useState({
+		x: rightOffset,
+		y: topOffset,
+	});
 
 	const initRef = React.useRef(true);
 	const dragElRef = React.useRef<HTMLDivElement>(null);
-	const lastSavedPosition = React.useRef(position);
+	const prevTransform = React.useRef(transform);
 
-	const persistPosition = React.useCallback(() => {
-		if (position.x !== 0 && position.y !== 0) {
-			if (
-				lastSavedPosition.current.x !== position.x ||
-				lastSavedPosition.current.y !== position.y
-			) {
-				chrome.storage.local.set({
-					[MOCKSI_POPUP_LOCATION]: position,
-				});
-				lastSavedPosition.current = position;
-			}
+	const persistTransform = React.useCallback(async () => {
+		if (
+			prevTransform.current.x !== transform.x ||
+			prevTransform.current.y !== transform.y
+		) {
+			// x y transform validated before state is updated
+			await chrome.storage.local.set({
+				[MOCKSI_POPUP_LOCATION]: transform,
+			});
+			prevTransform.current = transform;
 		}
-	}, [position]);
+	}, [transform]);
 
-	const stopDragging = React.useCallback(() => {
+	const stopDragging = React.useCallback(async () => {
 		setDragging(false);
 	}, []);
 
-	const updatePosition = (event: React.MouseEvent) => {
-		if (dragging) {
-			// Make sure the popup is partially visible in the viewport when moved
-			// towards edges, offset is larger on right side of screen to give room
-			// for dragging the popup without hitting the close button
-			const bounds = dragElRef.current?.getBoundingClientRect();
-			let { x, y } = position;
+	const getValidTransform = (xMov = 0, yMov = 0, reqBothValid = false) => {
+		const bounds = dragElRef?.current?.getBoundingClientRect();
 
-			// x-axis
+		// default values
+		let x = rightOffset;
+		let y = topOffset;
+
+		if (bounds) {
+			if (xMov + yMov === 0) {
+				return transform;
+			}
+
+			// x bound checks
 			const rightBoundCheck =
-				Math.abs(position.x + event.movementX) < window.innerWidth - 50;
-			const leftBoundCheck =
-				bounds?.left ?? 0 + event.movementX < window.innerWidth - 100;
-			if (rightBoundCheck && leftBoundCheck) {
-				x = position.x + event.movementX;
-			}
-			// y-axis
+				bounds.x + xMov < window.innerWidth - rightOffset - bounds.width / 2;
+			const leftBoundCheck = bounds.x + xMov > leftOffset;
+
+			// y bound checks
 			const bottomBoundCheck =
-				Math.abs(position.y + event.movementY) < window.innerHeight - 50;
-			const topBoundCheck = position.y + event.movementY > 0;
-			if (bottomBoundCheck && topBoundCheck) {
-				y = position.y + event.movementY;
+				bounds.y + yMov < window.innerHeight - bottomOffset - bounds.height;
+			const topBoundCheck = bounds.y + yMov > topOffset;
+
+			const xNextValid = rightBoundCheck && leftBoundCheck;
+			const yNextValid = bottomBoundCheck && topBoundCheck;
+
+			if (xNextValid && yNextValid) {
+				x = transform.x + xMov;
+				y = transform.y + yMov;
 			}
-			setPosition({ x, y });
+
+			if (!reqBothValid) {
+				x = xNextValid ? transform.x + xMov : transform.x;
+				y = yNextValid ? transform.y + yMov : transform.y;
+			}
 		}
+
+		return { x, y };
 	};
+
+	function debounce<T, A>(fn: T, delay: number): (args?: A) => void {
+		let timeout: number;
+		return (args?: A) => {
+			clearTimeout(timeout);
+			timeout = window.setTimeout(() => {
+				if (typeof fn === "function") {
+					fn(args);
+				}
+			}, delay);
+		};
+	}
+
+	const updateTransformOnDrag = debounce<
+		(event: React.MouseEvent) => void,
+		React.MouseEvent
+	>((event) => {
+		if (dragging) {
+			const validTransform = getValidTransform(
+				event.movementX,
+				event.movementY,
+			);
+			setTransform(validTransform);
+		}
+	}, 5);
+
+	const initFromStorage = React.useCallback(async () => {
+		if (window.innerWidth < 1000) {
+			setTransform({
+				x: -rightOffset,
+				y: topOffset,
+			});
+		} else {
+			const results = await chrome.storage.local.get([MOCKSI_POPUP_LOCATION]);
+			const storedTransform = results[MOCKSI_POPUP_LOCATION];
+			if (storedTransform) {
+				setTransform(storedTransform);
+			}
+		}
+	}, []);
 
 	React.useEffect(() => {
 		if (initRef.current) {
-			chrome.storage.local.get([MOCKSI_POPUP_LOCATION], (results) => {
-				const storedPosition = results[MOCKSI_POPUP_LOCATION];
-				if (storedPosition) {
-					setPosition(storedPosition);
-				}
-			});
+			initFromStorage();
 			window.addEventListener("mouseup", stopDragging);
+			window.addEventListener("mouseleave", stopDragging);
+
 			initRef.current = false;
 		} else {
 			if (!dragging) {
-				persistPosition();
+				persistTransform();
 			}
 			if (dragElRef.current?.style) {
-				dragElRef.current.style.transform = `translate(${position.x}px, ${position.y}px)`;
+				dragElRef.current.style.transform = `translate(${transform.x}px, ${transform.y}px)`;
 			}
 		}
 		return () => {
-			persistPosition();
+			persistTransform();
 			window.removeEventListener("mouseup", stopDragging);
+			window.removeEventListener("mouseleave", stopDragging);
 		};
-	}, [stopDragging, dragging, persistPosition, position]);
+	}, [stopDragging, dragging, persistTransform, transform, initFromStorage]);
 
-	return (
+	return initRef.current ? null : (
 		<div
-			className={`${className}·mw-ease-in`}
+			className={`${className ?? ""}·mw-ease-in-out`}
 			onMouseDown={() => setDragging(true)}
 			onMouseLeave={stopDragging}
-			onMouseMove={updatePosition}
+			onMouseMove={updateTransformOnDrag}
 			onMouseUp={stopDragging}
 			ref={dragElRef}
 			tabIndex={-1}
