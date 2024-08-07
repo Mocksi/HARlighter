@@ -1,11 +1,7 @@
+/// <reference types="chrome" />
+
 import MocksiRollbar from "./MocksiRollbar";
-import {
-	MOCKSI_ALTERATIONS,
-	MOCKSI_RECORDING_ID,
-	MOCKSI_RECORDING_STATE,
-	STORAGE_KEY,
-	SignupURL,
-} from "./consts";
+import { MOCKSI_RECORDING_STATE, STORAGE_KEY, SignupURL } from "./consts";
 import { AppState } from "./content/AppStateContext";
 import { initializeMckSocket, sendMckSocketMessage } from "./mckSocket";
 import { apiCall } from "./networking";
@@ -134,62 +130,6 @@ function sendData(request: Map<string, any>) {
 
 		sendMckSocketMessage(data);
 	});
-}
-
-export function handleMckSocketMessage(data: string) {
-	let command: RequestInterception | ChatResponse | null = null;
-	try {
-		const decodedBase64 = atob(data);
-		const decodedURL = decodeURIComponent(decodedBase64);
-		const parsed = JSON.parse(decodedURL);
-		command = parsed as RequestInterception | ChatResponse;
-	} catch (e) {
-		console.error("Error parsing MckSocket message", e);
-		return;
-	}
-
-	if (command?.type === "RequestInterception") {
-		const interceptDataEncoded = atob(command.payload);
-		const interceptData = decodeURIComponent(interceptDataEncoded);
-		const interception: RequestInterception = {
-			type: command.type,
-			url: command.url,
-			method: command.method,
-			payload: interceptData,
-		};
-		requestInterceptions.set(command.url, interception);
-		console.log("Will intercept request", command.url);
-
-		if (!currentTabId) {
-			return;
-		}
-
-		chrome.debugger.sendCommand(
-			{ tabId: currentTabId },
-			"Network.setRequestInterception",
-			{
-				patterns: [
-					{
-						urlPattern: command.url,
-						resourceType: "XHR",
-						interceptionStage: "HeadersReceived",
-					},
-				],
-			},
-			(response) => {
-				console.log("requested", response);
-			},
-		);
-		chrome.debugger.onEvent.addListener(allEventHandler);
-	}
-
-	if (command?.type === "ChatResponse") {
-		handleChatResponse(command as ChatResponse);
-	}
-
-	if (command?.type === "beginChat") {
-		console.log("TBD: beginChat");
-	}
 }
 
 function handleChatResponse(response: ChatResponse) {
