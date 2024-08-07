@@ -32,7 +32,7 @@ const DemoItem = ({
 			[MOCKSI_RECORDING_ID]: uuid,
 		});
 
-		dispatch({ event: AppEvent.START_EDITING }); // changes the extension state (a different popup)
+		dispatch({ event: AppEvent.START_EDITING });
 	};
 
 	const handlePlay = async () => {

@@ -126,15 +126,11 @@ const highlight = ({
 			return;
 		}
 		(event.target as HTMLElement).style.display = "none";
-		highlightedElement.parentElement?.replaceChild(
-			decorate(highlightedElement.textContent || "", `${width || ""}`, false, {
-				onSubmit: undefined,
-				onCancel: () => {
-					(event.target as HTMLElement).style.display = "block";
-				},
-			}),
-			highlightedElement,
-		);
+		// TODO: Come back to handle double clicking on a highlight
+		// highlightedElement.parentElement?.replaceChild(
+		// 	decorate(highlightedElement.textContent || "", `${width || ""}`, false, ),
+		// 	highlightedElement,
+		// );
 		document.getElementById("mocksiTextArea")?.focus();
 		event.stopPropagation();
 	};

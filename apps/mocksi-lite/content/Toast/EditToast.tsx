@@ -100,9 +100,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 
 		observeUrlChange(() => {
 			console.log("URL changed, turning off highlights");
-			getAlterations().then((alterations) => {
-				loadAlterations(alterations, { withHighlights: true });
-			});
+			loadAlterations(alterations, { withHighlights: true });
 		});
 
 		const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
