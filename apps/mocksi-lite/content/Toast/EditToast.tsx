@@ -10,6 +10,7 @@ import {
 import {
 	getAlterations,
 	loadAlterations,
+	loadPreviousModifications,
 	persistModifications,
 	recordingLabel,
 	sendMessage,
@@ -65,6 +66,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	);
 	const [alterations, setAlterations] = useState<Alteration[]>([]);
 	const [recordingId, setRecordingId] = useState<string | null>(null);
+	const [url, setUrl] = useState<string>(document.location.href);
 
 	useEffect(() => {
 		// get alterations that were set in DemoItem.tsx and load them into state
@@ -78,11 +80,11 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 				}
 				setRecordingId(recordingId);
 
-				const alterations = result[MOCKSI_ALTERATIONS] || [];
-				setAlterations(alterations);
+				const storedAlterations = result[MOCKSI_ALTERATIONS];
+				setAlterations(storedAlterations);
 
 				// TODO: would be nice if it was like loadAlterations(alterations, { withHighlights: true })
-				loadAlterations(alterations, { withHighlights: true });
+				loadAlterations(storedAlterations, { withHighlights: areChangesHighlighted });
 
 				setupEditor();
 			})
@@ -91,11 +93,19 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 			});
 	}, []);
 
+	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
+	useEffect(() => {
+		getHighlighter().removeHighlightNodes();
+		loadAlterations(alterations, { withHighlights: areChangesHighlighted });
+	}, [url])
+
 	const setupEditor = async () => {
 		sendMessage("attachDebugger");
 
+		// Whenever the url changes, we want to update the url in state which triggers the
+		// use effect that removes the highlights and reloads the alterations
 		observeUrlChange(() => {
-			loadAlterations(alterations, { withHighlights: true });
+			setUrl(document.location.href);
 		});
 
 		const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
