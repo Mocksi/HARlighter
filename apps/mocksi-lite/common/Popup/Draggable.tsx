@@ -135,7 +135,7 @@ function Draggable({
 		};
 	}, [stopDragging, dragging, persistTransform, transform, initFromStorage]);
 
-	return initRef.current ? null : (
+	return (
 		<div
 			className={`${className ?? ""}·mw-ease-in-out`}
 			onMouseDown={() => setDragging(true)}
