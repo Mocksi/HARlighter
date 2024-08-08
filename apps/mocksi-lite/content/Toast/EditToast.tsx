@@ -82,7 +82,9 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 				setRecordingId(recordingId);
 
 				const storedAlterations = result[MOCKSI_ALTERATIONS];
-				setAlterations(storedAlterations);
+				if (storedAlterations) {
+					setAlterations(storedAlterations);
+				}
 
 				// TODO: would be nice if it was like loadAlterations(alterations, { withHighlights: true })
 				loadAlterations(storedAlterations, {
