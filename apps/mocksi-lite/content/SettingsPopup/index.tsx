@@ -60,7 +60,7 @@ const SettingsPopup = ({
 			onLogout={onLogout}
 			shouldDisplayFooter
 		>
-			<div className="mw-flex mw-flex-col mw-flex-1 mw-h-[280px] mw-transition mw-ease-linear overflow-x-scroll">
+			<div className="mw-flex mw-flex-col mw-flex-1 mw-h-[280px] overflow-x-scroll">
 				{recordings.length ? (
 					<div className="mw-flex mw-flex-col mw-flex-1 mw-py-8 overflow-y-scroll no-scrollbar">
 						{recordings

@@ -49,7 +49,7 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 			onSettings={handleSettingsClicked}
 			shouldDisplayFooter
 		>
-			<div className="mw-flex mw-flex-col mw-flex-1 mw-h-full mw-transition mw-ease-linear mw-overflow-x-scroll">
+			<div className="mw-flex mw-flex-col mw-flex-1 mw-h-full mw-overflow-x-scroll">
 				{recordings.length ? (
 					<div className="mw-flex mw-flex-col mw-flex-1 mw-py-8 mw-overflow-y-scroll">
 						{recordings
