@@ -132,11 +132,29 @@ export function applyEditor(
 	}
 }
 
+const BLOCKED_ELEMENTS = [
+	"a",
+	"button",
+	"img",
+	"input",
+	"textarea",
+	"select",
+	"option",
+	"checkbox",
+	"radio",
+	"label",
+	"td",
+	'div[type="button"]',
+	'div[role="button"]',
+];
+
 const injectStylesToBlockEvents = () => {
 	const style = document.createElement("style");
 	style.id = "mocksi-block-events-style";
+
+	const blockedSelector = BLOCKED_ELEMENTS.join(", ");
 	style.innerHTML = `
-		a, button, img, input, textarea, select, option, checkbox, radio, label {
+		 ${blockedSelector} {
 			pointer-events: none;
 		}
 
