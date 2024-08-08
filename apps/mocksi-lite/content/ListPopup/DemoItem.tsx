@@ -50,7 +50,7 @@ const DemoItem = ({
 	};
 
 	return (
-		<div className="mw-flex mw-justify-between mw-px-6">
+		<div className="mw-flex mw-justify-between mw-px-6 mw-ease-in">
 			<div className="mw-w-[200px]">
 				<TextField className="truncate" variant={"title"}>
 					{demo_name}
