@@ -1,5 +1,5 @@
 import { DOMManipulator } from "@repo/dodom";
-import { saveModification } from "../../utils";
+import type { ApplyAlteration } from "../Toast/EditToast";
 import { getHighlighter } from "./highlighter";
 
 export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
@@ -18,6 +18,7 @@ export function applyChanges(
 	nodeWithTextArea: HTMLElement | null,
 	newValue: string,
 	oldValue: string,
+	applyAlteration: ApplyAlteration,
 ) {
 	if (nodeWithTextArea) {
 		cancelEditWithoutChanges(nodeWithTextArea);
@@ -25,7 +26,7 @@ export function applyChanges(
 		const domManipulator = new DOMManipulator(
 			fragmentTextNode,
 			getHighlighter(),
-			saveModification,
+			applyAlteration,
 		);
 		domManipulator.addPattern(oldValue, newValue);
 	}
@@ -81,7 +82,7 @@ export function applyImageChanges(
 	const domManipulator = new DOMManipulator(
 		fragmentTextNode,
 		getHighlighter(),
-		saveModification,
+		() => {},
 	);
 	domManipulator.replaceImage(targetedElement.src, newSrc);
 }

@@ -57,7 +57,7 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 							.map((record) => (
 								<Fragment key={`demo-item-${record.uuid}`}>
 									<DemoItem {...record} />
-									<div className="mw-my-6 mw-px-3 mw-w-full">
+									<div className="mw-my-6 mw-px-3">
 										<Divider />
 									</div>
 								</Fragment>
