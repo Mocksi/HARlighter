@@ -133,20 +133,20 @@ export function applyEditor(
 }
 
 const BLOCKED_ELEMENTS = [
-	'a',
-	'button',
-	'img',
-	'input',
-	'textarea',
-	'select',
-	'option',
-	'checkbox',
-	'radio',
-	'label',
-	'td',
+	"a",
+	"button",
+	"img",
+	"input",
+	"textarea",
+	"select",
+	"option",
+	"checkbox",
+	"radio",
+	"label",
+	"td",
 	'div[type="button"]',
-	'div[role="button"]'
-]
+	'div[role="button"]',
+];
 
 const injectStylesToBlockEvents = () => {
 	const style = document.createElement("style");
