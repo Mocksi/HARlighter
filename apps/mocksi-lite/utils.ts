@@ -7,11 +7,6 @@ import MocksiRollbar from "./MocksiRollbar";
 import type { Alteration } from "./background";
 import type { Recording } from "./background";
 import {
-	type Command,
-	SaveModificationCommand,
-	buildQuerySelector,
-} from "./commands/Command";
-import {
 	MOCKSI_ALTERATIONS,
 	MOCKSI_LAST_PAGE_DOM,
 	MOCKSI_MODIFICATIONS,
@@ -73,72 +68,58 @@ export const logout = () => {
 	});
 };
 
-const commandsExecuted: Command[] = [];
-
-let domainModifications: DOMModificationsType = {};
-
-export const saveModification = (
-	parentElement: HTMLElement,
-	newValue: string,
-	oldValue: string,
-	type: "text" | "image" = "text",
+export const persistModifications = async (
+	recordingId: string,
+	alterations: Alteration[],
 ) => {
-	const saveModificationCommand = new SaveModificationCommand(
-		domainModifications,
-		{
-			previousKey: buildQuerySelector(parentElement, oldValue),
-			keyToSave: buildQuerySelector(parentElement, newValue),
-			newValue: sanitizeHtml(newValue),
-			oldValue,
-			type,
-		},
-	);
-	commandsExecuted.push(saveModificationCommand);
-	saveModificationCommand.execute();
-};
-
-export const persistModifications = async (recordingId: string) => {
-	const alterations: Alteration[] = buildAlterations();
-
-	chrome.storage.local.set({
-		[MOCKSI_MODIFICATIONS]: JSON.stringify(domainModifications),
-	});
 	const updated_timestamp = new Date();
 	await updateRecordingsStorage({
 		uuid: recordingId,
 		updated_timestamp,
 		alterations,
 	});
-	sendMessage("updateDemo", {
-		id: recordingId,
-		recording: { updated_timestamp, alterations },
+
+	// Return a promise here so we can "await" the response
+	// This allows us to ensure the demo has been updated before taking the next action (ie. closing the editor)
+	return new Promise((resolve) => {
+		sendMessage(
+			"updateDemo",
+			{
+				id: recordingId,
+				recording: { updated_timestamp, alterations },
+			},
+			(response) => {
+				resolve(response);
+			},
+		);
 	});
 };
 
-export const undoModifications = () => {
-	loadPreviousModifications();
-	chrome.storage.local.remove(MOCKSI_MODIFICATIONS);
+export const undoModifications = async (alterations: Alteration[]) => {
+	loadPreviousModifications(alterations); // revert
+	await chrome.storage.local.remove(MOCKSI_ALTERATIONS);
 	getHighlighter().removeHighlightNodes();
-	// clean the domainModifications
-	domainModifications = {};
 };
 
 // v2 of loading alterations, this is from backend
 export const loadAlterations = async (
 	alterations: Alteration[] | null,
-	withHighlights: boolean,
-	createdAt?: Date,
+	options: { withHighlights: boolean; createdAt?: Date },
 ) => {
-	undoModifications();
+	const { withHighlights, createdAt } = options;
+
 	if (!alterations?.length) {
 		// FIXME: we should warn the user that there are no alterations for this demo
-		return [] as Alteration[];
+		console.debug("No alterations found while trying to load, cancelling load");
+		return;
 	}
+
 	const domManipulator = new DOMManipulator(
 		fragmentTextNode,
 		getHighlighter(),
-		saveModification,
+		() => {},
 	);
+
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before, type } = alteration;
 		const elemToModify = getHTMLElementFromSelector(selector);
@@ -233,21 +214,21 @@ export const loadAlterations = async (
 };
 
 // This is from chrome.storage.local
-export const loadPreviousModifications = () => {
-	for (const [
-		querySelector,
-		{ oldValue, newValue, type },
-	] of modificationsIterable()) {
-		const sanitizedOldValue = sanitizeHtml(oldValue);
-		const elemToModify = getHTMLElementFromSelector(querySelector);
+// this should be called "revertModifications"
+export const loadPreviousModifications = (alterations: Alteration[]) => {
+	for (const alteration of alterations) {
+		const { selector, dom_before, dom_after, type } = alteration;
+
+		const sanitizedOldValue = sanitizeHtml(dom_before);
+		const elemToModify = getHTMLElementFromSelector(selector);
 		// here newValue and oldValue is in altered order because we want to revert the changes
 		if (type === "text" && elemToModify) {
 			elemToModify.innerHTML = elemToModify.innerHTML.replaceAll(
-				newValue,
+				dom_after,
 				sanitizedOldValue,
 			);
 		} else if (type === "image" && elemToModify instanceof HTMLImageElement) {
-			elemToModify.src = oldValue;
+			elemToModify.src = dom_before;
 		}
 	}
 };
@@ -309,23 +290,6 @@ export const sendMessage = (
 		logout();
 	}
 };
-
-const buildAlterations = (): Alteration[] => {
-	return modificationsIterable().map(
-		([querySelector, { newValue, oldValue, type }]) => ({
-			selector: querySelector,
-			action: oldValue ? "modified" : "added",
-			dom_before: oldValue || "",
-			dom_after: newValue,
-			type,
-		}),
-	);
-};
-
-function modificationsIterable() {
-	return Object.entries(domainModifications).filter(([, values]) => values);
-}
-
 // biome-ignore lint/suspicious/noExplicitAny: dynamic arguments
 export function debounce_leading<T extends (...args: any[]) => void>(
 	func: T,

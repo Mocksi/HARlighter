@@ -143,11 +143,6 @@ export const AppStateProvider: React.FC<{
 						payload: AppState.PLAY,
 					});
 					sendMessage("updateToPauseIcon");
-					loadAlterations(
-						result[MOCKSI_ALTERATIONS],
-						false,
-						result[MOCKSI_RECORDING_CREATED_AT],
-					);
 
 					return;
 				}
@@ -158,7 +153,6 @@ export const AppStateProvider: React.FC<{
 						payload: AppState.EDITING,
 					});
 					sendMessage("attachDebugger");
-					loadAlterations(result[MOCKSI_ALTERATIONS], true);
 
 					return;
 				}

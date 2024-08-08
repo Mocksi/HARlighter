@@ -61,6 +61,7 @@ export class DOMManipulator {
 		this.iterateAndReplace(body, pattern, newText, true);
 	}
 
+	// Cash -> Gold
 	iterateAndReplace(
 		rootNode: Node,
 		oldValueInPattern: RegExp,

@@ -19,7 +19,7 @@ const Form = ({ onCancel, onSubmit }: FormProps) => {
 	};
 
 	return (
-		<div className="mw-flex-1 mw-mt-3">
+		<div className="mw-flex-1 mw-mt-4">
 			<Divider />
 			<div className="mw-flex mw-flex-col mw-justify-between mw-h-full">
 				<div className="mw-p-4">

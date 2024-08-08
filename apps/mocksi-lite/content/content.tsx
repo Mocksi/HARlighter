@@ -16,26 +16,8 @@ import {
 } from "../utils";
 import { AppState } from "./AppStateContext";
 import ContentApp from "./ContentApp";
-import { setEditorMode } from "./EditMode/editMode";
 
 let root: ReactDOM.Root;
-async function handlePlayState() {
-	const alterations = await getAlterations();
-
-	if (alterations?.length) {
-		loadAlterations(alterations, false);
-	}
-}
-
-async function handleEditState() {
-	const alterations = await getAlterations();
-
-	if (alterations?.length) {
-		loadAlterations(alterations, true);
-	}
-
-	setEditorMode(true);
-}
 
 function initial() {
 	const rootDiv =
@@ -43,16 +25,17 @@ function initial() {
 	rootDiv.id = "extension-root";
 	document.body.appendChild(rootDiv);
 
-	chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-		const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
-		if (appState === AppState.PLAY) {
-			handlePlayState();
-		}
+	// TODO: explore if we can auto open extension for hard navigation sites
+	// chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
+	// 	const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
+	// 	if (appState === AppState.PLAY) {
+	// 		handlePlayState();
+	// 	}
 
-		if (appState === AppState.EDITING) {
-			handleEditState();
-		}
-	});
+	// 	if (appState === AppState.EDITING) {
+	// 		handleEditState();
+	// 	}
+	// });
 }
 
 document.addEventListener("DOMContentLoaded", initial);

@@ -1,7 +1,7 @@
 import { DOMManipulator } from "@repo/dodom";
 import type { ModificationRequest } from "@repo/reactor";
 import Reactor from "../../reactorSingleton";
-import { saveModification } from "../../utils";
+import type { ApplyAlteration } from "../Toast/EditToast";
 import { getHighlighter } from "./highlighter";
 
 export function cancelEditWithoutChanges(
@@ -24,6 +24,7 @@ export function applyChanges(
 	nodeWithTextArea: HTMLElement | null,
 	newValue: string,
 	oldValue: string,
+	applyAlteration: ApplyAlteration,
 ) {
 	if (nodeWithTextArea) {
 		const newChildNode = cancelEditWithoutChanges(nodeWithTextArea);
@@ -44,12 +45,12 @@ export function applyChanges(
 		Reactor.pushModification(modification);
 
 		// TODO: check if we should keep the singleton behavior we had before
-		//const domManipulator = new DOMManipulator(
-		//	fragmentTextNode,
-		//	getHighlighter(),
-		//	saveModification,
-		//);
-		//domManipulator.addPattern(oldValue, newValue);
+		// const domManipulator = new DOMManipulator(
+		// 	fragmentTextNode,
+		// 	getHighlighter(),
+		// 	applyAlteration,
+		// );
+		// domManipulator.addPattern(oldValue, newValue);
 	}
 }
 
@@ -103,7 +104,7 @@ export function applyImageChanges(
 	const domManipulator = new DOMManipulator(
 		fragmentTextNode,
 		getHighlighter(),
-		saveModification,
+		() => {},
 	);
 	domManipulator.replaceImage(targetedElement.src, newSrc);
 }

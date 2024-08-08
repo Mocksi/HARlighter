@@ -8,9 +8,8 @@ import {
 	MOCKSI_RECORDING_CREATED_AT,
 	MOCKSI_RECORDING_ID,
 } from "../../consts";
-import { loadAlterations, sendMessage } from "../../utils";
+import { sendMessage } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
-import { setEditorMode } from "../EditMode/editMode";
 
 interface DemoItemProps extends Recording {}
 
@@ -31,8 +30,6 @@ const DemoItem = ({
 			[MOCKSI_RECORDING_ID]: uuid,
 		});
 
-		setEditorMode(true, uuid);
-		loadAlterations(alterations, true);
 		dispatch({ event: AppEvent.START_EDITING });
 	};
 
@@ -45,7 +42,7 @@ const DemoItem = ({
 
 		if (window.location.href === url) {
 			sendMessage("updateToPauseIcon");
-			loadAlterations(alterations, false, created_timestamp);
+
 			dispatch({ event: AppEvent.START_PLAYING });
 		} else {
 			sendMessage("playMode", { url });

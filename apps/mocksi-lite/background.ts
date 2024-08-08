@@ -310,7 +310,7 @@ async function createDemo(body: Record<string, unknown>) {
 
 function updateDemo(data: Record<string, unknown>) {
 	const { id, recording } = data;
-	apiCall(`recordings/${id}`, "POST", recording)
+	return apiCall(`recordings/${id}`, "POST", recording)
 		.then(() => getRecordings())
 		.catch((err) => {
 			MocksiRollbar.error("Error updating demo", err);
@@ -530,7 +530,9 @@ chrome.runtime.onMessage.addListener(
 			if (!request.body) {
 				return false;
 			}
-			updateDemo(request.body);
+			updateDemo(request.body).then(() => {
+				sendResponse({ message: request.message, status: "success" });
+			});
 			return true;
 		}
 
