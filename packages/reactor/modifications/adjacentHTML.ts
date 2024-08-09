@@ -21,6 +21,8 @@ export class AdjacentHTMLModification extends AppliableModification {
 
 	apply(): void {
 		this.element.insertAdjacentHTML(this.position, this.newValue);
+
+		// TODO - highlighting
 	}
 
 	unapply(): void {

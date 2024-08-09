@@ -84,7 +84,12 @@ function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 		};
 		switch (state) {
 			case AppState.EDITING:
-				return <EditToast onChat={handleOnChat} initialReadOnlyState={initialState?.readOnly} />;
+				return (
+					<EditToast
+						onChat={handleOnChat}
+						initialReadOnlyState={initialState?.readOnly}
+					/>
+				);
 			case AppState.PLAY:
 				return <PlayToast close={closeDialog} />;
 			case AppState.CHAT:

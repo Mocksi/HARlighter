@@ -20,8 +20,8 @@ export class Reactor {
 	private mutationObserver: ReactorMutationObserver;
 	private attached = false;
 
-	private doc: Document | undefined = undefined;
-	private highlighter: Highlighter | undefined = undefined;
+	private doc?: Document = undefined;
+	private highlighter?: Highlighter = undefined;
 	private modifications: ModificationRequest[] = [];
 	private appliedModifications: AppliedModificationsImpl[] = [];
 
@@ -48,7 +48,7 @@ export class Reactor {
 		// apply all modifications
 		for (const modification of this.modifications) {
 			this.appliedModifications.push(
-				await generateModifications(modification, root),
+				await generateModifications(modification, root, highlighter),
 			);
 		}
 	}
@@ -95,10 +95,13 @@ export class Reactor {
 							return {
 								value:
 									outerThis.appliedModifications[index++] ||
-									new AppliedModificationsImpl({
-										description: "No modifications",
-										modifications: [],
-									}),
+									new AppliedModificationsImpl(
+										{
+											description: "No modifications",
+											modifications: [],
+										},
+										outerThis.highlighter,
+									),
 								done: false,
 							};
 						}
@@ -149,7 +152,11 @@ export class Reactor {
 			this.modifications.push(modification);
 
 			if (this.isAttached() && this.doc) {
-				const applied = await generateModifications(modification, this.doc);
+				const applied = await generateModifications(
+					modification,
+					this.doc,
+					this.highlighter,
+				);
 				out.push(applied);
 				this.appliedModifications.push(applied);
 			}
@@ -172,6 +179,7 @@ export class Reactor {
 			if (this.isAttached()) {
 				const applied = this.appliedModifications.pop();
 				if (applied) {
+					applied.setHighlight(false);
 					applied.unapply();
 					out.push(applied);
 				}

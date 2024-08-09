@@ -20,7 +20,7 @@ export function cancelEditWithoutChanges(
 	return null;
 }
 
-export function applyChanges(
+export async function applyChanges(
 	nodeWithTextArea: HTMLElement | null,
 	newValue: string,
 	oldValue: string,
@@ -42,7 +42,10 @@ export function applyChanges(
 		};
 		console.log(modification);
 
-		Reactor.pushModification(modification);
+		const modifications = await Reactor.pushModification(modification);
+		for (const modification of modifications) {
+			modification.setHighlight(true);
+		}
 
 		// TODO: check if we should keep the singleton behavior we had before
 		// const domManipulator = new DOMManipulator(

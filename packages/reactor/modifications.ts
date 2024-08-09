@@ -11,6 +11,7 @@ import { ToastModification } from "./modifications/toast";
 import type {
 	AppliableModification,
 	AppliedModifications,
+	Highlighter,
 	Modification,
 	ModificationRequest,
 } from "./interfaces";
@@ -18,9 +19,14 @@ import type {
 export class AppliedModificationsImpl implements AppliedModifications {
 	modificationRequest: ModificationRequest;
 	modifications: Array<AppliableModification> = [];
+	highlighter?: Highlighter;
 
-	constructor(modificationRequest: ModificationRequest) {
+	constructor(
+		modificationRequest: ModificationRequest,
+		highlighter?: Highlighter,
+	) {
 		this.modificationRequest = modificationRequest;
+		this.highlighter = highlighter;
 	}
 
 	unapply(): void {
@@ -31,15 +37,29 @@ export class AppliedModificationsImpl implements AppliedModifications {
 	}
 
 	setHighlight(highlight: boolean): void {
-		throw new Error("Method not implemented.");
+		if (this.highlighter) {
+			for (const mod of this.modifications) {
+				for (const node of mod.highlightNodes) {
+					if (highlight) {
+						this.highlighter.highlightNode(node);
+					} else {
+						this.highlighter.removeHighlightNode(node);
+					}
+				}
+			}
+		}
 	}
 }
 
 export async function generateModifications(
 	request: ModificationRequest,
 	doc: Document,
+	highlighter?: Highlighter,
 ): Promise<AppliedModificationsImpl> {
-	const appliedModifications = new AppliedModificationsImpl(request);
+	const appliedModifications = new AppliedModificationsImpl(
+		request,
+		highlighter,
+	);
 
 	try {
 		for (const mod of request.modifications) {

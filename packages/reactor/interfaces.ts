@@ -59,7 +59,7 @@ export interface Highlighter {
 
 export abstract class AppliableModification {
 	doc: Document;
-	highlightNodeSelectors: string[] = [];
+	highlightNodes: Node[] = [];
 
 	constructor(doc: Document) {
 		this.doc = doc;
@@ -68,11 +68,11 @@ export abstract class AppliableModification {
 	abstract apply(): void;
 	abstract unapply(): void;
 
-	getHighlightNodeSelectors(): string[] {
-		return this.highlightNodeSelectors;
+	getHighlightNodes(): Node[] {
+		return this.highlightNodes;
 	}
 
-	addHighlightNodeSelector(selector: string): void {
-		this.highlightNodeSelectors.push(selector);
+	addHighlightNode(node: Node): void {
+		this.highlightNodes.push(node);
 	}
 }
