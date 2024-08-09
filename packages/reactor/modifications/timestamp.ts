@@ -34,6 +34,8 @@ export class TimestampModification extends AppliableModification {
 		);
 		this.originalText = originalText;
 		this.originalLabel = originalLabel;
+
+		this.addHighlightNode(element);
 	}
 
 	unapply(): void {

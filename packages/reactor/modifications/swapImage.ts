@@ -22,6 +22,7 @@ export class SwapImageModification extends AppliableModification {
 		const element = this.doc.querySelector(this.elementSelector);
 		if (element && element instanceof HTMLImageElement) {
 			element.src = this.imageUrl;
+			this.addHighlightNode(element);
 		}
 	}
 

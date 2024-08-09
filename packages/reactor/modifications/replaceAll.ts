@@ -16,7 +16,7 @@ export class ReplaceAllModification extends AppliableModification {
 		this.changes = walkTree(
 			this.element,
 			checkText(this.content),
-			replaceText(this.content),
+			replaceText(this.content, this.addHighlightNode.bind(this)),
 		);
 	}
 
@@ -108,7 +108,10 @@ function checkText(pattern: string): (node: Node) => boolean {
 	};
 }
 
-function replaceText(pattern: string): (node: Node) => TreeChange | null {
+function replaceText(
+	pattern: string,
+	addHighlightNode: (node: Node) => void,
+): (node: Node) => TreeChange | null {
 	const { patternRegexp, replacement } = toRegExpPattern(pattern);
 
 	return (node: Node) => {
@@ -143,6 +146,10 @@ function replaceText(pattern: string): (node: Node) => TreeChange | null {
 			if (typeof split[i] !== "undefined") {
 				const textNode = document.createTextNode(split[i] || "");
 				parentElement.insertBefore(textNode, nextSibling);
+
+				if (i % 2 !== 0) {
+					addHighlightNode(textNode);
+				}
 			}
 		}
 

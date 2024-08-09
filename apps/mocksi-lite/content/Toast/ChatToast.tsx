@@ -1,11 +1,17 @@
-import React, { useCallback, useEffect, useContext, useRef, useState } from "react";
+import React, {
+	useCallback,
+	useEffect,
+	useContext,
+	useRef,
+	useState,
+} from "react";
 import Toast from ".";
 import { CloseButton } from "../../common/Button";
 import { ChatWebSocketURL, MOCKSI_RECORDING_STATE } from "../../consts";
 import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
 import { getEmail, innerHTMLToJson } from "../../utils";
-import { AppEvent, AppStateContext, AppState } from "../AppStateContext";
+import { AppEvent, AppState, AppStateContext } from "../AppStateContext";
 
 interface Message {
 	content: string;

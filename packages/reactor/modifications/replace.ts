@@ -17,6 +17,7 @@ export class ReplaceModification extends AppliableModification {
 		const element = this.doc.querySelector(this.elementSelector);
 		if (element) {
 			element.innerHTML = this.newValue;
+			this.addHighlightNode(element);
 		}
 	}
 
