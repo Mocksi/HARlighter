@@ -40,7 +40,7 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 		dispatch({ event: AppEvent.ENTER_SETTINGS });
 	};
 
-	console.log('rendering list popup');
+	console.log("rendering list popup");
 
 	return (
 		<Popup

@@ -26,8 +26,8 @@ import {
 import { getHighlighter } from "../EditMode/highlighter";
 import { buildQuerySelector } from "../EditMode/utils";
 import IframeWrapper from "../IframeWrapper";
-import Toast from "./index";
 import { observeUrlChange } from "../utils/observeUrlChange";
+import Toast from "./index";
 
 type EditToastProps = {
 	initialReadOnlyState?: boolean;

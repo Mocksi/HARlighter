@@ -12,9 +12,9 @@ import {
 	undoModifications,
 } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
-import Toast from "./index";
 import { getHighlighter } from "../EditMode/highlighter";
 import { observeUrlChange } from "../utils/observeUrlChange";
+import Toast from "./index";
 
 interface PlayToastProps {
 	close: () => void;
@@ -41,15 +41,16 @@ const PlayToast = ({ close }: PlayToastProps) => {
 
 				observeUrlChange(() => {
 					setUrl(document.location.href);
-				})
+				});
 			});
 	}, []);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: we dont use the url but want to run this whenever it changes
 	useEffect(() => {
 		getHighlighter().removeHighlightNodes();
 		loadPreviousModifications(alterations);
 		loadAlterations(alterations, { withHighlights: false });
-	}, [url])
+	}, [url]);
 
 	const handleEdit = () => {
 		sendMessage("resetIcon");
