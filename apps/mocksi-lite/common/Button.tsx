@@ -59,7 +59,7 @@ interface ButtonProps {
 const getButtonStyles = (variant: Variant) => {
 	switch (variant) {
 		case Variant.icon:
-			return "mw-bg-[#E8F3EC] mw-border-[#E8F3EC] mw-py-[10px] mw-px-[12px] mw-min-w-[28px] mw-max-w-[28px] mw-min-h-[32px] mw-max-h-[32px]";
+			return "mw-bg-[#E8F3EC] mw-border-[#E8F3EC] mw-py-[8px] mw-px-[10px] mw-min-w-[28px] mw-max-w-[28px] mw-min-h-[32px] mw-max-h-[32px]";
 		case Variant.primary:
 			return "mw-bg-[#E8F3EC] !mw-min-h-[42px] mw-border-[#E8F3EC] mw-px-6";
 		case Variant.secondary:

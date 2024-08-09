@@ -38,17 +38,19 @@ import(
 	"./spinner.css"
 );
 
+// [NOTE]: Draggable component was removed but can be recovered at
+// commit 0ed812fa248cbb4a5aa820fe381e0f20d53828ca
 interface ContentProps {
-	isOpen?: boolean;
 	email?: string;
 	initialState?: {
-		recordings?: Recording[];
 		readOnly?: boolean;
+		recordings?: Recording[];
 	};
+	isOpen?: boolean;
 }
 
-function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
-	const { state, dispatch } = useContext(AppStateContext);
+function ShadowContentApp({ email, initialState, isOpen }: ContentProps) {
+	const { dispatch, state } = useContext(AppStateContext);
 	const [isDialogOpen, setIsDialogOpen] = useState(isOpen || false);
 
 	useEffect(() => {
@@ -77,38 +79,33 @@ function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 
 	const renderContent = () => {
 		const popupProps = {
-			onClose: closeDialog,
 			email,
 			onChat: handleOnChat,
+			onClose: closeDialog,
 			onLogout: handleOnLogout,
 		};
 		switch (state) {
-			case AppState.EDITING:
-				return (
-					<EditToast
-						onChat={handleOnChat}
-						initialReadOnlyState={initialState?.readOnly}
-					/>
-				);
-			case AppState.PLAY:
-				return <PlayToast close={closeDialog} />;
-			case AppState.CHAT:
-				return <ChatToast onChangeState={() => {}} close={closeDialog} />;
-			case AppState.RECORDING:
 			case AppState.ANALYZING:
+			case AppState.RECORDING:
 				return <RecordingToast close={closeDialog} />;
+			case AppState.CHAT:
+				return <ChatToast close={closeDialog} onChangeState={() => {}} />;
 			case AppState.CREATE:
 				return <CreatePopup onClose={closeDialog} />;
-			case AppState.LIST:
-				return <ListPopup {...popupProps} />;
-			case AppState.SETTINGS:
-				return <SettingsPopup {...popupProps} />;
-			case AppState.READYTORECORD:
-				return <ReadyToRecordPopup {...popupProps} />;
-			case AppState.UNAUTHORIZED:
+			case AppState.EDITING:
+				return <EditToast onChat={handleOnChat} initialReadOnlyState={initialState?.readOnly} />;
 			case AppState.INIT:
+			case AppState.UNAUTHORIZED:
 				// When initializing the application and loading state we want to show nothing, potentially this is a loading UI in the future
 				return null;
+			case AppState.LIST:
+				return <ListPopup {...popupProps} />;
+			case AppState.PLAY:
+				return <PlayToast close={closeDialog} />;
+			case AppState.READYTORECORD:
+				return <ReadyToRecordPopup {...popupProps} />;
+			case AppState.SETTINGS:
+				return <SettingsPopup {...popupProps} />;
 			default:
 				return <ListPopup {...popupProps} />;
 		}
@@ -118,18 +115,18 @@ function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 }
 
 export default function ContentApp({
-	isOpen,
 	email,
 	initialState,
+	isOpen,
 }: ContentProps) {
 	const styles = extractStyles(document.styleSheets);
 	return useShadow(
 		<AppStateProvider initialRecordings={initialState?.recordings}>
 			<div className="mcksi-frame-include">
 				<ShadowContentApp
-					isOpen={isOpen}
 					email={email}
 					initialState={initialState}
+					isOpen={isOpen}
 				/>
 			</div>
 		</AppStateProvider>,
