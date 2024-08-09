@@ -80,15 +80,15 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 				console.error("error fetching alterations", err);
 			});
 
-			// Whenever the url changes, we want to update the url in state which triggers the
-			// use effect that removes the highlights and reloads the alterations
-			const disconnect = observeUrlChange(() => {
-				setUrl(document.location.href);
-			});
+		// Whenever the url changes, we want to update the url in state which triggers the
+		// use effect that removes the highlights and reloads the alterations
+		const disconnect = observeUrlChange(() => {
+			setUrl(document.location.href);
+		});
 
-			return () => {
-				disconnect();
-			}
+		return () => {
+			disconnect();
+		};
 	}, []);
 
 	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page

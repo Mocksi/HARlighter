@@ -46,7 +46,7 @@ const PlayToast = ({ close }: PlayToastProps) => {
 
 		return () => {
 			disconnect();
-		}
+		};
 	}, []);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: we dont use the url but want to run this whenever it changes
