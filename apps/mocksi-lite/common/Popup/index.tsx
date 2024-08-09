@@ -1,6 +1,5 @@
 import IframeWrapper from "../../content/IframeWrapper";
 import Divider from "../Divider";
-import Draggable from "./Draggable";
 import Footer from "./Footer";
 import Header from "./Header";
 
@@ -37,25 +36,22 @@ const Popup = ({
 	};
 
 	return (
-		<Draggable>
-			<div className="mw-flex mw-flex-col mw-justify-between mw-bg-white shadow-lg mw-m-2 mw-border-black mw-border-solid mw-rounded-lg mw-h-[596px] mw-w-[480px]">
-				<Header
-					close={onClose}
-					onGoBack={onGoBack}
-					onSettings={onSettings}
-					subtitle={headerSubtitle}
-				/>
-				<IframeWrapper style={iframeStyle}>{children}</IframeWrapper>
-
-				{/* FOOTER */}
-				{isFooterVisible && (
-					<div>
-						<Divider />
-						<Footer email={email} onChat={onChat} onLogout={onLogout} />
-					</div>
-				)}
-			</div>
-		</Draggable>
+		<div className="mw-flex mw-flex-col mw-justify-between mw-bg-white shadow-lg mw-m-6 mw-border-black mw-border-solid mw-rounded-lg mw-h-[596px] mw-w-[480px]">
+			<Header
+				close={onClose}
+				onGoBack={onGoBack}
+				onSettings={onSettings}
+				subtitle={headerSubtitle}
+			/>
+			<IframeWrapper style={iframeStyle}>{children}</IframeWrapper>
+			{/* FOOTER */}
+			{isFooterVisible && (
+				<div>
+					<Divider />
+					<Footer email={email} onChat={onChat} onLogout={onLogout} />
+				</div>
+			)}
+		</div>
 	);
 };
 
