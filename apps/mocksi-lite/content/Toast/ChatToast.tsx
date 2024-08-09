@@ -1,10 +1,11 @@
+import { htmlElementToJson, modifyDom } from "@repo/reactor";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Toast from ".";
 import { CloseButton } from "../../common/Button";
 import { ChatWebSocketURL, MOCKSI_RECORDING_STATE } from "../../consts";
 import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
-import { getEmail, innerHTMLToJson } from "../../utils";
+import { getEmail, getLastPageDom } from "../../utils";
 import { AppState } from "../AppStateContext";
 
 interface Message {
@@ -98,11 +99,11 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 				]);
 
 				try {
-					await applyDOMModifications(data.modifications);
+					await modifyDom(document, data);
 					setIsTyping(false);
 					await new Promise((resolve) => window.setTimeout(resolve, 1000));
-					const updatedDomJson = innerHTMLToJson(document.body.innerHTML);
-					setDomData(updatedDomJson);
+					const updatedDomJson = htmlElementToJson(document.body);
+					setDomData(JSON.stringify(updatedDomJson));
 				} catch (error) {
 					console.error("Error applying DOM modifications:", error);
 				}
@@ -123,8 +124,8 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 		}, []);
 
 		useEffect(() => {
-			const dom_as_json = innerHTMLToJson(document.body.innerHTML);
-			setDomData(dom_as_json);
+			const dom_as_json = htmlElementToJson(document.body);
+			setDomData(JSON.stringify(dom_as_json));
 
 			connectWebSocket();
 
@@ -141,36 +142,6 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 				}
 			};
 		}, [connectWebSocket]);
-
-		const applyDOMModifications = async (modifications: DOMModification[]) => {
-			for (const mod of modifications) {
-				const element = document.querySelector(mod.selector);
-				if (!element) {
-					console.warn(`Element not found for selector: ${mod.selector}`);
-					continue;
-				}
-
-				switch (mod.action) {
-					case "append":
-						element.insertAdjacentHTML("beforeend", mod.content);
-						break;
-					case "prepend":
-						element.insertAdjacentHTML("afterbegin", mod.content);
-						break;
-					case "remove":
-						element.remove();
-						break;
-					case "replace":
-						element.innerHTML = mod.content;
-						break;
-					default:
-						console.warn(`Unknown action: ${mod.action}`);
-				}
-
-				// Add a small delay between modifications to avoid overwhelming the browser
-				await new Promise((resolve) => window.setTimeout(resolve, 100));
-			}
-		};
 
 		const sendReply = useCallback(
 			(messageBody: { messages: Message[] }) => {

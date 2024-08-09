@@ -32,7 +32,7 @@ type DOMModificationsType = {
 const authOptions: auth0.AuthOptions = {
 	domain: "dev-3lgt71qosvm4psf0.us.auth0.com",
 	clientID: "3XDxVDUz3W3038KmRvkJSjkIs5mGj7at",
-	redirectUri: "https://nest-auth-ts-merge.onrender.com",
+	redirectUri: SignupURL,
 	// TODO: change to include offline_access, see https://github.com/Mocksi/nest/pull/10#discussion_r1635647560
 	responseType: "id_token token",
 	audience: "Mocksi Lite",
