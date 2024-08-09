@@ -7,6 +7,7 @@ import {
 	MOCKSI_RECORDING_STATE,
 } from "../consts";
 import { loadAlterations, sendMessage } from "../utils";
+import { Storage } from './Storage';
 
 export enum AppState {
 	INIT = "INIT",
@@ -106,7 +107,7 @@ const localStorageMiddleware = (reducer: typeof appStateReducer) => {
 
 		console.log(state, action.event, newState);
 
-		chrome.storage.local.set({ [MOCKSI_RECORDING_STATE]: newState });
+		Storage.setItem({ [MOCKSI_RECORDING_STATE]: newState });
 
 		return newState;
 	};
@@ -121,14 +122,13 @@ export const AppStateProvider: React.FC<{
 
 	// Load the initial state from chrome storage on mount
 	useEffect(() => {
-		chrome.storage.local.get(
+		Storage.getItem(
 			[
 				MOCKSI_RECORDING_STATE,
 				MOCKSI_ALTERATIONS,
 				MOCKSI_RECORDING_ID,
 				MOCKSI_RECORDING_CREATED_AT,
-			],
-			(result) => {
+			]).then((result) => {
 				if (result[MOCKSI_RECORDING_STATE] === AppState.UNAUTHORIZED) {
 					dispatch({
 						event: AppEvent.SET_INITIAL_STATE,

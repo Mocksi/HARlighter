@@ -1,5 +1,6 @@
 import React, { MouseEventHandler } from "react";
 import { MOCKSI_POPUP_LOCATION } from "../../consts";
+import { Storage } from '../../content/Storage'
 
 const rightOffset = 30;
 const leftOffset = 20;
@@ -29,7 +30,7 @@ function Draggable({
 			prevTransform.current.y !== transform.y
 		) {
 			// x y transform validated before state is updated
-			await chrome.storage.local.set({
+			await Storage.setItem({
 				[MOCKSI_POPUP_LOCATION]: transform,
 			});
 			prevTransform.current = transform;
@@ -99,7 +100,7 @@ function Draggable({
 		}, 10);
 
 	const initFromStorage = React.useCallback(async () => {
-		const results = await chrome.storage.local.get([MOCKSI_POPUP_LOCATION]);
+		const results = await Storage.getItem([MOCKSI_POPUP_LOCATION]);
 		const storedTransform = results[MOCKSI_POPUP_LOCATION];
 		if (storedTransform) {
 			prevTransform.current = storedTransform;

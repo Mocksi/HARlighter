@@ -10,6 +10,7 @@ import { AppState } from "./content/AppStateContext";
 import { initializeMckSocket, sendMckSocketMessage } from "./mckSocket";
 import { apiCall } from "./networking";
 import { getEmail, getLastPageDom, loadAlterations } from "./utils";
+import { Storage } from './content/Storage';
 
 export interface Alteration {
 	selector: string;
@@ -192,8 +193,8 @@ export function handleMckSocketMessage(data: string) {
 	}
 }
 
-function handleChatResponse(response: ChatResponse) {
-	chrome.storage.local.get([STORAGE_KEY], (result) => {
+async function handleChatResponse(response: ChatResponse) {
+	const result = await Storage.getItem([STORAGE_KEY]);
 		const messages = result[STORAGE_KEY] ? JSON.parse(result[STORAGE_KEY]) : [];
 		const newMessage = {
 			role: "assistant",
@@ -201,22 +202,18 @@ function handleChatResponse(response: ChatResponse) {
 		};
 		messages.push(newMessage);
 
-		chrome.storage.local.set(
-			{ [STORAGE_KEY]: JSON.stringify(messages) },
-			() => {
-				if (chrome.runtime.lastError) {
-					console.error("Error saving chat message:", chrome.runtime.lastError);
-				} else {
-					console.log("Chat message saved successfully");
-					chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-						if (tabs[0]?.id) {
-							chrome.tabs.sendMessage(tabs[0].id, { type: CHAT_UPDATED_EVENT });
-						}
-					});
-				}
-			},
-		);
-	});
+	const setResult = await Storage.setItem({ [STORAGE_KEY]: JSON.stringify(messages) });
+
+	if (!setResult) {
+		console.error("Error saving chat message:", chrome.runtime.lastError);
+	} else {
+		console.log("Chat message saved successfully");
+		chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+			if (tabs[0]?.id) {
+				chrome.tabs.sendMessage(tabs[0].id, { type: CHAT_UPDATED_EVENT });
+			}
+		});
+	}	
 }
 
 function onAttach(tabId: number) {
@@ -339,12 +336,12 @@ async function getRecordings(): Promise<Recording[]> {
 			`recordings?creator=${encodeURIComponent(email)}`,
 		).catch((err) => {
 			MocksiRollbar.error(`Failed to fetch recordings: ${err}`);
-			chrome.storage.local.set({ recordings: "[]" });
+			Storage.setItem({ recordings: "[]" });
 			return [];
 		});
 
 		if (!response || response.length === 0) {
-			chrome.storage.local.set({ recordings: "[]" });
+			Storage.setItem({ recordings: "[]" });
 			return [];
 		}
 
@@ -353,7 +350,7 @@ async function getRecordings(): Promise<Recording[]> {
 		);
 
 		const recordings = JSON.stringify(sorted) || "[]";
-		chrome.storage.local.set({ recordings });
+		Storage.setItem({ recordings });
 
 		return sorted;
 	} catch (err) {
@@ -477,7 +474,7 @@ const setPlayMode = async (url?: string) => {
 
 	await chrome.tabs.create({ url: url });
 	await chrome.action.setIcon({ path: "./public/pause-icon.png" });
-	await chrome.storage.local.set({
+	await Storage.setItem({
 		[MOCKSI_RECORDING_STATE]: AppState.PLAY,
 	});
 };

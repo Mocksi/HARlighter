@@ -16,6 +16,7 @@ import {
 } from "../utils";
 import { AppState } from "./AppStateContext";
 import ContentApp from "./ContentApp";
+import { Storage } from './Storage';
 
 let root: ReactDOM.Root;
 
@@ -26,7 +27,7 @@ function initial() {
 	document.body.appendChild(rootDiv);
 
 	// TODO: explore if we can auto open extension for hard navigation sites
-	// chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
+	// Storage.getItem([MOCKSI_RECORDING_STATE], (results) => {
 	// 	const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 	// 	if (appState === AppState.PLAY) {
 	// 		handlePlayState();
@@ -49,9 +50,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		}
 		root = ReactDOM.createRoot(extensionRoot);
 		getEmail().then((email) => {
-			chrome.storage.local.get(
-				[MOCKSI_RECORDING_STATE, MOCKSI_READONLY_STATE],
-				(results) => {
+			Storage.getItem(
+				[MOCKSI_RECORDING_STATE, MOCKSI_READONLY_STATE]).then((results) => {
 					const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 					let state = appState;
 
@@ -59,7 +59,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 					if (email && !appState) {
 						// we need to initialize app state if there's none.
-						chrome.storage.local.set({
+						Storage.setItem({
 							[MOCKSI_RECORDING_STATE]: AppState.LIST,
 						});
 						state = AppState.LIST;
@@ -73,7 +73,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 						(appState === AppState.UNAUTHORIZED || !email) &&
 						window.location.origin !== SignupURL
 					) {
-						chrome.storage.local.set({
+						Storage.setItem({
 							[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
 						});
 						state = AppState.UNAUTHORIZED;
@@ -122,15 +122,15 @@ window.addEventListener("message", (event: MessageEvent) => {
 
 	console.log("Content script received message: ", eventData);
 	if (eventData.type.toUpperCase() === STORAGE_CHANGE_EVENT.toUpperCase()) {
-		chrome.storage.local.set({ [eventData.key]: eventData.value }).then(() => {
+		Storage.setItem({ [eventData.key]: eventData.value }).then(() => {
 			console.log(eventData.key, " set.");
 		});
 
 		if (eventData.key === MOCKSI_AUTH) {
-			chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
+			Storage.getItem([MOCKSI_RECORDING_STATE]).then((results) => {
 				const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 				if (appState === AppState.UNAUTHORIZED) {
-					chrome.storage.local.set({
+					Storage.setItem({
 						[MOCKSI_RECORDING_STATE]: AppState.LIST,
 					});
 				}

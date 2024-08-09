@@ -18,6 +18,7 @@ import {
 import { AppState } from "./content/AppStateContext";
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
+import { Storage } from './content/Storage';
 
 type DomAlteration = {
 	type: "text" | "image";
@@ -326,7 +327,7 @@ export function debounce_leading<T extends (...args: any[]) => void>(
 }
 
 export const getLastPageDom = async () => {
-	const value = await chrome.storage.local.get([MOCKSI_LAST_PAGE_DOM]);
+	const value = await Storage.getItem([MOCKSI_LAST_PAGE_DOM]);
 	return value[MOCKSI_LAST_PAGE_DOM];
 };
 
@@ -361,7 +362,7 @@ export const getEmail = async (): Promise<string | null> => {
 	}
 };
 export const getAlterations = async (): Promise<Alteration[] | []> => {
-	const value = await chrome.storage.local.get([MOCKSI_ALTERATIONS]);
+	const value = await Storage.getItem([MOCKSI_ALTERATIONS]);
 	const storedData = value[MOCKSI_ALTERATIONS];
 
 	return storedData ?? [];
@@ -369,7 +370,7 @@ export const getAlterations = async (): Promise<Alteration[] | []> => {
 
 export const getRecordingsStorage = async (): Promise<Recording[]> => {
 	try {
-		const results = await chrome.storage.local.get(["recordings"]);
+		const results = await Storage.getItem(["recordings"]);
 		if (results.recordings) {
 			return JSON.parse(results.recordings);
 		}
@@ -397,18 +398,15 @@ export const updateRecordingsStorage = async ({
 		);
 		const recordingsStringified = JSON.stringify(sorted);
 		console.log("modified", recordingsFromStorage, sorted);
-		chrome.storage.local.set({ recordings: recordingsStringified });
+		Storage.setItem({ recordings: recordingsStringified });
 	} catch (err) {
 		console.error("Failed to save modifications from LS:", err);
 		throw err;
 	}
 };
 export const loadRecordingId = async () => {
-	return new Promise<string | undefined>((resolve) => {
-		chrome.storage.local.get([MOCKSI_RECORDING_ID], (result) => {
-			resolve(result[MOCKSI_RECORDING_ID]);
-		});
-	});
+	const result = await Storage.getItem([MOCKSI_RECORDING_ID])
+	return result[MOCKSI_RECORDING_ID]
 };
 
 export const recordingLabel = (currentStatus: AppState) => {

@@ -1,4 +1,5 @@
 import { WebSocketURL } from "./consts";
+import { Storage } from './content/Storage'
 
 let mckSocket: WebSocket;
 
@@ -89,14 +90,13 @@ function removeAllPercent(input: string): string {
 	return input.replace(/%20/g, " ");
 }
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-function appendMessageToStorage(message: any) {
-	chrome.storage.local.get(["reply_messages"], (result) => {
-		const messages = result.reply_messages || [];
-		messages.push(message);
-		chrome.storage.local.set({ reply_messages: messages }, () => {
-			console.log("Message appended to storage");
-		});
-	});
+async function appendMessageToStorage(message: any) {
+	const result = await Storage.getItem(["reply_messages"])
+
+	const messages = result.reply_messages || [];
+	messages.push(message);
+	await Storage.setItem({ reply_messages: messages })
+	console.log("Message appended to storage");
 }
 
 function handleChatResponse(response: WebsocketResponse) {

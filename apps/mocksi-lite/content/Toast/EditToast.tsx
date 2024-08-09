@@ -27,6 +27,7 @@ import { getHighlighter } from "../EditMode/highlighter";
 import { buildQuerySelector } from "../EditMode/utils";
 import IframeWrapper from "../IframeWrapper";
 import Toast from "./index";
+import { Storage } from '../Storage';
 
 type EditToastProps = {
 	initialReadOnlyState?: boolean;
@@ -115,7 +116,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 			setUrl(document.location.href);
 		});
 
-		const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
+		const results = await Storage.getItem([MOCKSI_READONLY_STATE]);
 
 		// If value exists and is true or if the value doesn't exist at all, apply read-only mode
 		if (

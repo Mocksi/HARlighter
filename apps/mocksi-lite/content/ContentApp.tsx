@@ -17,6 +17,7 @@ import ChatToast from "./Toast/ChatToast";
 import EditToast from "./Toast/EditToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
+import { Storage } from '../content/Storage';
 
 import(
 	/* webpackChunkName: "content_content_css" */
@@ -57,7 +58,7 @@ function ShadowContentApp({ isOpen, email, initialState }: ContentProps) {
 		} catch (e) {
 			console.error("Error setting last page dom:", e);
 		}
-		chrome.storage.local.set({ [MOCKSI_LAST_PAGE_DOM]: dom_as_json });
+		Storage.setItem({ [MOCKSI_LAST_PAGE_DOM]: dom_as_json });
 	});
 
 	const closeDialog = () => setIsDialogOpen(false);

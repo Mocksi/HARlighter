@@ -6,6 +6,7 @@ import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
 import { getEmail, innerHTMLToJson } from "../../utils";
 import { AppState } from "../AppStateContext";
+import { Storage } from '../Storage';
 
 interface Message {
 	content: string;
@@ -43,7 +44,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 			if (wsRef.current?.readyState === WebSocket.OPEN) {
 				return;
 			}
-			const state = await chrome.storage.local.get([MOCKSI_RECORDING_STATE]);
+			const state = await Storage.getItem([MOCKSI_RECORDING_STATE]);
 			if (!state || state[MOCKSI_RECORDING_STATE] !== AppState.CHAT) {
 				return;
 			}
@@ -206,7 +207,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 				<div className="mw-top-0 mw-left-0 mw-absolute mw-m-2">
 					<CloseButton
 						onClick={async () => {
-							await chrome.storage.local.set({
+							await Storage.setItem({
 								[MOCKSI_RECORDING_STATE]: AppState.CREATE,
 							});
 							close();

@@ -1,0 +1,118 @@
+interface Storage {
+  getItem: (keys: string[]) => Promise<Record<string, any>>;
+  setItem: (value: Record<string, any>) => Promise<boolean>;
+  removeItem: (key: string) => Promise<boolean>;
+  clearTab: () => Promise<boolean>;
+  getStorageForTab: (tabId: string) => Promise<Record<string, any>>;
+  setStorageForTab: (tabId: string, data: Record<string, any>) => Promise<boolean>;
+  getTabId: () => Promise<string | null>;
+}
+
+export const Storage: Storage = {
+  getItem: async (keys: string[]) => {
+    const tabId = await Storage.getTabId();
+    if (!tabId) {
+      console.error('Tab id not found');
+      return [];
+    }
+
+    const storedData = await chrome.storage.local.get([tabId]);
+    const data = storedData[tabId];
+
+    if (!data) {
+      return []
+    }
+
+    return keys.reduce((acc, curr) => {
+      if (data[curr]) {
+        return {
+          ...acc,
+          [curr]: data[curr]
+        }
+      }
+
+      return acc;
+    }, {})
+  },
+  setItem: async (value: Record<string, any>) => {
+    const tabId = await Storage.getTabId();
+    if (!tabId) {
+      console.error('Tab id not found');
+      return false;
+    }
+
+    const data = await Storage.getStorageForTab(tabId)
+
+    const newData = {
+      ...data,
+      ...value
+    }
+
+    try {
+      await chrome.storage.local.set({ [tabId]: newData })
+      return true;
+    } catch (error) {
+      console.error('setItem: error setting local storage', error)
+      return false;
+    }
+  },
+  removeItem: async (key: string) => {
+    const tabId = await Storage.getTabId();
+    if (!tabId) {
+      console.error('Tab id not found');
+      return false;
+    }
+
+    const data = await Storage.getStorageForTab(tabId)
+
+    const { [key]: removed, ...toKeep } = data;
+
+    const result = await Storage.setStorageForTab(tabId, toKeep);
+
+    return result;
+  },
+  clearTab: async () => {
+    const tabId = await Storage.getTabId();
+    if (!tabId) {
+      console.error('Tab id not found');
+      return false;
+    }
+
+    try {
+      await chrome.storage.local.remove(tabId)
+      return true
+    } catch (error) {
+      console.error('clearTab: error clearing local storage', error)
+      return false
+    }
+  },
+  getStorageForTab: async (tabId: string) => {
+    const storedData = await chrome.storage.local.get([tabId]);
+
+    return storedData[tabId];
+  },
+  setStorageForTab: async (tabId: string, data: Record<string, any>) => {
+    try {
+      await Storage.setItem({ [tabId]: data })
+      return true;
+    } catch (error) {
+      console.error('setStorageForTab: error setting local storage', error)
+      return false;
+    }
+  },
+  getTabId: async () => {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
+
+    if (!tabs.length) {
+      return null;
+    }
+
+    const tabId = tabs[0].id;
+    
+    if (!tabId) {
+      return null
+    }
+
+    return tabId?.toString();
+  }
+}

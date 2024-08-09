@@ -10,6 +10,7 @@ import {
 } from "../../consts";
 import { sendMessage } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
+import { Storage } from '../Storage';
 
 interface DemoItemProps extends Recording {}
 
@@ -25,7 +26,7 @@ const DemoItem = ({
 	const domain = new URL(url).hostname;
 
 	const handleEdit = async () => {
-		await chrome.storage.local.set({
+		await Storage.setItem({
 			[MOCKSI_ALTERATIONS]: alterations,
 			[MOCKSI_RECORDING_ID]: uuid,
 		});
@@ -34,7 +35,7 @@ const DemoItem = ({
 	};
 
 	const handlePlay = async () => {
-		await chrome.storage.local.set({
+		await Storage.setItem({
 			[MOCKSI_ALTERATIONS]: alterations,
 			[MOCKSI_RECORDING_CREATED_AT]: created_timestamp,
 			[MOCKSI_RECORDING_ID]: uuid,

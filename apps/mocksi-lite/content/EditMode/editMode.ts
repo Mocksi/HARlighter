@@ -2,6 +2,7 @@ import { MOCKSI_READONLY_STATE } from "../../consts";
 import type { ApplyAlteration } from "../Toast/EditToast";
 import { applyImageChanges } from "./actions";
 import { decorate } from "./decorator";
+import { Storage } from '../Storage';
 
 function openImageUploadModal(targetedElement: HTMLImageElement) {
 	// Create a container for the shadow DOM
@@ -173,14 +174,14 @@ const removeStylesToBlockEvents = () => {
 };
 
 export const applyReadOnlyMode = () => {
-	chrome.storage.local.set({
+	Storage.setItem({
 		[MOCKSI_READONLY_STATE]: true,
 	});
 	injectStylesToBlockEvents();
 };
 
 export const disableReadOnlyMode = () => {
-	chrome.storage.local.set({
+	Storage.setItem({
 		[MOCKSI_READONLY_STATE]: false,
 	});
 	removeStylesToBlockEvents();
