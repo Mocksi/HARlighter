@@ -1,7 +1,7 @@
 import TextField from "../../common/TextField";
 import { CloseButton } from "../Button";
 import Divider from "../Divider";
-import { LeftArrowIcon, MenuIcon, TrashIcon } from "../Icons";
+import { LeftArrowIcon, TrashIcon } from "../Icons";
 import { Logo } from "../Logos";
 
 interface HeaderProps {
@@ -15,17 +15,14 @@ interface HeaderProps {
 const Header = ({ close, onGoBack, onSettings, subtitle }: HeaderProps) => {
 	return (
 		<div>
-			<div className="mw-flex mw-flex-row mw-items-center mw-px-2 mw-h-[45px]">
+			<div className="mw-flex mw-flex-row mw-justify-start mw-items-center mw-px-3 mw-h-[45px]">
 				<CloseButton onClick={close} />
-				<div className="mw-flex mw-justify-center mw-mr-[20px] mw-w-full drag-handle">
-					<MenuIcon />
-				</div>
 			</div>
 			<Divider />
 			<div className="mw-flex mw-justify-center mw-items-center mw-mt-5">
 				{onGoBack && (
 					<div
-						className="mw-left-9 mw-absolute mw-cursor-pointer"
+						className="mw-left-16 mw-absolute mw-cursor-pointer"
 						onClick={onGoBack}
 						onKeyUp={(event) => {
 							event.key === "Enter" && onGoBack();
@@ -42,7 +39,7 @@ const Header = ({ close, onGoBack, onSettings, subtitle }: HeaderProps) => {
 				</div>
 				{onSettings && (
 					<div
-						className="mw-right-9 mw-absolute mw-cursor-pointer"
+						className="mw-right-14 mw-absolute mw-cursor-pointer"
 						onClick={onSettings}
 						onKeyUp={(event) => {
 							event.key === "Enter" && onSettings();
