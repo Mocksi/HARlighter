@@ -79,6 +79,16 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 			.catch((err) => {
 				console.error("error fetching alterations", err);
 			});
+
+			// Whenever the url changes, we want to update the url in state which triggers the
+			// use effect that removes the highlights and reloads the alterations
+			const disconnect = observeUrlChange(() => {
+				setUrl(document.location.href);
+			});
+
+			return () => {
+				disconnect();
+			}
 	}, []);
 
 	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
@@ -91,12 +101,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 
 	const setupEditor = async () => {
 		sendMessage("attachDebugger");
-
-		// Whenever the url changes, we want to update the url in state which triggers the
-		// use effect that removes the highlights and reloads the alterations
-		observeUrlChange(() => {
-			setUrl(document.location.href);
-		});
 
 		const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
 

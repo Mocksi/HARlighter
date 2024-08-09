@@ -4,7 +4,7 @@ export const observeUrlChange = (onChange: () => void) => {
 
 	if (!body) {
 		console.error("body not found");
-		return;
+		return () => {};
 	}
 
 	const observer = new MutationObserver((mutations) => {
@@ -13,5 +13,8 @@ export const observeUrlChange = (onChange: () => void) => {
 			onChange();
 		}
 	});
+
 	observer.observe(body, { childList: true, subtree: true });
+
+	return () => observer.disconnect();
 };

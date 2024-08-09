@@ -38,11 +38,15 @@ const PlayToast = ({ close }: PlayToastProps) => {
 					withHighlights: false,
 					createdAt,
 				});
-
-				observeUrlChange(() => {
-					setUrl(document.location.href);
-				});
 			});
+
+		const disconnect = observeUrlChange(() => {
+			setUrl(document.location.href);
+		});
+
+		return () => {
+			disconnect();
+		}
 	}, []);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: we dont use the url but want to run this whenever it changes
