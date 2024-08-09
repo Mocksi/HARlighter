@@ -1,14 +1,23 @@
+import type { Highlighter } from "@repo/reactor";
 import { v4 as uuidv4 } from "uuid";
 import { MOCKSI_HIGHLIGHTER_ID } from "../../consts";
 import { decorate } from "./decorator";
 import { applyStyles } from "./utils";
 
-class Highlighter {
+class HighlighterImpl implements Highlighter {
 	private contentRanger = document.createRange();
 	private highlightedNodes: { highlightedElem: Node; highlightId: string }[] =
 		[];
 
 	highlightNode = (elementToHighlight: Node) => {
+		const visible = elementToHighlight.parentElement
+			? elementToHighlight.parentElement.offsetWidth > 0 ||
+				elementToHighlight.parentElement.offsetHeight > 0
+			: false;
+		if (!visible) {
+			return;
+		}
+
 		this.contentRanger.selectNodeContents(elementToHighlight);
 		const { x, y, width, height } =
 			this.contentRanger.getBoundingClientRect() || {};
@@ -67,11 +76,11 @@ class Highlighter {
 	};
 }
 
-let ContentHighlighter: Highlighter;
+let ContentHighlighter: HighlighterImpl;
 
 export const getHighlighter = () => {
 	if (!ContentHighlighter) {
-		ContentHighlighter = new Highlighter();
+		ContentHighlighter = new HighlighterImpl();
 	}
 	return ContentHighlighter;
 };

@@ -1,34 +1,59 @@
 import { DOMManipulator } from "@repo/dodom";
+import type { ModificationRequest } from "@repo/reactor";
+import Reactor from "../../reactorSingleton";
 import type { ApplyAlteration } from "../Toast/EditToast";
 import { getHighlighter } from "./highlighter";
 
-export function cancelEditWithoutChanges(nodeWithTextArea: HTMLElement | null) {
+export function cancelEditWithoutChanges(
+	nodeWithTextArea: HTMLElement | null,
+): Text | null {
 	if (nodeWithTextArea) {
 		const parentElement = nodeWithTextArea?.parentElement;
+		const newChild = document.createTextNode(nodeWithTextArea.innerText);
+
 		// cancel previous input.
-		nodeWithTextArea?.parentElement?.replaceChild(
-			document.createTextNode(nodeWithTextArea.innerText),
-			nodeWithTextArea,
-		);
+		nodeWithTextArea?.parentElement?.replaceChild(newChild, nodeWithTextArea);
 		parentElement?.normalize();
+		return newChild;
 	}
+
+	return null;
 }
 
-export function applyChanges(
+export async function applyChanges(
 	nodeWithTextArea: HTMLElement | null,
 	newValue: string,
 	oldValue: string,
 	applyAlteration: ApplyAlteration,
 ) {
 	if (nodeWithTextArea) {
-		cancelEditWithoutChanges(nodeWithTextArea);
+		const newChildNode = cancelEditWithoutChanges(nodeWithTextArea);
+
+		const modification: ModificationRequest = {
+			description: `Change ${oldValue} to ${newValue}`,
+			modifications: [
+				{
+					//selector: getCssSelector(newChildNode?.parentElement),
+					selector: "body",
+					action: "replaceAll",
+					content: `/${oldValue}/${newValue}/`,
+				},
+			],
+		};
+		console.log(modification);
+
+		const modifications = await Reactor.pushModification(modification);
+		for (const modification of modifications) {
+			modification.setHighlight(true);
+		}
+
 		// TODO: check if we should keep the singleton behavior we had before
-		const domManipulator = new DOMManipulator(
-			fragmentTextNode,
-			getHighlighter(),
-			applyAlteration,
-		);
-		domManipulator.addPattern(oldValue, newValue);
+		// const domManipulator = new DOMManipulator(
+		// 	fragmentTextNode,
+		// 	getHighlighter(),
+		// 	applyAlteration,
+		// );
+		// domManipulator.addPattern(oldValue, newValue);
 	}
 }
 

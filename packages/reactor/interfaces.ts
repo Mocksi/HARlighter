@@ -1,4 +1,4 @@
-interface TimeStampReference {
+export interface TimeStampReference {
 	// NOTE: this is a iso8601 date string
 	recordedAt: string;
 	// NOTE: this is a iso8601 date string
@@ -34,10 +34,45 @@ export interface ModificationRequest {
 	modifications: Modification[];
 }
 
+export interface AppliedModifications {
+	modificationRequest: ModificationRequest;
+
+	/**
+	 * Turn highlighting on or off for the changes made
+	 * by this request
+	 */
+	setHighlight(highlight: boolean): void;
+}
+
 export interface DomJsonExportNode {
 	tag: string;
 	visible: boolean;
 	text?: string;
 	attributes?: Record<string, string>;
 	children?: DomJsonExportNode[];
+}
+
+export interface Highlighter {
+	highlightNode(elementToHighlight: Node): void;
+	removeHighlightNode(elementToUnhighlight: Node): void;
+}
+
+export abstract class AppliableModification {
+	doc: Document;
+	highlightNodes: Node[] = [];
+
+	constructor(doc: Document) {
+		this.doc = doc;
+	}
+
+	abstract apply(): void;
+	abstract unapply(): void;
+
+	getHighlightNodes(): Node[] {
+		return this.highlightNodes;
+	}
+
+	addHighlightNode(node: Node): void {
+		this.highlightNodes.push(node);
+	}
 }

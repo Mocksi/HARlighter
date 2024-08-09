@@ -1,12 +1,18 @@
-import { htmlElementToJson, modifyDom } from "@repo/reactor";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+	useCallback,
+	useEffect,
+	useContext,
+	useRef,
+	useState,
+} from "react";
 import Toast from ".";
 import { CloseButton } from "../../common/Button";
 import { ChatWebSocketURL, MOCKSI_RECORDING_STATE } from "../../consts";
 import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
+import Reactor from "../../reactorSingleton";
 import { getEmail, getLastPageDom } from "../../utils";
-import { AppState } from "../AppStateContext";
+import { AppEvent, AppState, AppStateContext } from "../AppStateContext";
 
 interface Message {
 	content: string;
@@ -32,6 +38,7 @@ interface DOMModification {
 
 const ChatToast: React.FC<ChatToastProps> = React.memo(
 	({ close, onChangeState }) => {
+		const { dispatch, state } = useContext(AppStateContext);
 		const [messages, setMessages] = useState<Message[]>([]);
 		const [isTyping, setIsTyping] = useState<boolean>(false);
 		const [inputValue, setInputValue] = useState<string>("");
@@ -99,10 +106,10 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 				]);
 
 				try {
-					await modifyDom(document, data);
+					await Reactor.pushModification(data);
 					setIsTyping(false);
 					await new Promise((resolve) => window.setTimeout(resolve, 1000));
-					const updatedDomJson = htmlElementToJson(document.body);
+					const updatedDomJson = Reactor.exportDOM();
 					setDomData(JSON.stringify(updatedDomJson));
 				} catch (error) {
 					console.error("Error applying DOM modifications:", error);
@@ -124,7 +131,7 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 		}, []);
 
 		useEffect(() => {
-			const dom_as_json = htmlElementToJson(document.body);
+			const dom_as_json = Reactor.exportDOM(document.body);
 			setDomData(JSON.stringify(dom_as_json));
 
 			connectWebSocket();
@@ -172,15 +179,12 @@ const ChatToast: React.FC<ChatToastProps> = React.memo(
 		return (
 			<Toast
 				backgroundColor="mw-bg-gray-300"
-				className="mw-relative mw-flex mw-flex-col mw-mt-1 mw-mr-6 mw-py-4 mw-h-[900px] mw-w-[800px]"
+				className="mw-relative mw-flex mw-flex-col mw-mt-1 mw-mr-6 mw-py-4 mw-h-[900px] mw-w-[800px] mw-max-h-[96vh]"
 			>
 				<div className="mw-top-0 mw-left-0 mw-absolute mw-m-2">
 					<CloseButton
 						onClick={async () => {
-							await chrome.storage.local.set({
-								[MOCKSI_RECORDING_STATE]: AppState.CREATE,
-							});
-							close();
+							dispatch({ event: AppEvent.START_EDITING });
 						}}
 					/>
 				</div>

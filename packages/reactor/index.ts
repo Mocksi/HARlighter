@@ -1,2 +1,9 @@
-export { modifyHtml, modifyDom, htmlElementToJson } from "./main";
-export type { Modification, ModificationRequest } from "./interfaces";
+export type {
+	Modification,
+	ModificationRequest,
+	AppliedModifications,
+	DomJsonExportNode,
+	TimeStampReference,
+	Highlighter,
+} from "./interfaces";
+export { Reactor } from "./reactor";

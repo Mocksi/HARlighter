@@ -2,6 +2,7 @@ import { MOCKSI_READONLY_STATE } from "../../consts";
 import type { ApplyAlteration } from "../Toast/EditToast";
 import { applyImageChanges } from "./actions";
 import { decorate } from "./decorator";
+import { getHighlighter } from "./highlighter";
 
 function openImageUploadModal(targetedElement: HTMLImageElement) {
 	// Create a container for the shadow DOM

@@ -1,5 +1,5 @@
 import { DOMManipulator } from "@repo/dodom";
-import { modifyHtml } from "@repo/reactor";
+import type { ModificationRequest } from "@repo/reactor";
 import auth0, { type WebAuth } from "auth0-js";
 import sanitizeHtml from "sanitize-html";
 import { debug } from "webpack";
@@ -18,6 +18,7 @@ import {
 import { AppState } from "./content/AppStateContext";
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
+import Reactor from "./reactorSingleton";
 
 type DomAlteration = {
 	type: "text" | "image";
@@ -192,40 +193,22 @@ export const loadAlterations = async (
 	const now = new Date();
 	await Promise.all(
 		timestamps.map(async (timestamp) => {
-			const userRequest = JSON.stringify({
+			const userRequest: ModificationRequest = {
+				description: "Update timestamps",
 				modifications: [
 					{
 						selector: timestamp.selector,
 						action: "updateTimestampReferences",
 						timestampRef: {
-							recordedAt: createdAt?.toString(),
+							recordedAt: createdAt?.toString() || now.toISOString(),
 							currentTime: now.toISOString(),
 						},
 					},
 				],
-			});
+			};
 			console.log("userRequest", userRequest);
-			const contents = document.querySelectorAll(timestamp.selector);
-			for (const content of contents) {
-				try {
-					const result = await modifyHtml(content.outerHTML, userRequest);
-					const parser = new DOMParser();
-					const doc = parser.parseFromString(result, "text/html");
 
-					if (doc.body) {
-						// Replace the original content with the modified content
-						content.outerHTML = doc.body.innerHTML;
-					} else {
-						console.error("Parsed document body is null or undefined");
-					}
-				} catch (error) {
-					console.error(
-						"Error updating innerHTML for",
-						timestamp.selector,
-						error,
-					);
-				}
-			}
+			await Reactor.pushModification(userRequest);
 		}),
 	);
 };
@@ -426,43 +409,6 @@ export const recordingLabel = (currentStatus: AppState) => {
 		default:
 			return "Start recording";
 	}
-};
-
-export const innerHTMLToJson = (innerHTML: string): string => {
-	const parser = new DOMParser();
-	const doc = parser.parseFromString(innerHTML, "text/html");
-
-	function elementToJson(element: Element): object {
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		const obj: any = {};
-
-		obj.tag = element.tagName.toLowerCase();
-
-		if (element.attributes.length > 0) {
-			obj.attributes = {};
-			for (const attr of Array.from(element.attributes)) {
-				obj.attributes[attr.name] = attr.value;
-			}
-		}
-
-		if (element.children.length > 0) {
-			obj.children = Array.from(element.children).map((child) =>
-				elementToJson(child),
-			);
-		} else {
-			obj.text = element.textContent;
-		}
-
-		return obj;
-	}
-
-	// Convert the body of the parsed document to JSON
-	const json = Array.from(doc.body.children).map((child) =>
-		elementToJson(child),
-	);
-	const body = json.length === 1 ? json[0] : json;
-
-	return JSON.stringify(body);
 };
 
 // This function is used to extract styles from the stylesheets that contain the "--mcksi-frame-include: true;" rule
