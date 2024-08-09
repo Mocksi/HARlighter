@@ -3,7 +3,7 @@ type FragmentTextNode = (
 	matches: RegExpMatchArray[],
 	textNode: Node,
 	newText: string,
-) => DocumentFragment | null;
+) => null | DocumentFragment;
 
 interface ContentHighlighterInterface {
 	highlightNode(node: Node): void;
@@ -14,11 +14,11 @@ type SaveModification = (
 	element: HTMLElement,
 	newText: string,
 	cleanPattern: string,
-	type: "text" | "image",
+	type: "image" | "text",
 ) => void;
 
 export class DOMManipulator {
-	private observer: MutationObserver | undefined;
+	private observer: undefined | MutationObserver;
 	private patterns: { pattern: RegExp; replace: string }[] = [];
 
 	constructor(
@@ -55,7 +55,6 @@ export class DOMManipulator {
 	seekAndReplaceAllPage(pattern: RegExp, newText: string) {
 		const body = document.querySelector("body");
 		if (!body) {
-			console.log("Body not found");
 			return;
 		}
 		this.iterateAndReplace(body, pattern, newText, true);
@@ -71,7 +70,7 @@ export class DOMManipulator {
 		const fragmentsToHighlight: Node[] = [];
 		const replacements: { nodeToReplace: Node; replacement: Node }[] = [];
 		createTreeWalker(rootNode, (textNode) => {
-			fillReplacements(
+			this.fillReplacements(
 				textNode,
 				oldValueInPattern,
 				newText,
@@ -134,7 +133,7 @@ export class DOMManipulator {
 
 	matchReplacePattern(
 		text: string,
-	): { pattern: RegExp; replace: string } | null {
+	): null | { pattern: RegExp; replace: string } {
 		for (const pattern of this.patterns) {
 			if (pattern.pattern.test(text)) {
 				return { pattern: pattern.pattern, replace: pattern.replace };
@@ -143,6 +142,47 @@ export class DOMManipulator {
 
 		return null;
 	}
+
+	getMatches(textNode: Node, oldTextPattern: RegExp) {
+		if (!textNode || !textNode.nodeValue) {
+			return [];
+		}
+		return [...textNode.nodeValue.matchAll(oldTextPattern)];
+	}
+
+	fillReplacements = (
+		textNode: Node,
+		oldTextPattern: RegExp,
+		newText: string,
+		fragmentsToHighlight: Node[],
+		replacements: { nodeToReplace: Node; replacement: Node }[],
+		fragmentTextNode: FragmentTextNode,
+		saveModification: SaveModification,
+	) => {
+		const matches = this.getMatches(textNode, oldTextPattern);
+		if (matches.length > 0) {
+			const fragmentedTextNode = fragmentTextNode(
+				fragmentsToHighlight,
+				matches,
+				textNode,
+				newText,
+			);
+			if (fragmentedTextNode) {
+				replacements.push({
+					nodeToReplace: textNode,
+					replacement: fragmentedTextNode as Node,
+				});
+				saveModification(
+					textNode.parentElement as HTMLElement,
+					newText,
+					cleanPattern(oldTextPattern),
+					"text",
+				);
+			} else {
+				console.log("fragmentTextNode returned null or invalid value");
+			}
+		}
+	};
 
 	replaceImage(oldSrc: string, newSrc: string) {
 		const images = document.querySelectorAll(
@@ -195,43 +235,6 @@ const createTreeWalker = (
 	} while (treeWalker.nextNode());
 };
 
-const fillReplacements = (
-	textNode: Node,
-	oldTextPattern: RegExp,
-	newText: string,
-	fragmentsToHighlight: Node[],
-	replacements: { nodeToReplace: Node; replacement: Node }[],
-	fragmentTextNode: FragmentTextNode,
-	saveModification: SaveModification,
-) => {
-	if (!textNode || !textNode.nodeValue) {
-		return;
-	}
-	const matches = [...textNode.nodeValue.matchAll(oldTextPattern)];
-	if (matches.length > 0) {
-		const fragmentedTextNode = fragmentTextNode(
-			fragmentsToHighlight,
-			matches,
-			textNode,
-			newText,
-		);
-		if (fragmentedTextNode) {
-			replacements.push({
-				nodeToReplace: textNode,
-				replacement: fragmentedTextNode as Node,
-			});
-			saveModification(
-				textNode.parentElement as HTMLElement,
-				newText,
-				cleanPattern(oldTextPattern),
-				"text",
-			);
-		} else {
-			console.log("fragmentTextNode returned null or invalid value");
-		}
-	}
-};
-
 export const replaceFirstLetterCase = (value: string) => {
 	return (match: string) => {
 		if (match[0]?.toLowerCase() !== match[0]?.toUpperCase()) {
@@ -244,6 +247,6 @@ export const replaceFirstLetterCase = (value: string) => {
 	};
 };
 
-const toRegExpPattern = (pattern: string | RegExp) => {
-	return new RegExp(pattern, "ig");
+const toRegExpPattern = (pattern: RegExp | string) => {
+	return new RegExp(pattern, "g");
 };

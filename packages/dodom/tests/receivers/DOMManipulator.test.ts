@@ -9,8 +9,8 @@ const mockFragmentTextNode = vi.fn(
 	(fragmentsToHighlight, matches, textNode, newText) => {
 		const fragment = document.createDocumentFragment();
 		const span = document.createElement("span");
-		span.textContent =
-			textNode.nodeValue?.replace(matches[0][0], newText) || "";
+		const temp = new RegExp(matches[0][0], "g");
+		span.textContent = textNode.nodeValue?.replace(temp, newText) || "";
 		fragment.appendChild(span);
 		return fragment;
 	},
@@ -22,10 +22,10 @@ const mockContentHighlighter = {
 const mockSaveModification = vi.fn();
 global.MutationObserver = vi.fn(function MutationObserver(callback) {
 	return {
-		observe: vi.fn(),
-		disconnect: vi.fn(),
-		takeRecords: vi.fn(),
 		callback,
+		disconnect: vi.fn(),
+		observe: vi.fn(),
+		takeRecords: vi.fn(),
 	};
 });
 
@@ -39,13 +39,16 @@ describe("DOMManipulator", () => {
 			mockSaveModification,
 		);
 		vi.spyOn(domManipulator, "matchReplacePattern");
+		vi.spyOn(domManipulator, "iterateAndReplace");
 		vi.spyOn(domManipulator, "handleMutations");
 		vi.spyOn(domManipulator, "handleMutation");
 		vi.spyOn(domManipulator, "handleAddedNode");
+		vi.spyOn(domManipulator, "getMatches");
 	});
 
 	afterEach(() => {
 		vi.clearAllMocks();
+		document.body.innerHTML = "";
 	});
 
 	it("should add a pattern and call seekAndReplace", () => {
@@ -61,6 +64,29 @@ describe("DOMManipulator", () => {
 			replace,
 		);
 		expect(domManipulator.getPatternCount()).toBe(1);
+	});
+
+	it("should match on all expected substrings", () => {
+		const t =
+			"Tests are likely to be returned next Tuesday. Please turn tests into portal /Tests-Spring.";
+		document.body.innerHTML = `${t}`;
+		const reg = new RegExp(/Test/, "g");
+
+		domManipulator.addPattern("Test", "ABC");
+
+		expect(domManipulator.getMatches).toHaveBeenCalled();
+		expect(domManipulator.getMatches).toReturnWith([...t.matchAll(reg)]);
+		expect(domManipulator.getMatches).toBeCalledTimes(1);
+		expect(domManipulator.iterateAndReplace).toHaveBeenCalled();
+		expect(domManipulator.iterateAndReplace).toBeCalledWith(
+			document.body,
+			/Test/g,
+			"ABC",
+			true,
+		);
+		expect(document.querySelector("body")?.innerHTML).toMatch(
+			"<span>ABCs are likely to be returned next Tuesday. Please turn tests into portal /ABCs-Spring.</span>",
+		);
 	});
 
 	it("should remove a pattern", () => {
@@ -82,7 +108,22 @@ describe("DOMManipulator", () => {
 		const match = domManipulator.matchReplacePattern("test string");
 
 		expect(match).not.toBeNull();
-		expect(match?.pattern).toEqual(new RegExp(pattern, "ig"));
+		expect(match?.pattern).toEqual(new RegExp(pattern, "g"));
+		expect(match?.replace).toBe(replace);
+	});
+
+	it("should match replace pattern case sensitive", () => {
+		const pattern = "In";
+		const replace = "hi";
+
+		domManipulator.addPattern(pattern, replace);
+
+		const match = domManipulator.matchReplacePattern(
+			"Intel intends to fire engineers, the IRS (Internal Revenue Service) redefined how it categorizes RnD ",
+		);
+
+		expect(match).not.toBeNull();
+		expect(match?.pattern).toEqual(new RegExp(pattern, "g"));
 		expect(match?.replace).toBe(replace);
 	});
 
@@ -129,6 +170,16 @@ describe("DOMManipulator", () => {
 			'[data-testid="event-type-slug-1"]',
 		);
 		expect(smallElement?.textContent).toBe("/marketing/15min");
+	});
+
+	it("should replace 'Min' with 'Cat' in the given HTML snippet", () => {
+		const t = "Minutes minus mirrors Minus-minute Miniature";
+		document.body.innerHTML = `${t}`;
+		domManipulator.addPattern("Min", "Cat");
+		const smallElement = document.querySelector("span");
+		expect(smallElement?.textContent?.trim()).toBe(
+			"Catutes minus mirrors Catus-minute Catiature",
+		);
 	});
 });
 
@@ -223,5 +274,11 @@ describe("cleanPattern", () => {
 		const pattern = /sample/i;
 		const cleaned = cleanPattern(pattern);
 		expect(cleaned).toBe("sample");
+	});
+
+	it("should correctly clean the pattern '/Sample/g'", () => {
+		const pattern = /Sample/g;
+		const cleaned = cleanPattern(pattern);
+		expect(cleaned).toBe("Sample");
 	});
 });
