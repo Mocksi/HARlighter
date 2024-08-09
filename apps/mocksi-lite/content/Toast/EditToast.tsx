@@ -106,6 +106,7 @@ const EditToast = ({ onChat, initialReadOnlyState }: EditToastProps) => {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: we dont use the url but want to run this whenever it changes
 	useEffect(() => {
 		getHighlighter().removeHighlightNodes();
+		loadPreviousModifications(alterations);
 		loadAlterations(alterations, { withHighlights: areChangesHighlighted });
 	}, [url]);
 
