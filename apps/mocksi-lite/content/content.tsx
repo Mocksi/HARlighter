@@ -122,7 +122,7 @@ window.addEventListener("message", (event: MessageEvent) => {
 
 	console.log("Content script received message: ", eventData);
 	if (eventData.type.toUpperCase() === STORAGE_CHANGE_EVENT.toUpperCase()) {
-		Storage.setItem({ [eventData.key]: eventData.value }).then(() => {
+		chrome.storage.local.set({ [eventData.key]: eventData.value }).then(() => {
 			console.log(eventData.key, " set.");
 		});
 

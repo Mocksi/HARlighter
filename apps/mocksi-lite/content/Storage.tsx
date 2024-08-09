@@ -1,4 +1,7 @@
+import { sendMessage } from "../utils";
+
 interface Storage {
+  tabId: string | null;
   getItem: (keys: string[]) => Promise<Record<string, any>>;
   setItem: (value: Record<string, any>) => Promise<boolean>;
   removeItem: (key: string) => Promise<boolean>;
@@ -9,6 +12,7 @@ interface Storage {
 }
 
 export const Storage: Storage = {
+  tabId: null,
   getItem: async (keys: string[]) => {
     const tabId = await Storage.getTabId();
     if (!tabId) {
@@ -16,7 +20,7 @@ export const Storage: Storage = {
       return [];
     }
 
-    const storedData = await chrome.storage.local.get([tabId]);
+    const storedData = await chrome.storage.local.get(tabId);
     const data = storedData[tabId];
 
     if (!data) {
@@ -40,6 +44,8 @@ export const Storage: Storage = {
       console.error('Tab id not found');
       return false;
     }
+
+    console.log('setting item for tab', tabId, value);
 
     const data = await Storage.getStorageForTab(tabId)
 
@@ -101,18 +107,26 @@ export const Storage: Storage = {
     }
   },
   getTabId: async () => {
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
-
-    if (!tabs.length) {
-      return null;
+    if (Storage.tabId) {
+      return Storage.tabId;
     }
 
-    const tabId = tabs[0].id;
-    
-    if (!tabId) {
-      return null
-    }
+    return new Promise((resolve) => {
+      sendMessage('getTabId', {}, (response) => {
+        if (response.status !== 'success') {
+          resolve(null);
+        }
 
-    return tabId?.toString();
+        const body = response.body as { tabId: string };
+        const tabId = body.tabId;
+
+        if (tabId) {
+          Storage.tabId = tabId.toString();
+          resolve(Storage.tabId);
+        } else {
+          resolve(null);
+        }
+      });
+    });
   }
 }

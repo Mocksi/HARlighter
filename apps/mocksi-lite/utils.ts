@@ -288,22 +288,25 @@ const getHTMLElementFromSelector = (
 	return elemToModify;
 };
 
-export const sendMessage = (
+export const sendMessage = async (
 	message: string,
 	body?: Record<string, unknown> | null,
 	callback: (response: Record<string, unknown>) => void = () => {},
 ) => {
 	try {
-		chrome.runtime.sendMessage({ message, body }, (response) => {
-			if (response?.status !== "success") {
-				throw new Error(
-					`Failed to send message to background script. Received response: ${response}`,
-				);
-			}
+		console.log('trying', message, body);
+		const response = await chrome.runtime.sendMessage({ message, body })
+		console.log('response', message, response.status);
+		if (response?.status !== "success") {
+			console.log('error time', message, response.status)
+			throw new Error(
+				`Failed to send message to background script. Received response: ${response}`,
+			);
+		}
 
-			callback(response);
-		});
+		callback(response);
 	} catch (error) {
+		console.log('error time 2', error);
 		console.error("Error sending message to background script:", error);
 		logout();
 	}

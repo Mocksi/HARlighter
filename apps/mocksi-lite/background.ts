@@ -341,7 +341,7 @@ async function getRecordings(): Promise<Recording[]> {
 		});
 
 		if (!response || response.length === 0) {
-			Storage.setItem({ recordings: "[]" });
+			await Storage.setItem({ recordings: "[]" });
 			return [];
 		}
 
@@ -349,8 +349,10 @@ async function getRecordings(): Promise<Recording[]> {
 			a.updated_timestamp > b.updated_timestamp ? -1 : 0,
 		);
 
+		console.log('got recordings in func', sorted);
+
 		const recordings = JSON.stringify(sorted) || "[]";
-		Storage.setItem({ recordings });
+		await Storage.setItem({ recordings });
 
 		return sorted;
 	} catch (err) {
@@ -541,9 +543,12 @@ chrome.runtime.onMessage.addListener(
 			return true;
 		}
 
+		console.log('made it to getRecordings')
 		if (request.message === "getRecordings") {
+			console.log('calling get recordings');
 			getRecordings()
 				.then((recordings) => {
+					console.log('got recordings', recordings);
 					sendResponse({
 						message: "getRecordings",
 						status: "success",
@@ -553,7 +558,7 @@ chrome.runtime.onMessage.addListener(
 				.catch((err) => {
 					sendResponse({
 						message: "getRecordings",
-						status: "error",
+						status: "fail",
 						body: { err },
 					});
 				});
@@ -625,6 +630,12 @@ chrome.runtime.onMessage.addListener(
 					detail: "Invalid ChatResponse body",
 				});
 			}
+			return true;
+		}
+
+		if (request.message === 'getTabId') {
+			const tabId = sender.tab?.id
+			sendResponse({ message: request.message, status: "success", body: { tabId } });
 			return true;
 		}
 
