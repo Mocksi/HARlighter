@@ -13,6 +13,8 @@ import {
 } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 import Toast from "./index";
+import { getHighlighter } from "../EditMode/highlighter";
+import { observeUrlChange } from "../utils/observeUrlChange";
 
 interface PlayToastProps {
 	close: () => void;
@@ -21,6 +23,7 @@ interface PlayToastProps {
 const PlayToast = ({ close }: PlayToastProps) => {
 	const { dispatch } = useContext(AppStateContext);
 	const [alterations, setAlterations] = useState<Alteration[]>([]);
+	const [url, setUrl] = useState<string>(document.location.href);
 
 	useEffect(() => {
 		chrome.storage.local
@@ -35,8 +38,18 @@ const PlayToast = ({ close }: PlayToastProps) => {
 					withHighlights: false,
 					createdAt,
 				});
+
+				observeUrlChange(() => {
+					setUrl(document.location.href);
+				})
 			});
 	}, []);
+
+	useEffect(() => {
+		getHighlighter().removeHighlightNodes();
+		loadPreviousModifications(alterations);
+		loadAlterations(alterations, { withHighlights: false });
+	}, [url])
 
 	const handleEdit = () => {
 		sendMessage("resetIcon");

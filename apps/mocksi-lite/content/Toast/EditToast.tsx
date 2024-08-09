@@ -27,6 +27,7 @@ import { getHighlighter } from "../EditMode/highlighter";
 import { buildQuerySelector } from "../EditMode/utils";
 import IframeWrapper from "../IframeWrapper";
 import Toast from "./index";
+import { observeUrlChange } from "../utils/observeUrlChange";
 
 type EditToastProps = {
 	initialReadOnlyState?: boolean;
@@ -38,24 +39,6 @@ export type ApplyAlteration = (
 	cleanPattern: string,
 	type: "text" | "image",
 ) => void;
-
-const observeUrlChange = (onChange: () => void) => {
-	let oldHref = document.location.href;
-	const body = document.querySelector("body");
-
-	if (!body) {
-		console.error("body not found");
-		return;
-	}
-
-	const observer = new MutationObserver((mutations) => {
-		if (oldHref !== document.location.href) {
-			oldHref = document.location.href;
-			onChange();
-		}
-	});
-	observer.observe(body, { childList: true, subtree: true });
-};
 
 const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const { dispatch, state } = useContext(AppStateContext);
