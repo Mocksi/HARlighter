@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { Alteration } from "../../background";
 import { CloseButton } from "../../common/Button";
 import TextField from "../../common/TextField";
@@ -8,7 +8,6 @@ import {
 	MOCKSI_RECORDING_ID,
 } from "../../consts";
 import {
-	getAlterations,
 	loadAlterations,
 	loadPreviousModifications,
 	persistModifications,
@@ -23,6 +22,7 @@ import {
 	applyReadOnlyMode,
 	disableReadOnlyMode,
 } from "../EditMode/editMode";
+import { openImageUploadModal } from "../EditMode/editMode";
 import { getHighlighter } from "../EditMode/highlighter";
 import { buildQuerySelector } from "../EditMode/utils";
 import IframeWrapper from "../IframeWrapper";
@@ -36,7 +36,7 @@ export type ApplyAlteration = (
 	element: HTMLElement,
 	newText: string,
 	cleanPattern: string,
-	type: "text" | "image",
+	type: "image" | "text",
 ) => void;
 
 const observeUrlChange = (onChange: () => void) => {
@@ -59,14 +59,17 @@ const observeUrlChange = (onChange: () => void) => {
 
 const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const { dispatch, state } = useContext(AppStateContext);
-
+	const modalOpenRef = useRef(-1);
 	const [areChangesHighlighted, setAreChangesHighlighted] = useState(true);
 	const [isReadOnlyModeEnabled, setIsReadOnlyModeEnabled] = useState(
 		initialReadOnlyState ?? true,
 	);
 	const [alterations, setAlterations] = useState<Alteration[]>([]);
-	const [recordingId, setRecordingId] = useState<string | null>(null);
+	const [recordingId, setRecordingId] = useState<null | string>(null);
 	const [url, setUrl] = useState<string>(document.location.href);
+	const [imgSrcMap, setImgSrcMap] = useState<
+		Record<number, Record<string, string>>
+	>({});
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: only run this on mount
 	useEffect(() => {
@@ -106,6 +109,37 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		loadAlterations(alterations, { withHighlights: areChangesHighlighted });
 	}, [url]);
 
+	function setDemoSrc(i: number | string, demoSrc: string) {
+		setImgSrcMap((prevState) => {
+			return {
+				...prevState,
+				[i]: {
+					// @ts-ignore
+					...prevState[i],
+					demoSrc,
+				},
+			};
+		});
+	}
+
+	function undoImgEdits() {
+		return new Promise<void>((resolve) => {
+			const images = document.images;
+			if (!images.length) {
+				return;
+			}
+			for (let i = 0; i < images.length; i++) {
+				const image = images[i];
+				console.log(image);
+				const src: string = imgSrcMap[i].originalSrc;
+				if (src) {
+					image.src = imgSrcMap[i]?.originalSrc;
+				}
+			}
+			resolve();
+		});
+	}
+
 	const setupEditor = async () => {
 		sendMessage("attachDebugger");
 
@@ -125,8 +159,54 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 			applyReadOnlyMode();
 		}
 
-		document.body.addEventListener("dblclick", onDoubleClickText);
+		const images = document.images;
+		const tempImageSrcMap: Record<
+			number,
+			{ demoSrc: string; index: string; originalSrc: string }
+		> = {};
 
+		for (let i = 0; i < images.length; i++) {
+			const image = images[i];
+
+			if (image.style.display !== "none" || image.checkVisibility()) {
+				tempImageSrcMap[i] = {
+					demoSrc: "",
+					index: i.toString(),
+					originalSrc: image.src,
+				};
+
+				image.setAttribute("data-mocksi-img", i.toString());
+				const parent = image.parentNode;
+				image.setAttribute("listener", "true");
+
+				parent?.addEventListener(
+					"dblclick",
+					(event) => {
+						event.stopPropagation();
+						if (modalOpenRef.current !== i) {
+							openImageUploadModal(image, setDemoSrc);
+							modalOpenRef.current = i;
+						}
+					},
+					false,
+				);
+
+				image.addEventListener(
+					"dblclick",
+					(event) => {
+						event.stopPropagation();
+						if (modalOpenRef.current !== i) {
+							openImageUploadModal(image, setDemoSrc);
+							modalOpenRef.current = i;
+						}
+					},
+					false,
+				);
+			}
+		}
+
+		// store image srcs on load so we can persist them
+		setImgSrcMap(tempImageSrcMap);
 		return;
 	};
 
@@ -134,8 +214,16 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		sendMessage("detachDebugger");
 
 		if (recordingId) {
+			await chrome.storage.local.set({
+				"mocksi-img-src-map": {
+					imgSrcMap,
+					recording: recordingId,
+				},
+			});
 			await persistModifications(recordingId, alterations);
 		}
+
+		await undoImgEdits();
 
 		undoModifications(alterations);
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
@@ -153,6 +241,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const resetEditor = async () => {
 		sendMessage("detachDebugger");
 
+		await undoImgEdits();
 		undoModifications(alterations);
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 		disableReadOnlyMode();
@@ -169,13 +258,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const onDoubleClickText = useCallback((event: MouseEvent) => {
 		// @ts-ignore MouseEvent typing seems incomplete
 		const nodeName = event?.toElement?.nodeName;
-
-		// if (nodeName === "IMG") {
-		// 	const targetedElement: HTMLImageElement = event.target as HTMLImageElement;
-		// 	console.log("Image clicked", targetedElement.alt);
-		// 	// openImageUploadModal(targetedElement);
-		// 	return;
-		// }
 
 		if (nodeName !== "TEXTAREA") {
 			cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
@@ -206,10 +288,10 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 			const newUncommitted = [
 				...previous,
 				{
-					selector: buildQuerySelector(element, newText),
+					action: "",
 					dom_after: newText,
 					dom_before: cleanPattern,
-					action: "",
+					selector: buildQuerySelector(element, newText),
 					type: type,
 				},
 			];

@@ -3,7 +3,12 @@ import type { ApplyAlteration } from "../Toast/EditToast";
 import { applyImageChanges } from "./actions";
 import { decorate } from "./decorator";
 
-function openImageUploadModal(targetedElement: HTMLImageElement) {
+export function openImageUploadModal(
+	targetedElement: HTMLImageElement,
+	onChange: (i: number | string, src: string) => void,
+) {
+	console.log("targetElement", targetedElement);
+
 	// Create a container for the shadow DOM
 	const modalContainer = document.createElement("div");
 	document.body.appendChild(modalContainer);
@@ -44,13 +49,21 @@ function openImageUploadModal(targetedElement: HTMLImageElement) {
 		const file = imageInput.files?.[0];
 		if (file) {
 			convertImageToDataUri(file)
-				.then((dataUri) => {
-					applyImageChanges(targetedElement, dataUri);
-					closeImageUploadModal();
+				.then((newSrc) => {
+					if (targetedElement.srcset) {
+						targetedElement.removeAttribute("srcset");
+					}
+					targetedElement.src = newSrc;
+					const i = targetedElement.getAttribute("data-mocksi-img");
+					if (i) {
+						onChange(i, newSrc);
+						console.log("after: ", targetedElement);
+					}
 				})
 				.catch((error) => {
 					console.error("Error reading file:", error);
 				});
+			closeImageUploadModal();
 		} else {
 			console.error("No file selected.");
 		}
@@ -60,13 +73,6 @@ function openImageUploadModal(targetedElement: HTMLImageElement) {
 
 	function closeImageUploadModal() {
 		document.body.removeChild(modalContainer);
-	}
-}
-
-function closeImageUploadModal() {
-	const modal = document.getElementById("image-upload-modal");
-	if (modal) {
-		modal.remove();
 	}
 }
 
@@ -83,7 +89,7 @@ function decorateTextTag(
 	text: string,
 	width: string,
 	shiftMode: boolean,
-	{ startOffset, endOffset }: { startOffset: number; endOffset: number },
+	{ endOffset, startOffset }: { endOffset: number; startOffset: number },
 	applyAlteration: ApplyAlteration,
 ) {
 	const fragment = document.createDocumentFragment();
@@ -110,7 +116,7 @@ function decorateTextTag(
 
 export function applyEditor(
 	targetedElement: HTMLElement,
-	selectedRange: Selection | null,
+	selectedRange: null | Selection,
 	shiftMode: boolean,
 	applyAlteration: ApplyAlteration,
 ) {

@@ -70,11 +70,7 @@ const DemoItem = ({
 				>
 					<EditIcon />
 				</Button>
-				<Button
-					disabled={!alterations || !alterations.length}
-					onClick={handlePlay}
-					variant={Variant.icon}
-				>
+				<Button onClick={handlePlay} variant={Variant.icon}>
 					<PlayIcon />
 				</Button>
 			</div>
