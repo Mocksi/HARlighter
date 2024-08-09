@@ -15,8 +15,8 @@ function Draggable({
 }) {
 	const [dragging, setDragging] = React.useState(false);
 	const [transform, setTransform] = React.useState({
-		x: rightOffset,
-		y: topOffset,
+		x: 0,
+		y: 0,
 	});
 
 	const initRef = React.useRef(true);
@@ -96,35 +96,32 @@ function Draggable({
 				);
 				setTransform(validTransform);
 			}
-		}, 5);
+		}, 10);
 
 	const initFromStorage = React.useCallback(async () => {
-		if (window.innerWidth < 1000) {
-			setTransform({
-				x: -rightOffset,
-				y: topOffset,
-			});
-		} else {
-			const results = await chrome.storage.local.get([MOCKSI_POPUP_LOCATION]);
-			const storedTransform = results[MOCKSI_POPUP_LOCATION];
-			if (storedTransform) {
-				setTransform(storedTransform);
-			}
+		const results = await chrome.storage.local.get([MOCKSI_POPUP_LOCATION]);
+		const storedTransform = results[MOCKSI_POPUP_LOCATION];
+		if (storedTransform) {
+			prevTransform.current = storedTransform;
+			setTransform(storedTransform);
 		}
 	}, []);
 
 	React.useEffect(() => {
 		if (initRef.current) {
+			if (dragElRef.current?.style) {
+				dragElRef.current.style.opacity = "0";
+			}
 			initFromStorage();
 			window.addEventListener("mouseup", stopDragging);
 			window.addEventListener("mouseleave", stopDragging);
-
 			initRef.current = false;
 		} else {
 			if (!dragging) {
 				persistTransform();
 			}
 			if (dragElRef.current?.style) {
+				dragElRef.current.style.opacity = "1";
 				dragElRef.current.style.transform = `translate(${transform.x}px, ${transform.y}px)`;
 			}
 		}
@@ -137,7 +134,7 @@ function Draggable({
 
 	return (
 		<div
-			className={`${className ?? ""}·mw-ease-in-out`}
+			className={`${className ?? ""}`}
 			onMouseDown={() => setDragging(true)}
 			onMouseLeave={stopDragging}
 			onMouseMove={updateTransformOnDrag}
