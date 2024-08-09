@@ -39,14 +39,10 @@ const DemoItem = ({
 			[MOCKSI_RECORDING_CREATED_AT]: created_timestamp,
 			[MOCKSI_RECORDING_ID]: uuid,
 		});
+		
+		sendMessage("updateToPauseIcon");
 
-		if (window.location.href === url) {
-			sendMessage("updateToPauseIcon");
-
-			dispatch({ event: AppEvent.START_PLAYING });
-		} else {
-			sendMessage("playMode", { url });
-		}
+		dispatch({ event: AppEvent.START_PLAYING });
 	};
 
 	return (
