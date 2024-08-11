@@ -19,6 +19,22 @@ import ContentApp from "./ContentApp";
 
 let root: ReactDOM.Root;
 
+async function handlePlayState() {
+	const alterations = await getAlterations();
+
+	if (alterations?.length) {
+		loadAlterations(alterations, { withHighlights: false });
+	}
+}
+
+async function handleEditState() {
+	const alterations = await getAlterations();
+
+	if (alterations?.length) {
+		loadAlterations(alterations, { withHighlights: true });
+	}
+}
+
 function initial() {
 	const rootDiv =
 		document.getElementById("extension-root") || document.createElement("div");
@@ -26,16 +42,16 @@ function initial() {
 	document.body.appendChild(rootDiv);
 
 	// TODO: explore if we can auto open extension for hard navigation sites
-	// chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
-	// 	const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
-	// 	if (appState === AppState.PLAY) {
-	// 		handlePlayState();
-	// 	}
+	chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
+		const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
+		if (appState === AppState.PLAY) {
+			handlePlayState();
+		}
 
-	// 	if (appState === AppState.EDITING) {
-	// 		handleEditState();
-	// 	}
-	// });
+		if (appState === AppState.EDITING) {
+			handleEditState();
+		}
+	});
 }
 
 document.addEventListener("DOMContentLoaded", initial);
