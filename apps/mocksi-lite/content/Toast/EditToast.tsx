@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { Alteration } from "../../background";
 import { CloseButton } from "../../common/Button";
 import TextField from "../../common/TextField";
@@ -39,6 +39,15 @@ export type ApplyAlteration = (
 	type: "text" | "image",
 ) => void;
 
+const useDidMountEffect = (func: () => void, deps: any[]) => {
+    const didMount = useRef(false);
+
+    useEffect(() => {
+        if (didMount.current) func();
+        else didMount.current = true;
+    }, deps);
+}
+
 const observeUrlChange = (onChange: () => void) => {
 	let oldHref = document.location.href;
 	const body = document.querySelector("body");
@@ -70,6 +79,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: only run this on mount
 	useEffect(() => {
+
 		// get alterations that were set in DemoItem.tsx and load them into state
 		chrome.storage.local
 			.get([MOCKSI_ALTERATIONS, MOCKSI_RECORDING_ID])
@@ -86,7 +96,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 					setAlterations(storedAlterations);
 				}
 
-				// TODO: would be nice if it was like loadAlterations(alterations, { withHighlights: true })
 				loadAlterations(storedAlterations, {
 					withHighlights: areChangesHighlighted,
 				});
@@ -100,7 +109,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 
 	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
 	// biome-ignore lint/correctness/useExhaustiveDependencies: we dont use the url but want to run this whenever it changes
-	useEffect(() => {
+	useDidMountEffect(() => {
 		getHighlighter().removeHighlightNodes();
 		loadPreviousModifications(alterations);
 		loadAlterations(alterations, { withHighlights: areChangesHighlighted });
@@ -112,16 +121,15 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		// Whenever the url changes, we want to update the url in state which triggers the
 		// use effect that removes the highlights and reloads the alterations
 		observeUrlChange(() => {
-			setUrl(document.location.href);
+			if (url !== document.location.href) {
+				setUrl(document.location.href);
+			}
 		});
 
 		const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
 
 		// If value exists and is true or if the value doesn't exist at all, apply read-only mode
-		if (
-			results[MOCKSI_READONLY_STATE] === undefined ||
-			results[MOCKSI_READONLY_STATE]
-		) {
+		if (results[MOCKSI_READONLY_STATE]) {
 			applyReadOnlyMode();
 		}
 

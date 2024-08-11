@@ -1,6 +1,7 @@
 import ReactDOM from "react-dom/client";
 import type { Recording } from "../background";
 import {
+	MOCKSI_ALTERATIONS,
 	MOCKSI_AUTH,
 	MOCKSI_READONLY_STATE,
 	MOCKSI_RECORDING_STATE,
@@ -11,6 +12,7 @@ import {
 	getAlterations,
 	getEmail,
 	loadAlterations,
+	loadPreviousModifications,
 	sendMessage,
 	setRootPosition,
 } from "../utils";
