@@ -39,14 +39,18 @@ export type ApplyAlteration = (
 	type: "text" | "image",
 ) => void;
 
+// biome-ignore lint/suspicious/noExplicitAny: any is used for deps which could be functions, arrays, strings, etc.
 const useDidMountEffect = (func: () => void, deps: any[]) => {
-    const didMount = useRef(false);
+	const didMount = useRef(false);
 
-    useEffect(() => {
-        if (didMount.current) func();
-        else didMount.current = true;
-    }, deps);
-}
+	useEffect(() => {
+		if (didMount.current) {
+			func();
+		} else {
+			didMount.current = true;
+		}
+	}, [func, ...deps]);
+};
 
 const observeUrlChange = (onChange: () => void) => {
 	let oldHref = document.location.href;
@@ -79,7 +83,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: only run this on mount
 	useEffect(() => {
-
 		// get alterations that were set in DemoItem.tsx and load them into state
 		chrome.storage.local
 			.get([MOCKSI_ALTERATIONS, MOCKSI_RECORDING_ID])
@@ -108,7 +111,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	}, []);
 
 	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
-	// biome-ignore lint/correctness/useExhaustiveDependencies: we dont use the url but want to run this whenever it changes
+	// useDidMountEffect allows us to run this only _after_ the component has mounted and not on the initial render
 	useDidMountEffect(() => {
 		getHighlighter().removeHighlightNodes();
 		loadPreviousModifications(alterations);
