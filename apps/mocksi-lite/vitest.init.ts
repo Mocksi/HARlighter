@@ -1,6 +1,7 @@
 import * as matchers from "@testing-library/jest-dom/matchers";
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
+import { JSDOM } from "jsdom";
 import { afterEach, expect } from "vitest";
 import { vi } from "vitest";
 
@@ -17,12 +18,4 @@ const ChromeMock = {
   },
 };
 
-vi.stubGlobal("document", window.document);
-
 vi.stubGlobal("chrome", ChromeMock);
-
-expect.extend(matchers);
-
-afterEach(() => {
-  cleanup();
-});

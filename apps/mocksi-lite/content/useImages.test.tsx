@@ -11,9 +11,7 @@ describe("useImages hook", () => {
   }
   const container = document.createElement("div");
 
-  beforeEach(() => {
-    render(<MountComponent />);
-  });
+  beforeEach(() => {});
 
   afterEach(() => {
     // cleanup on exiting
@@ -23,8 +21,10 @@ describe("useImages hook", () => {
   });
 
   it("", async () => {
-    window.location.href = "https://en.wikipedia.org";
-    vi.spyOn(window, "location", "get");
+    global.jsdom.fromURL("https://en.wikipedia.org", {}).then((dom) => {
+      console.log(dom.serialize());
+    });
+
     await chrome.storage.local.set(
       {
         "mocksi-images": {
@@ -37,6 +37,8 @@ describe("useImages hook", () => {
         console.log();
       },
     );
+
+    render(<MountComponent />);
 
     expect(true).toBeTruthy();
   });
