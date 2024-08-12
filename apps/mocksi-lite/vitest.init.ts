@@ -3,16 +3,16 @@ import { JSDOM } from "jsdom";
 import { vi } from "vitest";
 
 const ChromeMock = {
-  storage: {
-    local: {
-      get: vi.fn().mockImplementation((storage) => {
-        return storage;
-      }),
-      set: vi.fn().mockImplementation((storage) => {
-        return storage;
-      }),
-    },
-  },
+	storage: {
+		local: {
+			get: vi.fn().mockImplementation((storage) => {
+				return storage;
+			}),
+			set: vi.fn().mockImplementation((storage) => {
+				return storage;
+			}),
+		},
+	},
 };
 
 vi.stubGlobal("chrome", ChromeMock);
