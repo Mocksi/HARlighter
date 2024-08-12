@@ -15,7 +15,6 @@ const Form = ({ onCancel, onSubmit }: FormProps) => {
 
 	const handleSubmit = async () => {
 		sendMessage("createDemo", { customer_name: customer, demo_name: name }, (response) => {
-			console.log('response', response);
 			if (response && response.status === 'success') {
 				onSubmit();
 			}
