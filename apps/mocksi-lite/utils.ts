@@ -122,10 +122,11 @@ export const loadAlterations = async (
 	for (const alteration of alterations) {
 		const { selector, dom_after, dom_before, type } = alteration;
 		const elemToModify = getHTMLElementFromSelector(selector);
-		if (elemToModify) {
+		const body = document.querySelector("body");
+		if (body) {
 			if (type === "text") {
 				domManipulator.iterateAndReplace(
-					elemToModify as Node,
+					body as Node,
 					new RegExp(dom_before, "gi"),
 					sanitizeHtml(dom_after),
 					withHighlights,
