@@ -109,7 +109,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		} catch (err) {
 			console.error("Error persisting alterations", err);
 		}
-	}, [alterations])
+	}, [alterations]);
 
 	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
 	// useDidMountEffect allows us to run this only _after_ the component has mounted and not on the initial render
