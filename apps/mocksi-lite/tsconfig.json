@@ -25,7 +25,9 @@
 			"node_modules/@chrome",
 		],
 		"types": [
-			"chrome"
+			"chrome",
+			"vitest/globals",
+			"@testing-library/jest-dom"
 		]
 	},
 	"exclude": [

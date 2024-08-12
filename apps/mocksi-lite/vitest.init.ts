@@ -19,3 +19,9 @@ const ChromeMock = {
 };
 
 vi.stubGlobal("chrome", ChromeMock);
+
+const jsdom = new JSDOM("<!doctype html><html><body></body></html>");
+const { window } = jsdom;
+
+global.window = window as typeof globalThis;
+global.jsdom = jsdom;

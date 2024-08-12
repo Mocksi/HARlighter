@@ -21,10 +21,7 @@ describe("useImages hook", () => {
   });
 
   it("", async () => {
-    global.jsdom.fromURL("https://en.wikipedia.org", {}).then((dom) => {
-      console.log(dom.serialize());
-    });
-
+    console.log(window);
     await chrome.storage.local.set(
       {
         "mocksi-images": {
