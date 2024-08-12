@@ -17,7 +17,9 @@ export const buildQuerySelector = (
 		keyToSave += `#${id}`;
 	}
 	if (classList.length) {
-		const filteredClasses = [...classList].filter((cls) => !cls.includes(":"));
+		const filteredClasses = [...classList].filter(
+			(cls) => !(cls.includes(":") || cls.includes(".")),
+		);
 		keyToSave += `.${filteredClasses.join(".")}`;
 	}
 	let elements: NodeListOf<Element>;
