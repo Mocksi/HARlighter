@@ -160,6 +160,7 @@ export class DOMManipulator {
 		saveModification: SaveModification,
 	) => {
 		const matches = this.getMatches(textNode, oldTextPattern);
+
 		if (matches.length > 0) {
 			const fragmentedTextNode = fragmentTextNode(
 				fragmentsToHighlight,
