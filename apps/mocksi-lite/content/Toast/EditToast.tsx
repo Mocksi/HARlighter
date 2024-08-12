@@ -50,7 +50,7 @@ function useDidMountEffect<T>(func: () => void, deps: Array<T>) {
 			didMount.current = true;
 		}
 	}, [func, ...deps]);
-};
+}
 
 const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const { dispatch, state } = useContext(AppStateContext);
