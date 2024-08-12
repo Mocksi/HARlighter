@@ -33,6 +33,9 @@ importers:
 
   apps/mocksi-lite:
     dependencies:
+      '-':
+        specifier: ^0.0.1
+        version: 0.0.1
       '@repo/dodom':
         specifier: workspace:*
         version: link:../../packages/dodom
@@ -103,9 +106,6 @@ importers:
       extension:
         specifier: 1.8.0
         version: 1.8.0(browserslist@4.23.2)(type-fest@0.21.3)(typescript@5.3.3)
-      global-jsdom:
-        specifier: ^24.0.0
-        version: 24.0.0(jsdom@24.1.0)
       jsdom:
         specifier: ^24.1.0
         version: 24.1.0
@@ -124,9 +124,6 @@ importers:
       vitest:
         specifier: ^2.0.1
         version: 2.0.2(@types/node@20.14.10)(jsdom@24.1.0)(less@4.2.0)(sass@1.77.8)(terser@5.31.2)
-      vitest-chrome:
-        specifier: ^0.1.0
-        version: 0.1.0
       xslt-processor:
         specifier: ^3.0.0
         version: 3.0.1
@@ -301,6 +298,9 @@ importers:
         version: 5.3.3
 
 packages:
+
+  '-@0.0.1':
+    resolution: {integrity: sha512-3HfneK3DGAm05fpyj20sT3apkNcvPpCuccOThOPdzz8sY7GgQGe0l93XH9bt+YzibcTIgUAIMoyVJI740RtgyQ==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -1734,9 +1734,6 @@ packages:
 
   '@types/bonjour@3.5.13':
     resolution: {integrity: sha512-z9fJ5Im06zvUL548KvYNecEVlA7cVDkGUi6kZusb04mpyEFKCIZJvloCcmpmLaIahDpOQGHaHmG6imtPMmPXGQ==}
-
-  '@types/chrome@0.0.114':
-    resolution: {integrity: sha512-i7qRr74IrxHtbnrZSKUuP5Uvd5EOKwlwJq/yp7+yTPihOXnPhNQO4Z5bqb1XTnrjdbUKEJicaVVbhcgtRijmLA==}
 
   '@types/chrome@0.0.259':
     resolution: {integrity: sha512-WP1HsLqKgoUwR/4dYiTfmOSUG5B05+xrPLbqboO15nuaUC+aBYxwB9ixVyLPYY9D+vocJK9rzH5g1lpqVrJqhg==}
@@ -3498,12 +3495,6 @@ packages:
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
     deprecated: Glob versions prior to v9 are no longer supported
-
-  global-jsdom@24.0.0:
-    resolution: {integrity: sha512-CARBUWkqZ3O9VOc2PIVE5kQpdQeJh9eF9kQ7zSeNtmqx5vAFDKMr9XnDt1epVMMrz1s9uK/yFCa4HLwpa6TcPA==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      jsdom: '>=24 <25'
 
   global-modules@2.0.0:
     resolution: {integrity: sha512-NGbfmJBp9x8IxyJSd1P+otYK8vonoJactOogrVfFRIAEY1ukil8RSKDz2Yo7wh1oihl51l/r6W4epkeKJHqL8A==}
@@ -6087,9 +6078,6 @@ packages:
       terser:
         optional: true
 
-  vitest-chrome@0.1.0:
-    resolution: {integrity: sha512-Bs1uywAolbc46h2tcaETQyFMTnOHjSA85iH10Zoe8ZMEl/71nuSdxs3z+KMxVZtN88TEgWicnl5vmbDO1OhoEw==}
-
   vitest@1.6.0:
     resolution: {integrity: sha512-H5r/dN06swuFnzNFhq/dnz37bPXnq8xB2xB5JOVk8K09rUtoeNN+LHWkoQ0A/i3hvbUKKcCei9KpbxqHMLhLLA==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -6470,6 +6458,8 @@ packages:
     engines: {node: '>=12.20'}
 
 snapshots:
+
+  '-@0.0.1': {}
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -8106,11 +8096,6 @@ snapshots:
   '@types/bonjour@3.5.13':
     dependencies:
       '@types/node': 20.14.10
-
-  '@types/chrome@0.0.114':
-    dependencies:
-      '@types/filesystem': 0.0.36
-      '@types/har-format': 1.2.15
 
   '@types/chrome@0.0.259':
     dependencies:
@@ -10376,10 +10361,6 @@ snapshots:
       minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
-
-  global-jsdom@24.0.0(jsdom@24.1.0):
-    dependencies:
-      jsdom: 24.1.0
 
   global-modules@2.0.0:
     dependencies:
@@ -13142,10 +13123,6 @@ snapshots:
       less: 4.2.0
       sass: 1.77.8
       terser: 5.31.2
-
-  vitest-chrome@0.1.0:
-    dependencies:
-      '@types/chrome': 0.0.114
 
   vitest@1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(less@4.2.0)(sass@1.77.8)(terser@5.31.2):
     dependencies:
