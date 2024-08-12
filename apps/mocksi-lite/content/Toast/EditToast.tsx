@@ -103,6 +103,14 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		};
 	}, []);
 
+	useEffect(() => {
+		try {
+			chrome.storage.local.set({ [MOCKSI_ALTERATIONS]: alterations });
+		} catch (err) {
+			console.error("Error persisting alterations", err);
+		}
+	}, [alterations])
+
 	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
 	// useDidMountEffect allows us to run this only _after_ the component has mounted and not on the initial render
 	useDidMountEffect(() => {
