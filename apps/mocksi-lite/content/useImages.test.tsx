@@ -1,42 +1,45 @@
 import "@testing-library/jest-dom";
-import { render } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach } from "node:test";
+import { act, renderHook } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import useImages from "./useImages";
 
 describe("useImages hook", () => {
-  function MountComponent() {
-    const images = useImages();
+	afterEach(() => {
+		document.body.innerHTML = "";
+	});
 
-    return <div>{JSON.stringify(images)}</div>;
-  }
-  const container = document.createElement("div");
+	// TODO: expand on or remove test
+	it("sets image state (trivial example just to get tests going)", async () => {
+		const img = document.createElement("img");
+		img.src = "https://example.com";
+		document.body.appendChild(img);
 
-  beforeEach(() => {});
+		expect(document.body.childElementCount).toBe(1);
 
-  afterEach(() => {
-    // cleanup on exiting
-    if (container) {
-      container.remove();
-    }
-  });
+		const { result } = renderHook(useImages);
+		expect(result.current.edits).toStrictEqual({});
 
-  it("", async () => {
-    console.log(window);
-    await chrome.storage.local.set(
-      {
-        "mocksi-images": {
-          "en.wikipedia.org": {
-            [""]: {},
-          },
-        },
-      },
-      () => {
-        console.log();
-      },
-    );
+		const imageEditRecord = {
+			demoSrc: "https://test.com/img",
+			index: "1",
+			originalSrc: "https://example.com/assets/cat-img",
+		};
 
-    render(<MountComponent />);
+		act(() =>
+			result.current.setEdits({
+				[1]: imageEditRecord,
+			}),
+		);
 
-    expect(true).toBeTruthy();
-  });
+		expect(result.current.edits).toEqual({
+			[1]: imageEditRecord,
+		});
+	});
+
+	it("handles empty chrome storage gracefully", async () => {
+		const { result } = renderHook(useImages);
+		const edits = await result.current.getStoredEdits();
+		expect(edits).toBeUndefined();
+	});
 });
