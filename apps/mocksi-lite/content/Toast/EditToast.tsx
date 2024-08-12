@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { Alteration } from "../../background";
 import { CloseButton } from "../../common/Button";
 import TextField from "../../common/TextField";
@@ -40,6 +40,18 @@ export type ApplyAlteration = (
 	type: "text" | "image",
 ) => void;
 
+function useDidMountEffect<T>(func: () => void, deps: Array<T>) {
+	const didMount = useRef(false);
+
+	useEffect(() => {
+		if (didMount.current) {
+			func();
+		} else {
+			didMount.current = true;
+		}
+	}, [func, ...deps]);
+}
+
 const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const { dispatch, state } = useContext(AppStateContext);
 
@@ -69,7 +81,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 					setAlterations(storedAlterations);
 				}
 
-				// TODO: would be nice if it was like loadAlterations(alterations, { withHighlights: true })
 				loadAlterations(storedAlterations, {
 					withHighlights: areChangesHighlighted,
 				});
@@ -91,9 +102,17 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		};
 	}, []);
 
-	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
-	// biome-ignore lint/correctness/useExhaustiveDependencies: we dont use the url but want to run this whenever it changes
 	useEffect(() => {
+		try {
+			chrome.storage.local.set({ [MOCKSI_ALTERATIONS]: alterations });
+		} catch (err) {
+			console.error("Error persisting alterations", err);
+		}
+	}, [alterations]);
+
+	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
+	// useDidMountEffect allows us to run this only _after_ the component has mounted and not on the initial render
+	useDidMountEffect(() => {
 		getHighlighter().removeHighlightNodes();
 		loadPreviousModifications(alterations);
 		loadAlterations(alterations, { withHighlights: areChangesHighlighted });
@@ -105,10 +124,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
 
 		// If value exists and is true or if the value doesn't exist at all, apply read-only mode
-		if (
-			results[MOCKSI_READONLY_STATE] === undefined ||
-			results[MOCKSI_READONLY_STATE]
-		) {
+		if (results[MOCKSI_READONLY_STATE]) {
 			applyReadOnlyMode();
 		}
 
