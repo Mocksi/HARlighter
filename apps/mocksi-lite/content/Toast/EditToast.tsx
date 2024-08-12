@@ -8,6 +8,7 @@ import {
 	MOCKSI_RECORDING_ID,
 } from "../../consts";
 import {
+	getAlterations,
 	loadAlterations,
 	loadPreviousModifications,
 	persistModifications,
@@ -25,7 +26,7 @@ import {
 import { getHighlighter } from "../EditMode/highlighter";
 import { buildQuerySelector } from "../EditMode/utils";
 import IframeWrapper from "../IframeWrapper";
-import useImages from "../useImages";
+import { observeUrlChange } from "../utils/observeUrlChange";
 import Toast from "./index";
 
 type EditToastProps = {
@@ -36,36 +37,30 @@ export type ApplyAlteration = (
 	element: HTMLElement,
 	newText: string,
 	cleanPattern: string,
-	type: "image" | "text",
+	type: "text" | "image",
 ) => void;
 
-const observeUrlChange = (onChange: () => void) => {
-	let oldHref = document.location.href;
-	const body = document.querySelector("body");
+function useDidMountEffect<T>(func: () => void, deps: Array<T>) {
+	const didMount = useRef(false);
 
-	if (!body) {
-		console.error("body not found");
-		return;
-	}
-
-	const observer = new MutationObserver((mutations) => {
-		if (oldHref !== document.location.href) {
-			oldHref = document.location.href;
-			onChange();
+	useEffect(() => {
+		if (didMount.current) {
+			func();
+		} else {
+			didMount.current = true;
 		}
-	});
-	observer.observe(body, { childList: true, subtree: true });
-};
+	}, [func, ...deps]);
+}
 
 const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
-	const images = useImages();
 	const { dispatch, state } = useContext(AppStateContext);
+
 	const [areChangesHighlighted, setAreChangesHighlighted] = useState(true);
 	const [isReadOnlyModeEnabled, setIsReadOnlyModeEnabled] = useState(
 		initialReadOnlyState ?? true,
 	);
 	const [alterations, setAlterations] = useState<Alteration[]>([]);
-	const [recordingId, setRecordingId] = useState<null | string>(null);
+	const [recordingId, setRecordingId] = useState<string | null>(null);
 	const [url, setUrl] = useState<string>(document.location.href);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: only run this on mount
@@ -95,11 +90,29 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 			.catch((err) => {
 				console.error("error fetching alterations", err);
 			});
+
+		// Whenever the url changes, we want to update the url in state which triggers the
+		// use effect that removes the highlights and reloads the alterations
+		const disconnect = observeUrlChange(() => {
+			setUrl(document.location.href);
+		});
+
+		return () => {
+			disconnect();
+		};
 	}, []);
 
-	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
-	// biome-ignore lint/correctness/useExhaustiveDependencies: we dont use the url but want to run this whenever it changes
 	useEffect(() => {
+		try {
+			chrome.storage.local.set({ [MOCKSI_ALTERATIONS]: alterations });
+		} catch (err) {
+			console.error("Error persisting alterations", err);
+		}
+	}, [alterations]);
+
+	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
+	// useDidMountEffect allows us to run this only _after_ the component has mounted and not on the initial render
+	useDidMountEffect(() => {
 		getHighlighter().removeHighlightNodes();
 		loadPreviousModifications(alterations);
 		loadAlterations(alterations, { withHighlights: areChangesHighlighted });
@@ -108,27 +121,24 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const setupEditor = async () => {
 		sendMessage("attachDebugger");
 
-		// Whenever the url changes, we want to update the url in state which triggers the
-		// use effect that removes the highlights and reloads the alterations
-		observeUrlChange(() => {
-			setUrl(document.location.href);
-		});
-
 		const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
 
 		// If value exists and is true or if the value doesn't exist at all, apply read-only mode
-		if (
-			results[MOCKSI_READONLY_STATE] === undefined ||
-			results[MOCKSI_READONLY_STATE]
-		) {
+		if (results[MOCKSI_READONLY_STATE]) {
 			applyReadOnlyMode();
 		}
+
+		document.body.addEventListener("dblclick", onDoubleClickText);
 
 		return;
 	};
 
 	const teardownEditor = async () => {
 		sendMessage("detachDebugger");
+
+		if (recordingId) {
+			await persistModifications(recordingId, alterations);
+		}
 
 		undoModifications(alterations);
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
@@ -163,6 +173,13 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		// @ts-ignore MouseEvent typing seems incomplete
 		const nodeName = event?.toElement?.nodeName;
 
+		// if (nodeName === "IMG") {
+		// 	const targetedElement: HTMLImageElement = event.target as HTMLImageElement;
+		// 	console.log("Image clicked", targetedElement.alt);
+		// 	// openImageUploadModal(targetedElement);
+		// 	return;
+		// }
+
 		if (nodeName !== "TEXTAREA") {
 			cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 
@@ -192,10 +209,10 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 			const newUncommitted = [
 				...previous,
 				{
-					action: "",
+					selector: buildQuerySelector(element, newText),
 					dom_after: newText,
 					dom_before: cleanPattern,
-					selector: buildQuerySelector(element, newText),
+					action: "",
 					type: type,
 				},
 			];

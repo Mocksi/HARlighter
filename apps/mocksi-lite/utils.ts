@@ -20,9 +20,9 @@ import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
 
 type DomAlteration = {
-	type: "text" | "image";
 	newValue: string;
 	oldValue: string;
+	type: "image" | "text";
 };
 
 type DOMModificationsType = {
@@ -30,15 +30,15 @@ type DOMModificationsType = {
 };
 
 const authOptions: auth0.AuthOptions = {
-	domain: "dev-3lgt71qosvm4psf0.us.auth0.com",
+	audience: "Mocksi Lite",
 	clientID: "3XDxVDUz3W3038KmRvkJSjkIs5mGj7at",
+	domain: "dev-3lgt71qosvm4psf0.us.auth0.com",
 	redirectUri: "https://nest-auth-ts-merge.onrender.com",
 	// TODO: change to include offline_access, see https://github.com/Mocksi/nest/pull/10#discussion_r1635647560
 	responseType: "id_token token",
-	audience: "Mocksi Lite",
 };
 
-export const setRootPosition = (state: AppState | null) => {
+export const setRootPosition = (state: null | AppState) => {
 	const extensionRoot = document.getElementById("extension-root");
 	if (extensionRoot) {
 		const bottom =
@@ -73,9 +73,9 @@ export const persistModifications = async (
 ) => {
 	const updated_timestamp = new Date();
 	await updateRecordingsStorage({
-		uuid: recordingId,
-		updated_timestamp,
 		alterations,
+		updated_timestamp,
+		uuid: recordingId,
 	});
 
 	// Return a promise here so we can "await" the response
@@ -85,7 +85,7 @@ export const persistModifications = async (
 			"updateDemo",
 			{
 				id: recordingId,
-				recording: { updated_timestamp, alterations },
+				recording: { alterations, updated_timestamp },
 			},
 			(response) => {
 				resolve(response);
@@ -102,10 +102,10 @@ export const undoModifications = async (alterations: Alteration[]) => {
 
 // v2 of loading alterations, this is from backend
 export const loadAlterations = async (
-	alterations: Alteration[] | null,
-	options: { withHighlights: boolean; createdAt?: Date },
+	alterations: null | Alteration[],
+	options: { createdAt?: Date; withHighlights: boolean },
 ) => {
-	const { withHighlights, createdAt } = options;
+	const { createdAt, withHighlights } = options;
 
 	if (!alterations?.length) {
 		// FIXME: we should warn the user that there are no alterations for this demo
@@ -120,13 +120,14 @@ export const loadAlterations = async (
 	);
 
 	for (const alteration of alterations) {
-		const { selector, dom_after, dom_before, type } = alteration;
+		const { dom_after, dom_before, selector, type } = alteration;
 		const elemToModify = getHTMLElementFromSelector(selector);
-		if (elemToModify) {
+		const body = document.querySelector("body");
+		if (body) {
 			if (type === "text") {
 				domManipulator.iterateAndReplace(
-					elemToModify as Node,
-					new RegExp(dom_before, "gi"),
+					body as Node,
+					new RegExp(dom_before, "g"),
 					sanitizeHtml(dom_after),
 					withHighlights,
 				);
@@ -148,7 +149,7 @@ export const loadAlterations = async (
 				const date = parseDate(text);
 				if (date) {
 					const selector = getCssSelector(span);
-					timestamps.push({ selector, date });
+					timestamps.push({ date, selector });
 				}
 			}
 		}
@@ -156,7 +157,7 @@ export const loadAlterations = async (
 		return timestamps;
 	}
 
-	function parseDate(dateText: string): Date | null {
+	function parseDate(dateText: string): null | Date {
 		const currentYear = new Date().getFullYear();
 		const fullDateText = `${dateText}, ${currentYear}`;
 		const date = new Date(fullDateText);
@@ -195,11 +196,11 @@ export const loadAlterations = async (
 			const userRequest = JSON.stringify({
 				modifications: [
 					{
-						selector: timestamp.selector,
 						action: "updateTimestampReferences",
+						selector: timestamp.selector,
 						timestampRef: {
-							recordedAt: createdAt?.toString(),
 							currentTime: now.toISOString(),
+							recordedAt: createdAt?.toString(),
 						},
 					},
 				],
@@ -234,7 +235,7 @@ export const loadAlterations = async (
 // this should be called "revertModifications"
 export const loadPreviousModifications = (alterations: Alteration[]) => {
 	for (const alteration of alterations) {
-		const { selector, dom_before, dom_after, type } = alteration;
+		const { dom_after, dom_before, selector, type } = alteration;
 
 		const sanitizedOldValue = sanitizeHtml(dom_before);
 		const elemToModify = getHTMLElementFromSelector(selector);
@@ -252,8 +253,8 @@ export const loadPreviousModifications = (alterations: Alteration[]) => {
 
 const formatQuerySelector = (
 	rawSelector: string,
-	valueInQuerySelector: RegExpMatchArray | null,
-	hasIndex: RegExpMatchArray | null,
+	valueInQuerySelector: null | RegExpMatchArray,
+	hasIndex: null | RegExpMatchArray,
 ) => {
 	// querySelector format {htmlElementType}#{elementId}.{elementClassnames}[${elementIndexIfPresent}]{{newValue}}
 	const [index] = hasIndex || [""];
@@ -263,7 +264,7 @@ const formatQuerySelector = (
 
 const getHTMLElementFromSelector = (
 	unfomattedSelector: string,
-): Element | null => {
+): null | Element => {
 	const hasIndex = unfomattedSelector.match(/\[[0-9]+\]/);
 	const valueInQuerySelector = unfomattedSelector.match(/\{.+\}/);
 	const formattedSelector = formatQuerySelector(
@@ -271,7 +272,7 @@ const getHTMLElementFromSelector = (
 		hasIndex,
 		valueInQuerySelector,
 	);
-	let elemToModify: NodeListOf<Element> | null;
+	let elemToModify: null | NodeListOf<Element>;
 	try {
 		elemToModify = document.querySelectorAll(formattedSelector);
 	} catch (e: unknown) {
@@ -289,11 +290,11 @@ const getHTMLElementFromSelector = (
 
 export const sendMessage = (
 	message: string,
-	body?: Record<string, unknown> | null,
+	body?: null | Record<string, unknown>,
 	callback: (response: Record<string, unknown>) => void = () => {},
 ) => {
 	try {
-		chrome.runtime.sendMessage({ message, body }, (response) => {
+		chrome.runtime.sendMessage({ body, message }, (response) => {
 			if (response?.status !== "success") {
 				throw new Error(
 					`Failed to send message to background script. Received response: ${response}`,
@@ -312,7 +313,7 @@ export function debounce_leading<T extends (...args: any[]) => void>(
 	func: T,
 	timeout = 300,
 ): (...args: Parameters<T>) => void {
-	let timer: number | undefined;
+	let timer: undefined | number;
 
 	return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
 		if (!timer) {
@@ -330,7 +331,7 @@ export const getLastPageDom = async () => {
 	return value[MOCKSI_LAST_PAGE_DOM];
 };
 
-export const getEmail = async (): Promise<string | null> => {
+export const getEmail = async (): Promise<null | string> => {
 	const value = await chrome.storage.local.get(STORAGE_KEY);
 	if (!value) {
 		window.open(SignupURL);
@@ -344,8 +345,8 @@ export const getEmail = async (): Promise<string | null> => {
 			const configPayload = {
 				payload: {
 					person: {
-						id: parsedData.userId,
 						email: parsedData.email,
+						id: parsedData.userId,
 					},
 				},
 			};
@@ -381,15 +382,19 @@ export const getRecordingsStorage = async (): Promise<Recording[]> => {
 };
 
 export const updateRecordingsStorage = async ({
-	uuid,
-	updated_timestamp,
 	alterations,
-}: { uuid: string; updated_timestamp: Date; alterations: Alteration[] }) => {
+	updated_timestamp,
+	uuid,
+}: {
+	alterations: Alteration[];
+	updated_timestamp: Date;
+	uuid: string;
+}) => {
 	try {
 		const recordingsFromStorage = await getRecordingsStorage();
 		const modifiedRecordings = recordingsFromStorage.map((recording) =>
 			recording.uuid === uuid
-				? { ...recording, uuid, updated_timestamp, alterations }
+				? { ...recording, alterations, updated_timestamp, uuid }
 				: recording,
 		);
 		const sorted = modifiedRecordings.sort((a: Recording, b: Recording) =>
@@ -404,7 +409,7 @@ export const updateRecordingsStorage = async ({
 	}
 };
 export const loadRecordingId = async () => {
-	return new Promise<string | undefined>((resolve) => {
+	return new Promise<undefined | string>((resolve) => {
 		chrome.storage.local.get([MOCKSI_RECORDING_ID], (result) => {
 			resolve(result[MOCKSI_RECORDING_ID]);
 		});
@@ -413,14 +418,14 @@ export const loadRecordingId = async () => {
 
 export const recordingLabel = (currentStatus: AppState) => {
 	switch (currentStatus) {
+		case AppState.ANALYZING:
+			return "Analyzing...";
+		case AppState.EDITING:
+			return "Editing Template";
 		case AppState.READYTORECORD:
 			return "Start recording";
 		case AppState.RECORDING:
 			return "Mocksi Recording";
-		case AppState.EDITING:
-			return "Editing Template";
-		case AppState.ANALYZING:
-			return "Analyzing...";
 		case AppState.UNAUTHORIZED:
 			return "Login to record";
 		default:
