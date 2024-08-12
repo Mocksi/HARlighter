@@ -26,6 +26,7 @@ import {
 import { getHighlighter } from "../EditMode/highlighter";
 import { buildQuerySelector } from "../EditMode/utils";
 import IframeWrapper from "../IframeWrapper";
+import { observeUrlChange } from "../utils/observeUrlChange";
 import Toast from "./index";
 
 type EditToastProps = {
@@ -50,24 +51,6 @@ const useDidMountEffect = (func: () => void, deps: any[]) => {
 			didMount.current = true;
 		}
 	}, [func, ...deps]);
-};
-
-const observeUrlChange = (onChange: () => void) => {
-	let oldHref = document.location.href;
-	const body = document.querySelector("body");
-
-	if (!body) {
-		console.error("body not found");
-		return;
-	}
-
-	const observer = new MutationObserver((mutations) => {
-		if (oldHref !== document.location.href) {
-			oldHref = document.location.href;
-			onChange();
-		}
-	});
-	observer.observe(body, { childList: true, subtree: true });
 };
 
 const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
@@ -108,6 +91,16 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 			.catch((err) => {
 				console.error("error fetching alterations", err);
 			});
+
+		// Whenever the url changes, we want to update the url in state which triggers the
+		// use effect that removes the highlights and reloads the alterations
+		const disconnect = observeUrlChange(() => {
+			setUrl(document.location.href);
+		});
+
+		return () => {
+			disconnect();
+		};
 	}, []);
 
 	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
@@ -120,14 +113,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 
 	const setupEditor = async () => {
 		sendMessage("attachDebugger");
-
-		// Whenever the url changes, we want to update the url in state which triggers the
-		// use effect that removes the highlights and reloads the alterations
-		observeUrlChange(() => {
-			if (url !== document.location.href) {
-				setUrl(document.location.href);
-			}
-		});
 
 		const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
 
