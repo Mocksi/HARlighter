@@ -5,7 +5,7 @@ type FragmentTextNodeFunction = (
 	matches: RegExpMatchArray[],
 	textNode: Node,
 	newText: string,
-) => DocumentFragment | null;
+) => null | DocumentFragment;
 
 type SaveModificationFunction = (
 	element: HTMLElement,
@@ -18,7 +18,7 @@ export class ShadowDOMManipulator {
 	private modifiedNodes: Map<string, HTMLElement> = new Map();
 	private uuidGenerator: UUIDGenerator;
 	private patterns: { pattern: RegExp; replace: string }[] = [];
-	private observer: MutationObserver | undefined;
+	private observer: undefined | MutationObserver;
 	// TODO: move these functions out of actions.ts into dodom/utils
 	private fragmentTextNode: FragmentTextNodeFunction;
 	private saveModification: SaveModificationFunction;
@@ -74,13 +74,13 @@ export class ShadowDOMManipulator {
 		return Array.from(this.modifiedNodes.keys());
 	}
 
-	addPattern(pattern: string | RegExp, replace: string) {
+	addPattern(pattern: RegExp | string, replace: string) {
 		const replacePattern = { pattern: this.toRegExpPattern(pattern), replace };
 		this.patterns.push(replacePattern);
 		this.seekAndReplace(replacePattern.pattern, replacePattern.replace);
 	}
 
-	removePattern(pattern: string | RegExp) {
+	removePattern(pattern: RegExp | string) {
 		const pattern_ = this.toRegExpPattern(pattern);
 		const idx = this.patterns.findIndex(
 			(p) => p.pattern.source === pattern_.source,
@@ -171,7 +171,7 @@ export class ShadowDOMManipulator {
 
 	private matchReplacePattern(
 		text: string,
-	): { pattern: RegExp; replace: string } | null {
+	): null | { pattern: RegExp; replace: string } {
 		for (const pattern of this.patterns) {
 			if (pattern.pattern.test(text)) {
 				return { pattern: pattern.pattern, replace: pattern.replace };
@@ -222,15 +222,15 @@ export class ShadowDOMManipulator {
 		};
 	}
 
-	private toRegExpPattern(pattern: string | RegExp): RegExp {
+	private toRegExpPattern(pattern: RegExp | string): RegExp {
 		if (typeof pattern === "string") {
-			return new RegExp(pattern, "ig");
+			return new RegExp(pattern, "g");
 		}
 		return pattern;
 	}
 
 	private cleanPattern(pattern: RegExp): string {
-		return pattern.toString().replaceAll("/", "").replace("gi", "");
+		return pattern.toString().replaceAll("/", "").replace("g", "");
 	}
 
 	serializeShadowDOM(): string {
