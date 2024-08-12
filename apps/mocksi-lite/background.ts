@@ -294,15 +294,17 @@ async function createDemo(body: Record<string, unknown>) {
 		updated_timestamp: new Date(),
 	};
 
-	const [result] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
+	const [result] = await chrome.tabs.query({
+		active: true,
+		lastFocusedWindow: true,
+	});
 
 	return apiCall("recordings", "PUT", {
 		...body,
 		...defaultBody,
 		tab_id: result.id?.toString() ?? "",
 		url: result.url,
-	})
-	.catch((err) => {
+	}).catch((err) => {
 		MocksiRollbar.error("Error creating demo", err);
 	});
 }

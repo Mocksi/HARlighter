@@ -14,11 +14,15 @@ const Form = ({ onCancel, onSubmit }: FormProps) => {
 	const [customer, setCustomer] = useState("");
 
 	const handleSubmit = async () => {
-		sendMessage("createDemo", { customer_name: customer, demo_name: name }, (response) => {
-			if (response && response.status === 'success') {
-				onSubmit();
-			}
-		});
+		sendMessage(
+			"createDemo",
+			{ customer_name: customer, demo_name: name },
+			(response) => {
+				if (response && response.status === "success") {
+					onSubmit();
+				}
+			},
+		);
 	};
 
 	return (
