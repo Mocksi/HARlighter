@@ -40,8 +40,7 @@ export type ApplyAlteration = (
 	type: "text" | "image",
 ) => void;
 
-// biome-ignore lint/suspicious/noExplicitAny: any is used for deps which could be functions, arrays, strings, etc.
-const useDidMountEffect = (func: () => void, deps: any[]) => {
+function useDidMountEffect<T>(func: () => void, deps: Array<T>) {
 	const didMount = useRef(false);
 
 	useEffect(() => {

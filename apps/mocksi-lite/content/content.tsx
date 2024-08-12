@@ -43,7 +43,6 @@ function initial() {
 	rootDiv.id = "extension-root";
 	document.body.appendChild(rootDiv);
 
-	// TODO: explore if we can auto open extension for hard navigation sites
 	chrome.storage.local.get([MOCKSI_RECORDING_STATE], (results) => {
 		const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 		if (appState === AppState.PLAY) {
