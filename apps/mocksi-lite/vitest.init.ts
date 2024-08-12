@@ -1,4 +1,3 @@
-import "@testing-library/jest-dom/vitest";
 import { JSDOM } from "jsdom";
 import { vi } from "vitest";
 

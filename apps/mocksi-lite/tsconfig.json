@@ -17,7 +17,7 @@
 		"strict": true,
 		"target": "esnext",
 		"typeRoots": ["node_modules/@types", "node_modules/@chrome"],
-		"types": ["chrome", "vitest/globals", "@testing-library/jest-dom"]
+		"types": ["chrome", "vitest/globals"]
 	},
 	"exclude": ["node_modules", "dist", "./**/*.test.tsx?"],
 	"include": ["./", "typings.d.ts"]

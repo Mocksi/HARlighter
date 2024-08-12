@@ -1,4 +1,3 @@
-import "@testing-library/jest-dom";
 import { afterEach } from "node:test";
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
