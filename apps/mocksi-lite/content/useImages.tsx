@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+// import { MOCKSI_RECORDING_ID } from "../consts";
 
 interface ImageEdit {
 	[i: number]: {
@@ -7,6 +8,8 @@ interface ImageEdit {
 		originalSrc: string;
 	};
 }
+
+// TODO: check / associate MOCKSI_RECORDING_ID with edits see how alterations are handled
 
 export default function useImages() {
 	const [edits, setEdits] = useState<ImageEdit>({});
@@ -93,13 +96,16 @@ export default function useImages() {
 	);
 
 	async function storeEdits() {
-		const url = new URL(document.location.href);
+		// TODO: associate recording with edits?
+		// const result = await chrome.storage.local.get([MOCKSI_RECORDING_ID]);
+		// const { recordingId } = result[MOCKSI_RECORDING_ID];
+
 		await chrome.storage.local.set({
 			"mocksi-images": {
-				[url.hostname]: {
-					[url.pathname]: {
-						imagesMap: edits,
-						url: url.href,
+				[document.location.hostname]: {
+					[document.location.pathname]: {
+						edits,
+						url: document.location.href,
 					},
 				},
 			},
@@ -118,16 +124,15 @@ export default function useImages() {
 	async function getStoredEdits() {
 		const storage = await chrome.storage.local.get("mocksi-images");
 		const storedImages = storage["mocksi-images"];
-		const url = new URL(document.location.href);
-		const editsForHostname = storedImages?.[url.hostname];
+		const editsForHostname = storedImages?.[document.location.hostname];
 		if (editsForHostname) {
-			console.debug(`no stored images found for ${url.hostname}`);
+			console.debug(`no stored images found for ${document.location.hostname}`);
 			return;
 		}
 		return editsForHostname;
 	}
 
-	function undoImagesEdits() {
+	function undoEdits() {
 		return new Promise<void>((resolve) => {
 			const images = document.images;
 			if (!images.length) {
@@ -147,6 +152,32 @@ export default function useImages() {
 			}
 			resolve();
 		});
+	}
+
+	async function applyEdits() {
+		const storedEdits = await getStoredEdits();
+		if (!storedEdits) {
+			console.debug(`no existing edits for ${document.location.href}`);
+			return;
+		}
+		if (storedEdits[document.location.pathname]) {
+			const images = document.images;
+			for (let i = 0; i < images.length; i++) {
+				const image = images[i];
+				const edit = edits[i];
+				if (image && edit) {
+					image.setAttribute("data-mocksi-img", i.toString());
+					const edit = edits[i];
+					if (edit) {
+						image.src = edit.demoSrc;
+					}
+				}
+			}
+		}
+	}
+
+	function deleteEdits() {
+		// remove edits for hostname or for recording id?
 	}
 
 	useEffect(() => {
@@ -204,9 +235,11 @@ export default function useImages() {
 	}, [openImageUploadModal]);
 
 	return {
+		applyEdits,
 		edits,
 		getStoredEdits,
 		setEdits,
 		storeEdits,
+		undoEdits,
 	};
 }
