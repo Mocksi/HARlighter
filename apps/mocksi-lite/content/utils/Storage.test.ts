@@ -1,5 +1,8 @@
-import { beforeEach, describe, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createStorage } from './Storage'
+
+const TEST_STORAGE_KEY = 'test-storage-key';
+const TEST_TAB_ID = 'test-tab-id';
 
 describe('Storage', () => {
   const mockSet = vi.fn();
@@ -23,11 +26,15 @@ describe('Storage', () => {
 
   describe('setItem', () => {
     beforeEach(() => {
-      storage.tabId = 'test-tab-id';
+      storage.tabId = TEST_TAB_ID;
     })
 
-    it('should set item for a specific tab id', () => {
-      const result = 
+    it('should set item for a specific tab id', async () => {
+      const testValue = 'test-value-1';
+      const result = await storage.setItem({ [TEST_STORAGE_KEY]: testValue })
+
+      expect(result).toBe(true);
+      expect(mockSet).toBeCalledWith({ [TEST_TAB_ID]: { [TEST_STORAGE_KEY]: testValue } });
     })
   })
 })

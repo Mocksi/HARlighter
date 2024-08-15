@@ -295,29 +295,19 @@ export const sendMessage = async (
 	callback: (response: Record<string, unknown>) => void = () => {},
 ) => {
 	try {
-<<<<<<< HEAD
-		console.log('trying', message, body);
 		const response = await chrome.runtime.sendMessage({ message, body })
-		console.log('response', message, response.status);
 		if (response?.status !== "success") {
 			console.log('error time', message, response.status)
 			throw new Error(
 				`Failed to send message to background script. Received response: ${response}`,
 			);
 		}
-=======
-		chrome.runtime.sendMessage(body, message , (response) => 
-			if (response?.status !== "success") {
-				throw new Error(
-					`Failed to send message to background script. Received response: ${response}`,
-				);
-			}
->>>>>>> main
 
-		callback(response);catch (error) 
-		console.log('error time 2', error);
-		console.error("Error sending message to background script:", error);
+		callback(response);
 		logout();
+	} catch(err) {
+		console.error('error sending message', err)
+	}
 };
 // biome-ignore lint/suspicious/noExplicitAny: dynamic arguments
 export function debounce_leading<T extends (...args: any[]) => void>(
@@ -420,16 +410,8 @@ export const updateRecordingsStorage = async ({
 	}
 };
 export const loadRecordingId = async () => {
-<<<<<<< HEAD
 	const result = await Storage.getItem([MOCKSI_RECORDING_ID])
 	return result[MOCKSI_RECORDING_ID]
-=======
-	return new Promise<undefined | string>((resolve) => {
-		chrome.storage.local.get([MOCKSI_RECORDING_ID], (result) => {
-			resolve(result[MOCKSI_RECORDING_ID]);
-		});
-	});
->>>>>>> main
 };
 
 export const recordingLabel = (currentStatus: AppState) => {
