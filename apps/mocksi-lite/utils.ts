@@ -18,7 +18,7 @@ import {
 import { AppState } from "./content/AppStateContext";
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
-import { Storage } from './content/utils/Storage';
+import { Storage } from "./content/utils/Storage";
 
 type DomAlteration = {
 	newValue: string;
@@ -295,9 +295,9 @@ export const sendMessage = async (
 	callback: (response: Record<string, unknown>) => void = () => {},
 ) => {
 	try {
-		const response = await chrome.runtime.sendMessage({ message, body })
+		const response = await chrome.runtime.sendMessage({ message, body });
 		if (response?.status !== "success") {
-			console.log('error time', message, response.status)
+			console.log("error time", message, response.status);
 			throw new Error(
 				`Failed to send message to background script. Received response: ${response}`,
 			);
@@ -305,8 +305,8 @@ export const sendMessage = async (
 
 		callback(response);
 		logout();
-	} catch(err) {
-		console.error('error sending message', err)
+	} catch (err) {
+		console.error("error sending message", err);
 	}
 };
 // biome-ignore lint/suspicious/noExplicitAny: dynamic arguments
@@ -410,8 +410,8 @@ export const updateRecordingsStorage = async ({
 	}
 };
 export const loadRecordingId = async () => {
-	const result = await Storage.getItem([MOCKSI_RECORDING_ID])
-	return result[MOCKSI_RECORDING_ID]
+	const result = await Storage.getItem([MOCKSI_RECORDING_ID]);
+	return result[MOCKSI_RECORDING_ID];
 };
 
 export const recordingLabel = (currentStatus: AppState) => {
