@@ -18,7 +18,7 @@ import {
 } from "../utils";
 import { AppState } from "./AppStateContext";
 import ContentApp from "./ContentApp";
-import { Storage } from './utils/Storage';
+import { Storage } from "./utils/Storage";
 
 let root: ReactDOM.Root;
 
@@ -67,8 +67,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		}
 		root = ReactDOM.createRoot(extensionRoot);
 		getEmail().then((email) => {
-			Storage.getItem(
-				[MOCKSI_RECORDING_STATE, MOCKSI_READONLY_STATE]).then((results) => {
+			Storage.getItem([MOCKSI_RECORDING_STATE, MOCKSI_READONLY_STATE]).then(
+				(results) => {
 					const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 					let state = appState;
 

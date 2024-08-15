@@ -17,7 +17,7 @@ import ChatToast from "./Toast/ChatToast";
 import EditToast from "./Toast/EditToast";
 import PlayToast from "./Toast/PlayToast";
 import RecordingToast from "./Toast/RecordingToast";
-import { Storage } from './utils/Storage';
+import { Storage } from "./utils/Storage";
 
 import(
 	/* webpackChunkName: "content_content_css" */

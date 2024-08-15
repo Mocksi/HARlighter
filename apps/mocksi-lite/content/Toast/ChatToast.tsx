@@ -6,7 +6,7 @@ import editIcon from "../../public/edit-icon.png";
 import mocksiLogo from "../../public/icon/icon48.png";
 import { getEmail, innerHTMLToJson } from "../../utils";
 import { AppState } from "../AppStateContext";
-import { Storage } from '../utils/Storage';
+import { Storage } from "../utils/Storage";
 
 interface Message {
 	content: string;

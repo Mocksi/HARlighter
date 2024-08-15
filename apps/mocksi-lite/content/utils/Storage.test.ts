@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, it, vi } from 'vitest'
 import { createStorage } from './Storage'
 
 describe('Storage', () => {

@@ -10,7 +10,7 @@ import {
 } from "../../consts";
 import { sendMessage } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
-import { Storage } from '../utils/Storage';
+import { Storage } from "../utils/Storage";
 
 interface DemoItemProps extends Recording {}
 

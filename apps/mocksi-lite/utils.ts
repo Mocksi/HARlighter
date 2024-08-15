@@ -306,7 +306,7 @@ export const sendMessage = async (
 			);
 		}
 =======
-		chrome.runtime.sendMessage({ body, message }, (response) => {
+		chrome.runtime.sendMessage(body, message , (response) => 
 			if (response?.status !== "success") {
 				throw new Error(
 					`Failed to send message to background script. Received response: ${response}`,
@@ -314,12 +314,10 @@ export const sendMessage = async (
 			}
 >>>>>>> main
 
-		callback(response);
-	} catch (error) {
+		callback(response);catch (error) 
 		console.log('error time 2', error);
 		console.error("Error sending message to background script:", error);
 		logout();
-	}
 };
 // biome-ignore lint/suspicious/noExplicitAny: dynamic arguments
 export function debounce_leading<T extends (...args: any[]) => void>(

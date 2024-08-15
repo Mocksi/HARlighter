@@ -2,7 +2,7 @@ import auth0 from "auth0-js";
 import MocksiRollbar from "./MocksiRollbar";
 import { API_URL, MOCKSI_AUTH, MOCKSI_RECORDING_STATE } from "./consts";
 import { AppState } from "./content/AppStateContext";
-import { Storage } from './content/utils/Storage';
+import { Storage } from "./content/utils/Storage";
 
 type HttpMethod = "GET" | "PUT" | "POST" | "DELETE";
 

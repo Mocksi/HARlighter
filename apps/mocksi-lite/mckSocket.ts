@@ -1,5 +1,5 @@
 import { WebSocketURL } from "./consts";
-import { Storage } from './content/utils/Storage'
+import { Storage } from "./content/utils/Storage";
 
 let mckSocket: WebSocket;
 
@@ -91,11 +91,11 @@ function removeAllPercent(input: string): string {
 }
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 async function appendMessageToStorage(message: any) {
-	const result = await Storage.getItem(["reply_messages"])
+	const result = await Storage.getItem(["reply_messages"]);
 
 	const messages = result.reply_messages || [];
 	messages.push(message);
-	await Storage.setItem({ reply_messages: messages })
+	await Storage.setItem({ reply_messages: messages });
 	console.log("Message appended to storage");
 }
 

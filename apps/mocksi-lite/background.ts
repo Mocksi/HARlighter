@@ -7,10 +7,10 @@ import {
 	SignupURL,
 } from "./consts";
 import { AppState } from "./content/AppStateContext";
+import { Storage } from "./content/utils/Storage";
 import { initializeMckSocket, sendMckSocketMessage } from "./mckSocket";
 import { apiCall } from "./networking";
 import { getEmail, getLastPageDom, loadAlterations } from "./utils";
-import { Storage } from './content/utils/Storage';
 
 export interface Alteration {
 	selector: string;
@@ -195,14 +195,16 @@ export function handleMckSocketMessage(data: string) {
 
 async function handleChatResponse(response: ChatResponse) {
 	const result = await Storage.getItem([STORAGE_KEY]);
-		const messages = result[STORAGE_KEY] ? JSON.parse(result[STORAGE_KEY]) : [];
-		const newMessage = {
-			role: "assistant",
-			content: response.chat_message,
-		};
-		messages.push(newMessage);
+	const messages = result[STORAGE_KEY] ? JSON.parse(result[STORAGE_KEY]) : [];
+	const newMessage = {
+		role: "assistant",
+		content: response.chat_message,
+	};
+	messages.push(newMessage);
 
-	const setResult = await Storage.setItem({ [STORAGE_KEY]: JSON.stringify(messages) });
+	const setResult = await Storage.setItem({
+		[STORAGE_KEY]: JSON.stringify(messages),
+	});
 
 	if (!setResult) {
 		console.error("Error saving chat message:", chrome.runtime.lastError);
@@ -213,7 +215,7 @@ async function handleChatResponse(response: ChatResponse) {
 				chrome.tabs.sendMessage(tabs[0].id, { type: CHAT_UPDATED_EVENT });
 			}
 		});
-	}	
+	}
 }
 
 function onAttach(tabId: number) {
@@ -350,7 +352,7 @@ async function getRecordings(): Promise<Recording[]> {
 			a.updated_timestamp > b.updated_timestamp ? -1 : 0,
 		);
 
-		console.log('got recordings in func', sorted);
+		console.log("got recordings in func", sorted);
 
 		const recordings = JSON.stringify(sorted) || "[]";
 		await Storage.setItem({ recordings });
@@ -546,12 +548,12 @@ chrome.runtime.onMessage.addListener(
 			return true;
 		}
 
-		console.log('made it to getRecordings')
+		console.log("made it to getRecordings");
 		if (request.message === "getRecordings") {
-			console.log('calling get recordings');
+			console.log("calling get recordings");
 			getRecordings()
 				.then((recordings) => {
-					console.log('got recordings', recordings);
+					console.log("got recordings", recordings);
 					sendResponse({
 						message: "getRecordings",
 						status: "success",
@@ -636,9 +638,13 @@ chrome.runtime.onMessage.addListener(
 			return true;
 		}
 
-		if (request.message === 'getTabId') {
-			const tabId = sender.tab?.id
-			sendResponse({ message: request.message, status: "success", body: { tabId } });
+		if (request.message === "getTabId") {
+			const tabId = sender.tab?.id;
+			sendResponse({
+				message: request.message,
+				status: "success",
+				body: { tabId },
+			});
 			return true;
 		}
 

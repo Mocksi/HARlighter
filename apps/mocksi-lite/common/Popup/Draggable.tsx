@@ -1,6 +1,6 @@
 import React, { MouseEventHandler } from "react";
 import { MOCKSI_POPUP_LOCATION } from "../../consts";
-import { Storage } from '../../content/utils/Storage'
+import { Storage } from "../../content/utils/Storage";
 
 const rightOffset = 30;
 const leftOffset = 20;
