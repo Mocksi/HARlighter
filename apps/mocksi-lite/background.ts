@@ -291,17 +291,18 @@ async function createDemo(body: Record<string, unknown>) {
 		updated_timestamp: new Date(),
 	};
 
-	chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([result]) => {
-		apiCall("recordings", "PUT", {
-			...body,
-			...defaultBody,
-			tab_id: result.id?.toString() ?? "",
-			url: result.url,
-		})
-			.then(() => getRecordings())
-			.catch((err) => {
-				MocksiRollbar.error("Error creating demo", err);
-			});
+	const [result] = await chrome.tabs.query({
+		active: true,
+		lastFocusedWindow: true,
+	});
+
+	return apiCall("recordings", "PUT", {
+		...body,
+		...defaultBody,
+		tab_id: result.id?.toString() ?? "",
+		url: result.url,
+	}).catch((err) => {
+		MocksiRollbar.error("Error creating demo", err);
 	});
 }
 
@@ -521,7 +522,9 @@ chrome.runtime.onMessage.addListener(
 			if (!request.body) {
 				return false;
 			}
-			createDemo(request.body);
+			createDemo(request.body).then(() => {
+				sendResponse({ message: request.message, status: "success" });
+			});
 			return true;
 		}
 

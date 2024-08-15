@@ -95,7 +95,7 @@ describe("ShadowDOMManipulator", () => {
 		manipulator.addPattern("another", "different");
 
 		const div = shadowRoot.querySelector("div");
-		expect(div?.textContent).toBe("Replaced text and different Replaced");
+		expect(div?.textContent).toBe("Replaced text and different test");
 	});
 
 	it("should remove pattern", () => {

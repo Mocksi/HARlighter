@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { Alteration } from "../../background";
 import { CloseButton } from "../../common/Button";
 import TextField from "../../common/TextField";
@@ -26,6 +26,7 @@ import {
 import { getHighlighter } from "../EditMode/highlighter";
 import { buildQuerySelector } from "../EditMode/utils";
 import IframeWrapper from "../IframeWrapper";
+import { observeUrlChange } from "../utils/observeUrlChange";
 import Toast from "./index";
 import { Storage } from '../Storage';
 
@@ -40,23 +41,17 @@ export type ApplyAlteration = (
 	type: "text" | "image",
 ) => void;
 
-const observeUrlChange = (onChange: () => void) => {
-	let oldHref = document.location.href;
-	const body = document.querySelector("body");
+function useDidMountEffect<T>(func: () => void, deps: Array<T>) {
+	const didMount = useRef(false);
 
-	if (!body) {
-		console.error("body not found");
-		return;
-	}
-
-	const observer = new MutationObserver((mutations) => {
-		if (oldHref !== document.location.href) {
-			oldHref = document.location.href;
-			onChange();
+	useEffect(() => {
+		if (didMount.current) {
+			func();
+		} else {
+			didMount.current = true;
 		}
-	});
-	observer.observe(body, { childList: true, subtree: true });
-};
+	}, [func, ...deps]);
+}
 
 const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const { dispatch, state } = useContext(AppStateContext);
@@ -87,7 +82,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 					setAlterations(storedAlterations);
 				}
 
-				// TODO: would be nice if it was like loadAlterations(alterations, { withHighlights: true })
 				loadAlterations(storedAlterations, {
 					withHighlights: areChangesHighlighted,
 				});
@@ -97,11 +91,29 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 			.catch((err) => {
 				console.error("error fetching alterations", err);
 			});
+
+		// Whenever the url changes, we want to update the url in state which triggers the
+		// use effect that removes the highlights and reloads the alterations
+		const disconnect = observeUrlChange(() => {
+			setUrl(document.location.href);
+		});
+
+		return () => {
+			disconnect();
+		};
 	}, []);
 
-	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
-	// biome-ignore lint/correctness/useExhaustiveDependencies: we dont use the url but want to run this whenever it changes
 	useEffect(() => {
+		try {
+			chrome.storage.local.set({ [MOCKSI_ALTERATIONS]: alterations });
+		} catch (err) {
+			console.error("Error persisting alterations", err);
+		}
+	}, [alterations]);
+
+	// Each time the URL updates we want to remove the existing highlights, and reload the alterations onto the page
+	// useDidMountEffect allows us to run this only _after_ the component has mounted and not on the initial render
+	useDidMountEffect(() => {
 		getHighlighter().removeHighlightNodes();
 		loadPreviousModifications(alterations);
 		loadAlterations(alterations, { withHighlights: areChangesHighlighted });
@@ -110,19 +122,10 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const setupEditor = async () => {
 		sendMessage("attachDebugger");
 
-		// Whenever the url changes, we want to update the url in state which triggers the
-		// use effect that removes the highlights and reloads the alterations
-		observeUrlChange(() => {
-			setUrl(document.location.href);
-		});
-
 		const results = await Storage.getItem([MOCKSI_READONLY_STATE]);
 
 		// If value exists and is true or if the value doesn't exist at all, apply read-only mode
-		if (
-			results[MOCKSI_READONLY_STATE] === undefined ||
-			results[MOCKSI_READONLY_STATE]
-		) {
+		if (results[MOCKSI_READONLY_STATE]) {
 			applyReadOnlyMode();
 		}
 

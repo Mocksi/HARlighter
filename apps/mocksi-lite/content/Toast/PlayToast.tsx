@@ -12,6 +12,8 @@ import {
 	undoModifications,
 } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
+import { getHighlighter } from "../EditMode/highlighter";
+import { observeUrlChange } from "../utils/observeUrlChange";
 import Toast from "./index";
 
 interface PlayToastProps {
@@ -21,6 +23,7 @@ interface PlayToastProps {
 const PlayToast = ({ close }: PlayToastProps) => {
 	const { dispatch } = useContext(AppStateContext);
 	const [alterations, setAlterations] = useState<Alteration[]>([]);
+	const [url, setUrl] = useState<string>(document.location.href);
 
 	useEffect(() => {
 		chrome.storage.local
@@ -36,7 +39,22 @@ const PlayToast = ({ close }: PlayToastProps) => {
 					createdAt,
 				});
 			});
+
+		const disconnect = observeUrlChange(() => {
+			setUrl(document.location.href);
+		});
+
+		return () => {
+			disconnect();
+		};
 	}, []);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: we dont use the url but want to run this whenever it changes
+	useEffect(() => {
+		getHighlighter().removeHighlightNodes();
+		loadPreviousModifications(alterations);
+		loadAlterations(alterations, { withHighlights: false });
+	}, [url]);
 
 	const handleEdit = () => {
 		sendMessage("resetIcon");

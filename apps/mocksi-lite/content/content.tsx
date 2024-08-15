@@ -1,6 +1,7 @@
 import ReactDOM from "react-dom/client";
 import type { Recording } from "../background";
 import {
+	MOCKSI_ALTERATIONS,
 	MOCKSI_AUTH,
 	MOCKSI_READONLY_STATE,
 	MOCKSI_RECORDING_STATE,
@@ -11,6 +12,7 @@ import {
 	getAlterations,
 	getEmail,
 	loadAlterations,
+	loadPreviousModifications,
 	sendMessage,
 	setRootPosition,
 } from "../utils";
@@ -20,23 +22,38 @@ import { Storage } from './Storage';
 
 let root: ReactDOM.Root;
 
+async function handlePlayState() {
+	const alterations = await getAlterations();
+
+	if (alterations?.length) {
+		loadAlterations(alterations, { withHighlights: false });
+	}
+}
+
+async function handleEditState() {
+	const alterations = await getAlterations();
+
+	if (alterations?.length) {
+		loadAlterations(alterations, { withHighlights: true });
+	}
+}
+
 function initial() {
 	const rootDiv =
 		document.getElementById("extension-root") || document.createElement("div");
 	rootDiv.id = "extension-root";
 	document.body.appendChild(rootDiv);
 
-	// TODO: explore if we can auto open extension for hard navigation sites
-	// Storage.getItem([MOCKSI_RECORDING_STATE], (results) => {
-	// 	const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
-	// 	if (appState === AppState.PLAY) {
-	// 		handlePlayState();
-	// 	}
+	Storage.getItem([MOCKSI_RECORDING_STATE]).then((results) => {
+		const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
+		if (appState === AppState.PLAY) {
+			handlePlayState();
+		}
 
-	// 	if (appState === AppState.EDITING) {
-	// 		handleEditState();
-	// 	}
-	// });
+		if (appState === AppState.EDITING) {
+			handleEditState();
+		}
+	});
 }
 
 document.addEventListener("DOMContentLoaded", initial);
