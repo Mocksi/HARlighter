@@ -4,12 +4,17 @@ const div = document.createElement("div");
 div.id = "__root";
 document.body.appendChild(div);
 
+/**
+ * load the iframe
+ * loading from server
+ */
 const rootContainer = document.querySelector("#__root");
 if (!rootContainer) throw new Error("Can't find Content root element");
 const root = createRoot(rootContainer);
 root.render(
-  <div className="absolute bottom-0 left-0 text-lg text-black bg-amber-400 z-50">
+  <div className="bottom-0 left-0 z-50 absolute bg-amber-400 text-black text-lg">
     content script loaded
+    <button className="btn">send message to backend</button>
   </div>,
 );
 
