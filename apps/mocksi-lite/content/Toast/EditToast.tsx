@@ -29,7 +29,6 @@ import IframeWrapper from "../IframeWrapper";
 import useImages from "../useImages";
 import { observeUrlChange } from "../utils/observeUrlChange";
 import Toast from "./index";
-
 type EditToastProps = {
 	initialReadOnlyState?: boolean;
 };
@@ -93,8 +92,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 				console.error("error fetching alterations", err);
 			});
 
-		images.setupDom();
-
 		// Whenever the url changes, we want to update the url in state which triggers the
 		// use effect that removes the highlights and reloads the alterations
 		const disconnect = observeUrlChange(() => {
@@ -124,6 +121,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 
 	const setupEditor = async () => {
 		sendMessage("attachDebugger");
+		images.setupDom();
 
 		const results = await chrome.storage.local.get([MOCKSI_READONLY_STATE]);
 
@@ -133,7 +131,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		}
 
 		document.body.addEventListener("dblclick", onDoubleClickText);
-
 		return;
 	};
 
@@ -147,6 +144,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		undoModifications(alterations);
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 		disableReadOnlyMode();
+		images.undoEdits();
 
 		await chrome.storage.local.remove([
 			MOCKSI_RECORDING_ID,
@@ -163,7 +161,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		undoModifications(alterations);
 		cancelEditWithoutChanges(document.getElementById("mocksiSelectedText"));
 		disableReadOnlyMode();
-		images.undoEdits();
 
 		await chrome.storage.local.remove([
 			MOCKSI_RECORDING_ID,
@@ -250,6 +247,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	};
 
 	const handleSave = async () => {
+		await images.storeEdits();
 		await teardownEditor();
 
 		dispatch({ event: AppEvent.SAVE_MODIFICATIONS });

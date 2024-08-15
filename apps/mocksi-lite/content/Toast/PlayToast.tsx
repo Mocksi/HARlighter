@@ -56,7 +56,6 @@ const PlayToast = ({ close }: PlayToastProps) => {
 		getHighlighter().removeHighlightNodes();
 		loadPreviousModifications(alterations);
 		loadAlterations(alterations, { withHighlights: false });
-		console.log(images.edits);
 		images.applyEdits();
 	}, [url]);
 
@@ -66,6 +65,7 @@ const PlayToast = ({ close }: PlayToastProps) => {
 		loadPreviousModifications(alterations);
 
 		dispatch({ event: AppEvent.START_EDITING });
+		images.setupDom();
 	};
 
 	const handleHideToast = () => {
@@ -77,6 +77,7 @@ const PlayToast = ({ close }: PlayToastProps) => {
 	const handleStop = () => {
 		sendMessage("resetIcon");
 		undoModifications(alterations);
+		images.undoEdits();
 		dispatch({ event: AppEvent.STOP_PLAYING });
 	};
 
