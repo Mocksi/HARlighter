@@ -10,7 +10,7 @@ import { AppState } from "./content/AppStateContext";
 import { initializeMckSocket, sendMckSocketMessage } from "./mckSocket";
 import { apiCall } from "./networking";
 import { getEmail, getLastPageDom, loadAlterations } from "./utils";
-import { Storage } from './content/Storage';
+import { Storage } from './content/utils/Storage';
 
 export interface Alteration {
 	selector: string;

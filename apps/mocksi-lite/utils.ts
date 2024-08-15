@@ -18,7 +18,7 @@ import {
 import { AppState } from "./content/AppStateContext";
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
-import { Storage } from './content/Storage';
+import { Storage } from './content/utils/Storage';
 
 type DomAlteration = {
 	newValue: string;

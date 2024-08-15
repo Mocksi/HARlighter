@@ -7,7 +7,7 @@ import {
 	MOCKSI_RECORDING_STATE,
 } from "../consts";
 import { loadAlterations, sendMessage } from "../utils";
-import { Storage } from './Storage';
+import { Storage } from './utils/Storage';
 
 export enum AppState {
 	INIT = "INIT",

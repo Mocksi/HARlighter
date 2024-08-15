@@ -1,5 +1,5 @@
 import { WebSocketURL } from "./consts";
-import { Storage } from './content/Storage'
+import { Storage } from './content/utils/Storage'
 
 let mckSocket: WebSocket;
 

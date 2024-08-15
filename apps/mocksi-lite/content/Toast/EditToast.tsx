@@ -28,7 +28,7 @@ import { buildQuerySelector } from "../EditMode/utils";
 import IframeWrapper from "../IframeWrapper";
 import { observeUrlChange } from "../utils/observeUrlChange";
 import Toast from "./index";
-import { Storage } from '../Storage';
+import { Storage } from '../utils/Storage';
 
 type EditToastProps = {
 	initialReadOnlyState?: boolean;

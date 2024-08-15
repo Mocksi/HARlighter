@@ -18,7 +18,7 @@ import {
 } from "../utils";
 import { AppState } from "./AppStateContext";
 import ContentApp from "./ContentApp";
-import { Storage } from './Storage';
+import { Storage } from './utils/Storage';
 
 let root: ReactDOM.Root;
 
