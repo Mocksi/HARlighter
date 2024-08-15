@@ -1,30 +1,24 @@
 import { sendMessage } from "../../utils";
 
+// biome-ignore lint/suspicious/noExplicitAny: this is a generic object and the item can be anything
+type StoredItemType = { [key: string]: any };
+
 interface StorageInterface {
 	tabId: string | null;
 	store: Store;
-	// biome-ignore lint/suspicious/noExplicitAny: this is a generic object and the item can be anything
-	getItem: (keys: string[]) => Promise<Record<string, any>>;
-	// biome-ignore lint/suspicious/noExplicitAny: this is a generic object and the item can be anything
-	setItem: (value: Record<string, any>) => Promise<boolean>;
-	removeItem: (key: string) => Promise<boolean>;
-	clearStorageForTab: (tabId: string) => Promise<boolean>;
-	// biome-ignore lint/suspicious/noExplicitAny: this is a generic object and the item can be anything
-	getStorageForTab: (tabId: string) => Promise<Record<string, any>>;
-	setStorageForTab: (
-		tabId: string,
-		// biome-ignore lint/suspicious/noExplicitAny: this is a generic object and the item can be anything
-		data: Record<string, any>,
-	) => Promise<boolean>;
-	getTabId: () => Promise<string | null>;
+	getItem(keys: string[]): Promise<StoredItemType>;
+	setItem(value: StoredItemType): Promise<boolean>;
+	removeItem(key: string): Promise<boolean>;
+	clearStorageForTab(tabId: string): Promise<boolean>;
+	getStorageForTab(tabId: string): Promise<StoredItemType>;
+	setStorageForTab(tabId: string, data: StoredItemType): Promise<boolean>;
+	getTabId(): Promise<string | null>;
 }
 
 interface Store {
-	// biome-ignore lint/suspicious/noExplicitAny: this is a generic object and the item can be anything
-	get: (keys: string[] | string) => Promise<Record<string, any>>;
-	// biome-ignore lint/suspicious/noExplicitAny: this is a generic object and the item can be anything
-	set: (value: Record<string, any>) => Promise<void>;
-	remove: (key: string) => Promise<void>;
+	get(keys: string[] | string): StoredItemType;
+	set(value: StoredItemType): Promise<void>;
+	remove(key: string): Promise<void>;
 }
 
 export class Storage implements StorageInterface {
@@ -35,7 +29,7 @@ export class Storage implements StorageInterface {
 		this.store = store;
 	}
 
-	getItem = async (keys: string[]) => {
+	async getItem(keys: string[]): Promise<StoredItemType> {
 		const tabId = await this.getTabId();
 
 		if (!tabId) {
@@ -61,10 +55,9 @@ export class Storage implements StorageInterface {
 
 			return acc;
 		}, {});
-	};
+	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: this is a generic object and the item can be anything
-	setItem = async (value: Record<string, any>) => {
+	async setItem(value: StoredItemType): Promise<boolean> {
 		const tabId = await this.getTabId();
 		if (!tabId) {
 			console.error("Tab id not found");
@@ -85,9 +78,9 @@ export class Storage implements StorageInterface {
 			console.error("setItem: error setting local storage", error);
 			return false;
 		}
-	};
+	}
 
-	removeItem = async (key: string) => {
+	async removeItem(key: string): Promise<boolean> {
 		const tabId = await this.getTabId();
 		if (!tabId) {
 			console.error("Tab id not found");
@@ -105,9 +98,9 @@ export class Storage implements StorageInterface {
 		const result = await this.setStorageForTab(tabId, toKeep);
 
 		return result;
-	};
+	}
 
-	clearStorageForTab = async (tabId: string) => {
+	async clearStorageForTab(tabId: string): Promise<boolean> {
 		try {
 			await this.store.remove(tabId);
 			return true;
@@ -115,9 +108,9 @@ export class Storage implements StorageInterface {
 			console.error("clearTab: error clearing local storage", error);
 			return false;
 		}
-	};
+	}
 
-	getStorageForTab = async (tabId: string) => {
+	async getStorageForTab(tabId: string): Promise<StoredItemType> {
 		const storedData = await this.store.get([tabId]);
 
 		if (!storedData[tabId]) {
@@ -125,10 +118,12 @@ export class Storage implements StorageInterface {
 		}
 
 		return storedData[tabId];
-	};
+	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: this is a generic object and the item can be anything
-	setStorageForTab = async (tabId: string, data: Record<string, any>) => {
+	async setStorageForTab(
+		tabId: string,
+		data: StoredItemType,
+	): Promise<boolean> {
 		try {
 			await this.store.set({ [tabId]: data });
 			return true;
@@ -136,9 +131,9 @@ export class Storage implements StorageInterface {
 			console.error("setStorageForTab: error setting local storage", error);
 			return false;
 		}
-	};
+	}
 
-	getTabId = async (): Promise<string | null> => {
+	async getTabId(): Promise<string | null> {
 		if (this.tabId) {
 			return this.tabId;
 		}
@@ -160,5 +155,7 @@ export class Storage implements StorageInterface {
 				}
 			});
 		});
-	};
+	}
 }
+
+export const storage = new Storage();
