@@ -7,7 +7,7 @@ import {
 	MOCKSI_RECORDING_STATE,
 } from "../consts";
 import { loadAlterations, sendMessage } from "../utils";
-import { Storage } from "./utils/Storage";
+import { storage } from "./utils/Storage";
 
 export enum AppState {
 	INIT = "INIT",
@@ -107,7 +107,7 @@ const localStorageMiddleware = (reducer: typeof appStateReducer) => {
 
 		console.log(state, action.event, newState);
 
-		Storage.setItem({ [MOCKSI_RECORDING_STATE]: newState });
+		storage.setItem({ [MOCKSI_RECORDING_STATE]: newState });
 
 		return newState;
 	};
@@ -122,59 +122,61 @@ export const AppStateProvider: React.FC<{
 
 	// Load the initial state from chrome storage on mount
 	useEffect(() => {
-		Storage.getItem([
-			MOCKSI_RECORDING_STATE,
-			MOCKSI_ALTERATIONS,
-			MOCKSI_RECORDING_ID,
-			MOCKSI_RECORDING_CREATED_AT,
-		]).then((result) => {
-			if (result[MOCKSI_RECORDING_STATE] === AppState.UNAUTHORIZED) {
-				dispatch({
-					event: AppEvent.SET_INITIAL_STATE,
-					payload: AppState.UNAUTHORIZED,
-				});
-				return;
-			}
+		storage
+			.getItem([
+				MOCKSI_RECORDING_STATE,
+				MOCKSI_ALTERATIONS,
+				MOCKSI_RECORDING_ID,
+				MOCKSI_RECORDING_CREATED_AT,
+			])
+			.then((result) => {
+				if (result[MOCKSI_RECORDING_STATE] === AppState.UNAUTHORIZED) {
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: AppState.UNAUTHORIZED,
+					});
+					return;
+				}
 
-			if (result[MOCKSI_RECORDING_STATE] === AppState.PLAY) {
-				dispatch({
-					event: AppEvent.SET_INITIAL_STATE,
-					payload: AppState.PLAY,
-				});
-				sendMessage("updateToPauseIcon");
+				if (result[MOCKSI_RECORDING_STATE] === AppState.PLAY) {
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: AppState.PLAY,
+					});
+					sendMessage("updateToPauseIcon");
 
-				return;
-			}
+					return;
+				}
 
-			if (result[MOCKSI_RECORDING_STATE] === AppState.EDITING) {
-				dispatch({
-					event: AppEvent.SET_INITIAL_STATE,
-					payload: AppState.EDITING,
-				});
-				sendMessage("attachDebugger");
+				if (result[MOCKSI_RECORDING_STATE] === AppState.EDITING) {
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: AppState.EDITING,
+					});
+					sendMessage("attachDebugger");
 
-				return;
-			}
+					return;
+				}
 
-			console.log({ initialRecordings });
+				console.log({ initialRecordings });
 
-			if (
-				initialRecordings?.length &&
-				initialRecordings.some(
-					(rec: Recording) => rec.url === window.location.href,
-				)
-			) {
-				dispatch({
-					event: AppEvent.SET_INITIAL_STATE,
-					payload: result[MOCKSI_RECORDING_STATE],
-				});
-			} else {
-				dispatch({
-					event: AppEvent.SET_INITIAL_STATE,
-					payload: AppState.READYTORECORD,
-				});
-			}
-		});
+				if (
+					initialRecordings?.length &&
+					initialRecordings.some(
+						(rec: Recording) => rec.url === window.location.href,
+					)
+				) {
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: result[MOCKSI_RECORDING_STATE],
+					});
+				} else {
+					dispatch({
+						event: AppEvent.SET_INITIAL_STATE,
+						payload: AppState.READYTORECORD,
+					});
+				}
+			});
 	}, [initialRecordings]);
 
 	const value = {

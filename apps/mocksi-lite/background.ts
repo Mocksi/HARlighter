@@ -7,7 +7,7 @@ import {
 	SignupURL,
 } from "./consts";
 import { AppState } from "./content/AppStateContext";
-import { Storage } from "./content/utils/Storage";
+import { storage } from "./content/utils/Storage";
 import { initializeMckSocket, sendMckSocketMessage } from "./mckSocket";
 import { apiCall } from "./networking";
 import { getEmail, getLastPageDom, loadAlterations } from "./utils";
@@ -194,7 +194,7 @@ export function handleMckSocketMessage(data: string) {
 }
 
 async function handleChatResponse(response: ChatResponse) {
-	const result = await Storage.getItem([STORAGE_KEY]);
+	const result = await storage.getItem([STORAGE_KEY]);
 	const messages = result[STORAGE_KEY] ? JSON.parse(result[STORAGE_KEY]) : [];
 	const newMessage = {
 		role: "assistant",
@@ -202,7 +202,7 @@ async function handleChatResponse(response: ChatResponse) {
 	};
 	messages.push(newMessage);
 
-	const setResult = await Storage.setItem({
+	const setResult = await storage.setItem({
 		[STORAGE_KEY]: JSON.stringify(messages),
 	});
 
@@ -339,12 +339,12 @@ async function getRecordings(): Promise<Recording[]> {
 			`recordings?creator=${encodeURIComponent(email)}`,
 		).catch((err) => {
 			MocksiRollbar.error(`Failed to fetch recordings: ${err}`);
-			Storage.setItem({ recordings: "[]" });
+			storage.setItem({ recordings: "[]" });
 			return [];
 		});
 
 		if (!response || response.length === 0) {
-			await Storage.setItem({ recordings: "[]" });
+			await storage.setItem({ recordings: "[]" });
 			return [];
 		}
 
@@ -355,7 +355,7 @@ async function getRecordings(): Promise<Recording[]> {
 		console.log("got recordings in func", sorted);
 
 		const recordings = JSON.stringify(sorted) || "[]";
-		await Storage.setItem({ recordings });
+		await storage.setItem({ recordings });
 
 		return sorted;
 	} catch (err) {
@@ -479,7 +479,7 @@ const setPlayMode = async (url?: string) => {
 
 	await chrome.tabs.create({ url: url });
 	await chrome.action.setIcon({ path: "./public/pause-icon.png" });
-	await Storage.setItem({
+	await storage.setItem({
 		[MOCKSI_RECORDING_STATE]: AppState.PLAY,
 	});
 };

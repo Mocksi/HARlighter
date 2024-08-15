@@ -26,7 +26,7 @@ import {
 import { getHighlighter } from "../EditMode/highlighter";
 import { buildQuerySelector } from "../EditMode/utils";
 import IframeWrapper from "../IframeWrapper";
-import { Storage } from "../utils/Storage";
+import { storage } from "../utils/Storage";
 import { observeUrlChange } from "../utils/observeUrlChange";
 import Toast from "./index";
 
@@ -122,7 +122,7 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 	const setupEditor = async () => {
 		sendMessage("attachDebugger");
 
-		const results = await Storage.getItem([MOCKSI_READONLY_STATE]);
+		const results = await storage.getItem([MOCKSI_READONLY_STATE]);
 
 		// If value exists and is true or if the value doesn't exist at all, apply read-only mode
 		if (results[MOCKSI_READONLY_STATE]) {

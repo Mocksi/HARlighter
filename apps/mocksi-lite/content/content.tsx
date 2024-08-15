@@ -18,7 +18,7 @@ import {
 } from "../utils";
 import { AppState } from "./AppStateContext";
 import ContentApp from "./ContentApp";
-import { Storage } from "./utils/Storage";
+import { storage } from "./utils/Storage";
 
 let root: ReactDOM.Root;
 
@@ -44,7 +44,7 @@ function initial() {
 	rootDiv.id = "extension-root";
 	document.body.appendChild(rootDiv);
 
-	Storage.getItem([MOCKSI_RECORDING_STATE]).then((results) => {
+	storage.getItem([MOCKSI_RECORDING_STATE]).then((results) => {
 		const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 		if (appState === AppState.PLAY) {
 			handlePlayState();
@@ -67,8 +67,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 		}
 		root = ReactDOM.createRoot(extensionRoot);
 		getEmail().then((email) => {
-			Storage.getItem([MOCKSI_RECORDING_STATE, MOCKSI_READONLY_STATE]).then(
-				(results) => {
+			storage
+				.getItem([MOCKSI_RECORDING_STATE, MOCKSI_READONLY_STATE])
+				.then((results) => {
 					const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 					let state = appState;
 
@@ -76,7 +77,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 					if (email && !appState) {
 						// we need to initialize app state if there's none.
-						Storage.setItem({
+						storage.setItem({
 							[MOCKSI_RECORDING_STATE]: AppState.LIST,
 						});
 						state = AppState.LIST;
@@ -90,7 +91,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 						(appState === AppState.UNAUTHORIZED || !email) &&
 						window.location.origin !== SignupURL
 					) {
-						Storage.setItem({
+						storage.setItem({
 							[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
 						});
 						state = AppState.UNAUTHORIZED;
@@ -115,8 +116,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 							/>,
 						);
 					});
-				},
-			);
+				});
 		});
 	}
 	sendResponse({ status: "success" });
@@ -144,10 +144,10 @@ window.addEventListener("message", (event: MessageEvent) => {
 		});
 
 		if (eventData.key === MOCKSI_AUTH) {
-			Storage.getItem([MOCKSI_RECORDING_STATE]).then((results) => {
+			storage.getItem([MOCKSI_RECORDING_STATE]).then((results) => {
 				const appState: AppState | null = results[MOCKSI_RECORDING_STATE];
 				if (appState === AppState.UNAUTHORIZED) {
-					Storage.setItem({
+					storage.setItem({
 						[MOCKSI_RECORDING_STATE]: AppState.LIST,
 					});
 				}

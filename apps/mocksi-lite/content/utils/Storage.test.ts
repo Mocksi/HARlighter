@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { sendMessage } from "../../utils";
-import { Storage } from "./Storage";
+import { storage } from "./Storage";
 
 const TEST_STORAGE_KEY = "test-storage-key";
 const TEST_TAB_ID = "test-tab-id";

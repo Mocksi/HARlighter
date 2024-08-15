@@ -1,6 +1,6 @@
 import { MOCKSI_READONLY_STATE } from "../../consts";
 import type { ApplyAlteration } from "../Toast/EditToast";
-import { Storage } from "../utils/Storage";
+import { storage } from "../utils/Storage";
 import { applyImageChanges } from "./actions";
 import { decorate } from "./decorator";
 
@@ -174,14 +174,14 @@ const removeStylesToBlockEvents = () => {
 };
 
 export const applyReadOnlyMode = () => {
-	Storage.setItem({
+	storage.setItem({
 		[MOCKSI_READONLY_STATE]: true,
 	});
 	injectStylesToBlockEvents();
 };
 
 export const disableReadOnlyMode = () => {
-	Storage.setItem({
+	storage.setItem({
 		[MOCKSI_READONLY_STATE]: false,
 	});
 	removeStylesToBlockEvents();

@@ -2,7 +2,7 @@ import auth0 from "auth0-js";
 import MocksiRollbar from "./MocksiRollbar";
 import { API_URL, MOCKSI_AUTH, MOCKSI_RECORDING_STATE } from "./consts";
 import { AppState } from "./content/AppStateContext";
-import { Storage } from "./content/utils/Storage";
+import { storage } from "./content/utils/Storage";
 
 type HttpMethod = "GET" | "PUT" | "POST" | "DELETE";
 
@@ -70,7 +70,7 @@ export const apiCall = async (
 
 		if (!response.ok) {
 			if (response.status === 401) {
-				await Storage.setItem({
+				await storage.setItem({
 					[MOCKSI_RECORDING_STATE]: AppState.UNAUTHORIZED,
 				});
 				throw new Error("Unauthorized");

@@ -18,7 +18,7 @@ import {
 import { AppState } from "./content/AppStateContext";
 import { fragmentTextNode } from "./content/EditMode/actions";
 import { getHighlighter } from "./content/EditMode/highlighter";
-import { Storage } from "./content/utils/Storage";
+import { storage } from "./content/utils/Storage";
 
 type DomAlteration = {
 	newValue: string;
@@ -328,7 +328,7 @@ export function debounce_leading<T extends (...args: any[]) => void>(
 }
 
 export const getLastPageDom = async () => {
-	const value = await Storage.getItem([MOCKSI_LAST_PAGE_DOM]);
+	const value = await storage.getItem([MOCKSI_LAST_PAGE_DOM]);
 	return value[MOCKSI_LAST_PAGE_DOM];
 };
 
@@ -363,7 +363,7 @@ export const getEmail = async (): Promise<null | string> => {
 	}
 };
 export const getAlterations = async (): Promise<Alteration[] | []> => {
-	const value = await Storage.getItem([MOCKSI_ALTERATIONS]);
+	const value = await storage.getItem([MOCKSI_ALTERATIONS]);
 	const storedData = value[MOCKSI_ALTERATIONS];
 
 	return storedData ?? [];
@@ -371,7 +371,7 @@ export const getAlterations = async (): Promise<Alteration[] | []> => {
 
 export const getRecordingsStorage = async (): Promise<Recording[]> => {
 	try {
-		const results = await Storage.getItem(["recordings"]);
+		const results = await storage.getItem(["recordings"]);
 		if (results.recordings) {
 			return JSON.parse(results.recordings);
 		}
@@ -403,14 +403,14 @@ export const updateRecordingsStorage = async ({
 		);
 		const recordingsStringified = JSON.stringify(sorted);
 		console.log("modified", recordingsFromStorage, sorted);
-		Storage.setItem({ recordings: recordingsStringified });
+		storage.setItem({ recordings: recordingsStringified });
 	} catch (err) {
 		console.error("Failed to save modifications from LS:", err);
 		throw err;
 	}
 };
 export const loadRecordingId = async () => {
-	const result = await Storage.getItem([MOCKSI_RECORDING_ID]);
+	const result = await storage.getItem([MOCKSI_RECORDING_ID]);
 	return result[MOCKSI_RECORDING_ID];
 };
 
