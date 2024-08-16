@@ -57,6 +57,7 @@ const PlayToast = ({ close }: PlayToastProps) => {
 		getHighlighter().removeHighlightNodes();
 		loadPreviousModifications(alterations);
 		loadAlterations(alterations, { withHighlights: false });
+		images.applyEdits();
 	}, [url]);
 
 	const handleEdit = () => {

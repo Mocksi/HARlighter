@@ -224,6 +224,7 @@ export default function useImages(editing: boolean) {
 		const disconnect = observeUrlChange(() => {
 			setup();
 		});
+		applyEdits();
 
 		return () => {
 			disconnect();
