@@ -4,6 +4,8 @@ import "./style.css";
 
 const div = document.createElement("div");
 div.id = "__root";
+div.style = "position:absolute; top:0; right:0;";
+
 document.body.appendChild(div);
 
 /**
@@ -13,11 +15,7 @@ document.body.appendChild(div);
 const rootContainer = document.querySelector("#__root");
 if (!rootContainer) throw new Error("Can't find Content root element");
 const root = createRoot(rootContainer);
-root.render(
-  <div className="bottom-0 left-0 z-50 absolute bg-amber-400 text-black text-lg">
-    <AppIframe />
-  </div>,
-);
+root.render(<AppIframe />);
 
 try {
   console.log("content script loaded");
