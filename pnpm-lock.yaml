@@ -33,9 +33,6 @@ importers:
 
   apps/mocksi-lite:
     dependencies:
-      '-':
-        specifier: ^0.0.1
-        version: 0.0.1
       '@repo/dodom':
         specifier: workspace:*
         version: link:../../packages/dodom
@@ -298,9 +295,6 @@ importers:
         version: 5.3.3
 
 packages:
-
-  '-@0.0.1':
-    resolution: {integrity: sha512-3HfneK3DGAm05fpyj20sT3apkNcvPpCuccOThOPdzz8sY7GgQGe0l93XH9bt+YzibcTIgUAIMoyVJI740RtgyQ==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -6458,8 +6452,6 @@ packages:
     engines: {node: '>=12.20'}
 
 snapshots:
-
-  '-@0.0.1': {}
 
   '@alloc/quick-lru@5.2.0': {}
 
