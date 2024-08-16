@@ -17,8 +17,14 @@ describe("useImages hook", () => {
 		const { result } = renderHook(useImages);
 
 		expect(result.current.edits).toStrictEqual([]);
-		act(() => result.current.setEdits(["https://test.com/img"]));
-		expect(result.current.edits).toEqual(["https://test.com/img"]);
+		act(() =>
+			result.current.setEdits({
+				"https://example.com": "https://test.com/img",
+			}),
+		);
+		expect(result.current.edits).toEqual({
+			"https://example.com": "https://test.com/img",
+		});
 	});
 
 	it("edit dom", async () => {

@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import type { Recording } from "../../background";
 import Button, { Variant } from "../../common/Button";
 import { EditIcon, PlayIcon } from "../../common/Icons";
@@ -23,6 +23,17 @@ const DemoItem = ({
 }: DemoItemProps) => {
 	const { dispatch } = useContext(AppStateContext);
 	const domain = new URL(url).hostname;
+	const hasImageEditsRef = useRef(false);
+
+	// TODO: remove when we add images back to alterations
+	// biome-ignore lint/correctness/useExhaustiveDependencies: only run this on mount
+	useEffect(() => {
+		chrome.storage.local.get("mocksi-images", (storage) => {
+			if (storage["mocksi-images"][domain]) {
+				hasImageEditsRef.current = true;
+			}
+		});
+	}, []);
 
 	const handleEdit = async () => {
 		await chrome.storage.local.set({
@@ -66,7 +77,13 @@ const DemoItem = ({
 				>
 					<EditIcon />
 				</Button>
-				<Button onClick={handlePlay} variant={Variant.icon}>
+				<Button
+					disabled={
+						!hasImageEditsRef.current && (!alterations || !alterations.length)
+					}
+					onClick={handlePlay}
+					variant={Variant.icon}
+				>
 					<PlayIcon />
 				</Button>
 			</div>
