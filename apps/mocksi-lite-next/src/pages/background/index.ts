@@ -8,3 +8,11 @@ chrome.runtime.onMessage.addListener(
     return true;
   },
 );
+
+chrome.webRequest.onCompleted.addListener(
+  (details) => {
+    chrome.runtime.sendMessage(`request completed ${details.tabId}`);
+    return details;
+  },
+  { urls: ["https://*/*", "http://*/*"] },
+);
