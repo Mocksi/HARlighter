@@ -26,14 +26,13 @@ const DemoItem = ({
 	const hasImageEditsRef = useRef(false);
 
 	// TODO: remove when we add images back to alterations
-	// biome-ignore lint/correctness/useExhaustiveDependencies: only run this on mount
 	useEffect(() => {
 		chrome.storage.local.get("mocksi-images", (storage) => {
 			if (storage["mocksi-images"][domain]) {
 				hasImageEditsRef.current = true;
 			}
 		});
-	}, []);
+	}, [domain]);
 
 	const handleEdit = async () => {
 		await chrome.storage.local.set({
