@@ -1,99 +1,146 @@
 # Reactor
 
-A TypeScript library for modifying HTML content based on specific user commands. This library supports various actions such as replacing text, appending content, swapping images, highlighting elements, creating toast alerts, and adding components using TailwindCSS and DaisyUI.
+Reactor is a TypeScript library designed to make it easy to modify HTML content based on user commands. It provides a streamlined way to implement changes on a webpage—like replacing text, adding elements, swapping images, and more—using a declarative approach that simplifies the process for both developers and AI systems.
 
-## Features
+## What is Reactor?
 
-- Asynchronous HTML modification
-- Support for multiple DOM operations:
-  - Replace content
-  - Append content
-  - Prepend content
-  - Remove elements
-  - Swap images
-  - Highlight elements
-  - Create toast notifications
-  - Add components (e.g., DaisyUI components)
-- Error handling for missing elements
-- Customizable delay between modifications
+Reactor allows you to make dynamic updates to a webpage by specifying changes using CSS selectors and predefined actions. This makes it easier and safer to modify webpage content without writing complex code. For example, with Reactor, you can:
 
-## Installation
+- Change someone's name everywhere it appears
+- Add a new message at the top of the page
+- Swap out an image for a different one
+- Highlight specific words or sections
+- Display a notification message
 
-```bash
- pnpm install html-modification-library
-```
+By abstracting these operations, Reactor helps maintain the integrity of the page's structure while enabling flexible, targeted updates.
 
 ## Usage
 
-In this section, we'll walk through a practical example of how to use the Reactor library to modify HTML content based on user requests. This example will cover obtaining the HTML content to be modified, processing the user request, and handling potential errors.
+Follow these steps to use Reactor in your project:
 
-Prerequisites
-Before proceeding, ensure you have installed the html-modification-library by running:
+### Step 1: Import the Library
 
-`pnpm install html-modification-library`
+First, import the `modifyHtml` function from Reactor:
 
-### Step 1: Obtaining the HTML Content
-First, you need to obtain the HTML content you wish to modify. This could be from a local file, fetched from a server, or dynamically generated within your application. For demonstration purposes, let's assume you have the following HTML content stored in a variable named htmlContent:
+```typescript  
+import { modifyHtml } from 'reactor';
+```
+
+### Step 2: Obtain the HTML Content
+
+Next, get the HTML content you want to modify. This could be from:
+
+- A static HTML file
+- The current webpage's HTML
+- HTML received from a server
+
+For example:
 
 ```typescript
-const htmlContent = `
+const myHtml = `  
 <div id="user-info">Eliza Hart</div>
-<div id="welcome-message">Welcome, Eliza!</div>
+<div id="welcome-message">Welcome, Eliza!</div>  
 <img id="profile-pic" src="eliza.jpg" />
 `;
 ```
 
-### Step 2: Defining User Modifications
-Next, define the modifications you want to apply to the HTML content. These modifications are specified as an array of objects, each describing a particular action to perform on the HTML content.
+### Step 3: Define the Modifications
+
+Create an array of changes you want to make. Each change should include:
+
+- `selector`: A CSS selector to identify the element(s) to modify.
+- `action`: The type of modification (e.g., replace, append, remove).
+- Additional fields depending on the action (e.g., `content` for replacing text).
 
 ```typescript
-import { modifyHtml } from 'html-modification-library';
-
-const htmlModifications = [
-  { selector: "#user-info", action: "replace", content: "Santiago Hart" },
-  { selector: "#welcome-message", action: "replace", content: "Welcome, Santiago!" }, 
+const myChanges = [  
+  { selector: "#user-info",  action: "replace", content: "Santiago Hart" },
+  { selector: "#welcome-message", action: "replace", content: "Welcome, Santiago!" },
   { selector: "#profile-pic", action: "swapImage", imageUrl: "santiago.jpg" },
-  { selector: "body", action: "toast", toastMessage: "Welcome to the new site, Santiago!" } 
+  { selector: "body", action: "toast", toastMessage: "Welcome to the new site!" }
 ];
 ```
 
-### Step 3: Creating the User Request
+### Step 4: Create the User Request
 
-Combine the description of the modifications and the modifications themselves into a single object. This object is then converted into a JSON string, which serves as the input for the modifyHtml function.
+Combine your HTML and changes array into a "user request" object:
 
-```typescript
+```typescript  
 const userRequest = JSON.stringify({
-  description: "Change all occurrences of the name 'Eliza' to 'Santiago', swap profile picture, and add a toast notification.",
-  modifications: htmlModifications
+  description: "Change name from Eliza to Santiago and show notification",
+  modifications: myChanges  
 });
 ```
 
-### Step 4: Modifying the HTML Content
-Use the modifyHtml function to process the HTML content according to the user request. This function is asynchronous, so it must be awaited or handled with .then().
+### Step 5: Modify the HTML Content
+
+Call `modifyHtml` with your HTML and user request to get the modified HTML:
 
 ```typescript
-async function modifyHtmlContent() {
+async function updatePage() {
   try {
-    const modifiedHtml = await modifyHtml(htmlContent, userRequest);
-    console.log(modifiedHtml);
+    const updatedHtml = await modifyHtml(myHtml, userRequest);  
+    console.log(updatedHtml);
   } catch (error) {
-    console.error("Failed to modify HTML:", error);
+    console.error("Modification failed:", error);
   }
 }
 
-// Calling the function
-modifyHtmlContent();
+// Run the async function
+updatePage();
 ```
 
+This will produce the updated HTML with the changes applied:
 
-### Output:
 ```html
-<div id="user-info">Santiago Hart</div>
+<div id="user-info">Santiago Hart</div>  
 <div id="welcome-message">Welcome, Santiago!</div>
-<img id="profile-pic" src="santiago.jpg" />
-<div class="toast">Welcome to the new site, Santiago!</div>
-``` 
+<img id="profile-pic" src="santiago.jpg" />  
+<div class="toast">Welcome to the new site!</div>
+```
 
+## Supported Actions
+
+Reactor supports several actions for modifying HTML content:
+
+| Action      | Description                                           | Required Fields                       |
+|-------------|-------------------------------------------------------|---------------------------------------|
+| replace     | Replace the content of selected element(s)            | `content`                             |
+| append      | Add content to the end of selected element(s)         | `content`                             |
+| prepend     | Add content to the start of selected element(s)       | `content`                             |
+| remove      | Remove selected element(s) from the HTML              | -                                     |
+| swapImage   | Change the `src` URL of selected `<img>` element(s)   | `imageUrl`                            |
+| highlight   | Apply a highlight effect to selected element(s)       | `highlightStyle` (optional)           |
+| toast       | Show a notification message                           | `toastMessage`                        |
+| addComponent| Insert a custom component                             | `componentHtml`                       |
+
+## Handling Errors
+
+If something goes wrong during the HTML modification (e.g., an invalid CSS selector), Reactor will throw an error. Ensure your `modifyHtml` call is wrapped in a try/catch block:
+
+```typescript
+try {
+  const updatedHtml = await modifyHtml(myHtml, userRequest);
+  console.log(updatedHtml);
+} catch (error) {
+  console.error("Modification failed:", error);  
+}
+```
+
+## Learning Resources
+
+For more information on the technologies used by Reactor, check out these resources:
+
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
+- [Introduction to the DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction)
+- [CSS Selectors Reference](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors)
+- [Asynchronous Programming with async/await](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Async_await)
+
+## Conclusion
+
+Reactor offers a powerful and flexible way to modify webpages based on user input. It’s ideal for creating dynamic, personalized experiences in web apps, extensions, and more. By abstracting away the complexities of DOM manipulation, Reactor allows even beginner developers to focus on defining the changes they want to make rather than on how to implement them.
+
+Try Reactor in your next project and see how it can simplify and enhance your web development process! If you have questions or feedback, feel free to open an issue on the library’s GitHub repository.
 
 ## API
 
@@ -128,7 +175,6 @@ The user request should be a JSON string with the following structure:
 }
 ```
 
-
 ### Actions
 
 - `"replace"`: Replaces the content of the selected element(s).
@@ -143,8 +189,10 @@ The user request should be a JSON string with the following structure:
 
 ## Examples
 
-#### Replace Text Content
-##### Before
+### Replace Text Content
+
+**Before:**
+
 ```html
 <div id="user-info">
   <span id="user-name">Jane Smith</span>
@@ -152,8 +200,8 @@ The user request should be a JSON string with the following structure:
 </div>
 ```
 
-##### Request
-Replace the text content of an element identified by its ID.
+**Modification Request:**
+
 ```json
 [{
   "description": "Replace the user's name.",
@@ -166,7 +214,9 @@ Replace the text content of an element identified by its ID.
   ]
 }]
 ```
-##### After
+
+**After:**
+
 ```html
 <div id="user-info">
   <span id="user-name">John Doe</span>
@@ -174,18 +224,20 @@ Replace the text content of an element identified by its ID.
 </div>
 ```
 
-#### Swap Image Source
-##### Before
+### Swap Image Source
+
+**Before:**
+
 ```html
 <div class="profile">
   <img id="profile-pic" src="old-profile.jpg" alt="User profile picture">
   <p>Welcome back, user!</p>
 </div>
 ```
-##### User Request
-Swap the `src` attribute of an image element identified by its ID.
 
-``` json 
+**Modification Request:**
+
+```json 
 {
   "description": "Swap the profile picture.",
   "modifications": [
@@ -197,12 +249,12 @@ Swap the `src` attribute of an image element identified by its ID.
   ]
 }
 ```
-##### After
+
+**After:**
+
 ```html
 <div class="profile">
   <img id="profile-pic" src="new-profile.jpg" alt="User profile picture">
   <p>Welcome back, user!</p>
 </div>
 ```
-
-
