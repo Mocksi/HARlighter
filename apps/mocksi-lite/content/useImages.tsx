@@ -85,7 +85,6 @@ export default function useImages(editing: boolean) {
 		targetImage.focus();
 
 		function closeImageUploadModal() {
-			console.log("close modal!!", modalContainer);
 			shadowRoot.removeChild(modalContent);
 			if (modalContainer) {
 				document.body.removeChild(modalContainer);
@@ -188,9 +187,6 @@ export default function useImages(editing: boolean) {
 					// image has been edited before, add data attributes
 					if (storedEditsExist && src) {
 						if (localEdits[src]) {
-							console.log("image found with existing src!!!!!");
-							console.log("init src: ", src);
-							console.log("demo src: ", localEdits[src].slice(0, 50));
 							image.setAttribute("data-mocksi-edited", "true");
 							image.setAttribute("data-mocksi-init-src", src);
 							image.setAttribute("data-mocksi-demo-src", localEdits[src]);
