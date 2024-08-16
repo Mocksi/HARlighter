@@ -234,6 +234,9 @@ export const loadAlterations = async (
 // This is from chrome.storage.local
 // this should be called "revertModifications"
 export const loadPreviousModifications = (alterations: Alteration[]) => {
+	if (!alterations) {
+		return [];
+	}
 	for (const alteration of alterations) {
 		const { dom_after, dom_before, selector, type } = alteration;
 

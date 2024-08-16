@@ -26,6 +26,7 @@ import {
 import { getHighlighter } from "../EditMode/highlighter";
 import { buildQuerySelector } from "../EditMode/utils";
 import IframeWrapper from "../IframeWrapper";
+import useImages from "../useImages";
 import { observeUrlChange } from "../utils/observeUrlChange";
 import Toast from "./index";
 
@@ -37,7 +38,7 @@ export type ApplyAlteration = (
 	element: HTMLElement,
 	newText: string,
 	cleanPattern: string,
-	type: "text" | "image",
+	type: "image" | "text",
 ) => void;
 
 function useDidMountEffect<T>(func: () => void, deps: Array<T>) {
@@ -60,8 +61,9 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		initialReadOnlyState ?? true,
 	);
 	const [alterations, setAlterations] = useState<Alteration[]>([]);
-	const [recordingId, setRecordingId] = useState<string | null>(null);
+	const [recordingId, setRecordingId] = useState<null | string>(null);
 	const [url, setUrl] = useState<string>(document.location.href);
+	const images = useImages(true);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: only run this on mount
 	useEffect(() => {
@@ -95,7 +97,10 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		// use effect that removes the highlights and reloads the alterations
 		const disconnect = observeUrlChange(() => {
 			setUrl(document.location.href);
+			images.applyEdits();
 		});
+
+		images.setup();
 
 		return () => {
 			disconnect();
@@ -129,7 +134,6 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 		}
 
 		document.body.addEventListener("dblclick", onDoubleClickText);
-
 		return;
 	};
 
@@ -209,10 +213,10 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 			const newUncommitted = [
 				...previous,
 				{
-					selector: buildQuerySelector(element, newText),
+					action: "",
 					dom_after: newText,
 					dom_before: cleanPattern,
-					action: "",
+					selector: buildQuerySelector(element, newText),
 					type: type,
 				},
 			];
@@ -246,13 +250,14 @@ const EditToast = ({ initialReadOnlyState }: EditToastProps) => {
 
 	const handleSave = async () => {
 		await teardownEditor();
-
+		images.storeEdits();
+		images.undoEdits();
 		dispatch({ event: AppEvent.SAVE_MODIFICATIONS });
 	};
 
 	const handleCancel = () => {
 		resetEditor();
-
+		images.undoEdits();
 		dispatch({ event: AppEvent.CANCEL_EDITING });
 	};
 
