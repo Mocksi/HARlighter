@@ -1,21 +1,16 @@
 import { createRoot } from "react-dom/client";
-import AppIframe from "./AppIFrame";
-import "./style.css";
+import ExtensionIframe from "./Extension";
 
 const div = document.createElement("div");
 div.id = "__root";
-div.style = "position:absolute; top:0; right:0;";
-
+// @ts-ignore
+div.style = "z-index:99999; position:absolute; top:0; right:0;";
 document.body.appendChild(div);
 
-/**
- * load the iframe
- * loading from server
- */
 const rootContainer = document.querySelector("#__root");
 if (!rootContainer) throw new Error("Can't find Content root element");
 const root = createRoot(rootContainer);
-root.render(<AppIframe />);
+root.render(<ExtensionIframe />);
 
 try {
   console.log("content script loaded");

@@ -9,10 +9,11 @@ chrome.runtime.onMessage.addListener(
   },
 );
 
-chrome.webRequest.onCompleted.addListener(
-  (details) => {
-    chrome.runtime.sendMessage(`request completed ${details.tabId}`);
-    return details;
+chrome.runtime.onMessageExternal.addListener(
+  (request, _sender, sendResponse): boolean => {
+    console.log("Received message from external:", request);
+
+    sendResponse({ message: request.message, status: "ok" });
+    return true;
   },
-  { urls: ["https://*/*", "http://*/*"] },
 );
