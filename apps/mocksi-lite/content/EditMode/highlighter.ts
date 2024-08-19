@@ -3,20 +3,12 @@ import { MOCKSI_HIGHLIGHTER_ID } from "../../consts";
 import { decorate } from "./decorator";
 import { applyStyles } from "./utils";
 
-class HighlighterImpl {
+class Highlighter {
 	private contentRanger = document.createRange();
 	private highlightedNodes: { highlightedElem: Node; highlightId: string }[] =
 		[];
 
 	highlightNode = (elementToHighlight: Node) => {
-		const visible = elementToHighlight.parentElement
-			? elementToHighlight.parentElement.offsetWidth > 0 ||
-				elementToHighlight.parentElement.offsetHeight > 0
-			: false;
-		if (!visible) {
-			return;
-		}
-
 		this.contentRanger.selectNodeContents(elementToHighlight);
 		const { x, y, width, height } =
 			this.contentRanger.getBoundingClientRect() || {};
@@ -75,11 +67,11 @@ class HighlighterImpl {
 	};
 }
 
-let ContentHighlighter: HighlighterImpl;
+let ContentHighlighter: Highlighter;
 
 export const getHighlighter = () => {
 	if (!ContentHighlighter) {
-		ContentHighlighter = new HighlighterImpl();
+		ContentHighlighter = new Highlighter();
 	}
 	return ContentHighlighter;
 };

@@ -1,7 +1,6 @@
 import { DOMManipulator } from "@repo/dodom";
 import auth0, { type WebAuth } from "auth0-js";
 import sanitizeHtml from "sanitize-html";
-import { debug } from "webpack";
 import MocksiRollbar from "./MocksiRollbar";
 import type { Alteration } from "./background";
 import type { Recording } from "./background";
@@ -187,28 +186,6 @@ export const loadAlterations = async (
 		}
 		return selector;
 	}
-
-	const timestamps = getTimestamps();
-	const now = new Date();
-	await Promise.all(
-		timestamps.map(async (timestamp) => {
-			const userRequest = JSON.stringify({
-				modifications: [
-					{
-						action: "updateTimestampReferences",
-						selector: timestamp.selector,
-						timestampRef: {
-							currentTime: now.toISOString(),
-							recordedAt: createdAt?.toString(),
-						},
-					},
-				],
-			});
-			console.log("userRequest", userRequest);
-			const contents = document.querySelectorAll(timestamp.selector);
-			throw new Error("not implemented");
-		}),
-	);
 };
 
 // This is from chrome.storage.local
@@ -415,6 +392,7 @@ export const recordingLabel = (currentStatus: AppState) => {
 			return "Start recording";
 	}
 };
+
 export const innerHTMLToJson = (innerHTML: string): string => {
 	const parser = new DOMParser();
 	const doc = parser.parseFromString(innerHTML, "text/html");
@@ -487,5 +465,6 @@ export const extractStyles = (
 			console.error("Error accessing stylesheet:", e);
 		}
 	}
+
 	return styles.trim();
 };
