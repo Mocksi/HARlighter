@@ -15,7 +15,7 @@
   "content_scripts": [
     {
       "css": ["contentStyle.css"],
-      "js": ["src/pages/content/index.tsx"],
+      "js": ["src/pages/content/mocksi-extension.tsx"],
       "matches": ["http://*/*", "https://*/*", "<all_urls>"]
     }
   ],
