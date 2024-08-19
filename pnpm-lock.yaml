@@ -218,6 +218,9 @@ importers:
 
   packages/reactor:
     dependencies:
+      css-selector-generator:
+        specifier: ^3.6.8
+        version: 3.6.8
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
@@ -2683,6 +2686,9 @@ packages:
     engines: {node: ^14 || ^16 || >=18}
     peerDependencies:
       postcss: ^8.4
+
+  css-selector-generator@3.6.8:
+    resolution: {integrity: sha512-LFWoA20j0rcwGUa38OD6qFaQGKLpFG1xBUzx+wJr/0++34aJ71/YIw2jj6qOaVxiaCEQNrj3HOSepVwiShvyhg==}
 
   css-selector-tokenizer@0.8.0:
     resolution: {integrity: sha512-Jd6Ig3/pe62/qe5SBPTN8h8LeUg/pT4lLgtavPf7updwwHpvFzxvOQBHYj2LZDMjUnBzgvIUSjRcf6oT5HzHFg==}
@@ -9273,6 +9279,8 @@ snapshots:
   css-prefers-color-scheme@9.0.1(postcss@8.4.39):
     dependencies:
       postcss: 8.4.39
+
+  css-selector-generator@3.6.8: {}
 
   css-selector-tokenizer@0.8.0:
     dependencies:
