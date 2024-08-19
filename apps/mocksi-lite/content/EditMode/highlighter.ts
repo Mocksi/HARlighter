@@ -1,10 +1,9 @@
-import type { Highlighter } from "@repo/reactor";
 import { v4 as uuidv4 } from "uuid";
 import { MOCKSI_HIGHLIGHTER_ID } from "../../consts";
 import { decorate } from "./decorator";
 import { applyStyles } from "./utils";
 
-class HighlighterImpl implements Highlighter {
+class HighlighterImpl {
 	private contentRanger = document.createRange();
 	private highlightedNodes: { highlightedElem: Node; highlightId: string }[] =
 		[];

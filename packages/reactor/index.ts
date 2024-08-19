@@ -3,7 +3,6 @@ export type {
 	ModificationRequest,
 	AppliedModifications,
 	DomJsonExportNode,
-	TimeStampReference,
 	Highlighter,
 } from "./interfaces";
 export { Reactor } from "./reactor";

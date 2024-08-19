@@ -1,5 +1,4 @@
 import { DOMManipulator } from "@repo/dodom";
-import { modifyHtml } from "@repo/reactor";
 import auth0, { type WebAuth } from "auth0-js";
 import sanitizeHtml from "sanitize-html";
 import { debug } from "webpack";
@@ -207,26 +206,7 @@ export const loadAlterations = async (
 			});
 			console.log("userRequest", userRequest);
 			const contents = document.querySelectorAll(timestamp.selector);
-			for (const content of contents) {
-				try {
-					const result = await modifyHtml(content.outerHTML, userRequest);
-					const parser = new DOMParser();
-					const doc = parser.parseFromString(result, "text/html");
-
-					if (doc.body) {
-						// Replace the original content with the modified content
-						content.outerHTML = doc.body.innerHTML;
-					} else {
-						console.error("Parsed document body is null or undefined");
-					}
-				} catch (error) {
-					console.error(
-						"Error updating innerHTML for",
-						timestamp.selector,
-						error,
-					);
-				}
-			}
+			throw new Error("not implemented");
 		}),
 	);
 };

@@ -5,7 +5,6 @@ import { RemoveModification } from "./modifications/remove";
 import { ReplaceModification } from "./modifications/replace";
 import { ReplaceAllModification } from "./modifications/replaceAll";
 import { SwapImageModification } from "./modifications/swapImage";
-import { TimestampModification } from "./modifications/timestamp";
 import { ToastModification } from "./modifications/toast";
 
 import type {
@@ -188,9 +187,6 @@ export async function applyModification(
 				"beforeend",
 				mod.componentHtml || "",
 			);
-			break;
-		case "updateTimestampReferences":
-			modification = new TimestampModification(doc, element, mod.timestampRef);
 			break;
 		default:
 			modification = new NoopModification(doc, mod.action);

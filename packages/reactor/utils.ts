@@ -4,7 +4,6 @@ import type {
 	AppliedModifications,
 	Modification,
 	ModificationRequest,
-	TimeStampReference,
 } from "./interfaces";
 
 export function parseRequest(userRequest: string): ModificationRequest {
