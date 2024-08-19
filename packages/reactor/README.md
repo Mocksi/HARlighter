@@ -18,86 +18,110 @@ By abstracting these operations, Reactor helps maintain the integrity of the pag
 
 Follow these steps to use Reactor in your project:
 
-### Step 1: Import the Library
+Sure, I'll create detailed usage instructions for the `Reactor` class based on `reactor.ts` and the provided example.
 
-First, import the `modifyHtml` function from Reactor:
+## Usage Instructions for Reactor
 
-```typescript  
-import { modifyHtml } from 'reactor';
-```
+Reactor is a powerful tool for dynamically modifying HTML content on a webpage. Below are the steps to use the `Reactor` class effectively.
 
-### Step 2: Obtain the HTML Content
+### Step 1: Import the Reactor Class
 
-Next, get the HTML content you want to modify. This could be from:
-
-- A static HTML file
-- The current webpage's HTML
-- HTML received from a server
-
-For example:
+First, import the `Reactor` class from the `reactor` module.
 
 ```typescript
-const myHtml = `  
-<div id="user-info">Eliza Hart</div>
-<div id="welcome-message">Welcome, Eliza!</div>  
-<img id="profile-pic" src="eliza.jpg" />
-`;
+import { Reactor } from 'reactor';
 ```
 
-### Step 3: Define the Modifications
+### Step 2: Create an Instance of Reactor
 
-Create an array of changes you want to make. Each change should include:
+Create a new instance of the `Reactor` class.
+
+```typescript
+const exampleReactor = new Reactor();
+```
+
+### Step 3: Attach Reactor to the Document
+
+Attach the `Reactor` instance to the document you want to modify. This step is necessary for the `Reactor` to start generating events and applying modifications.
+
+```typescript
+await exampleReactor.attach(document, highlighter);
+```
+
+- `document`: The HTML document to which the `Reactor` should be attached.
+- `highlighter`: An instance of the `Highlighter` class used for highlighting elements (optional).
+
+### Step 4: Define Modifications
+
+Define the modifications you want to apply. Each modification should include:
 
 - `selector`: A CSS selector to identify the element(s) to modify.
 - `action`: The type of modification (e.g., replace, append, remove).
 - Additional fields depending on the action (e.g., `content` for replacing text).
 
 ```typescript
-const myChanges = [  
-  { selector: "#user-info",  action: "replace", content: "Santiago Hart" },
+const data = [
+  { selector: "#user-info", action: "replace", content: "Santiago Hart" },
   { selector: "#welcome-message", action: "replace", content: "Welcome, Santiago!" },
   { selector: "#profile-pic", action: "swapImage", imageUrl: "santiago.jpg" },
   { selector: "body", action: "toast", toastMessage: "Welcome to the new site!" }
 ];
 ```
 
-### Step 4: Create the User Request
+### Step 5: Push Modifications
 
-Combine your HTML and changes array into a "user request" object:
-
-```typescript  
-const userRequest = JSON.stringify({
-  description: "Change name from Eliza to Santiago and show notification",
-  modifications: myChanges  
-});
-```
-
-### Step 5: Modify the HTML Content
-
-Call `modifyHtml` with your HTML and user request to get the modified HTML:
+Push the modifications to the `Reactor` instance. This will apply the modifications to the document.
 
 ```typescript
-async function updatePage() {
-  try {
-    const updatedHtml = await modifyHtml(myHtml, userRequest);  
-    console.log(updatedHtml);
-  } catch (error) {
-    console.error("Modification failed:", error);
-  }
-}
-
-// Run the async function
-updatePage();
+await exampleReactor.pushModification(data);
 ```
 
-This will produce the updated HTML with the changes applied:
+### Step 6: Export the Modified DOM
 
-```html
-<div id="user-info">Santiago Hart</div>  
-<div id="welcome-message">Welcome, Santiago!</div>
-<img id="profile-pic" src="santiago.jpg" />  
-<div class="toast">Welcome to the new site!</div>
+Export the modified DOM as an array of `DomJsonExportNode` objects. This can be useful for saving the modified state or further processing.
+
+```typescript
+const updatedDomJson = exampleReactor.exportDOM();
+console.log(updatedDomJson);
 ```
+
+### Example
+
+Here is a complete example that demonstrates how to use the `Reactor` class:
+
+```typescript
+import { Reactor } from 'reactor';
+
+// Step 1: Create an instance of Reactor
+const exampleReactor = new Reactor();
+
+// Step 2: Attach Reactor to the document
+await exampleReactor.attach(document, highlighter);
+
+// Step 3: Define modifications
+const data = [
+  { selector: "#user-info", action: "replace", content: "Santiago Hart" },
+  { selector: "#welcome-message", action: "replace", content: "Welcome, Santiago!" },
+  { selector: "#profile-pic", action: "swapImage", imageUrl: "santiago.jpg" },
+  { selector: "body", action: "toast", toastMessage: "Welcome to the new site!" }
+];
+
+// Step 4: Push modifications
+await exampleReactor.pushModification(data);
+
+// Step 5: Export the modified DOM
+const updatedDomJson = exampleReactor.exportDOM();
+console.log(updatedDomJson);
+```
+
+### Additional Methods
+
+- **detach(clearModifications = true)**: Detach the `Reactor` from the document, optionally clearing all applied modifications.
+- **isAttached()**: Check if the `Reactor` is currently attached to a document.
+- **getAppliedModifications()**: Get an iterable object of all applied modifications.
+- **clearAppliedModifications()**: Clear all applied modifications.
+
+By following these steps, you can effectively use the `Reactor` class to dynamically modify HTML content on a webpage.
 
 ## Supported Actions
 
@@ -111,8 +135,10 @@ Reactor supports several actions for modifying HTML content:
 | remove      | Remove selected element(s) from the HTML              | -                                     |
 | swapImage   | Change the `src` URL of selected `<img>` element(s)   | `imageUrl`                            |
 | highlight   | Apply a highlight effect to selected element(s)       | `highlightStyle` (optional)           |
-| toast       | Show a notification message                           | `toastMessage`                        |
+| toast       | Show a notification message                           | `toastMessage`, `duration` (optional) |
 | addComponent| Insert a custom component                             | `componentHtml`                       |
+| replaceAll  | Replace all occurrences of a pattern in the content   | `content` (pattern to replace)        |
+| unknown     | Reserved for future use or custom actions             | -                                     |
 
 ## Handling Errors
 
@@ -185,6 +211,7 @@ The user request should be a JSON string with the following structure:
 - `"highlight"`: Applies a custom style for highlighting the selected element(s).
 - `"toast"`: Displays a toast notification with a specified message.
 - `"addComponent"`: Adds a custom HTML component to the selected location.
+- `"replaceAll"`: Replaces all occurrences of a pattern in the content.
 - `"unknown"`: Reserved for future use or custom actions.
 
 ## Examples
@@ -203,7 +230,7 @@ The user request should be a JSON string with the following structure:
 **Modification Request:**
 
 ```json
-[{
+{
   "description": "Replace the user's name.",
   "modifications": [
     {
@@ -212,7 +239,7 @@ The user request should be a JSON string with the following structure:
       "content": "John Doe"
     }
   ]
-}]
+}
 ```
 
 **After:**
