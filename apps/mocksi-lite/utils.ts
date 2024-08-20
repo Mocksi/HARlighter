@@ -1,8 +1,6 @@
 import { DOMManipulator } from "@repo/dodom";
-import { modifyHtml } from "@repo/reactor";
 import auth0, { type WebAuth } from "auth0-js";
 import sanitizeHtml from "sanitize-html";
-import { debug } from "webpack";
 import MocksiRollbar from "./MocksiRollbar";
 import type { Alteration } from "./background";
 import type { Recording } from "./background";
@@ -188,52 +186,14 @@ export const loadAlterations = async (
 		}
 		return selector;
 	}
-
-	const timestamps = getTimestamps();
-	const now = new Date();
-	await Promise.all(
-		timestamps.map(async (timestamp) => {
-			const userRequest = JSON.stringify({
-				modifications: [
-					{
-						action: "updateTimestampReferences",
-						selector: timestamp.selector,
-						timestampRef: {
-							currentTime: now.toISOString(),
-							recordedAt: createdAt?.toString(),
-						},
-					},
-				],
-			});
-			console.log("userRequest", userRequest);
-			const contents = document.querySelectorAll(timestamp.selector);
-			for (const content of contents) {
-				try {
-					const result = await modifyHtml(content.outerHTML, userRequest);
-					const parser = new DOMParser();
-					const doc = parser.parseFromString(result, "text/html");
-
-					if (doc.body) {
-						// Replace the original content with the modified content
-						content.outerHTML = doc.body.innerHTML;
-					} else {
-						console.error("Parsed document body is null or undefined");
-					}
-				} catch (error) {
-					console.error(
-						"Error updating innerHTML for",
-						timestamp.selector,
-						error,
-					);
-				}
-			}
-		}),
-	);
 };
 
 // This is from chrome.storage.local
 // this should be called "revertModifications"
 export const loadPreviousModifications = (alterations: Alteration[]) => {
+	if (!alterations) {
+		return [];
+	}
 	for (const alteration of alterations) {
 		const { dom_after, dom_before, selector, type } = alteration;
 

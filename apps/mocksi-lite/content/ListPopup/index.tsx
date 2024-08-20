@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import type { Recording } from "../../background";
 import Button from "../../common/Button";
 import Divider from "../../common/Divider";
@@ -17,6 +17,7 @@ interface ListPopupProps {
 const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 	const { dispatch } = useContext(AppStateContext);
 	const [recordings, setRecordings] = useState<Recording[]>([]);
+	const hasImageEditsRef = useRef(false);
 
 	const getRecordings = async () => {
 		sendMessage("getRecordings", {}, (response) => {
@@ -27,8 +28,15 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 		});
 	};
 
+	// TODO: remove when we add images back to alterations
+
 	// biome-ignore lint/correctness/useExhaustiveDependencies:
 	useEffect(() => {
+		chrome.storage.local.get("mocksi-images", (storage) => {
+			if (storage["mocksi-images"][document.location.hostname]) {
+				hasImageEditsRef.current = true;
+			}
+		});
 		getRecordings();
 	}, []);
 
@@ -39,8 +47,6 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 	const handleSettingsClicked = () => {
 		dispatch({ event: AppEvent.ENTER_SETTINGS });
 	};
-
-	console.log("rendering list popup");
 
 	return (
 		<Popup
@@ -58,7 +64,10 @@ const ListPopup = ({ email, onChat, onClose, onLogout }: ListPopupProps) => {
 							.filter((record) => record.url)
 							.map((record) => (
 								<Fragment key={`demo-item-${record.uuid}`}>
-									<DemoItem {...record} />
+									<DemoItem
+										{...record}
+										hasImageEdits={hasImageEditsRef.current}
+									/>
 									<div className="mw-my-6 mw-px-3">
 										<Divider />
 									</div>

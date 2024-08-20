@@ -13,6 +13,7 @@ import {
 } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 import { getHighlighter } from "../EditMode/highlighter";
+import useImages from "../useImages";
 import { observeUrlChange } from "../utils/observeUrlChange";
 import Toast from "./index";
 
@@ -24,7 +25,9 @@ const PlayToast = ({ close }: PlayToastProps) => {
 	const { dispatch } = useContext(AppStateContext);
 	const [alterations, setAlterations] = useState<Alteration[]>([]);
 	const [url, setUrl] = useState<string>(document.location.href);
+	const images = useImages(false);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: only run this on mount
 	useEffect(() => {
 		chrome.storage.local
 			.get([MOCKSI_ALTERATIONS, MOCKSI_RECORDING_CREATED_AT])
@@ -35,15 +38,15 @@ const PlayToast = ({ close }: PlayToastProps) => {
 				const createdAt = result[MOCKSI_RECORDING_CREATED_AT];
 
 				loadAlterations(alterations, {
-					withHighlights: false,
 					createdAt,
+					withHighlights: false,
 				});
 			});
 
 		const disconnect = observeUrlChange(() => {
 			setUrl(document.location.href);
 		});
-
+		images.setup();
 		return () => {
 			disconnect();
 		};
@@ -54,13 +57,12 @@ const PlayToast = ({ close }: PlayToastProps) => {
 		getHighlighter().removeHighlightNodes();
 		loadPreviousModifications(alterations);
 		loadAlterations(alterations, { withHighlights: false });
+		images.applyEdits();
 	}, [url]);
 
 	const handleEdit = () => {
 		sendMessage("resetIcon");
-
 		loadPreviousModifications(alterations);
-
 		dispatch({ event: AppEvent.START_EDITING });
 	};
 
@@ -72,6 +74,7 @@ const PlayToast = ({ close }: PlayToastProps) => {
 
 	const handleStop = () => {
 		sendMessage("resetIcon");
+		images.undoEdits();
 		undoModifications(alterations);
 		dispatch({ event: AppEvent.STOP_PLAYING });
 	};

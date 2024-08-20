@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import type { Recording } from "../../background";
 import Button, { Variant } from "../../common/Button";
 import { EditIcon, PlayIcon } from "../../common/Icons";
@@ -11,13 +11,16 @@ import {
 import { sendMessage } from "../../utils";
 import { AppEvent, AppStateContext } from "../AppStateContext";
 
-interface DemoItemProps extends Recording {}
+interface DemoItemProps extends Recording {
+	hasImageEdits: boolean;
+}
 
 const DemoItem = ({
 	alterations,
 	created_timestamp,
 	customer_name,
 	demo_name,
+	hasImageEdits,
 	url,
 	uuid,
 }: DemoItemProps) => {
@@ -67,7 +70,7 @@ const DemoItem = ({
 					<EditIcon />
 				</Button>
 				<Button
-					disabled={!alterations || !alterations.length}
+					disabled={!hasImageEdits && (!alterations || !alterations.length)}
 					onClick={handlePlay}
 					variant={Variant.icon}
 				>

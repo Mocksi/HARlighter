@@ -3,87 +3,11 @@ import type { ApplyAlteration } from "../Toast/EditToast";
 import { applyImageChanges } from "./actions";
 import { decorate } from "./decorator";
 
-function openImageUploadModal(targetedElement: HTMLImageElement) {
-	// Create a container for the shadow DOM
-	const modalContainer = document.createElement("div");
-	document.body.appendChild(modalContainer);
-
-	// Attach a shadow root to the container
-	const shadowRoot = modalContainer.attachShadow({ mode: "open" });
-
-	// Create the modal content
-	const modalContent = document.createElement("div");
-	modalContent.innerHTML = `
-        <div id="image-upload-modal" style="display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc;">
-            <h2>Upload New Image</h2>
-            <input type="file" id="image-input" accept="image/*">
-            <button id="upload-button">Upload</button>
-            <button id="cancel-button">Cancel</button>
-        </div>
-    `;
-
-	// Append the modal content to the shadow root
-	shadowRoot.appendChild(modalContent);
-
-	// Query the elements within the shadow DOM
-	const imageInput = shadowRoot.querySelector(
-		"#image-input",
-	) as HTMLInputElement;
-	const uploadButton = shadowRoot.querySelector(
-		"#upload-button",
-	) as HTMLButtonElement;
-	const cancelButton = shadowRoot.querySelector(
-		"#cancel-button",
-	) as HTMLButtonElement;
-
-	// Focus the targeted element
-	targetedElement.focus();
-
-	// Add event listeners to the buttons
-	uploadButton.addEventListener("click", () => {
-		const file = imageInput.files?.[0];
-		if (file) {
-			convertImageToDataUri(file)
-				.then((dataUri) => {
-					applyImageChanges(targetedElement, dataUri);
-					closeImageUploadModal();
-				})
-				.catch((error) => {
-					console.error("Error reading file:", error);
-				});
-		} else {
-			console.error("No file selected.");
-		}
-	});
-
-	cancelButton.addEventListener("click", closeImageUploadModal);
-
-	function closeImageUploadModal() {
-		document.body.removeChild(modalContainer);
-	}
-}
-
-function closeImageUploadModal() {
-	const modal = document.getElementById("image-upload-modal");
-	if (modal) {
-		modal.remove();
-	}
-}
-
-function convertImageToDataUri(file: File): Promise<string> {
-	return new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		reader.onload = () => resolve(reader.result as string);
-		reader.onerror = reject;
-		reader.readAsDataURL(file);
-	});
-}
-
 function decorateTextTag(
 	text: string,
 	width: string,
 	shiftMode: boolean,
-	{ startOffset, endOffset }: { startOffset: number; endOffset: number },
+	{ endOffset, startOffset }: { endOffset: number; startOffset: number },
 	applyAlteration: ApplyAlteration,
 ) {
 	const fragment = document.createDocumentFragment();
@@ -110,7 +34,7 @@ function decorateTextTag(
 
 export function applyEditor(
 	targetedElement: HTMLElement,
-	selectedRange: Selection | null,
+	selectedRange: null | Selection,
 	shiftMode: boolean,
 	applyAlteration: ApplyAlteration,
 ) {
