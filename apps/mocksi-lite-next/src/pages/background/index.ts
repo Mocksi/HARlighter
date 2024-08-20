@@ -12,10 +12,14 @@ chrome.runtime.onMessage.addListener(
 chrome.runtime.onMessageExternal.addListener(
   (request, _sender, sendResponse): boolean => {
     console.log("Received message from external:", request);
-    if (request.message === "resize") {
+    if (
+      request.message === "sm-top" ||
+      request.message === "lg-bottom" ||
+      request.message === "xs-bottom"
+    ) {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         if (tabs[0].id) {
-          chrome.tabs.sendMessage(tabs[0].id, { message: "resize" });
+          chrome.tabs.sendMessage(tabs[0].id, { message: request.message });
         }
       });
     }
