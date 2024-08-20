@@ -1,8 +1,11 @@
 export type {
-	Modification,
-	ModificationRequest,
-	AppliedModifications,
-	DomJsonExportNode,
-	Highlighter,
+  AppliedModifications,
+  DomJsonExportNode,
+  Highlighter,
+  Modification,
+  ModificationRequest,
 } from "./interfaces";
-export { Reactor } from "./reactor";
+
+import Reactor from "./reactor";
+
+export { Reactor };

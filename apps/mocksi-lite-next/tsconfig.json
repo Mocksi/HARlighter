@@ -1,27 +1,51 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "types": ["vite/client", "node", "chrome"],
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "baseUrl": ".",
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": false,
+    "jsx": "react-jsx",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "module": "esnext",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
+    "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@src/*": ["src/*"],
-      "@assets/*": ["src/assets/*"],
-      "@pages/*": ["src/pages/*"]
-    }
+      "@assets/*": [
+        "src/assets/*"
+      ],
+      "@pages/*": [
+        "src/pages/*"
+      ],
+      "@src/*": [
+        "src/*"
+      ]
+    },
+    "resolveJsonModule": true,
+    "skipDefaultLibCheck": false,
+    "skipLibCheck": false,
+    "strict": true,
+    "target": "esnext",
+    "types": [
+      "vite/client",
+      "node",
+      "chrome"
+    ]
   },
-  "include": ["src",
-    "utils", "vite.config.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "./**/*.test.tsx?"
+  ],
+  "include": [
+    "src",
+    "utils",
+    "vite.config.ts"
+  ],
 }
