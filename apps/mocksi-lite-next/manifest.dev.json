@@ -1,8 +1,7 @@
 {
   "action": {
     "default_icon": {
-      "32": "icon-32.png",
-      "default_popup": "src/pages/popup/index.html"
+      "32": "icon-32.png"
     }
   },
   "chrome_url_overrides": {
