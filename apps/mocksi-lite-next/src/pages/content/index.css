@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+#__root {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar {
+  height: 0px;
+  width: 0px;
+}

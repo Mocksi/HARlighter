@@ -1,0 +1,48 @@
+{
+  "action": {
+    "default_icon": {
+      "32": "icon-32.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/pages/background/index.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "css": ["contentStyle.css"],
+      "js": ["src/pages/content/mocksi-extension.tsx"],
+      "matches": ["http://*/*", "https://*/*", "<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "object-src 'none'; child-src http://nest-auth-ts-merge.onrender.com; frame-src http://nest-auth-ts-merge.onrender.com; script-src 'self'"
+  },
+  "description": "https://www.mocksi.ai",
+  "externally_connectable": {
+    "matches": ["http://nest-auth-ts-merge.onrender.com/*"]
+  },
+  "icons": {
+    "128": "icon-128.png"
+  },
+  "manifest_version": 3,
+  "name": "Mocksi Lite: Next",
+  "permissions": [
+    "activeTab",
+    "background",
+    "cookies",
+    "downloads",
+    "debugger",
+    "scripting",
+    "storage",
+    "tabs",
+    "webNavigation",
+    "webRequest"
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": [],
+      "resources": ["contentStyle.css", "icon-128.png", "icon-32.png"]
+    }
+  ]
+}
