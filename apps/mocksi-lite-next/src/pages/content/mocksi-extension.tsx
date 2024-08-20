@@ -30,22 +30,18 @@ const Iframe = () => {
           if (request.message === "xs-bottom") {
             iframeRef.current.style.height = "100px";
             iframeRef.current.style.width = "100px";
-            iframeRef.current.style.bottom = "0";
-            iframeRef.current.style.top = "unset";
-            iframeRef.current.style.border = "2px solid yellow";
+            iframeRef.current.style.bottom = "10px";
+            iframeRef.current.style.top = "auto";
           } else if (request.message === "sm-top") {
             iframeRef.current.style.height = "150px";
-            iframeRef.current.style.width = "350px";
-            iframeRef.current.style.bottom = "unset";
-            iframeRef.current.style.top = "0";
-            iframeRef.current.style.border = "2px solid pink";
-          } else {
-            // default is "lg-bottom"
+            iframeRef.current.style.width = "400px";
+            iframeRef.current.style.top = "0px";
+            iframeRef.current.style.bottom = "auto";
+          } else if (request.message === "lg-bottom") {
             iframeRef.current.style.height = "600px";
             iframeRef.current.style.width = "500px";
-            iframeRef.current.style.bottom = "0";
-            iframeRef.current.style.top = "unset";
-            iframeRef.current.style.border = "2px dotted green";
+            iframeRef.current.style.bottom = "10px";
+            iframeRef.current.style.top = "auto";
           }
         }
 
@@ -65,13 +61,14 @@ const Iframe = () => {
             src="http://localhost:3030/extension"
             style={{
               position: "fixed",
-              bottom: 0,
-              right: 0,
+              bottom: "10px",
+              right: "15px",
               height: "600px",
               width: "500px",
-              border: "4px solid red",
               boxShadow: "none",
               zIndex: 99998,
+              border: "none",
+              backgroundColor: "transparent",
             }}
           />
         </>,
