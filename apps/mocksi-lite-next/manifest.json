@@ -2,15 +2,11 @@
   "action": {
     "default_icon": {
       "32": "icon-32.png"
-    },
-    "default_popup": "src/pages/popup/index.html"
+    }
   },
   "background": {
     "service_worker": "src/pages/background/index.ts",
     "type": "module"
-  },
-  "chrome_url_overrides": {
-    "newtab": "src/pages/newtab/index.html"
   },
   "content_scripts": [
     {
@@ -20,21 +16,17 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "object-src 'none'; child-src http://localhost:3030; frame-src http://localhost:3030; script-src 'self'"
+    "extension_pages": "object-src 'none'; child-src http://nest-auth-ts-merge.onrender.com; frame-src http://nest-auth-ts-merge.onrender.com; script-src 'self'"
   },
-  "description": "<description in manifest.json>",
-  "devtools_page": "src/pages/devtools/index.html",
+  "description": "https://www.mocksi.ai",
   "externally_connectable": {
-    "matches": ["http://localhost:3030/*"]
+    "matches": ["http://nest-auth-ts-merge.onrender.com/*"]
   },
   "icons": {
     "128": "icon-128.png"
   },
   "manifest_version": 3,
-  "name": "<name in manifest.json>",
-  "options_ui": {
-    "page": "src/pages/options/index.html"
-  },
+  "name": "Mocksi Lite: Next",
   "permissions": [
     "activeTab",
     "background",

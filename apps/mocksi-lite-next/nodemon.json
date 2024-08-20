@@ -2,12 +2,14 @@
   "env": {
     "__DEV__": "true"
   },
-  "watch": [
-    "src", "utils", "vite.config.ts", "manifest.json", "manifest.dev.json"
-  ],
+  "exec": "vite build",
   "ext": "tsx,css,html,ts,json",
-  "ignore": [
-    "src/**/*.spec.ts"
-  ],
-  "exec": "vite build"
+  "ignore": ["src/**/*.test.ts"],
+  "watch": [
+    "src",
+    "utils",
+    "vite.config.ts",
+    "manifest.json",
+    "manifest.dev.json"
+  ]
 }
