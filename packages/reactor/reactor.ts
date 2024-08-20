@@ -16,7 +16,7 @@ import { ReactorMutationObserver } from "./mutationObserver";
  * are applied in the order they were added. Removing a modification
  * unapplies it.
  */
-export default class Reactor {
+class Reactor {
   private mutationObserver: ReactorMutationObserver;
   private attached = false;
 
@@ -196,3 +196,5 @@ export default class Reactor {
     await this.popModification(this.appliedModifications.length);
   }
 }
+
+export default Reactor;

@@ -4,6 +4,7 @@
 	"description": "Library for modifying HTML content based on specific user commands",
 	"private": true,
 	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"scripts": {
 		"build": "tsc",
 		"test": "pnpm exec vitest",

@@ -1,5 +1,5 @@
-import { type ModificationRequest } from "@repo/reactor";
 import { Reactor } from "@repo/reactor";
+import type { ModificationRequest } from "@repo/reactor";
 import React from "react";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";

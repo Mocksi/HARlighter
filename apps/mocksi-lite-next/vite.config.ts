@@ -66,6 +66,7 @@ export default defineConfig({
       "@assets": assetsDir,
       "@pages": pagesDir,
       "@src": root,
+      "@repo/reactor": resolve(__dirname, "../../packages/reactor/index.ts"),
     },
   },
 });
