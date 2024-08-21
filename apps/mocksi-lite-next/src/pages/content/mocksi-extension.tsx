@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 import type { ModificationRequest } from "@repo/reactor";
 import { Reactor } from "@repo/reactor";
->>>>>>> origin/main
 import React from "react";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
@@ -12,6 +9,7 @@ const div = document.createElement("div");
 div.id = "__root";
 document.body.appendChild(div);
 let mounted = false;
+const reactor = new Reactor();
 
 chrome.runtime.onMessage.addListener((request) => {
   if (request.message === "mount-extension") {
@@ -22,8 +20,33 @@ chrome.runtime.onMessage.addListener((request) => {
       const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
       React.useEffect(() => {
+        window.document.body.addEventListener("click", async (event) => {
+          const oldValue = "Engineering";
+          const newValue = "Cats";
+          const modification: ModificationRequest = {
+            description: `Change ${oldValue} to ${newValue}`,
+            modifications: [
+              {
+                action: "replaceAll",
+                content: `/${oldValue}/${newValue}/`,
+                selector: "body",
+              },
+            ],
+          };
+          const modifications = await reactor.pushModification(modification);
+          for (const modification of modifications) {
+            modification.setHighlight(true);
+          }
+        });
+
         chrome.runtime.onMessage.addListener(
           (request, _sender, sendResponse): boolean => {
+            if (request.message === "EDITING") {
+              reactor.attach(document, getHighlighter());
+            }
+            if (request.message === "STOP_EDITING") {
+              reactor.detach();
+            }
             if (iframeRef.current) {
               let styles = {};
               switch (request.message) {
