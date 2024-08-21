@@ -1,8 +1,4 @@
-import { throws } from "assert";
-const cssSelector = require("css-selector-generator");
 import type {
-	AppliedModifications,
-	Modification,
 	ModificationRequest,
 } from "./interfaces";
 

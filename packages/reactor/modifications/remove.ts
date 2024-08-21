@@ -1,5 +1,5 @@
 import { AppliableModification } from "../interfaces";
-const cssSelector = require("css-selector-generator");
+import * as cssSelector from "css-selector-generator";
 
 export class RemoveModification extends AppliableModification {
 	element: Element;
