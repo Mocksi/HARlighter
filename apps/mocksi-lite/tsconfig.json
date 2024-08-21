@@ -6,11 +6,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"isolatedModules": false,
 		"jsx": "react-jsx",
-		"lib": [
-			"dom",
-			"dom.iterable",
-			"esnext"
-		],
+		"lib": ["dom", "dom.iterable", "esnext"],
 		"module": "esnext",
 		"moduleResolution": "node",
 		"noEmitOnError": true,
@@ -20,22 +16,9 @@
 		"sourceMap": false,
 		"strict": true,
 		"target": "esnext",
-		"typeRoots": [
-			"node_modules/@types",
-			"node_modules/@chrome"
-		],
-		"types": [
-			"chrome",
-			"vitest/globals"
-		]
+		"typeRoots": ["node_modules/@types", "node_modules/@chrome"],
+		"types": ["chrome", "vitest/globals"]
 	},
-	"exclude": [
-		"node_modules",
-		"dist",
-		"./**/*.test.tsx?"
-	],
-	"include": [
-		"./",
-		"typings.d.ts"
-	]
+	"exclude": ["node_modules", "dist", "./**/*.test.tsx?"],
+	"include": ["./", "typings.d.ts"]
 }
