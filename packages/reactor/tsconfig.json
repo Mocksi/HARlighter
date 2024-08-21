@@ -1,9 +1,14 @@
 {
 	"extends": "@repo/typescript-config/base.json",
 	"compilerOptions": {
-		"outDir": "dist",
-		"types": ["vitest/globals"]
+	  "outDir": "dist",
+	  "types": ["vitest/globals"],
+	  "moduleResolution": "Node",
+	  "module": "ESNext",
+	  "target": "ESNext",
+	  "esModuleInterop": true,
+	  "allowSyntheticDefaultImports": true
 	},
 	"include": ["index.ts", "receivers", "utils", "commands"],
 	"exclude": ["node_modules", "dist", "test"]
-}
+  }

@@ -1,4 +1,4 @@
-console.log("background script loaded");
+console.debug("background script loaded");
 
 // when user clicks toolbar mount extension
 chrome.action.onClicked.addListener((tab) => {

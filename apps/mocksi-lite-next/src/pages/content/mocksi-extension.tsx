@@ -1,6 +1,12 @@
+<<<<<<< HEAD
+=======
+import type { ModificationRequest } from "@repo/reactor";
+import { Reactor } from "@repo/reactor";
+>>>>>>> origin/main
 import React from "react";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
+import { getHighlighter } from "./highlighter";
 
 const div = document.createElement("div");
 div.id = "__root";
