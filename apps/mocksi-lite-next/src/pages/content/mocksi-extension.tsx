@@ -1,5 +1,5 @@
-import { Reactor } from "@repo/reactor";
 import type { ModificationRequest } from "@repo/reactor";
+import { Reactor } from "@repo/reactor";
 import React from "react";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
@@ -21,7 +21,6 @@ const Iframe = () => {
 
   React.useEffect(() => {
     window.document.body.addEventListener("click", async (event) => {
-      console.log("click!!!");
       const oldValue = "Engineering";
       const newValue = "Cats";
       const modification: ModificationRequest = {
@@ -77,10 +76,11 @@ const Iframe = () => {
   }, []);
 
   return (
-    <div>
+    <>
       {ReactDOM.createPortal(
         <>
           <iframe
+            allowTransparency={true}
             ref={iframeRef}
             seamless={true}
             src="http://localhost:3030/extension"
@@ -93,13 +93,13 @@ const Iframe = () => {
               boxShadow: "none",
               zIndex: 99998,
               border: "none",
-              backgroundColor: "transparent",
+              backgroundColor: "transparent!important",
             }}
           />
         </>,
         document.body,
       )}
-    </div>
+    </>
   );
 };
 

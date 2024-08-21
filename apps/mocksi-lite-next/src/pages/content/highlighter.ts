@@ -118,7 +118,6 @@ const highlight = ({
   );
   const highlightDiv = document.createElement("div");
   highlightDiv.className = MOCKSI_HIGHLIGHTER_ID;
-  // applyStyles(highlightDiv, highlighterStyles);
 
   highlightDiv.ondblclick = (event: MouseEvent) => {
     if (!highlightedElement?.parentElement) {
@@ -126,10 +125,6 @@ const highlight = ({
     }
     (event.target as HTMLElement).style.display = "none";
     // TODO: Come back to handle double clicking on a highlight
-    // highlightedElement.parentElement?.replaceChild(
-    // 	decorate(highlightedElement.textContent || "", `${width || ""}`, false, ),
-    // 	highlightedElement,
-    // );
     document.getElementById("mocksiTextArea")?.focus();
     event.stopPropagation();
   };
