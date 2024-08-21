@@ -1,9 +1,9 @@
 {
 	"extends": "@repo/typescript-config/base.json",
 	"compilerOptions": {
-		"outDir": "dist",
-		"types": ["vitest/globals"]
+	  "outDir": "dist",
+	  "types": ["vitest/globals"]
 	},
 	"include": ["index.ts", "receivers", "utils", "commands"],
 	"exclude": ["node_modules", "dist", "test"]
-}
+  }
