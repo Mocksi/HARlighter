@@ -23,6 +23,8 @@ chrome.runtime.onMessageExternal.addListener(
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       if (tabs[0].id) {
         chrome.tabs.sendMessage(tabs[0].id, { message: request.message });
+      } else {
+        console.log("No active tab found, could not send message");
       }
     });
     sendResponse({ message: request.message, status: "ok" });
