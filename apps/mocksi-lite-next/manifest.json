@@ -1,7 +1,7 @@
 {
   "action": {
     "default_icon": {
-      "32": "icon-32.png"
+      "32": "mocksi-icon.png"
     }
   },
   "background": {
@@ -10,7 +10,6 @@
   },
   "content_scripts": [
     {
-      "css": ["contentStyle.css"],
       "js": ["src/pages/content/mocksi-extension.tsx"],
       "matches": ["http://*/*", "https://*/*", "<all_urls>"]
     }
@@ -23,7 +22,7 @@
     "matches": ["http://nest-auth-ts-merge.onrender.com/*"]
   },
   "icons": {
-    "128": "icon-128.png"
+    "128": "mocksi-logo.png"
   },
   "manifest_version": 3,
   "name": "Mocksi Lite: Next",
@@ -42,7 +41,7 @@
   "web_accessible_resources": [
     {
       "matches": [],
-      "resources": ["contentStyle.css", "icon-128.png", "icon-32.png"]
+      "resources": ["mocksi-icon.png", "mocksi-logo.png"]
     }
   ]
 }

@@ -23,27 +23,6 @@ const extensionManifest = {
   version: pkg.version,
 };
 
-// plugin to remove dev icons from prod build
-function stripDevIcons(apply: boolean) {
-  if (apply) return null;
-
-  return {
-    name: "strip-dev-icons",
-    renderStart(outputOptions: any, inputOptions: any) {
-      const outDir = outputOptions.dir;
-      fs.rm(resolve(outDir, "dev-icon-32.png"), () =>
-        console.log(`Deleted dev-icon-32.png frm prod build`),
-      );
-      fs.rm(resolve(outDir, "dev-icon-128.png"), () =>
-        console.log(`Deleted dev-icon-128.png frm prod build`),
-      );
-    },
-    resolveId(source: string) {
-      return source === "virtual-module" ? source : null;
-    },
-  };
-}
-
 export default defineConfig({
   build: {
     emptyOutDir: !isDev,
@@ -58,7 +37,6 @@ export default defineConfig({
       },
       manifest: extensionManifest as ManifestV3Export,
     }),
-    stripDevIcons(isDev),
   ],
   publicDir,
   resolve: {
