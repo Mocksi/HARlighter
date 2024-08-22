@@ -1,11 +1,11 @@
 name: Build and Zip Extension
 
-defaults:
-  run:
-    working-directory: ./apps/mocksi-lite-next
-
 on:
   workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./HARlighter/apps/mocksi-lite-next
 
 jobs:
   build_extension:
