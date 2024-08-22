@@ -68,7 +68,6 @@ chrome.runtime.onMessage.addListener((request) => {
               reactor.attach(document, getHighlighter());
             }
             if (request.message === "NEW_EDIT") {
-              console.log("new edit request: ", request);
               if (request.data) {
                 const { find, highlightEdits, replace } = request.data;
                 const modifications = await findReplaceAll(
@@ -76,7 +75,6 @@ chrome.runtime.onMessage.addListener((request) => {
                   replace,
                   highlightEdits,
                 );
-                console.log("modifications: ", modifications);
               }
             }
             if (request.message === "STOP_EDITING") {
