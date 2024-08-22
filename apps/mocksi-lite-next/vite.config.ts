@@ -1,6 +1,5 @@
 import { ManifestV3Export, crx } from "@crxjs/vite-plugin";
 import react from "@vitejs/plugin-react";
-import fs from "fs";
 import { resolve } from "path";
 import { defineConfig } from "vite";
 
