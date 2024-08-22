@@ -4,35 +4,31 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build
-    timeout-minutes: 15
+  build_extension:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm i
-
-      - name: Build
-        run: pnpm build
-
-      - name: Upload extension artifacts
-        uses: actions/upload-artifact@v3
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
         with:
-          name: vite-web-extension
-          path: dist
+          run_install: false
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+      - name: Build artifacts
+        run: pnpm build
