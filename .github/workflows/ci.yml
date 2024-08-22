@@ -5,7 +5,7 @@ on:
 
 defaults:
   run:
-    working-directory: ./HARlighter/apps/mocksi-lite-next
+    working-directory: ./apps/mocksi-lite-next
 
 jobs:
   build_extension:
