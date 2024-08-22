@@ -21,7 +21,9 @@ jobs:
           cache: "pnpm"
 
       - name: Install pnpm
-        run: wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
       - name: Install dependencies
         run: pnpm i
