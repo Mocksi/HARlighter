@@ -34,7 +34,11 @@ chrome.action.onClicked.addListener((tab) => {
 chrome.runtime.onMessage.addListener(
   (request, _sender, sendResponse): boolean => {
     console.log("Received message:", request);
-    sendResponse({ message: request.message, status: "ok" });
+    sendResponse({
+      data: request.data,
+      message: request.message,
+      status: "ok",
+    });
     return true;
   },
 );
@@ -63,7 +67,10 @@ chrome.runtime.onMessageExternal.addListener(
     } else {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         if (tabs[0].id) {
-          chrome.tabs.sendMessage(tabs[0].id, { message: request.message });
+          chrome.tabs.sendMessage(tabs[0].id, {
+            data: request.data,
+            message: request.message,
+          });
         } else {
           console.log("No active tab found, could not send message");
         }

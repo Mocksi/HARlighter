@@ -34,31 +34,50 @@ chrome.runtime.onMessage.addListener((request) => {
     const Iframe = () => {
       const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
-      React.useEffect(() => {
-        window.document.body.addEventListener("click", async (event) => {
-          const oldValue = "Engineering";
-          const newValue = "Cats";
-          const modification: ModificationRequest = {
-            description: `Change ${oldValue} to ${newValue}`,
-            modifications: [
-              {
-                action: "replaceAll",
-                content: `/${oldValue}/${newValue}/`,
-                selector: "body",
-              },
-            ],
-          };
-          const modifications = await reactor.pushModification(modification);
-          for (const modification of modifications) {
-            modification.setHighlight(true);
-          }
-        });
+      async function findReplaceAll(
+        find: string,
+        replace: string,
+        highlight: boolean,
+      ) {
+        const modification: ModificationRequest = {
+          description: `Change ${find} to ${replace}`,
+          modifications: [
+            {
+              action: "replaceAll",
+              content: `/${find}/${replace}/`,
+              selector: "body",
+            },
+          ],
+        };
 
+        const modifications = await reactor.pushModification(modification);
+        if (highlight) {
+          for (const mod of modifications) {
+            mod.setHighlight(true);
+          }
+        }
+        console.log("mods in find and replace fn: ", modifications);
+        return modifications;
+      }
+
+      React.useEffect(() => {
         chrome.runtime.onMessage.addListener(
-          (request, _sender, sendResponse): boolean => {
+          async (request, _sender, sendResponse) => {
             // reactor
             if (request.message === "EDITING") {
               reactor.attach(document, getHighlighter());
+            }
+            if (request.message === "NEW_EDIT") {
+              console.log("new edit request: ", request);
+              if (request.data) {
+                const { find, highlightEdits, replace } = request.data;
+                const modifications = await findReplaceAll(
+                  find,
+                  replace,
+                  highlightEdits,
+                );
+                console.log("modifications: ", modifications);
+              }
             }
             if (request.message === "STOP_EDITING") {
               reactor.detach();
@@ -68,7 +87,6 @@ chrome.runtime.onMessage.addListener((request) => {
               let styles = {};
               switch (request.message) {
                 case "ANALYZING":
-                case "EDITING":
                 case "PLAY":
                 case "RECORDING":
                   styles = {
