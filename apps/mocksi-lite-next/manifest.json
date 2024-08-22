@@ -15,11 +15,11 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "object-src 'none'; child-src http://nest-auth-ts-merge.onrender.com; frame-src http://nest-auth-ts-merge.onrender.com; script-src 'self'"
+    "extension_pages": "object-src 'none'; child-src https://nest-auth-ts-merge.onrender.com; frame-src https://nest-auth-ts-merge.onrender.com; script-src 'self'"
   },
   "description": "https://www.mocksi.ai",
   "externally_connectable": {
-    "matches": ["http://nest-auth-ts-merge.onrender.com/*"]
+    "matches": ["https://nest-auth-ts-merge.onrender.com/*"]
   },
   "icons": {
     "128": "mocksi-logo.png"

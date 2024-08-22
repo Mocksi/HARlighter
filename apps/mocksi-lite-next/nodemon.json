@@ -2,7 +2,7 @@
   "env": {
     "__DEV__": "true"
   },
-  "exec": "vite build",
+  "exec": "vite build --mode development",
   "ext": "tsx,css,html,ts,json",
   "ignore": ["src/**/*.test.ts"],
   "watch": [
