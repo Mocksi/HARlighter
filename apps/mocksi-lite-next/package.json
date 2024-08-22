@@ -45,7 +45,7 @@
     "url": "https://github.com/JohnBra/web-extension.git"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "vite build --mode production",
     "dev": "nodemon",
     "format": "prettier --write \"src/**/*.{tsx,ts}\"",
     "lint": "eslint --fix --ext .ts,.tsx"

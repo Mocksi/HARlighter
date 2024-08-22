@@ -128,7 +128,7 @@ chrome.runtime.onMessage.addListener((request) => {
               <iframe
                 ref={iframeRef}
                 seamless={true}
-                src="http://localhost:3030/extension"
+                src={`${import.meta.env.VITE_NEST_APP}/extension`}
                 style={{
                   position: "fixed",
                   bottom: "10px",

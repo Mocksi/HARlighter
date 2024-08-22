@@ -18,7 +18,7 @@ const getAuth = async (): Promise<null | {
 addEventListener("install", () => {
   // TODO test if this works on other browsers
   chrome.tabs.create({
-    url: "https://nest-auth-ts-merge.onrender.com",
+    url: import.meta.env.VITE_NEST_APP,
   });
 });
 
@@ -57,7 +57,7 @@ chrome.runtime.onMessageExternal.addListener(
         });
       } else {
         chrome.tabs.create({
-          url: "https://nest-auth-ts-merge.onrender.com",
+          url: import.meta.env.VITE_NEST_APP,
         });
         sendResponse({
           message: "authenticating",
