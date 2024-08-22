@@ -5,11 +5,26 @@ import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import { getHighlighter } from "./highlighter";
 
+const STORAGE_CHANGE_EVENT = "MOCKSI_STORAGE_CHANGE";
+
 const div = document.createElement("div");
 div.id = "__root";
 document.body.appendChild(div);
 let mounted = false;
 const reactor = new Reactor();
+
+window.addEventListener("message", (event: MessageEvent) => {
+  const eventData = event.data;
+  if (event.source !== window || !eventData || !eventData.type) {
+    return;
+  }
+
+  if (eventData.type.toUpperCase() === STORAGE_CHANGE_EVENT.toUpperCase()) {
+    chrome.storage.local.set({ [eventData.key]: eventData.value }).then(() => {
+      console.debug(eventData.key, " set.");
+    });
+  }
+});
 
 chrome.runtime.onMessage.addListener((request) => {
   if (request.message === "mount-extension") {
@@ -41,17 +56,21 @@ chrome.runtime.onMessage.addListener((request) => {
 
         chrome.runtime.onMessage.addListener(
           (request, _sender, sendResponse): boolean => {
+            // reactor
             if (request.message === "EDITING") {
               reactor.attach(document, getHighlighter());
             }
             if (request.message === "STOP_EDITING") {
               reactor.detach();
             }
+            // resize iframe
             if (iframeRef.current) {
               let styles = {};
               switch (request.message) {
+                case "ANALYZING":
                 case "EDITING":
                 case "PLAY":
+                case "RECORDING":
                   styles = {
                     bottom: "auto",
                     height: "150px",
