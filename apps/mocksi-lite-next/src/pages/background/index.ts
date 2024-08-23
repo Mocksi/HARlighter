@@ -85,13 +85,11 @@ chrome.runtime.onMessageExternal.addListener(
   async (request, _sender, sendResponse) => {
     console.log("Received message from external:", request);
 
-    // grab the url for the site the iframe is mounted in
-    const tab = await getCurrentTab();
-
     if (request.message === "UNAUTHORIZED") {
       const auth = await getAuth();
       if (auth) {
         const { accessToken, email } = auth;
+        const tab = await getCurrentTab();
         sendResponse({
           // pass the url where the extension is mounted so
           // we can filter recordings by domain on the server
@@ -108,6 +106,7 @@ chrome.runtime.onMessageExternal.addListener(
         });
       }
     } else {
+      const tab = await getCurrentTab();
       if (tab?.id) {
         chrome.tabs.sendMessage(tab?.id, {
           data: request.data,
