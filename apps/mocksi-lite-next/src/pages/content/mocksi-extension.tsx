@@ -1,5 +1,5 @@
 import type { ModificationRequest } from "@repo/reactor";
-import { Reactor } from "@repo/reactor";
+import { Reactor, AppliedModifications } from "@repo/reactor";
 import React from "react";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
@@ -62,60 +62,68 @@ chrome.runtime.onMessage.addListener((request) => {
 
       React.useEffect(() => {
         chrome.runtime.onMessage.addListener(
-          async (request, _sender, sendResponse) => {
-            // reactor
-            if (request.message === "EDITING") {
-              reactor.attach(document, getHighlighter());
-            }
-            if (request.message === "NEW_EDIT") {
-              if (request.data) {
-                const { find, highlightEdits, replace } = request.data;
-                const modifications = await findReplaceAll(
-                  find,
-                  replace,
-                  highlightEdits,
-                );
+          (request, _sender, sendResponse) => {
+
+            // execute in async block so that we return true
+            // synchronously, telling chrome to wait for the response
+            (async () => {
+              let data = null;
+
+              // reactor
+              if (request.message === "EDITING") {
+                reactor.attach(document, getHighlighter());
               }
-            }
-            if (request.message === "STOP_EDITING") {
-              reactor.detach();
-            }
-            // resize iframe
-            if (iframeRef.current) {
-              let styles = {};
-              switch (request.message) {
-                case "ANALYZING":
-                case "PLAY":
-                case "RECORDING":
-                  styles = {
-                    bottom: "auto",
-                    height: "150px",
-                    top: "0px",
-                    width: "400px",
-                  };
-                  break;
-                case "MINIMIZED":
-                  styles = {
-                    bottom: "10px",
-                    height: "100px",
-                    top: "auto",
-                    width: "100px",
-                  };
-                  break;
-                default:
-                  styles = {
-                    bottom: "10px",
-                    height: "600px",
-                    top: "auto",
-                    width: "500px",
-                  };
+              if (request.message === "NEW_EDIT") {
+                if (request.data) {
+                  const { find, highlightEdits, replace } = request.data;
+                  await findReplaceAll(
+                    find,
+                    replace,
+                    highlightEdits,
+                  );
+                  data = Array.from(reactor.getAppliedModifications()).map((mod) => mod.modificationRequest);
+                }
+              }
+              if (request.message === "STOP_EDITING") {
+                reactor.detach();
+              }
+              // resize iframe
+              if (iframeRef.current) {
+                let styles = {};
+                switch (request.message) {
+                  case "ANALYZING":
+                  case "PLAY":
+                  case "RECORDING":
+                    styles = {
+                      bottom: "auto",
+                      height: "150px",
+                      top: "0px",
+                      width: "400px",
+                    };
+                    break;
+                  case "MINIMIZED":
+                    styles = {
+                      bottom: "10px",
+                      height: "100px",
+                      top: "auto",
+                      width: "100px",
+                    };
+                    break;
+                  default:
+                    styles = {
+                      bottom: "10px",
+                      height: "600px",
+                      top: "auto",
+                      width: "500px",
+                    };
+                }
+
+                // set inline styles for iframe
+                Object.assign(iframeRef.current.style, styles);
               }
 
-              // set inline styles for iframe
-              Object.assign(iframeRef.current.style, styles);
-            }
-
-            sendResponse({ message: request.message, status: "ok" });
+              sendResponse({ data: data, message: request.message, status: "ok" });
+            })();
             return true;
           },
         );
