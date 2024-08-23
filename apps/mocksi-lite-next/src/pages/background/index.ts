@@ -74,44 +74,51 @@ chrome.runtime.onMessage.addListener(
 );
 
 chrome.runtime.onMessageExternal.addListener(
-  async (request, _sender, sendResponse) => {
+  (request, _sender, sendResponse) => {
     console.log("Received message from external:", request);
 
-    if (request.message === "UNAUTHORIZED") {
-      const auth = await getAuth();
-      if (auth) {
-        const { accessToken, email } = auth;
-        sendResponse({
-          message: { accessToken, email },
-          status: "ok",
-        });
-      } else {
+    // execute in async block so that we return true
+    // synchronously, telling chrome to wait for the response
+    (async () => {
+      if (request.message === "UNAUTHORIZED") {
+        const auth = await getAuth();
+        if (auth) {
+          const { accessToken, email } = auth;
+          sendResponse({
+            message: { accessToken, email },
+            status: "ok",
+          });
+        } else {
+          await showAuthTab();
+          sendResponse({
+            message: "authenticating",
+            status: "ok",
+          });
+        }
+      } else if (request.message === "AUTH_ERROR") {
+        await clearAuth();
         await showAuthTab();
         sendResponse({
           message: "authenticating",
           status: "ok",
         });
+      } else {
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+          if (tabs[0].id) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+              data: request.data,
+              message: request.message,
+            }, (response) => {
+              sendResponse(response);
+            });
+          } else {
+            sendResponse({ message: request.message, status: "no-tab" });
+            console.log("No active tab found, could not send message");
+          }
+        });
       }
-    } else if (request.message === "AUTH_ERROR") {
-      await clearAuth();
-      await showAuthTab();
-      sendResponse({
-        message: "authenticating",
-        status: "ok",
-      });
-    } else {
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        if (tabs[0].id) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            data: request.data,
-            message: request.message,
-          });
-        } else {
-          console.log("No active tab found, could not send message");
-        }
-      });
-      sendResponse({ message: request.message, status: "ok" });
-      return true;
-    }
+    })();
+    
+    return true;
   },
 );
