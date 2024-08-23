@@ -1,5 +1,5 @@
+import { AppliedModifications, Reactor } from "@repo/reactor";
 import type { ModificationRequest } from "@repo/reactor";
-import { Reactor, AppliedModifications } from "@repo/reactor";
 import React from "react";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
@@ -63,7 +63,6 @@ chrome.runtime.onMessage.addListener((request) => {
       React.useEffect(() => {
         chrome.runtime.onMessage.addListener(
           (request, _sender, sendResponse) => {
-
             // execute in async block so that we return true
             // synchronously, telling chrome to wait for the response
             (async () => {
@@ -76,12 +75,10 @@ chrome.runtime.onMessage.addListener((request) => {
               if (request.message === "NEW_EDIT") {
                 if (request.data) {
                   const { find, highlightEdits, replace } = request.data;
-                  await findReplaceAll(
-                    find,
-                    replace,
-                    highlightEdits,
+                  await findReplaceAll(find, replace, highlightEdits);
+                  data = Array.from(reactor.getAppliedModifications()).map(
+                    (mod) => mod.modificationRequest,
                   );
-                  data = Array.from(reactor.getAppliedModifications()).map((mod) => mod.modificationRequest);
                 }
               }
               if (request.message === "STOP_EDITING") {
@@ -122,7 +119,11 @@ chrome.runtime.onMessage.addListener((request) => {
                 Object.assign(iframeRef.current.style, styles);
               }
 
-              sendResponse({ data: data, message: request.message, status: "ok" });
+              sendResponse({
+                data,
+                message: request.message,
+                status: "ok",
+              });
             })();
             return true;
           },
