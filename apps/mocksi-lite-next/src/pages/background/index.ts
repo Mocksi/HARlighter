@@ -25,19 +25,20 @@ const clearAuth = async (): Promise<void> => {
 };
 
 async function getCurrentTab() {
-  let queryOptions = { active: true, lastFocusedWindow: true };
+  const queryOptions = { active: true, lastFocusedWindow: true };
   // `tab` will either be a `tabs.Tab` instance or `undefined`.
   const [tab] = await chrome.tabs.query(queryOptions);
   return tab;
 }
 
-const showAuthTab = async (): Promise<void> => {
-  return new Promise((resolve) => {
+function showAuthTab() {
+  return new Promise((resolve: (value?: unknown) => void) => {
     chrome.tabs.query({}, function (tabs) {
       let tabExists = false;
-      for (let tab of tabs) {
+      for (const tab of tabs) {
+        const tabUrlStr = tab.url || tab.pendingUrl || "";
         const loadUrl = new URL(import.meta.env.VITE_NEST_APP);
-        const tabUrl = new URL(tab?.url || tab?.pendingUrl);
+        const tabUrl = new URL(tabUrlStr);
         if (loadUrl.href === tabUrl.href) {
           tabExists = true;
           break;
@@ -50,7 +51,7 @@ const showAuthTab = async (): Promise<void> => {
       }
     });
   });
-};
+}
 
 addEventListener("install", () => {
   // TODO test if this works on other browsers
