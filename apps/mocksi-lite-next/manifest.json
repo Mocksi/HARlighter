@@ -24,6 +24,7 @@
   "icons": {
     "128": "mocksi-logo.png"
   },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtdeTUTUuHZx1xSvDuISF7wJP8nEPwW4vP8zTkdfdtb/1wM0JJ7XFeUHSIiq8l4Cs6/2f8tpK6MspeD7WhwuFWFHA2GWKoLSP0keuuBAhUFKrfISlNwFaNLX5LRkLSZQnr0ujIznvEuRZaXydIYR1e9pdhYTIcp2ToHW4CI02FUBtJVUUVeKGDiKKlKUrxwGtt1ecGZwVrQ1t7dj3DLrKguw1bONtoczFT3cCs9oVYg4l8frzlyI6xfsX8ynd4F+xS6+gYQ3aJBj7phAWHGAxbVRxTAzpzXRkb9A3ne31Ysjy4uYF9x7fK6NvDj/cm+EEfGDb3VmyXvOa3zeerXtdmwIDAQAB",
   "manifest_version": 3,
   "name": "Mocksi Lite: Next",
   "permissions": [
