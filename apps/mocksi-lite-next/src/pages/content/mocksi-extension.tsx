@@ -139,6 +139,7 @@ chrome.runtime.onMessage.addListener((request) => {
                 seamless={true}
                 src={`${import.meta.env.VITE_NEST_APP}/extension`}
                 style={{
+                  colorScheme: "light",
                   position: "fixed",
                   bottom: "10px",
                   right: "15px",
