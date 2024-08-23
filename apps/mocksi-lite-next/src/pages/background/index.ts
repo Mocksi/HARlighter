@@ -92,8 +92,9 @@ chrome.runtime.onMessageExternal.addListener(
         const auth = await getAuth();
         if (auth) {
           const { accessToken, email } = auth;
+          const tab = await getCurrentTab();
           sendResponse({
-            message: { accessToken, email },
+            message: { accessToken, email, url: tab.url },
             status: "ok",
           });
         } else {
@@ -111,24 +112,20 @@ chrome.runtime.onMessageExternal.addListener(
           status: "ok",
         });
       } else {
-        chrome.tabs.query(
-          { active: true, currentWindow: true },
-          function (tabs) {
-            if (tabs[0].id) {
-              chrome.tabs.sendMessage(
-                tabs[0].id,
-                {
-                  data: request.data,
-                  message: request.message,
-                },
-                (response) => {
-                  sendResponse(response);
-                },
-              );
-            } else {
-              sendResponse({ message: request.message, status: "no-tab" });
-              console.log("No active tab found, could not send message");
-            }
+        const tab = await getCurrentTab();
+        if (!tab.id) {
+          sendResponse({ message: request.message, status: "no-tab" });
+          console.log("No active tab found, could not send message");
+          return;
+        }
+        chrome.tabs.sendMessage(
+          tab.id,
+          {
+            data: request.data,
+            message: request.message,
+          },
+          (response) => {
+            sendResponse(response);
           },
         );
       }
