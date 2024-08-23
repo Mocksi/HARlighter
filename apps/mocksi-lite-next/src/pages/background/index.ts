@@ -24,26 +24,33 @@ const clearAuth = async (): Promise<void> => {
   }
 };
 
+async function getCurrentTab() {
+  let queryOptions = { active: true, lastFocusedWindow: true };
+  // `tab` will either be a `tabs.Tab` instance or `undefined`.
+  const [tab] = await chrome.tabs.query(queryOptions);
+  return tab;
+}
+
 const showAuthTab = async (): Promise<void> => {
   return new Promise((resolve) => {
-    chrome.tabs.query({}, function(tabs) {
+    chrome.tabs.query({}, function (tabs) {
       let tabExists = false;
       for (let tab of tabs) {
-          const loadUrl = new URL(import.meta.env.VITE_NEST_APP);
-          const tabUrl = new URL(tab.url || tab.pendingUrl);
-          if (loadUrl.href === tabUrl.href) {
-              tabExists = true;
-              break;
-          }
+        const loadUrl = new URL(import.meta.env.VITE_NEST_APP);
+        const tabUrl = new URL(tab?.url || tab?.pendingUrl);
+        if (loadUrl.href === tabUrl.href) {
+          tabExists = true;
+          break;
+        }
       }
       if (!tabExists) {
-          chrome.tabs.create({ url: import.meta.env.VITE_NEST_APP }, resolve);
+        chrome.tabs.create({ url: import.meta.env.VITE_NEST_APP }, resolve);
       } else {
         resolve();
       }
     });
-  })
-}
+  });
+};
 
 addEventListener("install", () => {
   // TODO test if this works on other browsers
@@ -77,39 +84,38 @@ chrome.runtime.onMessageExternal.addListener(
   async (request, _sender, sendResponse) => {
     console.log("Received message from external:", request);
 
+    // grab the url for the site the iframe is mounted in
+    const tab = await getCurrentTab();
+
     if (request.message === "UNAUTHORIZED") {
       const auth = await getAuth();
       if (auth) {
         const { accessToken, email } = auth;
         sendResponse({
-          message: { accessToken, email },
+          // pass the url where the extension is mounted so
+          // we can filter recordings by domain on the server
+          message: { accessToken, email, url: tab.url },
           status: "ok",
         });
       } else {
-        await showAuthTab();
+        chrome.tabs.create({
+          url: import.meta.env.VITE_NEST_APP,
+        });
         sendResponse({
           message: "authenticating",
           status: "ok",
         });
       }
-    } else if (request.message === "AUTH_ERROR") {
-      await clearAuth();
-      await showAuthTab();
-      sendResponse({
-        message: "authenticating",
-        status: "ok",
-      });
     } else {
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        if (tabs[0].id) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            data: request.data,
-            message: request.message,
-          });
-        } else {
-          console.log("No active tab found, could not send message");
-        }
-      });
+      if (tab?.id) {
+        chrome.tabs.sendMessage(tab?.id, {
+          data: request.data,
+          message: request.message,
+        });
+      } else {
+        console.log("No active tab found, could not send message");
+      }
+
       sendResponse({ message: request.message, status: "ok" });
       return true;
     }
