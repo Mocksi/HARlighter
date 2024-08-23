@@ -1,10 +1,10 @@
 console.log("background script loaded");
+const MOCKSI_AUTH = "mocksi-auth";
 
 const getAuth = async (): Promise<null | {
   accessToken: string;
   email: string;
 }> => {
-  const MOCKSI_AUTH = "mocksi-auth";
   try {
     const storageAuth = await chrome.storage.local.get(MOCKSI_AUTH);
     const mocksiAuth = JSON.parse(storageAuth[MOCKSI_AUTH]);
@@ -14,6 +14,36 @@ const getAuth = async (): Promise<null | {
     return null;
   }
 };
+
+const clearAuth = async (): Promise<void> => {
+  try {
+    const storageAuth = await chrome.storage.local.get(MOCKSI_AUTH);
+    storageAuth[MOCKSI_AUTH] = null;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const showAuthTab = async (): Promise<void> => {
+  return new Promise((resolve) => {
+    chrome.tabs.query({}, function(tabs) {
+      let tabExists = false;
+      for (let tab of tabs) {
+          const loadUrl = new URL(import.meta.env.VITE_NEST_APP);
+          const tabUrl = new URL(tab.url || tab.pendingUrl);
+          if (loadUrl.href === tabUrl.href) {
+              tabExists = true;
+              break;
+          }
+      }
+      if (!tabExists) {
+          chrome.tabs.create({ url: import.meta.env.VITE_NEST_APP }, resolve);
+      } else {
+        resolve();
+      }
+    });
+  })
+}
 
 addEventListener("install", () => {
   // TODO test if this works on other browsers
@@ -56,14 +86,19 @@ chrome.runtime.onMessageExternal.addListener(
           status: "ok",
         });
       } else {
-        chrome.tabs.create({
-          url: import.meta.env.VITE_NEST_APP,
-        });
+        await showAuthTab();
         sendResponse({
           message: "authenticating",
           status: "ok",
         });
       }
+    } else if (request.message === "AUTH_ERROR") {
+      await clearAuth();
+      await showAuthTab();
+      sendResponse({
+        message: "authenticating",
+        status: "ok",
+      });
     } else {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         if (tabs[0].id) {
