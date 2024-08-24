@@ -69,7 +69,10 @@ chrome.runtime.onMessage.addListener((request) => {
               let data = null;
 
               // reactor
-              if (request.message === "EDITING") {
+              if (request.message === "EDITING" || request.message === "PLAY") {
+                for (const mod of request.data.edits) {
+                  await reactor.pushModification(mod);
+                }
                 reactor.attach(document, getHighlighter());
               }
               if (request.message === "NEW_EDIT") {
@@ -81,7 +84,7 @@ chrome.runtime.onMessage.addListener((request) => {
                   );
                 }
               }
-              if (request.message === "STOP_EDITING") {
+              if (request.message === "STOP_EDITING" || request.message === "STOP_PLAYING") {
                 reactor.detach();
               }
               // resize iframe
