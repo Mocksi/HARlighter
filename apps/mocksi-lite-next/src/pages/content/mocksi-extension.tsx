@@ -84,7 +84,10 @@ chrome.runtime.onMessage.addListener((request) => {
                   );
                 }
               }
-              if (request.message === "STOP_EDITING" || request.message === "STOP_PLAYING") {
+              if (
+                request.message === "STOP_EDITING" ||
+                request.message === "STOP_PLAYING"
+              ) {
                 reactor.detach();
               }
               // resize iframe

@@ -7,12 +7,15 @@ const getAuth = async (): Promise<null | {
 }> => {
   try {
     const storageAuth = await chrome.storage.local.get(MOCKSI_AUTH);
+    if (!storageAuth[MOCKSI_AUTH]) {
+      return null;
+    }
     const mocksiAuth = JSON.parse(storageAuth[MOCKSI_AUTH]);
     return mocksiAuth;
   } catch (err) {
     console.error(err);
-    return null;
   }
+  return null;
 };
 
 const clearAuth = async (): Promise<void> => {
@@ -32,18 +35,23 @@ async function getCurrentTab() {
 }
 
 function showAuthTab() {
-  return new Promise((resolve: (value?: unknown) => void) => {
+  return new Promise(async (resolve: (value?: unknown) => void) => {
+    const auth = await getAuth();
+
     chrome.tabs.query({}, function (tabs) {
       let tabExists = false;
-      for (const tab of tabs) {
-        const tabUrlStr = tab.url || tab.pendingUrl || "";
-        const loadUrl = new URL(import.meta.env.VITE_NEST_APP);
-        const tabUrl = new URL(tabUrlStr);
-        if (loadUrl.href === tabUrl.href) {
-          tabExists = true;
-          break;
+      if (auth?.accessToken) {
+        for (const tab of tabs) {
+          const tabUrlStr = tab.url || tab.pendingUrl || "";
+          const loadUrl = new URL(import.meta.env.VITE_NEST_APP);
+          const tabUrl = new URL(tabUrlStr);
+          if (loadUrl.href === tabUrl.href) {
+            tabExists = true;
+            break;
+          }
         }
       }
+
       if (!tabExists) {
         chrome.tabs.create({ url: import.meta.env.VITE_NEST_APP }, resolve);
       } else {
@@ -61,9 +69,14 @@ addEventListener("install", () => {
 });
 
 // when user clicks toolbar mount extension
-chrome.action.onClicked.addListener((tab) => {
+chrome.action.onClicked.addListener(async (tab) => {
   if (tab.id) {
-    chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
+    const auth = await getAuth();
+    if (auth?.accessToken) {
+      chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
+    } else {
+      showAuthTab();
+    }
   } else {
     console.log("No tab found, could not mount extension");
   }
@@ -71,7 +84,6 @@ chrome.action.onClicked.addListener((tab) => {
 
 chrome.runtime.onMessage.addListener(
   (request, _sender, sendResponse): boolean => {
-    console.log("Received message:", request);
     sendResponse({
       data: request.data,
       message: request.message,
