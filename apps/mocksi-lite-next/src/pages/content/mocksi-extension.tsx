@@ -8,13 +8,14 @@ import { getHighlighter } from "./highlighter";
 const STORAGE_CHANGE_EVENT = "MOCKSI_STORAGE_CHANGE";
 
 const div = document.createElement("div");
-div.id = "__root";
+div.id = "__mocksi__root";
 document.body.appendChild(div);
 let mounted = false;
 const reactor = new Reactor();
 
 window.addEventListener("message", (event: MessageEvent) => {
   const eventData = event.data;
+
   if (event.source !== window || !eventData || !eventData.type) {
     return;
   }
@@ -28,7 +29,7 @@ window.addEventListener("message", (event: MessageEvent) => {
 
 chrome.runtime.onMessage.addListener((request) => {
   if (request.message === "mount-extension") {
-    const rootContainer = document.querySelector("#__root");
+    const rootContainer = document.querySelector("#__mocksi__root");
     if (!rootContainer) throw new Error("Can't find Content root element");
     const root = createRoot(rootContainer);
     const Iframe = () => {
@@ -84,7 +85,10 @@ chrome.runtime.onMessage.addListener((request) => {
                   );
                 }
               }
-              if (request.message === "STOP_EDITING" || request.message === "STOP_PLAYING") {
+              if (
+                request.message === "STOP_EDITING" ||
+                request.message === "STOP_PLAYING"
+              ) {
                 reactor.detach();
               }
               // resize iframe
@@ -162,14 +166,15 @@ chrome.runtime.onMessage.addListener((request) => {
     };
 
     // avoid remounting react tree
-    if (!mounted) {
-      root.render(<Iframe />);
-      mounted = true;
-      try {
-        console.debug("content script loaded, extension iframe mounted");
-      } catch (e) {
-        console.error(e);
+
+    try {
+      if (!mounted) {
+        root.render(<Iframe />);
+        mounted = true;
       }
+      console.debug("content script loaded, extension iframe mounted");
+    } catch (e) {
+      console.error(e);
     }
   }
 });
