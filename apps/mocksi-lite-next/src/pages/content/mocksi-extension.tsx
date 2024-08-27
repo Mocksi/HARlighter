@@ -107,10 +107,10 @@ chrome.runtime.onMessage.addListener((request) => {
                     break;
                   case "MINIMIZED":
                     styles = {
-                      bottom: "10px",
-                      height: "100px",
+                      bottom: "auto",
+                      height: "0",
                       top: "auto",
-                      width: "100px",
+                      width: "0",
                     };
                     break;
                   default:
