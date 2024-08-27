@@ -1,9 +1,8 @@
 import { AppliableModification } from "../interfaces";
 
 export class AdjacentHTMLModification extends AppliableModification {
-	element: Element;
+	elementId: string;
 	position: InsertPosition;
-	oldValue: string;
 	newValue: string;
 
 	constructor(
@@ -13,19 +12,27 @@ export class AdjacentHTMLModification extends AppliableModification {
 		newValue: string,
 	) {
 		super(doc);
-		this.element = element;
+		
 		this.position = position;
 		this.newValue = newValue;
-		this.oldValue = element.outerHTML;
+		
+		this.elementId = this.addModifiedElement(element);
 	}
 
 	apply(): void {
-		this.element.insertAdjacentHTML(this.position, this.newValue);
-
-		// TODO - highlighting
+		for (const element of this.getModifiedElements()) {
+			const oldValue = element.outerHTML;
+			this.setElementState(this.getMocksiId(element), oldValue);
+			element.insertAdjacentHTML(this.position, this.newValue);
+		}
 	}
 
 	unapply(): void {
-		this.element.outerHTML = this.oldValue;
+		for (const element of this.getModifiedElements()) {
+			const oldValue = this.getElementState(this.getMocksiId(element));
+			if (oldValue) {
+				element.outerHTML = oldValue;
+			}
+		}
 	}
 }

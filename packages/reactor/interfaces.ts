@@ -1,3 +1,5 @@
+import { generateRandomString } from "./utils";
+
 export interface Modification {
 	selector?: string;
 	xpath?: string;
@@ -50,14 +52,68 @@ export interface Highlighter {
 
 export abstract class AppliableModification {
 	doc: Document;
+	uuid: string;
 	highlightNodes: Node[] = [];
+	elementState: { [key: string]: any } = {};
 
 	constructor(doc: Document) {
 		this.doc = doc;
+		this.uuid = generateRandomString(8);
 	}
 
 	abstract apply(): void;
 	abstract unapply(): void;
+
+	addModifiedElement(element: Element): string {
+		let mocksiId = element.getAttribute("mocksi-id");
+		if (!mocksiId) {
+			mocksiId = generateRandomString(8);
+			element.setAttribute("mocksi-id", mocksiId);
+		}
+
+		element.setAttribute(`mocksi-modified-${this.uuid}`, "true");
+
+		return mocksiId;
+	}
+
+	removeModifiedElement(element: Element): void {
+		let mocksiId = element.getAttribute("mocksi-id");
+		if (mocksiId) {
+			this.removeElementState(mocksiId);
+		}
+
+		element.removeAttribute(`mocksi-modified-${this.uuid}`);
+	}
+
+	getModifiedElement(mocksiId: string): Element | null {
+		return this.doc.querySelector(`[mocksi-id="${mocksiId}"]`);
+	}
+
+	getModifiedElements(): Element[] {
+		return Array.from(
+			this.doc.querySelectorAll(`[mocksi-modified-${this.uuid}]`),
+		) as Element[];
+	}
+
+	modifiedElementRemoved(element: HTMLElement, mocksiId: string): void {
+		this.removeElementState(mocksiId);
+	}
+
+	getMocksiId(element: Element): string {
+		return element.getAttribute("mocksi-id") || "";
+	}
+
+	setElementState(mocksiId: string, state: any): void {
+		this.elementState[mocksiId] = state;
+	}
+
+	getElementState(mocksiId: string): any {
+		return this.elementState[mocksiId];
+	}
+
+	removeElementState(mocksiId: string): void {
+		delete this.elementState[mocksiId];
+	}
 
 	getHighlightNodes(): Node[] {
 		return this.highlightNodes;

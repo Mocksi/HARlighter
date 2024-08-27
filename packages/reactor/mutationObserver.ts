@@ -16,5 +16,7 @@ export class ReactorMutationObserver {
 		}
 	}
 
-	handleMutation(mutation: MutationRecord) {}
+	handleMutation(mutation: MutationRecord) {
+
+	}
 }
