@@ -1,3 +1,5 @@
+import { jwtDecode } from "jwt-decode";
+
 console.log("background script loaded");
 const MOCKSI_AUTH = "mocksi-auth";
 
@@ -11,6 +13,14 @@ const getAuth = async (): Promise<null | {
       return null;
     }
     const mocksiAuth = JSON.parse(storageAuth[MOCKSI_AUTH]);
+    const jwtPayload = jwtDecode(mocksiAuth.accessToken);
+    const isExpired = jwtPayload.exp && Date.now() >= jwtPayload.exp * 1000;
+
+    if (isExpired) {
+      console.log("token expired, clearing chrome storage");
+      await clearAuth();
+      return null;
+    }
     return mocksiAuth;
   } catch (err) {
     console.error(err);
@@ -34,13 +44,11 @@ async function getCurrentTab() {
   return tab;
 }
 
-async function showAuthTab() {
-  const auth = await getAuth();
-
+async function showAuthTab(force?: boolean) {
   return new Promise(async (resolve: (value?: unknown) => void) => {
     chrome.tabs.query({}, function (tabs) {
       let tabExists = false;
-      if (auth?.accessToken) {
+      if (!force) {
         for (const tab of tabs) {
           const tabUrlStr = tab.url || tab.pendingUrl || "";
           const loadUrl = new URL(import.meta.env.VITE_NEST_APP);
@@ -71,12 +79,7 @@ addEventListener("install", () => {
 // when user clicks toolbar mount extension
 chrome.action.onClicked.addListener(async (tab) => {
   if (tab.id) {
-    const auth = await getAuth();
-    if (auth?.accessToken) {
-      chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
-    } else {
-      showAuthTab();
-    }
+    chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
   } else {
     console.log("No tab found, could not mount extension");
   }
@@ -100,7 +103,13 @@ chrome.runtime.onMessageExternal.addListener(
     // execute in async block so that we return true
     // synchronously, telling chrome to wait for the response
     (async () => {
-      if (request.message === "UNAUTHORIZED") {
+      if (request.message === "AUTH_ERROR") {
+        await showAuthTab(true);
+        sendResponse({
+          message: "authenticating",
+          status: "ok",
+        });
+      } else if (request.message === "UNAUTHORIZED") {
         const auth = await getAuth();
         if (auth) {
           const { accessToken, email } = auth;
@@ -110,25 +119,18 @@ chrome.runtime.onMessageExternal.addListener(
             status: "ok",
           });
         } else {
-          await showAuthTab();
+          await showAuthTab(true);
           sendResponse({
             message: "authenticating",
             status: "ok",
           });
         }
-      } else if (request.message === "AUTH_ERROR") {
-        await clearAuth();
-        await showAuthTab();
-        sendResponse({
-          message: "authenticating",
-          status: "ok",
-        });
       } else {
         const tab = await getCurrentTab();
         if (!tab.id) {
           sendResponse({ message: request.message, status: "no-tab" });
           console.log("No active tab found, could not send message");
-          return;
+          return true;
         }
         chrome.tabs.sendMessage(
           tab.id,
