@@ -104,9 +104,9 @@ chrome.runtime.onMessageExternal.addListener(
     // synchronously, telling chrome to wait for the response
     (async () => {
       if (request.message === "AUTH_ERROR") {
-        await showAuthTab(true);
+        await clearAuth();
         sendResponse({
-          message: "authenticating",
+          message: "retry",
           status: "ok",
         });
       } else if (request.message === "UNAUTHORIZED") {
