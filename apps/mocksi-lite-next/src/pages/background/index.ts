@@ -77,7 +77,7 @@ addEventListener("install", () => {
 });
 
 // when user clicks toolbar mount extension
-chrome.action.onClicked.addListener(async (tab) => {
+chrome.action.onClicked.addListener((tab) => {
   if (tab.id) {
     chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
   } else {
