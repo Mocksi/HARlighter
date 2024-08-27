@@ -34,10 +34,10 @@ async function getCurrentTab() {
   return tab;
 }
 
-function showAuthTab() {
-  return new Promise(async (resolve: (value?: unknown) => void) => {
-    const auth = await getAuth();
+async function showAuthTab() {
+  const auth = await getAuth();
 
+  return new Promise(async (resolve: (value?: unknown) => void) => {
     chrome.tabs.query({}, function (tabs) {
       let tabExists = false;
       if (auth?.accessToken) {
