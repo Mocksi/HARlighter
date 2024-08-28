@@ -119,7 +119,6 @@ chrome.runtime.onMessageExternal.addListener(
     console.log(" ");
     console.log("Previous message from external:", prevRequest);
     console.log("Received new message from external:", request);
-    console.log(" ");
 
     // execute in async block so that we return true
     // synchronously, telling chrome to wait for the response
