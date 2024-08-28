@@ -8,6 +8,19 @@ let prevRequest = {
   message: "INIT",
 };
 
+async function setToolbarIcon(message: string, tabId: number) {
+  if (message === "PLAY") {
+    await chrome.action.setIcon({
+      path: "play-icon.png",
+      tabId,
+    });
+  } else {
+    await chrome.action.setIcon({
+      path: "mocksi-icon.png",
+      tabId,
+    });
+  }
+}
 const getAuth = async (): Promise<null | {
   accessToken: string;
   email: string;
@@ -91,12 +104,7 @@ chrome.action.onClicked.addListener((tab) => {
         message: prevRequest.message,
       });
     }
-
-    if (prevRequest.message === "PLAY") {
-      chrome.action.setIcon({ path: "play-icon.png", tabId: tab.id });
-    } else {
-      chrome.action.setIcon({ path: "mocksi-icon.png", tabId: tab.id });
-    }
+    setToolbarIcon(prevRequest.message, tab.id);
   } else {
     console.log("No tab found, could not mount extension");
   }
@@ -154,17 +162,7 @@ chrome.runtime.onMessageExternal.addListener(
           return true;
         }
 
-        if (request.message === "PLAY") {
-          await chrome.action.setIcon({
-            path: "play-icon.png",
-            tabId: tab.id,
-          });
-        } else if (request.message === "STOP_PLAYING") {
-          await chrome.action.setIcon({
-            path: "mocksi-icon.png",
-            tabId: tab.id,
-          });
-        }
+        setToolbarIcon(request.message, tab.id);
 
         chrome.tabs.sendMessage(
           tab.id,

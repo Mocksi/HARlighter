@@ -110,11 +110,9 @@ chrome.runtime.onMessage.addListener((request) => {
                   case "MINIMIZED":
                     styles = {
                       display: "none",
-                      height: "150px",
                       /* top right bottom left */
                       inset: "0px 0px auto auto",
                       origin: "top right",
-                      width: "400px",
                     };
                     break;
                   case "STOP_PLAYING":
