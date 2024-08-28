@@ -56,19 +56,27 @@ export class ReplaceAllModification extends AppliableModification {
 	}
 
 	handleMutation(mutations: MutationRecord[]) {
+		this.observer.disconnect();
+
 		for (const mutation of mutations) {
 			if (mutation.type === "childList") {
 				for (const added of mutation.addedNodes) {
-					this.changes.concat(walkTree(
-						this.element,
+					const changes = walkTree(
+						added,
 						checkText(this.content),
 						replaceText(this.content, 
 							this.addModifiedElement.bind(this),
 							this.addHighlightNode.bind(this)),
-					));
+					);
+					
+					console.debug(`Added: ${added.nodeName} changes: ${changes.length}`);
+					
+					this.changes = this.changes.concat(changes);
 				}
 			}
-		}	
+		}
+		
+		this.observer.observe(this.element, { childList: true, subtree: true });
 	}
 
 	modifiedElementRemoved(element: Element, mocksiId: string): boolean {

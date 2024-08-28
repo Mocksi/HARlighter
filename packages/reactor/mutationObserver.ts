@@ -26,15 +26,15 @@ export class ReactorMutationObserver {
 	}
 
 	handleMutation(mutation: MutationRecord) {
-		console.log(`Mutation: ${mutation.type} added: ${mutation.addedNodes.length} removed: ${mutation.removedNodes.length}`);
+		console.debug(`Mutation: ${mutation.type} added: ${mutation.addedNodes.length} removed: ${mutation.removedNodes.length}`);
 		for (const node of mutation.addedNodes) {
-			console.log(`   Added: ${printNode(node)}`);
+			console.debug(`   Added: ${printNode(node)}`);
 			if (node instanceof Element) {
 				this.walkAddedElements(node);
 			}
 		}
 		for (const node of mutation.removedNodes) {
-			console.log(`   Removed: ${printNode(node)}`);
+			console.debug(`   Removed: ${printNode(node)}`);
 			if (node instanceof Element) {
 				this.walkRemovedElements(node);	
 			}
@@ -82,7 +82,7 @@ export class ReactorMutationObserver {
 					for (const attributes of node.attributes) {
 						if (attributes.name.startsWith("mocksi-modified-")) {
 							const modificationId = attributes.name.substring("mocksi-modified-".length);
-							console.log(`     Modified by: ${modificationId}`);
+							console.debug(`     Modified by: ${modificationId}`);
 							this.removeModifiedElement(node, mocksiId, modificationId);
 						}
 					}
