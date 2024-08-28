@@ -27,6 +27,46 @@ window.addEventListener("message", (event: MessageEvent) => {
   }
 });
 
+// Function to get styles based on the message,
+function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
+  switch (message) {
+    case "ANALYZING":
+    case "PLAY":
+    case "RECORDING":
+      return {
+        display: "block",
+        height: "150px",
+        inset: "0px 10px auto auto",
+        width: "400px",
+      };
+
+    case "MINIMIZED":
+      return {
+        display: "none",
+        inset: "0px 0px auto auto",
+      };
+
+    case "EDITING":
+    case "INIT":
+    case "LIST":
+    case "NEW_EDIT":
+    case "READYTORECORD":
+    case "SETTINGS":
+    case "STOP_EDITING":
+    case "STOP_PLAYING":
+    case "UNAUTHORIZED":
+      return {
+        display: "block",
+        height: "600px",
+        inset: "auto 10px 10px auto",
+        width: "500px",
+      };
+
+    default:
+      return {};
+  }
+}
+
 chrome.runtime.onMessage.addListener((request) => {
   if (request.message === "mount-extension") {
     const rootContainer = document.querySelector("#__mocksi__root");
@@ -92,46 +132,9 @@ chrome.runtime.onMessage.addListener((request) => {
                 reactor.detach();
               }
 
-              // resize iframe
+              // Resize iframe with the new styles
               if (iframeRef.current) {
-                let styles = {};
-                switch (request.message) {
-                  case "ANALYZING":
-                  case "PLAY":
-                  case "RECORDING":
-                    styles = {
-                      display: "block",
-                      height: "150px",
-                      /* top right bottom left */
-                      inset: "0px 10px auto auto",
-                      width: "400px",
-                    };
-                    break;
-                  case "MINIMIZED":
-                    styles = {
-                      display: "none",
-                      /* top right bottom left */
-                      inset: "0px 0px auto auto",
-                    };
-                    break;
-                  case "EDITING":
-                  case "INIT":
-                  case "LIST":
-                  case "READYTORECORD":
-                  case "SETTINGS":
-                  case "STOP_EDITING":
-                  case "STOP_PLAYING":
-                  case "UNAUTHORIZED":
-                    styles = {
-                      display: "block",
-                      height: "600px",
-                      /* top right bottom left */
-                      inset: "auto 10px 10px auto",
-                      width: "500px",
-                    };
-                }
-
-                // set inline styles for iframe
+                const styles = getIframeStyles(request.message);
                 Object.assign(iframeRef.current.style, styles);
               }
 

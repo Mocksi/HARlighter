@@ -83,22 +83,25 @@ addEventListener("install", () => {
 
 // when user clicks toolbar mount extension
 chrome.action.onClicked.addListener((tab) => {
-  if (tab.id) {
-    chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
-    if (prevRequest.message) {
-      chrome.tabs.sendMessage(tab.id, {
-        data: prevRequest.data,
-        message: prevRequest.message,
-      });
-    }
-    if (prevRequest.message === "PLAY") {
-      chrome.action.setIcon({
-        path: "play-icon.png",
-        tabId: tab.id,
-      });
-    }
-  } else {
+  if (!tab?.id) {
     console.log("No tab found, could not mount extension");
+    return;
+  }
+
+  chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
+
+  if (prevRequest.message) {
+    chrome.tabs.sendMessage(tab.id, {
+      data: prevRequest.data,
+      message: prevRequest.message,
+    });
+  }
+
+  if (prevRequest.message === "PLAY") {
+    chrome.action.setIcon({
+      path: "play-icon.png",
+      tabId: tab.id,
+    });
   }
 });
 
@@ -153,16 +156,19 @@ chrome.runtime.onMessageExternal.addListener(
           return true;
         }
 
-        if (request.message === "PLAY") {
-          await chrome.action.setIcon({
-            path: "play-icon.png",
-            tabId: tab.id,
-          });
-        } else if (request.message !== "MINIMIZED") {
-          chrome.action.setIcon({
-            path: "mocksi-icon.png",
-            tabId: tab.id,
-          });
+        // handle icon changes triggered by messaging
+        switch (request.message) {
+          case "MINIMIZED": // No action needed for "MINIMIZED"
+            break;
+          case "PLAY":
+            await chrome.action.setIcon({
+              path: "play-icon.png",
+              tabId: tab.id,
+            });
+            break;
+          default:
+            chrome.action.setIcon({ path: "mocksi-icon.png", tabId: tab.id });
+            break;
         }
 
         chrome.tabs.sendMessage(
