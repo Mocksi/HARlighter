@@ -1,7 +1,12 @@
 import { jwtDecode } from "jwt-decode";
 
 console.log("background script loaded");
+
 const MOCKSI_AUTH = "mocksi-auth";
+let prevRequest = {
+  data: {},
+  message: "INIT",
+};
 
 const getAuth = async (): Promise<null | {
   accessToken: string;
@@ -78,10 +83,25 @@ addEventListener("install", () => {
 
 // when user clicks toolbar mount extension
 chrome.action.onClicked.addListener((tab) => {
-  if (tab.id) {
-    chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
-  } else {
+  if (!tab?.id) {
     console.log("No tab found, could not mount extension");
+    return;
+  }
+
+  chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
+
+  if (prevRequest.message) {
+    chrome.tabs.sendMessage(tab.id, {
+      data: prevRequest.data,
+      message: prevRequest.message,
+    });
+  }
+
+  if (prevRequest.message === "PLAY") {
+    chrome.action.setIcon({
+      path: "play-icon.png",
+      tabId: tab.id,
+    });
   }
 });
 
@@ -98,7 +118,10 @@ chrome.runtime.onMessage.addListener(
 
 chrome.runtime.onMessageExternal.addListener(
   (request, _sender, sendResponse) => {
-    console.log("Received message from external:", request);
+    // This logging is useful and only shows up in the service worker
+    console.log(" ");
+    console.log("Previous message from external:", prevRequest);
+    console.log("Received new message from external:", request);
 
     // execute in async block so that we return true
     // synchronously, telling chrome to wait for the response
@@ -132,6 +155,22 @@ chrome.runtime.onMessageExternal.addListener(
           console.log("No active tab found, could not send message");
           return true;
         }
+
+        // handle icon changes triggered by messaging
+        switch (request.message) {
+          case "MINIMIZED": // No action needed for "MINIMIZED"
+            break;
+          case "PLAY":
+            await chrome.action.setIcon({
+              path: "play-icon.png",
+              tabId: tab.id,
+            });
+            break;
+          default:
+            chrome.action.setIcon({ path: "mocksi-icon.png", tabId: tab.id });
+            break;
+        }
+
         chrome.tabs.sendMessage(
           tab.id,
           {
@@ -145,6 +184,11 @@ chrome.runtime.onMessageExternal.addListener(
       }
     })();
 
+    // Store last app state so we can return to the correct state when the
+    // menu is reopened
+    if (request.message !== "MINIMIZED") {
+      prevRequest = request;
+    }
     return true;
   },
 );

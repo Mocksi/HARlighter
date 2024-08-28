@@ -1,5 +1,5 @@
-import { AppliedModifications, Reactor } from "@repo/reactor";
 import type { ModificationRequest } from "@repo/reactor";
+import { Reactor } from "@repo/reactor";
 import React from "react";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
@@ -26,6 +26,46 @@ window.addEventListener("message", (event: MessageEvent) => {
     });
   }
 });
+
+// Function to get styles based on the message,
+function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
+  switch (message) {
+    case "ANALYZING":
+    case "PLAY":
+    case "RECORDING":
+      return {
+        display: "block",
+        height: "150px",
+        inset: "0px 10px auto auto",
+        width: "400px",
+      };
+
+    case "MINIMIZED":
+      return {
+        display: "none",
+        inset: "0px 0px auto auto",
+      };
+
+    case "EDITING":
+    case "INIT":
+    case "LIST":
+    case "NEW_EDIT":
+    case "READYTORECORD":
+    case "SETTINGS":
+    case "STOP_EDITING":
+    case "STOP_PLAYING":
+    case "UNAUTHORIZED":
+      return {
+        display: "block",
+        height: "600px",
+        inset: "auto 10px 10px auto",
+        width: "500px",
+      };
+
+    default:
+      return {};
+  }
+}
 
 chrome.runtime.onMessage.addListener((request) => {
   if (request.message === "mount-extension") {
@@ -91,38 +131,10 @@ chrome.runtime.onMessage.addListener((request) => {
               ) {
                 reactor.detach();
               }
-              // resize iframe
-              if (iframeRef.current) {
-                let styles = {};
-                switch (request.message) {
-                  case "ANALYZING":
-                  case "PLAY":
-                  case "RECORDING":
-                    styles = {
-                      bottom: "auto",
-                      height: "150px",
-                      top: "0px",
-                      width: "400px",
-                    };
-                    break;
-                  case "MINIMIZED":
-                    styles = {
-                      bottom: "auto",
-                      height: "0",
-                      top: "auto",
-                      width: "0",
-                    };
-                    break;
-                  default:
-                    styles = {
-                      bottom: "10px",
-                      height: "600px",
-                      top: "auto",
-                      width: "500px",
-                    };
-                }
 
-                // set inline styles for iframe
+              // Resize iframe with the new styles
+              if (iframeRef.current) {
+                const styles = getIframeStyles(request.message);
                 Object.assign(iframeRef.current.style, styles);
               }
 
@@ -142,16 +154,17 @@ chrome.runtime.onMessage.addListener((request) => {
           {ReactDOM.createPortal(
             <>
               <iframe
+                loading="lazy"
                 ref={iframeRef}
                 seamless={true}
                 src={`${import.meta.env.VITE_NEST_APP}/extension`}
                 style={{
                   colorScheme: "light",
                   position: "fixed",
-                  bottom: "10px",
-                  right: "15px",
+                  display: "block",
                   height: "600px",
                   width: "500px",
+                  inset: "auto 10px 10px auto",
                   boxShadow: "none",
                   zIndex: 99998,
                   border: "none",
