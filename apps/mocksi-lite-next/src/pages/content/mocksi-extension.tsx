@@ -1,5 +1,5 @@
-import { AppliedModifications, Reactor } from "@repo/reactor";
 import type { ModificationRequest } from "@repo/reactor";
+import { Reactor } from "@repo/reactor";
 import React from "react";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
@@ -91,6 +91,7 @@ chrome.runtime.onMessage.addListener((request) => {
               ) {
                 reactor.detach();
               }
+
               // resize iframe
               if (iframeRef.current) {
                 let styles = {};
@@ -99,25 +100,35 @@ chrome.runtime.onMessage.addListener((request) => {
                   case "PLAY":
                   case "RECORDING":
                     styles = {
-                      bottom: "auto",
+                      display: "block",
                       height: "150px",
-                      top: "0px",
+                      /* top right bottom left */
+                      inset: "0px 10px auto auto",
                       width: "400px",
                     };
                     break;
                   case "MINIMIZED":
                     styles = {
-                      bottom: "auto",
-                      height: "0",
-                      top: "auto",
-                      width: "0",
+                      display: "none",
+                      height: "150px",
+                      /* top right bottom left */
+                      inset: "0px 0px auto auto",
+                      origin: "top right",
+                      width: "400px",
                     };
                     break;
-                  default:
+                  case "STOP_PLAYING":
+                  case "STOP_EDITING":
+                  case "READYTORECORD":
+                  case "LIST":
+                  case "SETTINGS":
+                  case "UNAUTHORIZED":
+                  case "INIT":
                     styles = {
-                      bottom: "10px",
+                      display: "block",
                       height: "600px",
-                      top: "auto",
+                      /* top right bottom left */
+                      inset: "auto 10px 10px auto",
                       width: "500px",
                     };
                 }
@@ -142,14 +153,14 @@ chrome.runtime.onMessage.addListener((request) => {
           {ReactDOM.createPortal(
             <>
               <iframe
+                loading="lazy"
                 ref={iframeRef}
                 seamless={true}
                 src={`${import.meta.env.VITE_NEST_APP}/extension`}
                 style={{
                   colorScheme: "light",
                   position: "fixed",
-                  bottom: "10px",
-                  right: "15px",
+                  display: "block",
                   height: "600px",
                   width: "500px",
                   boxShadow: "none",
