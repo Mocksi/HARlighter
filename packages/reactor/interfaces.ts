@@ -95,8 +95,12 @@ export abstract class AppliableModification {
 		) as Element[];
 	}
 
-	modifiedElementRemoved(element: HTMLElement, mocksiId: string): void {
+	// returns true if the modification is no longer needed because it no
+	// longer applied to any nodes. In that case it will be removed from
+	// the list of modifications
+	modifiedElementRemoved(element: Element, mocksiId: string): boolean {
 		this.removeElementState(mocksiId);
+		return this.elementState.length === 0;
 	}
 
 	getMocksiId(element: Element): string {
