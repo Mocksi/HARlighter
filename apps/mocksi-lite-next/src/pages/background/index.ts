@@ -158,7 +158,7 @@ chrome.runtime.onMessageExternal.addListener(
             path: "play-icon.png",
             tabId: tab.id,
           });
-        } else if (request.message === "STOP_PLAYING") {
+        } else if (request.message !== "MINIMIZED") {
           chrome.action.setIcon({
             path: "mocksi-icon.png",
             tabId: tab.id,
