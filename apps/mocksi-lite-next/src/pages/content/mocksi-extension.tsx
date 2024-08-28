@@ -114,13 +114,14 @@ chrome.runtime.onMessage.addListener((request) => {
                       inset: "0px 0px auto auto",
                     };
                     break;
-                  case "STOP_PLAYING":
-                  case "STOP_EDITING":
-                  case "READYTORECORD":
-                  case "LIST":
-                  case "SETTINGS":
-                  case "UNAUTHORIZED":
+                  case "EDITING":
                   case "INIT":
+                  case "LIST":
+                  case "READYTORECORD":
+                  case "SETTINGS":
+                  case "STOP_EDITING":
+                  case "STOP_PLAYING":
+                  case "UNAUTHORIZED":
                     styles = {
                       display: "block",
                       height: "600px",
