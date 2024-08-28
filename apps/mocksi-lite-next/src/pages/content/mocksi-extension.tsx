@@ -112,7 +112,6 @@ chrome.runtime.onMessage.addListener((request) => {
                       display: "none",
                       /* top right bottom left */
                       inset: "0px 0px auto auto",
-                      origin: "top right",
                     };
                     break;
                   case "STOP_PLAYING":
@@ -161,6 +160,7 @@ chrome.runtime.onMessage.addListener((request) => {
                   display: "block",
                   height: "600px",
                   width: "500px",
+                  inset: "auto 10px 10px auto",
                   boxShadow: "none",
                   zIndex: 99998,
                   border: "none",
