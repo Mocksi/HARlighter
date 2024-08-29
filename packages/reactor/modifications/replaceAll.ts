@@ -178,9 +178,13 @@ function replaceText(
 
 		let replaceStart = 0;
 		const nextSibling = node.nextSibling;
-		if (nextSibling) {
+		const prevSibling = node.previousSibling;
+		if (prevSibling || nextSibling) {
 			for (let i = 0; i < parentElement.childNodes.length; i++) {
-				if (parentElement.childNodes[i] === nextSibling) {
+				if (parentElement.childNodes[i] === prevSibling) {
+					replaceStart = i + 1;
+					break;
+				} else if (parentElement.childNodes[i] === nextSibling) {
 					replaceStart = i - 1;
 					break;
 				}
