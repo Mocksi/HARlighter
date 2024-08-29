@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { extendExpect } from "./test.utils";
 import type { Modification, ModificationRequest } from "../interfaces";
-// utils.test.ts
 import { applyModification, generateModifications } from "../modifications";
 import { createToast } from "../modifications/toast";
+
+extendExpect(expect);
 
 describe("Utils", () => {
 	let doc: Document;
@@ -51,7 +53,7 @@ describe("Utils", () => {
 			element.innerHTML = "<p>Old Content</p>";
 			await applyModification(element, modification, doc);
 
-			expect(element.innerHTML).toBe("<p>New Content</p>");
+			expect(element.innerHTML).toMatchIgnoringMocksiTags("<p>New Content</p>");
 		});
 
 		it("should unapply replace all correctly", async () => {
@@ -66,7 +68,7 @@ describe("Utils", () => {
 			const modifications = await applyModification(element, modification, doc);
 			modifications.unapply();
 
-			expect(element.innerHTML).toBe("<p>Old Content</p>");
+			expect(element.innerHTML).toMatchIgnoringMocksiTags("<p>Old Content</p>");
 		});
 
 		it("should preserve capitals in replacement", async () => {
@@ -80,7 +82,7 @@ describe("Utils", () => {
 			element.innerHTML = "<p>Old Content is old</p>";
 			await applyModification(element, modification, doc);
 
-			expect(element.innerHTML).toBe("<p>New Content is new</p>");
+			expect(element.innerHTML).toMatchIgnoringMocksiTags("<p>New Content is new</p>");
 		});
 
 		it("should preserve plurals in replacement", async () => {
@@ -94,7 +96,7 @@ describe("Utils", () => {
 			element.innerHTML = "<p>Trains are great! I love my train.</p>";
 			await applyModification(element, modification, doc);
 
-			expect(element.innerHTML).toBe(
+			expect(element.innerHTML).toMatchIgnoringMocksiTags(
 				"<p>Brains are great! I love my brain.</p>",
 			);
 		});
@@ -111,7 +113,7 @@ describe("Utils", () => {
 				"<p>I was in training about trains, but it was a strain to train.</p>";
 			await applyModification(element, modification, doc);
 
-			expect(element.innerHTML).toBe(
+			expect(element.innerHTML).toMatchIgnoringMocksiTags(
 				"<p>I was in training about brains, but it was a strain to brain.</p>",
 			);
 		});
@@ -128,7 +130,7 @@ describe("Utils", () => {
 				'<h1>Trains</h1><p>Trains are great! <a href="train.jpg">A picture of a <i>train</i></a></p><p>Trains are great! I love my train.</p>';
 			await applyModification(element, modification, doc);
 
-			expect(element.innerHTML).toBe(
+			expect(element.innerHTML).toMatchIgnoringMocksiTags(
 				'<h1>Brains</h1><p>Brains are great! <a href="train.jpg">A picture of a <i>brain</i></a></p><p>Brains are great! I love my brain.</p>',
 			);
 		});
@@ -146,7 +148,7 @@ describe("Utils", () => {
 			const modifications = await applyModification(element, modification, doc);
 			modifications.unapply();
 
-			expect(element.innerHTML).toBe(
+			expect(element.innerHTML).toMatchIgnoringMocksiTags(
 				'<h1>Trains</h1><p>Trains are great! <a href="train.jpg">A picture of a <i>train</i></a></p><p>Trains are great! I love my train.</p>',
 			);
 		});
@@ -173,6 +175,37 @@ describe("Utils", () => {
 			);
 		});
 
+		it("should work with wikipedia", async() => {
+			const modification: Modification = {
+				action: "replaceAll",
+				content: "/Thailand/Russia/",
+			};
+
+			const element = doc.createElement("p");
+			element.innerHTML = "<p>The office of the \"President of the <a href=\"/wiki/People%27s_Committee_of_Siam\" title=\"People's Committee of Siam\">People's Committee</a>\" (<span title=\"Thai-language text\"><span lang=\"th\">ประธานคณะกรรมการราษฎร</span></span>), later changed to \"Prime Minister of Siam\" (<span title=\"Thai-language text\"><span lang=\"th\">นายกรัฐมนตรีสยาม</span></span>), was first created in the <a href=\"/wiki/Constitution_of_Thailand#1932_Temporary_Charter\" title=\"Constitution of Thailand\">Temporary Constitution of 1932</a>. The office was modeled after the <a href=\"/wiki/Prime_Minister_of_the_United_Kingdom\" title=\"Prime Minister of the United Kingdom\">prime minister of the United Kingdom</a>, as Siam became a <a href=\"/wiki/Parliamentary_democracy\" class=\"mw-redirect\" title=\"Parliamentary democracy\">parliamentary democracy</a> in 1932 after a <a href=\"/wiki/Siamese_revolution_of_1932\" title=\"Siamese revolution of 1932\">bloodless revolution</a>. However, the idea of a separate head of government in Thailand is not new.</p>"
+			doc.body.appendChild(element);
+		
+			await applyModification(doc.body, modification, doc);
+
+			expect(element.innerHTML).toMatchIgnoringMocksiTags("<p>The office of the \"President of the <a href=\"/wiki/People%27s_Committee_of_Siam\" title=\"People's Committee of Siam\">People's Committee</a>\" (<span title=\"Thai-language text\"><span lang=\"th\">ประธานคณะกรรมการราษฎร</span></span>), later changed to \"Prime Minister of Siam\" (<span title=\"Thai-language text\"><span lang=\"th\">นายกรัฐมนตรีสยาม</span></span>), was first created in the <a href=\"/wiki/Constitution_of_Thailand#1932_Temporary_Charter\" title=\"Constitution of Thailand\">Temporary Constitution of 1932</a>. The office was modeled after the <a href=\"/wiki/Prime_Minister_of_the_United_Kingdom\" title=\"Prime Minister of the United Kingdom\">prime minister of the United Kingdom</a>, as Siam became a <a href=\"/wiki/Parliamentary_democracy\" class=\"mw-redirect\" title=\"Parliamentary democracy\">parliamentary democracy</a> in 1932 after a <a href=\"/wiki/Siamese_revolution_of_1932\" title=\"Siamese revolution of 1932\">bloodless revolution</a>. However, the idea of a separate head of government in Russia is not new.</p>");
+		});
+
+		it("should unapply from wikipedia", async() => {
+			const modification: Modification = {
+				action: "replaceAll",
+				content: "/Thailand/Russia/",
+			};
+
+			const element = doc.createElement("p");
+			element.innerHTML = "<p>The office of the \"President of the <a href=\"/wiki/People%27s_Committee_of_Siam\" title=\"People's Committee of Siam\">People's Committee</a>\" (<span title=\"Thai-language text\"><span lang=\"th\">ประธานคณะกรรมการราษฎร</span></span>), later changed to \"Prime Minister of Siam\" (<span title=\"Thai-language text\"><span lang=\"th\">นายกรัฐมนตรีสยาม</span></span>), was first created in the <a href=\"/wiki/Constitution_of_Thailand#1932_Temporary_Charter\" title=\"Constitution of Thailand\">Temporary Constitution of 1932</a>. The office was modeled after the <a href=\"/wiki/Prime_Minister_of_the_United_Kingdom\" title=\"Prime Minister of the United Kingdom\">prime minister of the United Kingdom</a>, as Siam became a <a href=\"/wiki/Parliamentary_democracy\" class=\"mw-redirect\" title=\"Parliamentary democracy\">parliamentary democracy</a> in 1932 after a <a href=\"/wiki/Siamese_revolution_of_1932\" title=\"Siamese revolution of 1932\">bloodless revolution</a>. However, the idea of a separate head of government in Thailand is not new.</p>"
+			doc.body.appendChild(element);
+		
+			const modifications = await applyModification(doc.body, modification, doc);
+			modifications.unapply();
+
+			expect(element.innerHTML).toMatchIgnoringMocksiTags("<p>The office of the \"President of the <a href=\"/wiki/People%27s_Committee_of_Siam\" title=\"People's Committee of Siam\">People's Committee</a>\" (<span title=\"Thai-language text\"><span lang=\"th\">ประธานคณะกรรมการราษฎร</span></span>), later changed to \"Prime Minister of Siam\" (<span title=\"Thai-language text\"><span lang=\"th\">นายกรัฐมนตรีสยาม</span></span>), was first created in the <a href=\"/wiki/Constitution_of_Thailand#1932_Temporary_Charter\" title=\"Constitution of Thailand\">Temporary Constitution of 1932</a>. The office was modeled after the <a href=\"/wiki/Prime_Minister_of_the_United_Kingdom\" title=\"Prime Minister of the United Kingdom\">prime minister of the United Kingdom</a>, as Siam became a <a href=\"/wiki/Parliamentary_democracy\" class=\"mw-redirect\" title=\"Parliamentary democracy\">parliamentary democracy</a> in 1932 after a <a href=\"/wiki/Siamese_revolution_of_1932\" title=\"Siamese revolution of 1932\">bloodless revolution</a>. However, the idea of a separate head of government in Thailand is not new.</p>");
+		});
+
 		it("should append content correctly", async () => {
 			const modification: Modification = {
 				action: "append",
@@ -185,7 +218,7 @@ describe("Utils", () => {
 			element.appendChild(inner);
 			await applyModification(inner, modification, doc);
 
-			expect(element.innerHTML).toBe(
+			expect(element.innerHTML).toMatchIgnoringMocksiTags(
 				"<div><p>Initial Content</p><p>New Content</p></div>",
 			);
 		});
@@ -203,7 +236,7 @@ describe("Utils", () => {
 			const modifications = await applyModification(inner, modification, doc);
 			modifications.unapply();
 
-			expect(element.innerHTML).toBe("<div><p>Initial Content</p></div>");
+			expect(element.innerHTML).toMatchIgnoringMocksiTags("<div><p>Initial Content</p></div>");
 		});
 
 		it("should prepend content correctly", async () => {
@@ -218,7 +251,7 @@ describe("Utils", () => {
 			element.appendChild(inner);
 			await applyModification(inner, modification, doc);
 
-			expect(element.innerHTML).toBe(
+			expect(element.innerHTML).toMatchIgnoringMocksiTags(
 				"<div><p>New Content</p><p>Initial Content</p></div>",
 			);
 		});
@@ -236,7 +269,7 @@ describe("Utils", () => {
 			const modifications = await applyModification(inner, modification, doc);
 			modifications.unapply();
 
-			expect(element.innerHTML).toBe("<div><p>Initial Content</p></div>");
+			expect(element.innerHTML).toMatchIgnoringMocksiTags("<div><p>Initial Content</p></div>");
 		});
 
 		it("should remove the element correctly", async () => {
@@ -383,7 +416,7 @@ describe("Utils", () => {
 			element.appendChild(inner);
 			await applyModification(inner, modification, doc);
 
-			expect(element.innerHTML).toBe(
+			expect(element.innerHTML).toMatchIgnoringMocksiTags(
 				"<p>Initial Content<span>Component Content</span></p>",
 			);
 		});
@@ -401,7 +434,7 @@ describe("Utils", () => {
 			const modifications = await applyModification(inner, modification, doc);
 			modifications.unapply();
 
-			expect(element.innerHTML).toBe("<p>Initial Content</p>");
+			expect(element.innerHTML).toMatchIgnoringMocksiTags("<p>Initial Content</p>");
 		});
 
 		it("should handle unknowns correctly", async () => {

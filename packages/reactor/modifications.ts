@@ -196,3 +196,14 @@ export async function applyModification(
 	modification.apply();
 	return modification;
 }
+
+export function matchesSelector(element: Element, mod: Modification): boolean {
+	if (mod.selector) {
+		return element.matches(mod.selector);
+	} else if (mod.xpath) {
+		const xpathResult = document.evaluate(mod.xpath, document, null, XPathResult.BOOLEAN_TYPE, null);
+		return xpathResult.booleanValue;
+	}
+
+	return false;
+}

@@ -11,3 +11,13 @@ export function parseRequest(userRequest: string): ModificationRequest {
 		throw new Error("Invalid user request format");
 	}
 }
+
+export function generateRandomString(length: number) {
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}

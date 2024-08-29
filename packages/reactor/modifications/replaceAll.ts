@@ -1,29 +1,40 @@
 import { AppliableModification } from "../interfaces";
-import * as cssSelector from "css-selector-generator";
 
 export class ReplaceAllModification extends AppliableModification {
 	element: Element;
 	content: string;
 	changes: TreeChange[] = [];
+	observer: MutationObserver;
 
 	constructor(doc: Document, element: Element, content: string) {
 		super(doc);
 		this.element = element;
 		this.content = content;
+		
+		this.observer = new MutationObserver(this.handleMutation.bind(this));
 	}
 
 	apply(): void {
+		// mark the element as modified
+		this.addModifiedElement(this.element);
+
 		this.changes = walkTree(
 			this.element,
 			checkText(this.content),
-			replaceText(this.content, this.addHighlightNode.bind(this)),
+			replaceText(this.content, 
+				this.addModifiedElement.bind(this),
+				this.addHighlightNode.bind(this)),
 		);
+
+		this.observer.observe(this.element, { childList: true, subtree: true });
 	}
 
 	unapply(): void {
+		this.observer.disconnect();
+
 		const reverseChanges = [...this.changes].reverse();
 		for (const change of reverseChanges) {
-			const parentElement = this.doc.querySelector(change.parentSelector);
+			const parentElement = this.getModifiedElement(change.parentMocksiId);
 			if (!parentElement) {
 				continue;
 			}
@@ -43,10 +54,45 @@ export class ReplaceAllModification extends AppliableModification {
 			parentElement.insertBefore(newTextNode, nextSibling);
 		}
 	}
+
+	handleMutation(mutations: MutationRecord[]) {
+		this.observer.disconnect();
+
+		for (const mutation of mutations) {
+			if (mutation.type === "childList") {
+				for (const added of mutation.addedNodes) {
+					const changes = walkTree(
+						added,
+						checkText(this.content),
+						replaceText(this.content, 
+							this.addModifiedElement.bind(this),
+							this.addHighlightNode.bind(this)),
+					);
+					
+					console.debug(`Added: ${added.nodeName} changes: ${changes.length}`);
+					
+					this.changes = this.changes.concat(changes);
+				}
+			}
+		}
+		
+		this.observer.observe(this.element, { childList: true, subtree: true });
+	}
+
+	modifiedElementRemoved(element: Element, mocksiId: string): boolean {
+		const noState = super.modifiedElementRemoved(element, mocksiId);
+
+		// remove any changes that were made to this element
+		this.changes = this.changes.filter((c) => c.parentMocksiId !== mocksiId);
+		
+		// if all changed nodes have been removed (including the element itself),
+		// it is safe to remove this modification
+		return noState && this.changes.length === 0;
+	}
 }
 
 type TreeChange = {
-	parentSelector: string;
+	parentMocksiId: string;
 	origText: string;
 	replaceStart: number;
 	replaceCount: number;
@@ -110,6 +156,7 @@ function checkText(pattern: string): (node: Node) => boolean {
 
 function replaceText(
 	pattern: string,
+	addModifiedElement: (element: Element) => string,
 	addHighlightNode: (node: Node) => void,
 ): (node: Node) => TreeChange | null {
 	const { patternRegexp, replacement } = toRegExpPattern(pattern);
@@ -127,13 +174,17 @@ function replaceText(
 		if (!parentElement) {
 			return null;
 		}
-		const parentSelector = cssSelector.getCssSelector(parentElement);
+		const parentMocksiId = addModifiedElement(parentElement);
 
 		let replaceStart = 0;
 		const nextSibling = node.nextSibling;
-		if (nextSibling) {
+		const prevSibling = node.previousSibling;
+		if (prevSibling || nextSibling) {
 			for (let i = 0; i < parentElement.childNodes.length; i++) {
-				if (parentElement.childNodes[i] === nextSibling) {
+				if (parentElement.childNodes[i] === prevSibling) {
+					replaceStart = i + 1;
+					break;
+				} else if (parentElement.childNodes[i] === nextSibling) {
 					replaceStart = i - 1;
 					break;
 				}
@@ -154,7 +205,7 @@ function replaceText(
 		}
 
 		return {
-			parentSelector: parentSelector,
+			parentMocksiId: parentMocksiId,
 			origText: node.nodeValue || "",
 			replaceStart: replaceStart,
 			replaceCount: split.length,

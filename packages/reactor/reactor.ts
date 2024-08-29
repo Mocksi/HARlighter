@@ -20,13 +20,13 @@ class Reactor {
   private mutationObserver: ReactorMutationObserver;
   private attached = false;
 
-  private doc?: Document = undefined;
+  doc?: Document = undefined;
   private highlighter?: Highlighter = undefined;
   private modifications: ModificationRequest[] = [];
   private appliedModifications: AppliedModificationsImpl[] = [];
 
   constructor() {
-    this.mutationObserver = new ReactorMutationObserver();
+    this.mutationObserver = new ReactorMutationObserver(this);
   }
 
   /**
@@ -42,7 +42,6 @@ class Reactor {
 
     this.doc = root;
     this.highlighter = highlighter;
-    this.mutationObserver.attach(root);
     this.attached = true;
 
     // apply all modifications
@@ -51,6 +50,9 @@ class Reactor {
         await generateModifications(modification, root, highlighter),
       );
     }
+
+    // attach mutation observer after all modifications are applied
+    this.mutationObserver.attach(root);
   }
 
   /**
@@ -152,6 +154,9 @@ class Reactor {
       this.modifications.push(modification);
 
       if (this.isAttached() && this.doc) {
+        // disable the mutation listener while we make our changes
+        this.mutationObserver.detach();
+
         const applied = await generateModifications(
           modification,
           this.doc,
@@ -159,6 +164,9 @@ class Reactor {
         );
         out.push(applied);
         this.appliedModifications.push(applied);
+      
+        // re-enable the mutation listener
+        this.mutationObserver.attach(this.doc);
       }
     }
 
@@ -176,13 +184,19 @@ class Reactor {
     for (let i = 0; i < count; i++) {
       const modification = this.modifications.pop();
 
-      if (this.isAttached()) {
+      if (this.isAttached() && this.doc) {
+        // disable the mutation listener while we make our changes
+        this.mutationObserver.detach();
+
         const applied = this.appliedModifications.pop();
         if (applied) {
           applied.setHighlight(false);
           applied.unapply();
           out.push(applied);
         }
+
+        // re-enable the mutation listener
+        this.mutationObserver.attach(this.doc);
       }
     }
 
