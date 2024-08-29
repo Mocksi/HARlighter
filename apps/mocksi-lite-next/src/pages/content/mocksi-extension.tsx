@@ -78,6 +78,7 @@ chrome.runtime.onMessage.addListener((request) => {
       async function findReplaceAll(
         find: string,
         replace: string,
+        flags: string, 
         highlight: boolean,
       ) {
         const modification: ModificationRequest = {
@@ -85,7 +86,7 @@ chrome.runtime.onMessage.addListener((request) => {
           modifications: [
             {
               action: "replaceAll",
-              content: `/${find}/${replace}/`,
+              content: `/${find}/${replace}/${flags}`,
               selector: "body",
             },
           ],
@@ -118,8 +119,8 @@ chrome.runtime.onMessage.addListener((request) => {
               }
               if (request.message === "NEW_EDIT") {
                 if (request.data) {
-                  const { find, highlightEdits, replace } = request.data;
-                  await findReplaceAll(find, replace, highlightEdits);
+                  const { find, highlightEdits, replace, flags } = request.data;
+                  await findReplaceAll(find, replace, flags, highlightEdits);
                   data = Array.from(reactor.getAppliedModifications()).map(
                     (mod) => mod.modificationRequest,
                   );

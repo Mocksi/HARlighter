@@ -29,7 +29,7 @@ describe("test mutation listeners", {}, () => {
                 {
                     selector: "body",
                     action: "replaceAll",
-                    content: "/train/brain/",
+                    content: "/train/brain/wip",
                 }
             ],
         };
