@@ -9,7 +9,7 @@ export function extendExpect(expect: ExpectStatic) {
             received = received.replace(/ mocksi-modified-[^=]+="[^"]*"/g, '');
             
             return {
-                message: () => `\x1B[32mexpected\x1B[0m\n\x1B[32mreceived\x1B[0m\n\n\x1B[32m${expected}\x1B[0m\n\x1B[31m${received}\x1B[0m`,
+                message: () => `\n\x1B[32mexpected\x1B[0m\n\x1B[31mreceived\x1B[0m\n\n\x1B[32m${expected}\x1B[0m\n\x1B[31m${received}\x1B[0m`,
                 pass: received === expected,
             }
         }
