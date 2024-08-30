@@ -36,7 +36,7 @@ describe("modifyHtml", () => {
 				{
 					xpath: "//html/body/div",
 					action: "replaceAll",
-					content: "/train/brain/",
+					content: "/train/brain/i",
 				},
 			],
 		});

@@ -45,7 +45,7 @@ describe("Utils", () => {
 		it("should replace all content correctly", async () => {
 			const modification: Modification = {
 				action: "replaceAll",
-				content: "/old/new/",
+				content: "/old/new/i",
 			};
 
 			const element = doc.createElement("div");
@@ -74,7 +74,7 @@ describe("Utils", () => {
 		it("should preserve capitals in replacement", async () => {
 			const modification: Modification = {
 				action: "replaceAll",
-				content: "/old/new/",
+				content: "/old/new/i",
 			};
 
 			const element = doc.createElement("div");
@@ -88,7 +88,7 @@ describe("Utils", () => {
 		it("should preserve plurals in replacement", async () => {
 			const modification: Modification = {
 				action: "replaceAll",
-				content: "/train/brain/",
+				content: "/train/brain/ip",
 			};
 
 			const element = doc.createElement("div");
@@ -104,7 +104,7 @@ describe("Utils", () => {
 		it("should only replace whole words", async () => {
 			const modification: Modification = {
 				action: "replaceAll",
-				content: "/train/brain/",
+				content: "/train/brain/wip",
 			};
 
 			const element = doc.createElement("div");
@@ -121,7 +121,7 @@ describe("Utils", () => {
 		it("should handle more complicated HTML", async () => {
 			const modification: Modification = {
 				action: "replaceAll",
-				content: "/train/brain/",
+				content: "/train/brain/wip",
 			};
 
 			const element = doc.createElement("div");
@@ -156,7 +156,7 @@ describe("Utils", () => {
 		it("should work with multiple text nodes", async () => {
 			const modification: Modification = {
 				action: "replaceAll",
-				content: "/train/brain/",
+				content: "/train/brain/wip",
 			};
 
 			const element = doc.createElement("div");

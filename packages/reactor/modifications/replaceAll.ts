@@ -159,7 +159,7 @@ function replaceText(
 	addModifiedElement: (element: Element) => string,
 	addHighlightNode: (node: Node) => void,
 ): (node: Node) => TreeChange | null {
-	const { patternRegexp, replacement } = toRegExpPattern(pattern);
+	const { patternRegexp, replacement, flags } = toRegExpPattern(pattern);
 
 	return (node: Node) => {
 		let split = node.nodeValue?.split(patternRegexp) || [];
@@ -167,7 +167,7 @@ function replaceText(
 			if (index % 2 === 0) {
 				return part;
 			}
-			return replaceFirstLetterCaseAndPlural(replacement)(part);
+			return replaceFirstLetterCaseAndPlural(replacement, flags)(part);
 		});
 
 		const parentElement = node.parentElement;
@@ -213,7 +213,7 @@ function replaceText(
 	};
 }
 
-function replaceFirstLetterCaseAndPlural(value: string) {
+function replaceFirstLetterCaseAndPlural(value: string, flags: Partial<Record<PatternFlag, boolean>> = {}) {
 	return (match: string) => {
 		let out = value;
 
@@ -225,7 +225,7 @@ function replaceFirstLetterCaseAndPlural(value: string) {
 		}
 
 		// if the match is plural, add an s
-		if (match.endsWith("s")) {
+		if ((flags[PatternFlag.Plurals] ?? false) && match.endsWith("s")) {
 			out = `${out}s`;
 		}
 
@@ -233,18 +233,47 @@ function replaceFirstLetterCaseAndPlural(value: string) {
 	};
 }
 
+enum PatternFlag {
+	CaseInsensitive = "i",
+	WordBoundary = "w",
+	Plurals = "p",
+}
+
 // Take pattern in the form of /pattern/replacement/ and return {patternRegexp, replacement}
 function toRegExpPattern(pattern: string): {
 	patternRegexp: RegExp;
 	replacement: string;
+	flags: Partial<Record<PatternFlag, boolean>>;
 } {
-	const match = /\/(.+)\/(.+)\//.exec(pattern);
-	if (!match || match.length !== 3 || !match[1] || !match[2]) {
+	const match = /\/(.+)\/(.+)\/(.*)/.exec(pattern);
+	if (!match || match.length < 3 || !match[1] || !match[2]) {
 		throw new Error(`Invalid pattern: ${pattern}`);
 	}
 
+	let reFlags = "g";
+	let rePattern = match[1];
+	const flags = match[3];
+
+	const patternFlags: Partial<Record<PatternFlag, boolean>> = {};
+
+	if (flags?.includes('p')) {
+		rePattern += "s?";
+		patternFlags[PatternFlag.Plurals] = true;
+	}
+
+	if (flags?.includes('w')) {
+		rePattern = `\\b${rePattern}\\b`;
+		patternFlags[PatternFlag.WordBoundary] = true;
+	}
+
+	if (flags?.includes('i')) {
+		reFlags += "i";
+		patternFlags[PatternFlag.CaseInsensitive] = true;
+	}
+
 	return {
-		patternRegexp: new RegExp(`(\\b${match[1]}s?\\b)`, "gi"),
+		patternRegexp: new RegExp(`(${rePattern})`, reFlags),
 		replacement: match[2],
+		flags: patternFlags,
 	};
 }
