@@ -40,8 +40,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+        # Set EXTENSION_ENV variable to the current branch name
+      - name: Set EXTENSION_ENV variable
+        run: echo "EXTENSION_ENV=${GITHUB_REF#refs/heads///-/}" >> $GITHUB_ENV
+45:
       - name: Build artifacts
         run: pnpm build
+        env:
+          EXTENSION_ENV: ${{ env.EXTENSION_ENV }}
 
       - name: Upload extension artifacts
         uses: actions/upload-artifact@v4
