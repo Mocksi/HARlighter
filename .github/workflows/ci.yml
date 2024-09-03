@@ -42,8 +42,7 @@ jobs:
 
         # Set EXTENSION_ENV variable to the current branch name
       - name: Set EXTENSION_ENV variable
-        run: echo "EXTENSION_ENV=${GITHUB_REF#refs/heads///-/}" >> $GITHUB_ENV
-45:
+        run: echo "EXTENSION_ENV=\"${GITHUB_REF##refs/heads/}\"" | sed 's/\//-/g' >> $GITHUB_ENV
       - name: Build artifacts
         run: pnpm build
         env:
