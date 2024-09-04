@@ -51,7 +51,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build artifacts
-        run: pnpm build
+        run: pnpm build --mode ${{ inputs.environment }}
         env:
           EXTENSION_ENV: ${{ inputs.environment }}
 
