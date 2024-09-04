@@ -40,12 +40,13 @@ function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
         width: "400px",
       };
 
-    case "MINIMIZED":
+    case "DEMO_ACTIVE":
       return {
-        display: "none",
-        inset: "0px 0px auto auto",
+        display: "block",
+        height: "250px",
+        inset: "88% 42% 0px",
+        width: "200px",
       };
-
     case "EDITING":
     case "INIT":
     case "LIST":
@@ -61,7 +62,11 @@ function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
         inset: "auto 10px 10px auto",
         width: "500px",
       };
-
+    case "MINIMIZED":
+      return {
+        display: "none",
+        inset: "0px 0px auto auto",
+      };
     default:
       return {};
   }
@@ -78,7 +83,7 @@ chrome.runtime.onMessage.addListener((request) => {
       async function findReplaceAll(
         find: string,
         replace: string,
-        flags: string, 
+        flags: string,
         highlight: boolean,
       ) {
         const modification: ModificationRequest = {
@@ -119,7 +124,7 @@ chrome.runtime.onMessage.addListener((request) => {
               }
               if (request.message === "NEW_EDIT") {
                 if (request.data) {
-                  const { find, highlightEdits, replace, flags } = request.data;
+                  const { find, flags, highlightEdits, replace } = request.data;
                   await findReplaceAll(find, replace, flags, highlightEdits);
                   data = Array.from(reactor.getAppliedModifications()).map(
                     (mod) => mod.modificationRequest,
