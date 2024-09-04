@@ -72,42 +72,6 @@ function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
   }
 }
 
-export const innerHTMLToJson = (innerHTML: string): string => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(innerHTML, "text/html");
-
-  function elementToJson(element: Element): object {
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    const obj: any = {};
-
-    obj.tag = element.tagName.toLowerCase();
-
-    if (element.attributes.length > 0) {
-      obj.attributes = {};
-      for (const attr of Array.from(element.attributes)) {
-        obj.attributes[attr.name] = attr.value;
-      }
-    }
-
-    if (element.children.length > 0) {
-      obj.children = Array.from(element.children).map((child) =>
-        elementToJson(child),
-      );
-    } else {
-      obj.text = element.textContent;
-    }
-
-    return obj;
-  }
-
-  // Convert the body of the parsed document to JSON
-  const json = Array.from(doc.body.children).map((child) =>
-    elementToJson(child),
-  );
-  const body = json.length === 1 ? json[0] : json;
-
-  return JSON.stringify(body);
-};
 chrome.runtime.onMessage.addListener((request) => {
   if (request.message === "mount-extension") {
     const rootContainer = document.querySelector("#__mocksi__root");
@@ -153,12 +117,17 @@ chrome.runtime.onMessage.addListener((request) => {
 
               if (request.message === "CHAT") {
                 sendResponse({
-                  data: innerHTMLToJson(document.body.innerHTML),
+                  data: reactor.exportDOM(),
                   message: request.message,
                   status: "ok",
                 });
               }
-
+              if (request.message === "CHAT_NEW_MESSAGE") {
+                sendResponse({
+                  message: request.message,
+                  status: "ok",
+                });
+              }
               // reactor
               if (request.message === "EDITING" || request.message === "PLAY") {
                 for (const mod of request.data.edits) {
