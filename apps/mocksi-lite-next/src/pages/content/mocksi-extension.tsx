@@ -39,7 +39,16 @@ function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
         inset: "0px 10px auto auto",
         width: "400px",
       };
-
+    case "CHAT":
+      return {
+        bottom: "0px",
+        display: "block",
+        height: "500px",
+        left: "calc(50%-150px)",
+        right: "auto",
+        top: "auto",
+        width: "300px",
+      };
     case "DEMO_ACTIVE":
       return {
         display: "block",
@@ -115,13 +124,6 @@ chrome.runtime.onMessage.addListener((request) => {
             (async () => {
               let data = null;
 
-              if (request.message === "CHAT") {
-                sendResponse({
-                  data: reactor.exportDOM(),
-                  message: request.message,
-                  status: "ok",
-                });
-              }
               if (request.message === "CHAT_NEW_MESSAGE") {
                 sendResponse({
                   message: request.message,
@@ -155,6 +157,14 @@ chrome.runtime.onMessage.addListener((request) => {
               if (iframeRef.current) {
                 const styles = getIframeStyles(request.message);
                 Object.assign(iframeRef.current.style, styles);
+              }
+
+              if (request.message === "CHAT") {
+                sendResponse({
+                  data: reactor.exportDOM(),
+                  message: request.message,
+                  status: "ok",
+                });
               }
 
               sendResponse({
