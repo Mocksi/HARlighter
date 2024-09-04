@@ -4,6 +4,7 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 
 import devManifest from "./manifest.dev.json";
+import stagingManifest from "./manifest.staging.json";
 import manifest from "./manifest.json";
 import pkg from "./package.json";
 
@@ -15,10 +16,24 @@ const publicDir = resolve(__dirname, "public");
 
 const isDev = process.env.__DEV__ === "true";
 
+const extensionENV = process.env.EXTENSION_ENV || "development";
+let activeManifest;
+
+switch (extensionENV) {
+  case "staging":
+    activeManifest = Object.assign(manifest, stagingManifest);
+    break;
+  case "production":
+    activeManifest = manifest;
+    break;
+  default:
+    activeManifest = Object.assign(manifest, devManifest);
+    break;
+}
+
 const extensionManifest = {
-  ...manifest,
-  ...(isDev ? devManifest : ({} as ManifestV3Export)),
-  name: isDev ? `DEV: ${manifest.name}` : manifest.name,
+  ...activeManifest,
+  name: activeManifest.name,
   version: pkg.version,
 };
 

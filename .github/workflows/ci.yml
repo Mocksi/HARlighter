@@ -2,6 +2,16 @@ name: Build and Zip Extension
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to build the extension for'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+        - production
+        - staging
+        - development
 
 defaults:
   run:
@@ -42,6 +52,8 @@ jobs:
 
       - name: Build artifacts
         run: pnpm build
+        env:
+          EXTENSION_ENV: ${{ inputs.environment }}
 
       - name: Upload extension artifacts
         uses: actions/upload-artifact@v4
