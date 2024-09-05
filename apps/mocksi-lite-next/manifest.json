@@ -19,7 +19,7 @@
   },
   "description": "https://www.mocksi.ai",
   "externally_connectable": {
-    "matches": ["https://app.mocksi.com/*"]
+    "matches": ["https://app.mocksi.ai/*"]
   },
   "icons": {
     "128": "mocksi-logo.png"
