@@ -15,11 +15,11 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "object-src 'none'; child-src https://app.mocksi.ai; frame-src https://app.mocksi.ai; script-src 'self'"
+    "extension_pages": ""
   },
   "description": "https://www.mocksi.ai",
   "externally_connectable": {
-    "matches": ["https://app.mocksi.ai/*"]
+    "matches": []
   },
   "icons": {
     "128": "mocksi-logo.png"
