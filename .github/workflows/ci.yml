@@ -4,14 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to build the extension for'
+        description: "Environment to build the extension for"
         required: true
-        default: 'development'
+        default: "development"
         type: choice
         options:
-        - production
-        - staging
-        - development
+          - QA
+          - production
+          - staging
+          - development
 
 defaults:
   run:
@@ -51,9 +52,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build artifacts
-        run: pnpm build --mode ${{ inputs.environment }}
-        env:
-          EXTENSION_ENV: ${{ inputs.environment }}
+        run: pnpm build --mode=${{ inputs.environment }}
 
       - name: Upload extension artifacts
         uses: actions/upload-artifact@v4
