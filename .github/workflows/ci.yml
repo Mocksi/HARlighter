@@ -24,6 +24,7 @@ jobs:
     steps:
       - name: Store commit short sha
         run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
+        shell: bash
 
       - name: Checkout Code
         uses: actions/checkout@v3
