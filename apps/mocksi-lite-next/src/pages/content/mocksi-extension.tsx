@@ -39,16 +39,7 @@ function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
         inset: "0px 10px auto auto",
         width: "400px",
       };
-    case "CHAT":
-      return {
-        bottom: "0px",
-        display: "block",
-        height: "500px",
-        left: "calc(50%-150px)",
-        right: "auto",
-        top: "auto",
-        width: "300px",
-      };
+
     case "DEMO_ACTIVE":
       return {
         display: "block",
@@ -124,12 +115,6 @@ chrome.runtime.onMessage.addListener((request) => {
             (async () => {
               let data = null;
 
-              if (request.message === "CHAT_NEW_MESSAGE") {
-                sendResponse({
-                  message: request.message,
-                  status: "ok",
-                });
-              }
               // reactor
               if (request.message === "EDITING" || request.message === "PLAY") {
                 for (const mod of request.data.edits) {
@@ -159,14 +144,6 @@ chrome.runtime.onMessage.addListener((request) => {
                 Object.assign(iframeRef.current.style, styles);
               }
 
-              if (request.message === "CHAT") {
-                sendResponse({
-                  data: reactor.exportDOM(),
-                  message: request.message,
-                  status: "ok",
-                });
-              }
-
               sendResponse({
                 data,
                 message: request.message,
@@ -183,17 +160,17 @@ chrome.runtime.onMessage.addListener((request) => {
           {ReactDOM.createPortal(
             <>
               <iframe
-                loading="lazy"
                 ref={iframeRef}
                 seamless={true}
                 src={`${import.meta.env.VITE_NEST_APP}/extension`}
                 style={{
                   colorScheme: "light",
-                  position: "fixed",
+                  position: "sticky",
                   display: "block",
                   height: "600px",
                   width: "500px",
-                  inset: "auto 10px 10px auto",
+                  left: "calc(-510px + 100vw)",
+                  bottom: "calc(-660px + 100vh)",
                   boxShadow: "none",
                   zIndex: 99998,
                   border: "none",

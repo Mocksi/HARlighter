@@ -5,5 +5,5 @@
   "exec": "vite build --mode development",
   "ext": "tsx,css,html,ts,json",
   "ignore": ["src/**/*.test.ts"],
-  "watch": ["src", "utils", "vite.config.ts", "manifest.json"]
+  "watch": ["src/**/*", "utils", "vite.config.ts", "manifest.json"]
 }

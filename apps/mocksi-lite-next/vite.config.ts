@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => {
 
   // Dev note: make sure these urls are what you expect them to be for current mode!
   manifest.externally_connectable.matches = [`${env.VITE_NEST_APP}/*`];
-  manifest.content_security_policy.extension_pages = `object-src 'none'; child-src ${env.VITE_NEST_APP}; frame-src ${env.VITE_NEST_APP}; script-src 'self'`;
+  manifest.content_security_policy.extension_pages = `object-src 'none'; child-src ${env.VITE_NEST_APP}; frame-src ${env.VITE_NEST_APP}; script-src 'self'; default-src 'self';`;
 
   // If mode is 'production' apply manifest as is, note, published prod extension
   // manifest should not include 'key'

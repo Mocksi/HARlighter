@@ -10,7 +10,11 @@
   },
   "content_scripts": [
     {
-      "js": ["src/pages/content/mocksi-extension.tsx"],
+      "document_start": true,
+      "js": [
+        "src/pages/content/mocksi-extension.tsx",
+        "src/pages/content/toolbar.ts"
+      ],
       "matches": ["http://*/*", "https://*/*", "<all_urls>"]
     }
   ],
@@ -40,8 +44,8 @@
   ],
   "web_accessible_resources": [
     {
-      "matches": [],
-      "resources": ["mocksi-icon.png", "mocksi-logo.png"]
+      "matches": ["<all_urls>"],
+      "resources": ["mocksi-icon.png", "mocksi-logo.png", "toolbar.html"]
     }
   ]
 }
