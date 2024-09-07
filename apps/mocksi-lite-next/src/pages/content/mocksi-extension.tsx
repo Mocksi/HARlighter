@@ -124,12 +124,6 @@ chrome.runtime.onMessage.addListener((request) => {
             (async () => {
               let data = null;
 
-              if (request.message === "CHAT_NEW_MESSAGE") {
-                sendResponse({
-                  message: request.message,
-                  status: "ok",
-                });
-              }
               // reactor
               if (request.message === "EDITING" || request.message === "PLAY") {
                 for (const mod of request.data.edits) {
@@ -148,7 +142,8 @@ chrome.runtime.onMessage.addListener((request) => {
               }
               if (
                 request.message === "STOP_EDITING" ||
-                request.message === "STOP_PLAYING"
+                request.message === "STOP_PLAYING" ||
+                request.message === "STOP_CHAT"
               ) {
                 reactor.detach();
               }
@@ -160,11 +155,17 @@ chrome.runtime.onMessage.addListener((request) => {
               }
 
               if (request.message === "CHAT") {
-                sendResponse({
-                  data: reactor.exportDOM(),
-                  message: request.message,
-                  status: "ok",
-                });
+                reactor.attach(document, getHighlighter());
+              }
+
+              if (request.message === "CHAT_MESSAGE") {
+                data = reactor.exportDOM();
+              }
+              if (request.message === "CHAT_RESPONSE") {
+                await reactor.pushModification(request.data);
+                data = Array.from(reactor.getAppliedModifications()).map(
+                  (mod) => mod.modificationRequest,
+                );
               }
 
               sendResponse({
