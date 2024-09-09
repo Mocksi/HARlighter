@@ -26,21 +26,10 @@
   },
   "manifest_version": 3,
   "name": "Mocksi Lite",
-  "permissions": [
-    "activeTab",
-    "background",
-    "cookies",
-    "downloads",
-    "debugger",
-    "scripting",
-    "storage",
-    "tabs",
-    "webNavigation",
-    "webRequest"
-  ],
+  "permissions": ["activeTab", "background", "downloads", "storage", "tabs"],
   "web_accessible_resources": [
     {
-      "matches": [],
+      "matches": ["<all_urls>"],
       "resources": ["mocksi-icon.png", "mocksi-logo.png"]
     }
   ]
