@@ -47,7 +47,7 @@ function getIframeSizePosition({
 
   const styles = {
     bottom: "auto",
-    display: "inherit",
+    display: "block",
     height: `${height}px`,
     left: "auto",
     right: "auto",
