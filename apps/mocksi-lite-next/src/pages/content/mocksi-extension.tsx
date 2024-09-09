@@ -188,7 +188,7 @@ chrome.runtime.onMessage.addListener((request) => {
 
               // Resize iframe with the new styles
               if (iframeRef.current) {
-                if (request.data.iframe) {
+                if (request.data && request.data.iframe) {
                   // v1 iframe size / position pattern
                   const styles = getIframeSizePosition(request.data.iframe);
                   Object.assign(iframeRef.current.style, styles);
