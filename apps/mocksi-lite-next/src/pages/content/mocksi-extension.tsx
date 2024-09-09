@@ -27,6 +27,54 @@ window.addEventListener("message", (event: MessageEvent) => {
   }
 });
 
+function getIframeSizePosition({
+  height,
+  position,
+  width,
+}: {
+  height: number;
+  position: string;
+  width: number;
+}) {
+  if (!height || !width || !position) {
+    console.error(
+      "Cannot update iframe size / position, make sure 'request.data.iframe' has 'height', 'width', and 'position' set correctly",
+    );
+    return;
+  }
+
+  const bounds = document.body.getBoundingClientRect();
+
+  const styles = {
+    bottom: "auto",
+    display: "block",
+    height: `${height}px`,
+    left: "auto",
+    right: "auto",
+    top: "auto",
+    width: `${width}px`,
+  };
+
+  switch (position) {
+    case "BOTTOM_CENTER":
+      styles.bottom = "0px";
+      styles.right = `${bounds.width / 2 - width / 2}px`;
+      break;
+    case "BOTTOM_RIGHT":
+      styles.bottom = "10px";
+      styles.right = "10px";
+      break;
+    case "NONE":
+      styles.display = "none";
+      break;
+    case "TOP_RIGHT":
+      styles.top = "10px";
+      styles.right = "10px";
+      break;
+  }
+  return styles;
+}
+
 // Function to get styles based on the message,
 function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
   switch (message) {
@@ -155,8 +203,15 @@ chrome.runtime.onMessage.addListener((request) => {
 
               // Resize iframe with the new styles
               if (iframeRef.current) {
-                const styles = getIframeStyles(request.message);
-                Object.assign(iframeRef.current.style, styles);
+                if (request.data?.iframe) {
+                  // v1 iframe size / position pattern
+                  const styles = getIframeSizePosition(request.data.iframe);
+                  Object.assign(iframeRef.current.style, styles);
+                } else {
+                  // v0+
+                  const styles = getIframeStyles(request.message);
+                  Object.assign(iframeRef.current.style, styles);
+                }
               }
 
               if (request.message === "CHAT") {
@@ -193,7 +248,10 @@ chrome.runtime.onMessage.addListener((request) => {
                   display: "block",
                   height: "600px",
                   width: "500px",
-                  inset: "auto 10px 10px auto",
+                  top: "auto",
+                  right: "10px",
+                  bottom: "10px",
+                  left: "auto",
                   boxShadow: "none",
                   zIndex: 99998,
                   border: "none",
