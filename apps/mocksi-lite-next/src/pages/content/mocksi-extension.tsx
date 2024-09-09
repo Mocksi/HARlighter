@@ -225,7 +225,6 @@ chrome.runtime.onMessage.addListener((request) => {
                   display: "block",
                   height: "600px",
                   width: "500px",
-                  inset: "auto 10px 10px auto",
                   top: "auto",
                   right: "10px",
                   bottom: "10px",
