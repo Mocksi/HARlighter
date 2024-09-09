@@ -156,7 +156,6 @@ chrome.runtime.onMessage.addListener((request) => {
       React.useEffect(() => {
         chrome.runtime.onMessage.addListener(
           (request, _sender, sendResponse) => {
-            console.log(request);
             // execute in async block so that we return true
             // synchronously, telling chrome to wait for the response
             (async () => {
