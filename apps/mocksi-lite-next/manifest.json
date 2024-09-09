@@ -26,7 +26,7 @@
   },
   "manifest_version": 3,
   "name": "Mocksi Lite",
-  "permissions": ["activeTab", "background", "downloads", "storage", "tabs"],
+  "permissions": ["activeTab", "background", "storage", "tabs"],
   "web_accessible_resources": [
     {
       "matches": ["<all_urls>"],
