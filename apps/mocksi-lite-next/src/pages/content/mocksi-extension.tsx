@@ -196,7 +196,8 @@ chrome.runtime.onMessage.addListener((request) => {
               }
               if (
                 request.message === "STOP_EDITING" ||
-                request.message === "STOP_PLAYING"
+                request.message === "STOP_PLAYING" ||
+                request.message === "STOP_CHAT"
               ) {
                 reactor.detach();
               }
@@ -220,6 +221,20 @@ chrome.runtime.onMessage.addListener((request) => {
                   message: request.message,
                   status: "ok",
                 });
+              }
+
+              if (request.message === "CHAT") {
+                reactor.attach(document, getHighlighter());
+              }
+
+              if (request.message === "CHAT_MESSAGE") {
+                data = reactor.exportDOM();
+              }
+              if (request.message === "CHAT_RESPONSE") {
+                await reactor.pushModification(request.data);
+                data = Array.from(reactor.getAppliedModifications()).map(
+                  (mod) => mod.modificationRequest,
+                );
               }
 
               sendResponse({
