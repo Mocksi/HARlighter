@@ -37,7 +37,9 @@ function getIframeSizePosition({
   width: number;
 }) {
   if (!height || !width || !position) {
-    console.log("could not update iframe size or position");
+    console.error(
+      "Cannot update iframe size / position, make sure 'request.data.iframe' has 'height', 'width', and 'position' set correctly",
+    );
     return;
   }
 
