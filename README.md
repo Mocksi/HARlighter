@@ -42,8 +42,6 @@ HARlighter is a powerful Chrome extension designed for professionals who need to
 ### Apps and Packages
 
 - `mocksi-lite`: Chrome extension for Mocksi
-- `@repo/harlight`: Package for building HAR files
-- `@repo/dodom`: DOM manipulation package
 - `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
 - `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
 - `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
