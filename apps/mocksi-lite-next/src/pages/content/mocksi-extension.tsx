@@ -27,6 +27,52 @@ window.addEventListener("message", (event: MessageEvent) => {
   }
 });
 
+function getIframeSizePosition({
+  height,
+  position,
+  width,
+}: {
+  height: number;
+  position: string;
+  width: number;
+}) {
+  if (!height || !width || !position) {
+    console.log("could not update iframe size or position");
+    return;
+  }
+
+  const bounds = document.body.getBoundingClientRect();
+
+  const styles = {
+    bottom: "auto",
+    display: "inherit",
+    height: `${height}px`,
+    left: "auto",
+    right: "auto",
+    top: "auto",
+    width: `${width}px`,
+  };
+
+  switch (position) {
+    case "BOTTOM_CENTER":
+      styles.bottom = "0px";
+      styles.right = `${bounds.width / 2 - width / 2}px`;
+      break;
+    case "BOTTOM_RIGHT":
+      styles.bottom = "10px";
+      styles.right = "10px";
+      break;
+    case "NONE":
+      styles.display = "none";
+      break;
+    case "TOP_RIGHT":
+      styles.top = "10px";
+      styles.right = "10px";
+      break;
+  }
+  return styles;
+}
+
 // Function to get styles based on the message,
 function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
   switch (message) {
@@ -110,6 +156,7 @@ chrome.runtime.onMessage.addListener((request) => {
       React.useEffect(() => {
         chrome.runtime.onMessage.addListener(
           (request, _sender, sendResponse) => {
+            console.log(request);
             // execute in async block so that we return true
             // synchronously, telling chrome to wait for the response
             (async () => {
@@ -140,6 +187,10 @@ chrome.runtime.onMessage.addListener((request) => {
 
               // Resize iframe with the new styles
               if (iframeRef.current) {
+                if (request.data.iframe) {
+                  const tempStyles = getIframeSizePosition(request.data.iframe);
+                  console.log(tempStyles);
+                }
                 const styles = getIframeStyles(request.message);
                 Object.assign(iframeRef.current.style, styles);
               }
