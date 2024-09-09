@@ -188,11 +188,12 @@ chrome.runtime.onMessage.addListener((request) => {
               // Resize iframe with the new styles
               if (iframeRef.current) {
                 if (request.data.iframe) {
-                  const tempStyles = getIframeSizePosition(request.data.iframe);
-                  console.log(tempStyles);
+                  const styles = getIframeSizePosition(request.data.iframe);
+                  Object.assign(iframeRef.current.style, styles);
+                } else {
+                  const styles = getIframeStyles(request.message);
+                  Object.assign(iframeRef.current.style, styles);
                 }
-                const styles = getIframeStyles(request.message);
-                Object.assign(iframeRef.current.style, styles);
               }
 
               sendResponse({
