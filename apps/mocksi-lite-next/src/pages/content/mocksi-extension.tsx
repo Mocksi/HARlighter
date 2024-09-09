@@ -188,9 +188,11 @@ chrome.runtime.onMessage.addListener((request) => {
               // Resize iframe with the new styles
               if (iframeRef.current) {
                 if (request.data.iframe) {
+                  // v1 iframe size / position pattern
                   const styles = getIframeSizePosition(request.data.iframe);
                   Object.assign(iframeRef.current.style, styles);
                 } else {
+                  // v0+
                   const styles = getIframeStyles(request.message);
                   Object.assign(iframeRef.current.style, styles);
                 }
@@ -223,6 +225,10 @@ chrome.runtime.onMessage.addListener((request) => {
                   height: "600px",
                   width: "500px",
                   inset: "auto 10px 10px auto",
+                  top: "auto",
+                  right: "10px",
+                  bottom: "10px",
+                  left: "auto",
                   boxShadow: "none",
                   zIndex: 99998,
                   border: "none",
