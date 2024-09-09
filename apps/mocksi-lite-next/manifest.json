@@ -29,7 +29,7 @@
   "permissions": ["activeTab", "background", "storage", "tabs"],
   "web_accessible_resources": [
     {
-      "matches": ["<all_urls>"],
+      "matches": [],
       "resources": ["mocksi-icon.png", "mocksi-logo.png"]
     }
   ]
