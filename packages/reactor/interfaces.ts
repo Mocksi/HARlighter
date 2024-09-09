@@ -1,6 +1,6 @@
 import { generateRandomString } from "./utils";
 
-export interface Modification {
+export type Modification = {
 	selector?: string;
 	xpath?: string;
 	action:
