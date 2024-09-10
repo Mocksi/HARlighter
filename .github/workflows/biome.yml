@@ -22,7 +22,7 @@ jobs:
         with:
           version: 'latest'
           working-dir: "/"
-      - name: Run Biome mocksi-lite
-        run: biome ci ./apps/mocksi-lite
+      - name: Run Biome chrome-extension
+        run: biome ci ./apps/chrome-extension
       - name: Run Biome dodom
         run: biome ci ./packages/dodom

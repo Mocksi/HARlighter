@@ -16,7 +16,7 @@ on:
 
 defaults:
   run:
-    working-directory: ./apps/mocksi-lite-next
+    working-directory: ./apps/chrome-extension
 
 jobs:
   build_extension:
@@ -62,4 +62,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mocksi-lite-${{ inputs.environment }}-${{ env.SHORT_SHA }}
-          path: ./apps/mocksi-lite-next/dist
+          path: ./apps/chrome-extension/dist
