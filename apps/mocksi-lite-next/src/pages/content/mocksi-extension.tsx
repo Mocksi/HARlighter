@@ -5,6 +5,24 @@ import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import { getHighlighter } from "./highlighter";
 
+// function mountTopToolbar() {
+//   const el = document.createElement("div");
+//   el.id = "mocksi-toolbar";
+//   el.style.width = "100%";
+//   el.style.height = "50px";
+//   el.style.background = "pink";
+//   document.body.prepend(el);
+
+//   const host = document.querySelector("#mocksi-toolbar");
+//   const shadow = host?.attachShadow({ mode: "open" });
+//   const span = document.createElement("button");
+//   span.addEventListener("click", () => {
+//     chrome.runtime.sendMessage("close");
+//   });
+//   span.innerText = "close";
+//   shadow.appendChild(span);
+// }
+
 const STORAGE_CHANGE_EVENT = "MOCKSI_STORAGE_CHANGE";
 
 const div = document.createElement("div");
@@ -172,12 +190,6 @@ chrome.runtime.onMessage.addListener((request) => {
             (async () => {
               let data = null;
 
-              if (request.message === "CHAT_NEW_MESSAGE") {
-                sendResponse({
-                  message: request.message,
-                  status: "ok",
-                });
-              }
               // reactor
               if (request.message === "EDITING" || request.message === "PLAY") {
                 for (const mod of request.data.edits) {
@@ -214,19 +226,9 @@ chrome.runtime.onMessage.addListener((request) => {
                   Object.assign(iframeRef.current.style, styles);
                 }
               }
-
-              if (request.message === "CHAT") {
-                sendResponse({
-                  data: reactor.exportDOM(),
-                  message: request.message,
-                  status: "ok",
-                });
-              }
-
               if (request.message === "CHAT") {
                 reactor.attach(document, getHighlighter());
               }
-
               if (request.message === "CHAT_MESSAGE") {
                 data = reactor.exportDOM();
               }
@@ -250,6 +252,13 @@ chrome.runtime.onMessage.addListener((request) => {
 
       return (
         <div>
+          <button
+            onClick={() => {
+              chrome.runtime.sendMessage("close");
+            }}
+          >
+            Message Iframe
+          </button>
           {ReactDOM.createPortal(
             <>
               <iframe
