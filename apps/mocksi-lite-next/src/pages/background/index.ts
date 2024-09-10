@@ -8,17 +8,6 @@ let prevRequest = {
   message: "INIT",
 };
 
-let port: chrome.runtime.Port;
-
-chrome.runtime.onConnectExternal.addListener((t) => {
-  port = t;
-  console.log("port:", t);
-  t.onMessage.addListener((res) => {
-    console.log("sw recieved message:", res);
-    port.postMessage("hello from backgrounds script!");
-  });
-});
-
 const getAuth = async (): Promise<null | {
   accessToken: string;
   email: string;
@@ -94,7 +83,6 @@ addEventListener("install", () => {
 
 // when user clicks toolbar mount extension
 chrome.action.onClicked.addListener((tab) => {
-  console.log("port on icon click:", port);
   if (!tab?.id) {
     console.log("No tab found, could not mount extension");
     return;
@@ -119,11 +107,6 @@ chrome.action.onClicked.addListener((tab) => {
 
 chrome.runtime.onMessage.addListener(
   (request, _sender, sendResponse): boolean => {
-    console.log(request);
-
-    if (request === "close") {
-      port.postMessage("close!");
-    }
     sendResponse({
       data: request.data,
       message: request.message,
@@ -167,7 +150,7 @@ chrome.runtime.onMessageExternal.addListener(
         }
       } else {
         const tab = await getCurrentTab();
-        if (!tab.id) {
+        if (!tab?.id) {
           sendResponse({ message: request.message, status: "no-tab" });
           console.log("No active tab found, could not send message");
           return true;

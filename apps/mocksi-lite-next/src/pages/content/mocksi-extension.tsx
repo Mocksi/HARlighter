@@ -5,24 +5,6 @@ import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import { getHighlighter } from "./highlighter";
 
-// function mountTopToolbar() {
-//   const el = document.createElement("div");
-//   el.id = "mocksi-toolbar";
-//   el.style.width = "100%";
-//   el.style.height = "50px";
-//   el.style.background = "pink";
-//   document.body.prepend(el);
-
-//   const host = document.querySelector("#mocksi-toolbar");
-//   const shadow = host?.attachShadow({ mode: "open" });
-//   const span = document.createElement("button");
-//   span.addEventListener("click", () => {
-//     chrome.runtime.sendMessage("close");
-//   });
-//   span.innerText = "close";
-//   shadow.appendChild(span);
-// }
-
 const STORAGE_CHANGE_EVENT = "MOCKSI_STORAGE_CHANGE";
 
 const div = document.createElement("div");
@@ -103,24 +85,7 @@ function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
         display: "block",
         height: "150px",
         inset: "0px 10px auto auto",
-        width: "400px",
-      };
-    case "CHAT":
-      return {
-        bottom: "0px",
-        display: "block",
-        height: "500px",
-        left: "calc(50%-150px)",
-        right: "auto",
-        top: "auto",
         width: "300px",
-      };
-    case "DEMO_ACTIVE":
-      return {
-        display: "block",
-        height: "250px",
-        inset: "88% 42% 0px",
-        width: "200px",
       };
     case "EDITING":
     case "INIT":
@@ -214,18 +179,7 @@ chrome.runtime.onMessage.addListener((request) => {
                 reactor.detach();
               }
 
-              // Resize iframe with the new styles
-              if (iframeRef.current) {
-                if (request.data?.iframe) {
-                  // v1 iframe size / position pattern
-                  const styles = getIframeSizePosition(request.data.iframe);
-                  Object.assign(iframeRef.current.style, styles);
-                } else {
-                  // v0+
-                  const styles = getIframeStyles(request.message);
-                  Object.assign(iframeRef.current.style, styles);
-                }
-              }
+              // chat actions
               if (request.message === "CHAT") {
                 reactor.attach(document, getHighlighter());
               }
@@ -239,6 +193,18 @@ chrome.runtime.onMessage.addListener((request) => {
                 );
               }
 
+              // Resize iframe with the new styles
+              if (iframeRef.current) {
+                if (request.data?.iframe) {
+                  // v1 iframe size / position pattern
+                  const styles = getIframeSizePosition(request.data.iframe);
+                  Object.assign(iframeRef.current.style, styles);
+                } else {
+                  // v0+
+                  const styles = getIframeStyles(request.message);
+                  Object.assign(iframeRef.current.style, styles);
+                }
+              }
               sendResponse({
                 data,
                 message: request.message,
@@ -252,34 +218,26 @@ chrome.runtime.onMessage.addListener((request) => {
 
       return (
         <div>
-          <button
-            onClick={() => {
-              chrome.runtime.sendMessage("close");
-            }}
-          >
-            Message Iframe
-          </button>
           {ReactDOM.createPortal(
             <>
               <iframe
-                loading="lazy"
                 ref={iframeRef}
                 seamless={true}
                 src={`${import.meta.env.VITE_NEST_APP}/extension`}
                 style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  bottom: "10px",
+                  boxShadow: "none",
                   colorScheme: "light",
-                  position: "fixed",
                   display: "block",
                   height: "600px",
-                  width: "500px",
-                  top: "auto",
-                  right: "10px",
-                  bottom: "10px",
                   left: "auto",
-                  boxShadow: "none",
+                  position: "fixed",
+                  right: "10px",
+                  top: "auto",
+                  width: "500px",
                   zIndex: 99998,
-                  border: "none",
-                  backgroundColor: "transparent",
                 }}
               />
             </>,
