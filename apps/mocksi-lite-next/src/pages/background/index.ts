@@ -150,7 +150,7 @@ chrome.runtime.onMessageExternal.addListener(
         }
       } else {
         const tab = await getCurrentTab();
-        if (!tab.id) {
+        if (!tab?.id) {
           sendResponse({ message: request.message, status: "no-tab" });
           console.log("No active tab found, could not send message");
           return true;
