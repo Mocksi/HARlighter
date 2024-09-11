@@ -173,16 +173,12 @@ chrome.runtime.onMessage.addListener((request) => {
               }
               if (
                 request.message === "STOP_EDITING" ||
-                request.message === "STOP_PLAYING" ||
-                request.message === "STOP_CHAT"
+                request.message === "STOP_PLAYING"
               ) {
                 reactor.detach();
               }
 
               // chat actions
-              if (request.message === "CHAT") {
-                reactor.attach(document, getHighlighter());
-              }
               if (request.message === "CHAT_MESSAGE") {
                 data = reactor.exportDOM();
               }
