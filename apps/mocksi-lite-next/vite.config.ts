@@ -53,7 +53,7 @@ export default defineConfig(({ mode }) => {
       break;
     case "staging":
       manifest.name = "[Staging] Mocksi Lite";
-      manifest.key = DEV_UNPACKED_KEY;
+      manifest.key = PROD_UNPACKED_KEY;
       break;
   }
   console.log("** BUILDING MOCKSI LITE EXTENSION **");
