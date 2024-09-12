@@ -149,7 +149,7 @@ chrome.runtime.onMessageExternal.addListener(
           if (!tab || !tab.id) {
             await showAuthTab(true);
             sendResponse({
-              message: "authenticating",
+              message: "retry",
               status: "ok",
             });
           }
