@@ -12,6 +12,7 @@ div.id = "__mocksi__root";
 document.body.appendChild(div);
 let mounted = false;
 const reactor = new Reactor();
+const highlighter = getHighlighter();
 
 window.addEventListener("message", (event: MessageEvent) => {
   const eventData = event.data;
@@ -61,6 +62,7 @@ function getIframeSizePosition({
       styles.right = `${bounds.width / 2 - width / 2}px`;
       break;
     case "BOTTOM_RIGHT":
+      styles.top = "auto";
       styles.bottom = "10px";
       styles.right = "10px";
       break;
@@ -87,13 +89,9 @@ function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
         inset: "0px 10px auto auto",
         width: "300px",
       };
-    case "EDITING":
     case "INIT":
-    case "LIST":
-    case "NEW_EDIT":
     case "READYTORECORD":
     case "SETTINGS":
-    case "STOP_EDITING":
     case "STOP_PLAYING":
     case "UNAUTHORIZED":
       return {
@@ -144,6 +142,7 @@ chrome.runtime.onMessage.addListener((request) => {
           }
         }
         console.log("mods in find and replace fn: ", modifications);
+
         return modifications;
       }
 
@@ -160,12 +159,12 @@ chrome.runtime.onMessage.addListener((request) => {
                 for (const mod of request.data.edits) {
                   await reactor.pushModification(mod);
                 }
-                reactor.attach(document, getHighlighter());
+                reactor.attach(document, highlighter);
               }
               if (request.message === "NEW_EDIT") {
                 if (request.data) {
-                  const { find, flags, highlightEdits, replace } = request.data;
-                  await findReplaceAll(find, replace, flags, highlightEdits);
+                  const { find, flags, highlight, replace } = request.data;
+                  await findReplaceAll(find, replace, flags, highlight);
                   data = Array.from(reactor.getAppliedModifications()).map(
                     (mod) => mod.modificationRequest,
                   );
