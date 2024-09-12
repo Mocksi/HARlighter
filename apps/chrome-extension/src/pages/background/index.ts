@@ -137,8 +137,17 @@ chrome.runtime.onMessageExternal.addListener(
         if (auth) {
           const { accessToken, email } = auth;
           const tab = await getCurrentTab();
+           // FIXME: there's duplicated code belows.
+          if (!tab.id) {
+            await showAuthTab(true);
+            sendResponse({
+              message: "authenticating",
+              status: "ok",
+            });
+            return true;
+          }
           sendResponse({
-            message: { accessToken, email },
+            message: { accessToken, email, url: tab.url },
             status: "ok",
           });
         } else {
@@ -150,7 +159,7 @@ chrome.runtime.onMessageExternal.addListener(
         }
       } else {
         const tab = await getCurrentTab();
-        if (!tab?.id) {
+        if (!tab.id) {
           sendResponse({ message: request.message, status: "no-tab" });
           console.log("No active tab found, could not send message");
           return true;
