@@ -44,9 +44,16 @@ const clearAuth = async (): Promise<void> => {
 
 async function getCurrentTab() {
   const queryOptions = { active: true, lastFocusedWindow: true };
-  // `tab` will either be a `tabs.Tab` instance or `undefined`.
-  const [tab] = await chrome.tabs.query(queryOptions);
-  return tab;
+  try {
+    let [tab] = await chrome.tabs.query(queryOptions);
+    if (!tab) {
+      tab = await chrome.tabs.getCurrent();
+    }
+    return tab;
+  } catch (error) {
+    console.error("Failed to get current tab:", error);
+    return undefined;
+  }
 }
 
 async function showAuthTab(force?: boolean) {
@@ -139,7 +146,7 @@ chrome.runtime.onMessageExternal.addListener(
           const tab = await getCurrentTab();
 
           // FIXME: there's duplicated code below.
-          if (!tab.id) {
+          if (!tab || !tab.id) {
             await showAuthTab(true);
             sendResponse({
               message: "authenticating",
