@@ -3,7 +3,7 @@ import { Reactor } from "@repo/reactor";
 import React from "react";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
-import { AppEvents, DemoEditEvents, ExtHarnessEvents } from "../events";
+import { AppEvents, DemoEditEvents, LayoutEvents } from "../events";
 import { getHighlighter } from "./highlighter";
 
 export enum IframePosition {
@@ -104,7 +104,7 @@ interface AppMessageRequest {
 }
 
 chrome.runtime.onMessage.addListener((request) => {
-  if (request.message === ExtHarnessEvents.MOUNT) {
+  if (request.message === LayoutEvents.MOUNT) {
     const rootContainer = document.querySelector("#__mocksi__root");
     if (!rootContainer) throw new Error("Can't find Content root element");
 
@@ -228,13 +228,13 @@ chrome.runtime.onMessage.addListener((request) => {
               // Resize iframe, how or hide it
               if (iframeRef.current) {
                 switch (request.message) {
-                  case ExtHarnessEvents.HIDE:
+                  case LayoutEvents.HIDE:
                     iframeRef.current.style.display = "none";
                     break;
-                  case ExtHarnessEvents.SHOW:
+                  case LayoutEvents.SHOW:
                     iframeRef.current.style.display = "block";
                     break;
-                  case ExtHarnessEvents.RESIZE:
+                  case LayoutEvents.RESIZE:
                     const styles = getIframeStyles(request.data.iframe);
                     Object.assign(iframeRef.current.style, styles);
                 }

@@ -1,4 +1,4 @@
-import { AppEvents, AuthEvents, ExtHarnessEvents } from "@pages/events";
+import { AppEvents, AuthEvents, LayoutEvents } from "@pages/events";
 import { jwtDecode } from "jwt-decode";
 
 console.log("background script loaded");
@@ -6,8 +6,9 @@ console.log("background script loaded");
 const MOCKSI_AUTH = "mocksi-auth";
 
 let prevAppEvent = "";
-let prevExtHarnessEvent = "";
+let prevLayoutEvent = "";
 let fallbackTab: null | chrome.tabs.Tab = null;
+
 const getAuth = async (): Promise<null | {
   accessToken: string;
   email: string;
@@ -120,15 +121,15 @@ chrome.action.onClicked.addListener((tab) => {
   fallbackTab = tab;
 
   chrome.tabs.sendMessage(tab.id, {
-    message: ExtHarnessEvents.MOUNT,
+    message: LayoutEvents.MOUNT,
   });
 
-  if (prevExtHarnessEvent === ExtHarnessEvents.HIDE) {
+  if (prevLayoutEvent === LayoutEvents.HIDE) {
     if (prevAppEvent === AppEvents.PLAY_DEMO_START) {
       showPlayIcon(tab.id);
     }
     chrome.tabs.sendMessage(tab.id, {
-      message: ExtHarnessEvents.SHOW,
+      message: LayoutEvents.SHOW,
     });
   }
 });
@@ -178,11 +179,13 @@ chrome.runtime.onMessageExternal.addListener(
         if (!tab?.id) {
           sendResponse({
             message: request.message,
-            status: ExtHarnessEvents.NO_TAB,
+            status: LayoutEvents.NO_TAB,
           });
           return true;
         }
 
+        // this is used to restore state when iframe is closed and reopened
+        // rn we use it to show the 'play' icon
         switch (request.message) {
           case AppEvents.EDIT_DEMO_START:
           case AppEvents.EDIT_DEMO_STOP:
@@ -190,10 +193,10 @@ chrome.runtime.onMessageExternal.addListener(
           case AppEvents.PLAY_DEMO_STOP:
             prevAppEvent = request.message;
             break;
-          case ExtHarnessEvents.HIDE:
-          case ExtHarnessEvents.RESIZE:
-          case ExtHarnessEvents.SHOW:
-            prevExtHarnessEvent = request.message;
+          case LayoutEvents.HIDE:
+          case LayoutEvents.RESIZE:
+          case LayoutEvents.SHOW:
+            prevLayoutEvent = request.message;
             break;
         }
 

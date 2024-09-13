@@ -13,16 +13,16 @@ export enum AuthEvents {
 }
 
 export enum DemoEditEvents {
-  NEW_EDIT = "NEW_EDIT",
   CHAT_MESSAGE = "CHAT_MESSAGE",
   CHAT_RESPONSE = "CHAT_RESPONSE",
+  NEW_EDIT = "NEW_EDIT",
 }
 
-export enum ExtHarnessEvents {
+export enum LayoutEvents {
   HIDE = "HIDE",
-  SHOW = "SHOW",
-  READY = "READY",
   MOUNT = "MOUNT",
-  RESIZE = "RESIZE",
   NO_TAB = "NO_TAB",
+  READY = "READY",
+  RESIZE = "RESIZE",
+  SHOW = "SHOW",
 }
