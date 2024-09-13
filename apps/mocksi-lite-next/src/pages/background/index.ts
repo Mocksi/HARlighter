@@ -51,8 +51,9 @@ async function getCurrentTab() {
 
   // `tab` will either be a `tabs.Tab` instance or `undefined`.
   const tabs = await chrome.tabs.query(queryOptions);
-  if (tabs[0] && fallbackTab) {
+  if (!tabs[0] && !fallbackTab) {
     console.error("tab is undefined");
+    return null;
   }
   if (tabs[0]) {
     fallbackTab = tabs[0];
