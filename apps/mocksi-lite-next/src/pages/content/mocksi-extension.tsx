@@ -3,13 +3,30 @@ import { Reactor } from "@repo/reactor";
 import React from "react";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
+import { AppEvents, DemoEditEvents, ExtHarnessEvents } from "../events";
 import { getHighlighter } from "./highlighter";
+
+export enum IframePosition {
+  BOTTOM_CENTER = "BOTTOM_CENTER",
+  TOP_RIGHT = "TOP_RIGHT",
+  BOTTOM_RIGHT = "BOTTOM_RIGHT",
+}
+export interface IframeResizeArgs {
+  height: number;
+  id?: string;
+  position:
+    | IframePosition.BOTTOM_CENTER
+    | IframePosition.BOTTOM_RIGHT
+    | IframePosition.TOP_RIGHT;
+  width: number;
+}
 
 const STORAGE_CHANGE_EVENT = "MOCKSI_STORAGE_CHANGE";
 
 const div = document.createElement("div");
 div.id = "__mocksi__root";
 document.body.appendChild(div);
+
 let mounted = false;
 const reactor = new Reactor();
 const highlighter = getHighlighter();
@@ -28,15 +45,7 @@ window.addEventListener("message", (event: MessageEvent) => {
   }
 });
 
-function getIframeSizePosition({
-  height,
-  position,
-  width,
-}: {
-  height: number;
-  position: string;
-  width: number;
-}) {
+function getIframeStyles({ height, position, width }: IframeResizeArgs) {
   if (!height || !width || !position) {
     console.error(
       "Cannot update iframe size / position, make sure 'request.data.iframe' has 'height', 'width', and 'position' set correctly",
@@ -46,83 +55,68 @@ function getIframeSizePosition({
 
   const bounds = document.body.getBoundingClientRect();
 
-  const styles = {
-    bottom: "auto",
-    display: "block",
-    height: `${height}px`,
-    left: "auto",
-    right: "auto",
-    top: "auto",
-    width: `${width}px`,
-  };
-
+  let styles = {};
   switch (position) {
-    case "BOTTOM_CENTER":
-      styles.bottom = "0px";
-      styles.right = `${bounds.width / 2 - width / 2}px`;
+    case IframePosition.BOTTOM_CENTER:
+      styles = {
+        bottom: "0px",
+        right: `${bounds.width / 2 - width / 2}px`,
+        top: "auto",
+      };
       break;
-    case "BOTTOM_RIGHT":
-      styles.top = "auto";
-      styles.bottom = "10px";
-      styles.right = "10px";
+    case IframePosition.BOTTOM_RIGHT:
+      styles = {
+        bottom: "10px",
+        right: "10px",
+        top: "auto",
+      };
       break;
-    case "NONE":
-      styles.display = "none";
-      break;
-    case "TOP_RIGHT":
-      styles.top = "10px";
-      styles.right = "10px";
+    case IframePosition.TOP_RIGHT:
+      styles = {
+        bottom: "auto",
+        display: "block",
+        right: "10px",
+        top: "10px",
+      };
       break;
   }
-  return styles;
+
+  return Object.assign(
+    {
+      bottom: "auto",
+      display: "block",
+      height: `${height}px`,
+      left: "auto",
+      right: "auto",
+      top: "auto",
+      width: `${width}px`,
+    },
+    styles,
+  );
 }
 
-// Function to get styles based on the message,
-function getIframeStyles(message: string): Partial<CSSStyleDeclaration> {
-  switch (message) {
-    case "ANALYZING":
-    case "PLAY":
-    case "RECORDING":
-      return {
-        display: "block",
-        height: "150px",
-        inset: "0px 10px auto auto",
-        width: "300px",
-      };
-    case "INIT":
-    case "READYTORECORD":
-    case "SETTINGS":
-    case "STOP_PLAYING":
-    case "UNAUTHORIZED":
-      return {
-        display: "block",
-        height: "600px",
-        inset: "auto 10px 10px auto",
-        width: "500px",
-      };
-    case "MINIMIZED":
-      return {
-        display: "none",
-        inset: "0px 0px auto auto",
-      };
-    default:
-      return {};
-  }
+interface AppMessageRequest {
+  data: {
+    edits?: ModificationRequest[];
+    uuid: string;
+  };
+  message: string;
 }
 
 chrome.runtime.onMessage.addListener((request) => {
-  if (request.message === "mount-extension") {
+  if (request.message === ExtHarnessEvents.MOUNT) {
     const rootContainer = document.querySelector("#__mocksi__root");
     if (!rootContainer) throw new Error("Can't find Content root element");
+
     const root = createRoot(rootContainer);
     const Iframe = () => {
+      const prevAppEvent = React.useRef({ data: { uuid: "" }, message: "" });
       const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
       async function findReplaceAll(
         find: string,
         replace: string,
         flags: string,
-        highlight: boolean,
       ) {
         const modification: ModificationRequest = {
           description: `Change ${find} to ${replace}`,
@@ -136,14 +130,17 @@ chrome.runtime.onMessage.addListener((request) => {
         };
 
         const modifications = await reactor.pushModification(modification);
-        if (highlight) {
-          for (const mod of modifications) {
-            mod.setHighlight(true);
-          }
-        }
-        console.log("mods in find and replace fn: ", modifications);
-
         return modifications;
+      }
+
+      async function startDemo(request: AppMessageRequest) {
+        if (!request.data.edits) {
+          return;
+        }
+        for (const mod of request.data.edits) {
+          await reactor.pushModification(mod);
+        }
+        return await reactor.attach(document, highlighter);
       }
 
       React.useEffect(() => {
@@ -154,34 +151,72 @@ chrome.runtime.onMessage.addListener((request) => {
             (async () => {
               let data = null;
 
-              // reactor
-              if (request.message === "EDITING" || request.message === "PLAY") {
-                for (const mod of request.data.edits) {
-                  await reactor.pushModification(mod);
+              // check if app is asking to start or stop PLAY or EDIT
+              const startRequestRegExp = new RegExp(/_DEMO_START/);
+              const stopRequestRegExp = new RegExp(/_DEMO_STOP/);
+
+              const requestingStopDemo = stopRequestRegExp.test(
+                request.message,
+              );
+              const requestingStartDemo = startRequestRegExp.test(
+                request.message,
+              );
+
+              // if a demo is running already we want to avoid mounting the same
+              // modifications more than once, this is more performant, and edits
+              // persist in the dom if transitioning between EDIT and PLAY states
+              if (requestingStartDemo) {
+                const prevDemoUUID = prevAppEvent.current?.data?.uuid || null;
+
+                const demoRunning =
+                  prevDemoUUID &&
+                  startRequestRegExp.test(prevAppEvent.current.message);
+
+                if (!demoRunning) {
+                  await startDemo(request);
+                } else {
+                  const dupeEvent =
+                    prevAppEvent.current.message === request.message;
+
+                  const newDemo =
+                    prevAppEvent.current.data.uuid !== request.data.uuid;
+                  const hasMods = request.data.edits.length > 0;
+                  if (!dupeEvent && newDemo && hasMods) {
+                    if (reactor.isAttached()) {
+                      await reactor.detach(true);
+                    }
+                    await startDemo(request);
+                  }
                 }
-                reactor.attach(document, highlighter);
               }
-              if (request.message === "NEW_EDIT") {
+
+              if (
+                request.message === AppEvents.EDIT_DEMO_STOP ||
+                request.message === AppEvents.PLAY_DEMO_STOP
+              ) {
+                await reactor.detach(true);
+              }
+
+              // save last app event to check if we can keep mods in dom
+              if (requestingStartDemo || requestingStopDemo) {
+                prevAppEvent.current = request;
+              }
+
+              if (request.message === DemoEditEvents.NEW_EDIT) {
                 if (request.data) {
-                  const { find, flags, highlight, replace } = request.data;
-                  await findReplaceAll(find, replace, flags, highlight);
+                  const { find, flags, replace } = request.data;
+                  await findReplaceAll(find, replace, flags);
                   data = Array.from(reactor.getAppliedModifications()).map(
                     (mod) => mod.modificationRequest,
                   );
                 }
               }
-              if (
-                request.message === "STOP_EDITING" ||
-                request.message === "STOP_PLAYING"
-              ) {
-                reactor.detach();
-              }
 
-              // chat actions
-              if (request.message === "CHAT_MESSAGE") {
+              // chat events
+              if (request.message === DemoEditEvents.CHAT_MESSAGE) {
                 data = reactor.exportDOM();
               }
-              if (request.message === "CHAT_RESPONSE") {
+              if (request.message === DemoEditEvents.CHAT_RESPONSE) {
                 await reactor.pushModification(request.data);
                 data = Array.from(reactor.getAppliedModifications()).map(
                   (mod) => mod.modificationRequest,
@@ -190,16 +225,19 @@ chrome.runtime.onMessage.addListener((request) => {
 
               // Resize iframe with the new styles
               if (iframeRef.current) {
-                if (request.data?.iframe) {
-                  // v1 iframe size / position pattern
-                  const styles = getIframeSizePosition(request.data.iframe);
-                  Object.assign(iframeRef.current.style, styles);
-                } else {
-                  // v0+
-                  const styles = getIframeStyles(request.message);
-                  Object.assign(iframeRef.current.style, styles);
+                switch (request.message) {
+                  case ExtHarnessEvents.HIDE:
+                    iframeRef.current.style.display = "none";
+                    break;
+                  case ExtHarnessEvents.SHOW:
+                    iframeRef.current.style.display = "block";
+                    break;
+                  case ExtHarnessEvents.RESIZE:
+                    const styles = getIframeStyles(request.data.iframe);
+                    Object.assign(iframeRef.current.style, styles);
                 }
               }
+
               sendResponse({
                 data,
                 message: request.message,

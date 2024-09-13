@@ -1,13 +1,13 @@
+import { AppEvents, AuthEvents, ExtHarnessEvents } from "@pages/events";
 import { jwtDecode } from "jwt-decode";
 
 console.log("background script loaded");
 
 const MOCKSI_AUTH = "mocksi-auth";
-let prevRequest = {
-  data: {},
-  message: "INIT",
-};
 
+let prevAppEvent = "";
+let prevExtHarnessEvent = "";
+let currentTab = null;
 const getAuth = async (): Promise<null | {
   accessToken: string;
   email: string;
@@ -43,10 +43,21 @@ const clearAuth = async (): Promise<void> => {
 };
 
 async function getCurrentTab() {
-  const queryOptions = { active: true, lastFocusedWindow: true };
+  const queryOptions: chrome.tabs.QueryInfo = {
+    active: true,
+    lastFocusedWindow: true,
+    windowType: "normal",
+  };
+
   // `tab` will either be a `tabs.Tab` instance or `undefined`.
-  const [tab] = await chrome.tabs.query(queryOptions);
-  return tab;
+  const tabs = await chrome.tabs.query(queryOptions);
+  if (tabs[0]) {
+    currentTab = tabs[0];
+    return tabs[0];
+  } else {
+    // @ts-ignore
+    return currentTab;
+  }
 }
 
 async function showAuthTab(force?: boolean) {
@@ -74,6 +85,20 @@ async function showAuthTab(force?: boolean) {
   });
 }
 
+async function showDefaultIcon(tabId: number) {
+  await chrome.action.setIcon({
+    path: "mocksi-icon.png",
+    tabId: tabId,
+  });
+}
+
+async function showPlayIcon(tabId: number) {
+  await chrome.action.setIcon({
+    path: "play-icon.png",
+    tabId: tabId,
+  });
+}
+
 addEventListener("install", () => {
   // TODO test if this works on other browsers
   chrome.tabs.create({
@@ -88,19 +113,18 @@ chrome.action.onClicked.addListener((tab) => {
     return;
   }
 
-  chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
+  currentTab = tab;
 
-  if (prevRequest.message) {
+  chrome.tabs.sendMessage(tab.id, {
+    message: ExtHarnessEvents.MOUNT,
+  });
+
+  if (prevExtHarnessEvent === ExtHarnessEvents.HIDE) {
+    if (prevAppEvent === AppEvents.PLAY_DEMO_START) {
+      showPlayIcon(tab.id);
+    }
     chrome.tabs.sendMessage(tab.id, {
-      data: prevRequest.data,
-      message: prevRequest.message,
-    });
-  }
-
-  if (prevRequest.message === "PLAY") {
-    chrome.action.setIcon({
-      path: "play-icon.png",
-      tabId: tab.id,
+      message: ExtHarnessEvents.SHOW,
     });
   }
 });
@@ -118,57 +142,69 @@ chrome.runtime.onMessage.addListener(
 
 chrome.runtime.onMessageExternal.addListener(
   (request, _sender, sendResponse) => {
-    // This logging is useful and only shows up in the service worker
-    console.log(" ");
-    console.log("Previous message from external:", prevRequest);
-    console.log("Received new message from external:", request);
+    console.log(request);
 
     // execute in async block so that we return true
     // synchronously, telling chrome to wait for the response
     (async () => {
-      if (request.message === "AUTH_ERROR") {
+      if (request.message === AuthEvents.AUTH_ERROR) {
         await clearAuth();
         sendResponse({
-          message: "retry",
+          message: AuthEvents.RETRY,
           status: "ok",
         });
-      } else if (request.message === "UNAUTHORIZED") {
+      } else if (request.message === AuthEvents.UNAUTHORIZED) {
         const auth = await getAuth();
         if (auth) {
           const { accessToken, email } = auth;
           const tab = await getCurrentTab();
+
           sendResponse({
-            message: { accessToken, email, url: tab.url },
+            message: { accessToken, email, url: tab?.url },
             status: "ok",
           });
         } else {
           await showAuthTab(true);
           sendResponse({
-            message: "authenticating",
+            message: AuthEvents.AUTHENTICATING,
             status: "ok",
           });
         }
       } else {
         const tab = await getCurrentTab();
         if (!tab?.id) {
-          sendResponse({ message: request.message, status: "no-tab" });
+          sendResponse({
+            message: request.message,
+            status: ExtHarnessEvents.NO_TAB,
+          });
           console.log("No active tab found, could not send message");
           return true;
         }
 
-        // handle icon changes triggered by messaging
         switch (request.message) {
-          case "MINIMIZED": // No action needed for "MINIMIZED"
+          case AppEvents.EDIT_DEMO_START:
+          case AppEvents.EDIT_DEMO_STOP:
+          case AppEvents.PLAY_DEMO_START:
+          case AppEvents.PLAY_DEMO_STOP:
+            prevAppEvent = request.message;
             break;
-          case "PLAY":
-            await chrome.action.setIcon({
-              path: "play-icon.png",
-              tabId: tab.id,
-            });
+          case ExtHarnessEvents.HIDE:
+          case ExtHarnessEvents.RESIZE:
+          case ExtHarnessEvents.SHOW:
+            prevExtHarnessEvent = request.message;
             break;
-          default:
-            chrome.action.setIcon({ path: "mocksi-icon.png", tabId: tab.id });
-            break;
+        }
+
+        if (request.message === AppEvents.PLAY_DEMO_START) {
+          showPlayIcon(tab.id);
+        }
+
+        if (
+          request.message === AppEvents.PLAY_DEMO_STOP ||
+          request.message === AppEvents.EDIT_DEMO_START ||
+          request.message === AppEvents.EDIT_DEMO_STOP
+        ) {
+          showDefaultIcon(tab.id);
         }
 
         chrome.tabs.sendMessage(
@@ -184,11 +220,6 @@ chrome.runtime.onMessageExternal.addListener(
       }
     })();
 
-    // Store last app state so we can return to the correct state when the
-    // menu is reopened
-    if (request.message !== "MINIMIZED") {
-      prevRequest = request;
-    }
     return true;
   },
 );

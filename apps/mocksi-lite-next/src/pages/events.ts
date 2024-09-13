@@ -1,0 +1,28 @@
+export enum AppEvents {
+  EDIT_DEMO_START = "EDIT_DEMO_START",
+  EDIT_DEMO_STOP = "EDIT_DEMO_STOP",
+  PLAY_DEMO_START = "PLAY_DEMO_START",
+  PLAY_DEMO_STOP = "PLAY_DEMO_STOP",
+}
+
+export enum AuthEvents {
+  UNAUTHORIZED = "UNAUTHORIZED",
+  AUTH_ERROR = "AUTH_ERROR",
+  AUTHENTICATING = "AUTHENTICATING",
+  RETRY = "RETRY",
+}
+
+export enum DemoEditEvents {
+  NEW_EDIT = "NEW_EDIT",
+  CHAT_MESSAGE = "CHAT_MESSAGE",
+  CHAT_RESPONSE = "CHAT_RESPONSE",
+}
+
+export enum ExtHarnessEvents {
+  HIDE = "HIDE",
+  SHOW = "SHOW",
+  READY = "READY",
+  MOUNT = "MOUNT",
+  RESIZE = "RESIZE",
+  NO_TAB = "NO_TAB",
+}
