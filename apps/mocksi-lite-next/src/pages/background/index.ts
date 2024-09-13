@@ -1,194 +1,219 @@
+/// <reference types="chrome" />
+
 import { jwtDecode } from "jwt-decode";
 
-console.log("background script loaded");
-
+// Constants
 const MOCKSI_AUTH = "mocksi-auth";
-let prevRequest = {
-  data: {},
-  message: "INIT",
-};
 
-const getAuth = async (): Promise<null | {
+// Interfaces
+interface AuthData {
   accessToken: string;
   email: string;
-}> => {
-  try {
-    const storageAuth = await chrome.storage.local.get(MOCKSI_AUTH);
-    if (!storageAuth[MOCKSI_AUTH]) {
-      return null;
-    }
-    const mocksiAuth = JSON.parse(storageAuth[MOCKSI_AUTH]);
-    const jwtPayload = jwtDecode(mocksiAuth.accessToken);
-    const isExpired = jwtPayload.exp && Date.now() >= jwtPayload.exp * 1000;
+}
 
-    if (isExpired) {
-      console.log("token expired, clearing chrome storage");
-      await clearAuth();
-      return null;
-    }
-    return mocksiAuth;
+interface Message {
+  message: string;
+  data?: any;
+}
+
+interface Response {
+  message: string | object;
+  status: string;
+  error?: any; // FIXME: it should not be any
+}
+
+// State
+let prevRequest: Message = { message: "INIT" };
+
+// Auth Utilities
+const getAuth = async (): Promise<AuthData | null> => {
+  try {
+    const result = await chrome.storage.local.get(MOCKSI_AUTH);
+    return result[MOCKSI_AUTH] || null;
   } catch (err) {
-    console.error(err);
+    console.error("Error getting auth:", err);
+    return null;
   }
-  return null;
 };
 
 const clearAuth = async (): Promise<void> => {
   try {
-    const storageAuth = await chrome.storage.local.get(MOCKSI_AUTH);
-    storageAuth[MOCKSI_AUTH] = null;
+    await chrome.storage.local.set({ [MOCKSI_AUTH]: null });
   } catch (err) {
-    console.error(err);
+    console.error("Error clearing auth:", err);
   }
 };
 
-async function getCurrentTab() {
-  const queryOptions = { active: true, lastFocusedWindow: true };
-  // `tab` will either be a `tabs.Tab` instance or `undefined`.
-  const [tab] = await chrome.tabs.query(queryOptions);
+// Browser Utilities
+const getCurrentTab = async () => {
+  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  if (!tab || !tab.id) {
+    console.error("Cannot find active tab ID");
+    // NOTE: This is a a hack to prevent errors from crashing the extension
+    return { id: -1, url: "no-tab" };
+  }
   return tab;
-}
+};
 
-async function showAuthTab(force?: boolean) {
-  return new Promise(async (resolve: (value?: unknown) => void) => {
-    chrome.tabs.query({}, function (tabs) {
-      let tabExists = false;
-      if (!force) {
-        for (const tab of tabs) {
-          const tabUrlStr = tab.url || tab.pendingUrl || "";
-          const loadUrl = new URL(import.meta.env.VITE_NEST_APP);
-          const tabUrl = new URL(tabUrlStr);
-          if (loadUrl.href === tabUrl.href) {
-            tabExists = true;
+const showAuthTab = async (force = false): Promise<void> => {
+  const tabs = await chrome.tabs.query({});
+  const authUrl = new URL(import.meta.env.VITE_NEST_APP);
+  const tabExists = !force && tabs.some(tab => {
+    const tabUrlStr = tab.url || tab.pendingUrl || "";
+    return new URL(tabUrlStr).href === authUrl.href;
+  });
+
+  if (!tabExists) {
+    await chrome.tabs.create({ url: authUrl.href });
+  }
+};
+
+const setIcon = async (iconPath: string): Promise<void> => {
+  await chrome.action.setIcon({ path: iconPath });
+};
+
+// Message Handlers
+const handleAuthError = async (): Promise<Response> => {
+  await clearAuth();
+  return { message: "retry", status: "ok" };
+};
+
+const handleUnauthorized = async (): Promise<Response> => {
+  const auth = await getAuth();
+
+  // FIXME: I have a hunch that this is not the best way to handle this situation
+  if (auth) {
+    const tab = await getCurrentTab();
+    return { message: { ...auth, url: tab?.url }, status: "ok" };
+  }
+
+  await showAuthTab(true);
+  return { message: "authenticating", status: "ok" };
+};
+
+const updateIcon = async (message: string): Promise<void> => {
+  switch (message) {
+    case "PLAY":
+      await setIcon("play-icon.png");
+      break;
+    case "MINIMIZED":
+      // No action needed
+      break;
+    default:
+      console.log(`Unhandled icon update for message: ${message}`);
+  }
+};
+
+const handleOtherMessages = async (request: Message): Promise<Response> => {
+  const tab = await getCurrentTab();
+  if (!tab?.id) {
+    console.log("No active tab found, could not send message");
+    return { message: request.message, status: "no-tab" };
+  }
+
+  await updateIcon(request.message);
+  return { message: "processed", status: "ok" };
+};
+
+
+const checkAndHandleAuthRequest = async (request?: Message, sender?: chrome.runtime.MessageSender, sendResponse?: (response: Response) => void) => {
+      if (!request || !sendResponse) {
+        console.error("Invalid request or sendResponse");
+        return false;
+      }
+
+      try {
+        let response: Response;
+
+        switch (request.message) {
+          case "AUTH_ERROR":
+            response = await handleAuthError();
             break;
-          }
+          case "UNAUTHORIZED":
+            response = await handleUnauthorized();
+            break;
+          default:
+            response = await handleOtherMessages(request);
         }
+
+        sendResponse(response);
+      } catch (error) {
+        console.error("Error processing message:", error);
+        sendResponse({ message: "error", status: "error", error: String(error) });
       }
 
-      if (!tabExists) {
-        chrome.tabs.create({ url: import.meta.env.VITE_NEST_APP }, resolve);
-      } else {
-        resolve();
+      // Update prevRequest if not minimized
+      if (request.message !== "MINIMIZED") {
+        prevRequest = request;
       }
-    });
-  });
+
+      return true;
 }
 
-addEventListener("install", () => {
-  // TODO test if this works on other browsers
-  chrome.tabs.create({
-    url: import.meta.env.VITE_NEST_APP,
-  });
+// Main message listener
+chrome.runtime.onMessageExternal.addListener(
+  (request: Message, sender, sendResponse) => {
+    console.log("Previous message from external:", prevRequest);
+    console.log("Received new message from external:", request);
+
+    checkAndHandleAuthRequest(request, sender, sendResponse);
+
+    return true; // Indicates that the response is sent asynchronously
+  }
+);
+
+// Install event listener
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.tabs.create({ url: import.meta.env.VITE_NEST_APP });
 });
 
-// when user clicks toolbar mount extension
+// Browser action click listener
 chrome.action.onClicked.addListener((tab) => {
   if (!tab?.id) {
     console.log("No tab found, could not mount extension");
     return;
   }
 
-  chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
+  chrome.tabs.sendMessage(tab.id, { action: "toggleExtension" }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.error("Error sending message:", chrome.runtime.lastError);
+      return;
+    }
 
-  if (prevRequest.message) {
-    chrome.tabs.sendMessage(tab.id, {
-      data: prevRequest.data,
-      message: prevRequest.message,
-    });
-  }
-
-  if (prevRequest.message === "PLAY") {
-    chrome.action.setIcon({
-      path: "play-icon.png",
-      tabId: tab.id,
-    });
-  }
+    if (response && response.status === "ok") {
+      console.log("Extension toggled successfully");
+    } else {
+      console.error("Failed to toggle extension:", response);
+    }
+  });
 });
 
-chrome.runtime.onMessage.addListener(
-  (request, _sender, sendResponse): boolean => {
-    sendResponse({
-      data: request.data,
-      message: request.message,
-      status: "ok",
-    });
-    return true;
-  },
-);
+const checkAndHandleAuth = async () => {
+  const auth = await getAuth();
+  if (!auth) {
+    console.log("No auth token found");
+    return;
+  }
 
-chrome.runtime.onMessageExternal.addListener(
-  (request, _sender, sendResponse) => {
-    // This logging is useful and only shows up in the service worker
-    console.log(" ");
-    console.log("Previous message from external:", prevRequest);
-    console.log("Received new message from external:", request);
+  const decodedToken: any = jwtDecode(auth.accessToken);
+  const currentTime = Math.floor(Date.now() / 1000);
 
-    // execute in async block so that we return true
-    // synchronously, telling chrome to wait for the response
-    (async () => {
-      if (request.message === "AUTH_ERROR") {
-        await clearAuth();
-        sendResponse({
-          message: "retry",
-          status: "ok",
-        });
-      } else if (request.message === "UNAUTHORIZED") {
-        const auth = await getAuth();
-        if (auth) {
-          const { accessToken, email } = auth;
-          const tab = await getCurrentTab();
-          sendResponse({
-            message: { accessToken, email, url: tab.url },
-            status: "ok",
-          });
-        } else {
-          await showAuthTab(true);
-          sendResponse({
-            message: "authenticating",
-            status: "ok",
-          });
-        }
-      } else {
-        const tab = await getCurrentTab();
-        if (!tab?.id) {
-          sendResponse({ message: request.message, status: "no-tab" });
-          console.log("No active tab found, could not send message");
-          return true;
-        }
+  if (!decodedToken.exp || decodedToken.exp >= currentTime) {
+    console.log("Valid auth token found");
+    return;
+  }
 
-        // handle icon changes triggered by messaging
-        switch (request.message) {
-          case "MINIMIZED": // No action needed for "MINIMIZED"
-            break;
-          case "PLAY":
-            await chrome.action.setIcon({
-              path: "play-icon.png",
-              tabId: tab.id,
-            });
-            break;
-          default:
-            chrome.action.setIcon({ path: "mocksi-icon.png", tabId: tab.id });
-            break;
-        }
+  console.log("Token expired, clearing auth");
+  await clearAuth();
+};
 
-        chrome.tabs.sendMessage(
-          tab.id,
-          {
-            data: request.data,
-            message: request.message,
-          },
-          (response) => {
-            sendResponse(response);
-          },
-        );
-      }
-    })();
+const initialize = async () => {
+  try {
+    await checkAndHandleAuth();
+  } catch (error) {
+    console.error("Error during initialization:", error);
+  }
+};
 
-    // Store last app state so we can return to the correct state when the
-    // menu is reopened
-    if (request.message !== "MINIMIZED") {
-      prevRequest = request;
-    }
-    return true;
-  },
-);
+// Call the initialization function
+initialize();
