@@ -66,8 +66,13 @@ class Highlighter {
   };
 }
 
+let ContentHighlighter: Highlighter;
+
 export const getHighlighter = () => {
-  return new Highlighter();
+  if (!ContentHighlighter) {
+    ContentHighlighter = new Highlighter();
+  }
+  return ContentHighlighter;
 };
 
 const createHighlighterStyles = (
@@ -78,8 +83,8 @@ const createHighlighterStyles = (
   scrollY: number,
   scrollX: number,
 ) => ({
-  // backgroundColor: "rgba(229, 111, 12, 0.05)",
-  border: "2px solid #6FD2FF0D",
+  background: "rgba(229, 111, 12, 0.05)",
+  border: "2px solid #FFB68B",
   cursor: "text",
   height: `${height}px`,
   left: `${window.scrollX + x + -2}px`,
@@ -113,7 +118,7 @@ const highlight = ({
   );
   const highlightDiv = document.createElement("div");
   highlightDiv.className = MOCKSI_HIGHLIGHTER_ID;
-  Object.assign(highlightDiv.style, highlighterStyles);
+
   highlightDiv.ondblclick = (event: MouseEvent) => {
     if (!highlightedElement?.parentElement) {
       return;
