@@ -50,6 +50,13 @@ export default defineConfig(({ mode }) => {
     case "development":
       manifest.name = "[Development] Mocksi Lite";
       manifest.key = DEV_UNPACKED_KEY;
+
+      // add permissions to view source map
+      manifest.web_accessible_resources.push({
+        matches: ["<all_urls>"],
+        resources: ["assets/*.js.map"],
+      })
+
       break;
     case "staging":
       manifest.name = "[Staging] Mocksi Lite";
