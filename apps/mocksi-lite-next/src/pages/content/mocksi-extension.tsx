@@ -135,6 +135,7 @@ chrome.runtime.onMessage.addListener((request) => {
 
       async function startDemo(request: AppMessageRequest) {
         if (!request.data.edits) {
+          console.debug("request did not contain edits");
           return;
         }
         for (const mod of request.data.edits) {
@@ -175,13 +176,14 @@ chrome.runtime.onMessage.addListener((request) => {
                 if (!demoRunning) {
                   await startDemo(request);
                 } else {
-                  const dupeEvent =
+                  const isDupeEvent =
                     prevAppEvent.current.message === request.message;
 
-                  const newDemo =
-                    prevAppEvent.current.data.uuid !== request.data.uuid;
+                  const isNewDemo = prevDemoUUID !== request.data.uuid;
+
                   const hasMods = request.data.edits.length > 0;
-                  if (!dupeEvent && newDemo && hasMods) {
+
+                  if (!isDupeEvent && isNewDemo && hasMods) {
                     if (reactor.isAttached()) {
                       await reactor.detach(true);
                     }
@@ -223,7 +225,7 @@ chrome.runtime.onMessage.addListener((request) => {
                 );
               }
 
-              // Resize iframe with the new styles
+              // Resize iframe, how or hide it
               if (iframeRef.current) {
                 switch (request.message) {
                   case ExtHarnessEvents.HIDE:

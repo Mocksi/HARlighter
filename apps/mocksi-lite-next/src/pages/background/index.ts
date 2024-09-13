@@ -7,7 +7,7 @@ const MOCKSI_AUTH = "mocksi-auth";
 
 let prevAppEvent = "";
 let prevExtHarnessEvent = "";
-let currentTab = null;
+let fallbackTab: null | chrome.tabs.Tab = null;
 const getAuth = async (): Promise<null | {
   accessToken: string;
   email: string;
@@ -51,12 +51,14 @@ async function getCurrentTab() {
 
   // `tab` will either be a `tabs.Tab` instance or `undefined`.
   const tabs = await chrome.tabs.query(queryOptions);
+  if (tabs[0] && fallbackTab) {
+    console.error("tab is undefined");
+  }
   if (tabs[0]) {
-    currentTab = tabs[0];
+    fallbackTab = tabs[0];
     return tabs[0];
   } else {
-    // @ts-ignore
-    return currentTab;
+    return fallbackTab;
   }
 }
 
@@ -109,11 +111,12 @@ addEventListener("install", () => {
 // when user clicks toolbar mount extension
 chrome.action.onClicked.addListener((tab) => {
   if (!tab?.id) {
-    console.log("No tab found, could not mount extension");
+    console.log("No tab  exits click, could not mount extension");
     return;
   }
-
-  currentTab = tab;
+  // store the tab they clicked on to open the extension
+  // so we can use it as a fallback
+  fallbackTab = tab;
 
   chrome.tabs.sendMessage(tab.id, {
     message: ExtHarnessEvents.MOUNT,
@@ -158,7 +161,6 @@ chrome.runtime.onMessageExternal.addListener(
         if (auth) {
           const { accessToken, email } = auth;
           const tab = await getCurrentTab();
-
           sendResponse({
             message: { accessToken, email, url: tab?.url },
             status: "ok",
@@ -177,7 +179,6 @@ chrome.runtime.onMessageExternal.addListener(
             message: request.message,
             status: ExtHarnessEvents.NO_TAB,
           });
-          console.log("No active tab found, could not send message");
           return true;
         }
 
