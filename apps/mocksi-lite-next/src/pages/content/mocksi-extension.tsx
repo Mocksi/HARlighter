@@ -192,10 +192,7 @@ chrome.runtime.onMessage.addListener((request) => {
                 }
               }
 
-              if (
-                request.message === AppEvents.EDIT_DEMO_STOP ||
-                request.message === AppEvents.PLAY_DEMO_STOP
-              ) {
+              if (requestingStopDemo) {
                 await reactor.detach(true);
               }
 
