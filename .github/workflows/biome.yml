@@ -1,0 +1,28 @@
+name: Biome
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  run_biome:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Setup Biome CLI
+        uses: biomejs/setup-biome@v2
+        with:
+          version: 'latest'
+          working-dir: "/"
+      - name: Run Biome mocksi-lite
+        run: biome ci ./apps/mocksi-lite
+      - name: Run Biome dodom
+        run: biome ci ./packages/dodom

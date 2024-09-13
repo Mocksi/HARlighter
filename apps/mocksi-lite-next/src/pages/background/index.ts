@@ -137,17 +137,8 @@ chrome.runtime.onMessageExternal.addListener(
         if (auth) {
           const { accessToken, email } = auth;
           const tab = await getCurrentTab();
-
-          // FIXME: there's duplicated code below.
-          if (!tab.id) {
-            await showAuthTab(true);
-            sendResponse({
-              message: "authenticating",
-              status: "ok",
-            });
-          }
           sendResponse({
-            message: { accessToken, email },
+            message: { accessToken, email, url: tab.url },
             status: "ok",
           });
         } else {
