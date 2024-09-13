@@ -123,15 +123,6 @@ chrome.action.onClicked.addListener((tab) => {
   chrome.tabs.sendMessage(tab.id, {
     message: LayoutEvents.MOUNT,
   });
-
-  if (prevLayoutEvent === LayoutEvents.HIDE) {
-    if (prevAppEvent === AppEvents.PLAY_DEMO_START) {
-      showPlayIcon(tab.id);
-    }
-    chrome.tabs.sendMessage(tab.id, {
-      message: LayoutEvents.SHOW,
-    });
-  }
 });
 
 chrome.runtime.onMessage.addListener(
@@ -147,7 +138,7 @@ chrome.runtime.onMessage.addListener(
 
 chrome.runtime.onMessageExternal.addListener(
   (request, _sender, sendResponse) => {
-    console.log(request);
+    console.log("on message external: ", request);
 
     // execute in async block so that we return true
     // synchronously, telling chrome to wait for the response
@@ -178,30 +169,14 @@ chrome.runtime.onMessageExternal.addListener(
         const tab = await getCurrentTab();
         if (!tab?.id) {
           sendResponse({
-            message: request.message,
-            status: LayoutEvents.NO_TAB,
+            message: LayoutEvents.NO_TAB,
+            status: "ok",
           });
-          return true;
-        }
-
-        // this is used to restore state when iframe is closed and reopened
-        // rn we use it to show the 'play' icon
-        switch (request.message) {
-          case AppEvents.EDIT_DEMO_START:
-          case AppEvents.EDIT_DEMO_STOP:
-          case AppEvents.PLAY_DEMO_START:
-          case AppEvents.PLAY_DEMO_STOP:
-            prevAppEvent = request.message;
-            break;
-          case LayoutEvents.HIDE:
-          case LayoutEvents.RESIZE:
-          case LayoutEvents.SHOW:
-            prevLayoutEvent = request.message;
-            break;
+          return;
         }
 
         if (request.message === AppEvents.PLAY_DEMO_START) {
-          showPlayIcon(tab.id);
+          showPlayIcon(tab?.id);
         }
 
         if (
