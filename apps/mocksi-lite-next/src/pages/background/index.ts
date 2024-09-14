@@ -5,8 +5,6 @@ console.log("background script loaded");
 
 const MOCKSI_AUTH = "mocksi-auth";
 
-let prevAppEvent = "";
-let prevLayoutEvent = "";
 let fallbackTab: null | chrome.tabs.Tab = null;
 
 const getAuth = async (): Promise<null | {

@@ -3,7 +3,7 @@ import { Reactor } from "@repo/reactor";
 import React from "react";
 import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
-import { AppEvents, DemoEditEvents, LayoutEvents } from "../events";
+import { DemoEditEvents, LayoutEvents } from "../events";
 import { getHighlighter } from "./highlighter";
 
 export enum IframePosition {
