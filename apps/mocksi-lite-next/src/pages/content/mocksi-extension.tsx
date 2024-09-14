@@ -134,12 +134,12 @@ chrome.runtime.onMessage.addListener((request) => {
       }
 
       async function startDemo(request: AppMessageRequest) {
-        if (!request.data.edits) {
-          console.debug("request did not contain edits");
-          return;
-        }
-        for (const mod of request.data.edits) {
-          await reactor.pushModification(mod);
+        if (request.data.edits?.length) {
+          for (const mod of request.data.edits) {
+            await reactor.pushModification(mod);
+          }
+        } else {
+          console.log("no edits provided to reactor");
         }
         return await reactor.attach(document, highlighter);
       }
@@ -167,7 +167,6 @@ chrome.runtime.onMessage.addListener((request) => {
               // modifications more than once, this is more performant, and edits
               // persist in the dom if transitioning between EDIT and PLAY states
               if (requestingStartDemo) {
-                prevAppEvent.current = request;
                 const prevDemoUUID = prevAppEvent.current?.data?.uuid || null;
 
                 const demoRunning =
@@ -182,9 +181,7 @@ chrome.runtime.onMessage.addListener((request) => {
 
                   const isNewDemo = prevDemoUUID !== request.data.uuid;
 
-                  const hasMods = request.data.edits.length > 0;
-
-                  if (!isDupeEvent && isNewDemo && hasMods) {
+                  if (!isDupeEvent && isNewDemo) {
                     if (reactor.isAttached()) {
                       await reactor.detach(true);
                     }
@@ -194,8 +191,12 @@ chrome.runtime.onMessage.addListener((request) => {
               }
 
               if (requestingStopDemo) {
-                prevAppEvent.current = request;
                 await reactor.detach(true);
+              }
+
+              // This needs to come after the last two
+              if (requestingStartDemo || requestingStopDemo) {
+                prevAppEvent.current = request;
               }
 
               if (request.message === DemoEditEvents.NEW_EDIT) {
