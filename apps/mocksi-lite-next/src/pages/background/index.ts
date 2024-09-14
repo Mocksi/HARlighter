@@ -6,6 +6,7 @@ console.log("background script loaded");
 const MOCKSI_AUTH = "mocksi-auth";
 
 let fallbackTab: null | chrome.tabs.Tab = null;
+let prevLayoutEvent = "";
 
 const getAuth = async (): Promise<null | {
   accessToken: string;
@@ -121,6 +122,13 @@ chrome.action.onClicked.addListener((tab) => {
   chrome.tabs.sendMessage(tab.id, {
     message: LayoutEvents.MOUNT,
   });
+
+  if (prevLayoutEvent === LayoutEvents.HIDE) {
+    chrome.tabs.sendMessage(tab.id, {
+      message: LayoutEvents.SHOW,
+    });
+    prevLayoutEvent = LayoutEvents.HIDE;
+  }
 });
 
 chrome.runtime.onMessage.addListener(
@@ -171,6 +179,14 @@ chrome.runtime.onMessageExternal.addListener(
             status: "ok",
           });
           return;
+        }
+
+        if (
+          request.message === LayoutEvents.HIDE ||
+          request.message === LayoutEvents.RESIZE ||
+          request.message === LayoutEvents.SHOW
+        ) {
+          prevLayoutEvent = request.message;
         }
 
         if (request.message === AppEvents.PLAY_DEMO_START) {

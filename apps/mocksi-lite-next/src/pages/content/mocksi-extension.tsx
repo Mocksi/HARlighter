@@ -167,6 +167,7 @@ chrome.runtime.onMessage.addListener((request) => {
               // modifications more than once, this is more performant, and edits
               // persist in the dom if transitioning between EDIT and PLAY states
               if (requestingStartDemo) {
+                prevAppEvent.current = request;
                 const prevDemoUUID = prevAppEvent.current?.data?.uuid || null;
 
                 const demoRunning =
@@ -193,12 +194,8 @@ chrome.runtime.onMessage.addListener((request) => {
               }
 
               if (requestingStopDemo) {
-                await reactor.detach(true);
-              }
-
-              // save last app event to check if we can keep mods in dom
-              if (requestingStartDemo || requestingStopDemo) {
                 prevAppEvent.current = request;
+                await reactor.detach(true);
               }
 
               if (request.message === DemoEditEvents.NEW_EDIT) {
@@ -280,7 +277,6 @@ chrome.runtime.onMessage.addListener((request) => {
     };
 
     // avoid remounting react tree
-
     try {
       if (!mounted) {
         root.render(<Iframe />);
