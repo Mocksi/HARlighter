@@ -1,12 +1,12 @@
+import { AppEvents, AuthEvents, LayoutEvents } from "@pages/events";
 import { jwtDecode } from "jwt-decode";
 
 console.log("background script loaded");
 
 const MOCKSI_AUTH = "mocksi-auth";
-let prevRequest = {
-  data: {},
-  message: "INIT",
-};
+
+let fallbackTab: null | chrome.tabs.Tab = null;
+let prevLayoutEvent = "";
 
 const getAuth = async (): Promise<null | {
   accessToken: string;
@@ -43,10 +43,24 @@ const clearAuth = async (): Promise<void> => {
 };
 
 async function getCurrentTab() {
-  const queryOptions = { active: true, lastFocusedWindow: true };
+  const queryOptions: chrome.tabs.QueryInfo = {
+    active: true,
+    lastFocusedWindow: true,
+    windowType: "normal",
+  };
+
   // `tab` will either be a `tabs.Tab` instance or `undefined`.
-  const [tab] = await chrome.tabs.query(queryOptions);
-  return tab;
+  const tabs = await chrome.tabs.query(queryOptions);
+  if (!tabs[0] && !fallbackTab) {
+    console.error("tab is undefined");
+    return null;
+  }
+  if (tabs[0]) {
+    fallbackTab = tabs[0];
+    return tabs[0];
+  } else {
+    return fallbackTab;
+  }
 }
 
 async function showAuthTab(force?: boolean) {
@@ -74,6 +88,20 @@ async function showAuthTab(force?: boolean) {
   });
 }
 
+async function showDefaultIcon(tabId: number) {
+  await chrome.action.setIcon({
+    path: "mocksi-icon.png",
+    tabId: tabId,
+  });
+}
+
+async function showPlayIcon(tabId: number) {
+  await chrome.action.setIcon({
+    path: "play-icon.png",
+    tabId: tabId,
+  });
+}
+
 addEventListener("install", () => {
   // TODO test if this works on other browsers
   chrome.tabs.create({
@@ -84,24 +112,22 @@ addEventListener("install", () => {
 // when user clicks toolbar mount extension
 chrome.action.onClicked.addListener((tab) => {
   if (!tab?.id) {
-    console.log("No tab found, could not mount extension");
+    console.log("No tab  exits click, could not mount extension");
     return;
   }
+  // store the tab they clicked on to open the extension
+  // so we can use it as a fallback
+  fallbackTab = tab;
 
-  chrome.tabs.sendMessage(tab.id, { message: "mount-extension" });
+  chrome.tabs.sendMessage(tab.id, {
+    message: LayoutEvents.MOUNT,
+  });
 
-  if (prevRequest.message) {
+  if (prevLayoutEvent === LayoutEvents.HIDE) {
     chrome.tabs.sendMessage(tab.id, {
-      data: prevRequest.data,
-      message: prevRequest.message,
+      message: LayoutEvents.SHOW,
     });
-  }
-
-  if (prevRequest.message === "PLAY") {
-    chrome.action.setIcon({
-      path: "play-icon.png",
-      tabId: tab.id,
-    });
+    prevLayoutEvent = LayoutEvents.HIDE;
   }
 });
 
@@ -118,57 +144,61 @@ chrome.runtime.onMessage.addListener(
 
 chrome.runtime.onMessageExternal.addListener(
   (request, _sender, sendResponse) => {
-    // This logging is useful and only shows up in the service worker
-    console.log(" ");
-    console.log("Previous message from external:", prevRequest);
-    console.log("Received new message from external:", request);
+    console.log("on message external: ", request);
 
     // execute in async block so that we return true
     // synchronously, telling chrome to wait for the response
     (async () => {
-      if (request.message === "AUTH_ERROR") {
+      if (request.message === AuthEvents.AUTH_ERROR) {
         await clearAuth();
         sendResponse({
-          message: "retry",
+          message: AuthEvents.RETRY,
           status: "ok",
         });
-      } else if (request.message === "UNAUTHORIZED") {
+      } else if (request.message === AuthEvents.UNAUTHORIZED) {
         const auth = await getAuth();
         if (auth) {
           const { accessToken, email } = auth;
           const tab = await getCurrentTab();
           sendResponse({
-            message: { accessToken, email, url: tab.url },
+            message: { accessToken, email, url: tab?.url },
             status: "ok",
           });
         } else {
           await showAuthTab(true);
           sendResponse({
-            message: "authenticating",
+            message: AuthEvents.AUTHENTICATING,
             status: "ok",
           });
         }
       } else {
         const tab = await getCurrentTab();
         if (!tab?.id) {
-          sendResponse({ message: request.message, status: "no-tab" });
-          console.log("No active tab found, could not send message");
-          return true;
+          sendResponse({
+            message: LayoutEvents.NO_TAB,
+            status: "ok",
+          });
+          return;
         }
 
-        // handle icon changes triggered by messaging
-        switch (request.message) {
-          case "MINIMIZED": // No action needed for "MINIMIZED"
-            break;
-          case "PLAY":
-            await chrome.action.setIcon({
-              path: "play-icon.png",
-              tabId: tab.id,
-            });
-            break;
-          default:
-            chrome.action.setIcon({ path: "mocksi-icon.png", tabId: tab.id });
-            break;
+        if (
+          request.message === LayoutEvents.HIDE ||
+          request.message === LayoutEvents.RESIZE ||
+          request.message === LayoutEvents.SHOW
+        ) {
+          prevLayoutEvent = request.message;
+        }
+
+        if (request.message === AppEvents.PLAY_DEMO_START) {
+          showPlayIcon(tab?.id);
+        }
+
+        if (
+          request.message === AppEvents.PLAY_DEMO_STOP ||
+          request.message === AppEvents.EDIT_DEMO_START ||
+          request.message === AppEvents.EDIT_DEMO_STOP
+        ) {
+          showDefaultIcon(tab.id);
         }
 
         chrome.tabs.sendMessage(
@@ -184,11 +214,6 @@ chrome.runtime.onMessageExternal.addListener(
       }
     })();
 
-    // Store last app state so we can return to the correct state when the
-    // menu is reopened
-    if (request.message !== "MINIMIZED") {
-      prevRequest = request;
-    }
     return true;
   },
 );
