@@ -34,7 +34,6 @@ sequenceDiagram
     U->>CLI: Create Demo
     U->>CLI: Edit Demo
     loop Edit Demo
-        CLI->>S: Automatically update timestamps
         U->>CLI: Edit text manually
         CLI->>S: Automatically find and replace text
         CLI->>S: Changes auto-saved

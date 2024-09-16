@@ -14,7 +14,7 @@ The goal of this document is to provide comprehensive guidance for developers wo
 It includes instructions for installation, usage, configuration, and understanding the product flow. 
 
 ## Installation
-See README.md and apps/mocksi-lite/README.md for installation instructions.
+See README.md and apps/mocksi-lite-next/README.md for installation instructions.
 
 ## Product Flow
 
