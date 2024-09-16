@@ -103,6 +103,62 @@ interface AppMessageRequest {
   message: string;
 }
 
+async function handleStartStopDemoEvent(
+  prevRequest: AppMessageRequest,
+  request: AppMessageRequest,
+) {
+  async function startDemo(request: AppMessageRequest) {
+    if (request.data.edits?.length) {
+      for (const mod of request.data.edits) {
+        await reactor.pushModification(mod);
+      }
+    } else {
+      console.log("no edits provided to reactor");
+    }
+    return await reactor.attach(document, highlighter);
+  }
+
+  // check if app is asking to start or stop PLAY or EDIT
+  const startRequestRegExp = new RegExp(/_DEMO_START/);
+  const stopRequestRegExp = new RegExp(/_DEMO_STOP/);
+
+  const requestingStopDemo = stopRequestRegExp.test(request.message);
+  const requestingStartDemo = startRequestRegExp.test(request.message);
+
+  if (!requestingStartDemo && !requestingStopDemo) {
+    return prevRequest;
+  }
+  // if a demo is running already we want to avoid mounting the same
+  // modifications more than once, this is more performant, and edits
+  // persist in the dom if transitioning between EDIT and PLAY states
+  if (requestingStartDemo) {
+    const prevDemoUUID = prevRequest?.data?.uuid || null;
+
+    const demoRunning =
+      prevDemoUUID && startRequestRegExp.test(prevRequest.message);
+
+    if (!demoRunning) {
+      await startDemo(request);
+    } else {
+      const isDupeEvent = prevRequest.message === request.message;
+      const isNewDemo = prevDemoUUID !== request.data.uuid;
+
+      if (!isDupeEvent && isNewDemo) {
+        if (reactor.isAttached()) {
+          await reactor.detach(true);
+        }
+        await startDemo(request);
+      }
+    }
+  }
+
+  if (requestingStopDemo) {
+    await reactor.detach(true);
+  }
+
+  return request;
+}
+
 chrome.runtime.onMessage.addListener((request) => {
   if (request.message === LayoutEvents.MOUNT) {
     const rootContainer = document.querySelector("#__mocksi__root");
@@ -110,7 +166,10 @@ chrome.runtime.onMessage.addListener((request) => {
 
     const root = createRoot(rootContainer);
     const Iframe = () => {
-      const prevAppEvent = React.useRef({ data: { uuid: "" }, message: "" });
+      const prevStartStopDemoEventRef = React.useRef({
+        data: { uuid: "" },
+        message: "",
+      });
       const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
       async function findReplaceAll(
@@ -133,17 +192,6 @@ chrome.runtime.onMessage.addListener((request) => {
         return modifications;
       }
 
-      async function startDemo(request: AppMessageRequest) {
-        if (!request.data.edits) {
-          console.debug("request did not contain edits");
-          return;
-        }
-        for (const mod of request.data.edits) {
-          await reactor.pushModification(mod);
-        }
-        return await reactor.attach(document, highlighter);
-      }
-
       React.useEffect(() => {
         chrome.runtime.onMessage.addListener(
           (request, _sender, sendResponse) => {
@@ -152,51 +200,11 @@ chrome.runtime.onMessage.addListener((request) => {
             (async () => {
               let data = null;
 
-              // check if app is asking to start or stop PLAY or EDIT
-              const startRequestRegExp = new RegExp(/_DEMO_START/);
-              const stopRequestRegExp = new RegExp(/_DEMO_STOP/);
-
-              const requestingStopDemo = stopRequestRegExp.test(
-                request.message,
-              );
-              const requestingStartDemo = startRequestRegExp.test(
-                request.message,
-              );
-
-              // if a demo is running already we want to avoid mounting the same
-              // modifications more than once, this is more performant, and edits
-              // persist in the dom if transitioning between EDIT and PLAY states
-              if (requestingStartDemo) {
-                prevAppEvent.current = request;
-                const prevDemoUUID = prevAppEvent.current?.data?.uuid || null;
-
-                const demoRunning =
-                  prevDemoUUID &&
-                  startRequestRegExp.test(prevAppEvent.current.message);
-
-                if (!demoRunning) {
-                  await startDemo(request);
-                } else {
-                  const isDupeEvent =
-                    prevAppEvent.current.message === request.message;
-
-                  const isNewDemo = prevDemoUUID !== request.data.uuid;
-
-                  const hasMods = request.data.edits.length > 0;
-
-                  if (!isDupeEvent && isNewDemo && hasMods) {
-                    if (reactor.isAttached()) {
-                      await reactor.detach(true);
-                    }
-                    await startDemo(request);
-                  }
-                }
-              }
-
-              if (requestingStopDemo) {
-                prevAppEvent.current = request;
-                await reactor.detach(true);
-              }
+              prevStartStopDemoEventRef.current =
+                await handleStartStopDemoEvent(
+                  prevStartStopDemoEventRef.current,
+                  request,
+                );
 
               if (request.message === DemoEditEvents.NEW_EDIT) {
                 if (request.data) {
@@ -207,7 +215,6 @@ chrome.runtime.onMessage.addListener((request) => {
                   );
                 }
               }
-
               // chat events
               if (request.message === DemoEditEvents.CHAT_MESSAGE) {
                 data = reactor.exportDOM();
