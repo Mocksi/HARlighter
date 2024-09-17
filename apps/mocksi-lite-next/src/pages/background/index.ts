@@ -142,6 +142,8 @@ chrome.runtime.onMessage.addListener(
   },
 );
 
+chrome.runtime.onConnectExternal.addListener((port) => {});
+
 chrome.runtime.onMessageExternal.addListener(
   (request, _sender, sendResponse) => {
     console.log("on message external: ", request);

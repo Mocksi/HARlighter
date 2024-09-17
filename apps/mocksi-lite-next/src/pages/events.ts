@@ -16,6 +16,8 @@ export enum DemoEditEvents {
   CHAT_MESSAGE = "CHAT_MESSAGE",
   CHAT_RESPONSE = "CHAT_RESPONSE",
   NEW_EDIT = "NEW_EDIT",
+  HIDE_TOOLBAR = "HIDE_TOOLBAR",
+  SHOW_TOOLBAR = "SHOW_TOOLBAR",
 }
 
 export enum LayoutEvents {
