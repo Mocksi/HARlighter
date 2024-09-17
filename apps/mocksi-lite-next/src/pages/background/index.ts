@@ -109,6 +109,14 @@ addEventListener("install", () => {
   });
 });
 
+let mainIframeSrcPort: chrome.runtime.Port;
+
+chrome.runtime.onConnectExternal.addListener((port) => {
+  if (port.name === "main-iframe-src") {
+    mainIframeSrcPort = port;
+  }
+});
+
 // when user clicks toolbar mount extension
 chrome.action.onClicked.addListener((tab) => {
   if (!tab?.id) {
@@ -143,12 +151,20 @@ chrome.runtime.onMessage.addListener(
 );
 
 chrome.runtime.onMessageExternal.addListener(
-  (request, _sender, sendResponse) => {
+  (request, sender, sendResponse) => {
     console.log("on message external: ", request);
 
     // execute in async block so that we return true
     // synchronously, telling chrome to wait for the response
     (async () => {
+      if (request.source === "top") {
+        if (request.message === AppEvents.EDIT_DEMO_STOP) {
+          mainIframeSrcPort.postMessage({
+            message: AppEvents.EDIT_DEMO_STOP,
+          });
+        }
+      }
+
       if (request.message === AuthEvents.AUTH_ERROR) {
         await clearAuth();
         sendResponse({
