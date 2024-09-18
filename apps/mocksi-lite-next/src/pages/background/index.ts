@@ -1,4 +1,9 @@
-import { AppEvents, AuthEvents, LayoutEvents } from "@pages/events";
+import {
+  AppEvents,
+  AuthEvents,
+  DemoEditEvents,
+  LayoutEvents,
+} from "@pages/events";
 import { jwtDecode } from "jwt-decode";
 
 console.log("background script loaded");
@@ -141,6 +146,7 @@ chrome.action.onClicked.addListener((tab) => {
 
 chrome.runtime.onMessage.addListener(
   (request, _sender, sendResponse): boolean => {
+    console.log("on message top level:", request);
     sendResponse({
       data: request.data,
       message: request.message,
@@ -151,7 +157,7 @@ chrome.runtime.onMessage.addListener(
 );
 
 chrome.runtime.onMessageExternal.addListener(
-  (request, sender, sendResponse) => {
+  (request, _sender, sendResponse) => {
     console.log("on message external: ", request);
 
     // execute in async block so that we return true
@@ -223,8 +229,17 @@ chrome.runtime.onMessageExternal.addListener(
             data: request.data,
             message: request.message,
           },
-          (response) => {
-            sendResponse(response);
+          async (response) => {
+            console.log("response:", response);
+            if (response.message === DemoEditEvents.UNDO) {
+              await mainIframeSrcPort.postMessage({
+                data: response.data,
+                message: DemoEditEvents.UNDO,
+                status: "ok",
+              });
+            } else {
+              sendResponse(response);
+            }
           },
         );
       }

@@ -194,6 +194,13 @@ function MainIframe() {
           );
         }
 
+        if (request.message === DemoEditEvents.UNDO) {
+          await reactor.popModification();
+          data = Array.from(reactor.getAppliedModifications()).map(
+            (mod) => mod.modificationRequest,
+          );
+        }
+
         // Resize iframe, how or hide it
         if (iframeRef.current) {
           switch (request.message) {
