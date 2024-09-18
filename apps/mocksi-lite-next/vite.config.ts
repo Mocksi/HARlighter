@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
   let isDev = process.env.__DEV__ === "true";
   // Keys are used to create stable extension ids for unpacked builds, only use for unpublished extension builds
   const PROD_UNPACKED_KEY =
-    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA07fIdpHz/cZNpPxNKlUpUDv0HDDfyWfLwVl1lq/YtXVLIjQ9CRGUH8C4CX+MMZSALTE0PZZu1Tclin/hno9cHDm3/Iv9Ijqij6WEs4BDQ5UKy8Q13gmoJr2+4rUPwxeCuI1HLyUSsBSL3GazdQw68/hf3l43uNfQpphb8fxQEhQyeQBi6YzQYf/W7xepENfh3Xlp4etfMS6Xl5OaAqrnUPQmTsJKEJbqs0o5l2EgoRHqvkJHhZ4zeUWZ/GgoqKxy8UahtmywVxDz73zmrBLP3thPaQbiNBRhpKOR/Ldto4P7tm6IdTQgI9CuOCKwZtG9G4j1yXhVX8MfKk17QY4gSwIDAQAB";
+    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmVIBAakn1m+kbh9QHDHf7jdbPKkGtlqOMJLsFKUFf9t/IV23Z79ZmcEjDNPxOmRADQQLWQJ3zZ2eMrYhSJuoKX0X8RSj8EqHehk4z2daFmtW3nLm80wiphT72isex4XqOC2Dg9/5Vj9UB2+M4fdiRBi10LZmAT0pkCRT8rJiuUO+MRByPEU+ChfvKEIJQqRSp97hUQmeYfiLZHH/VZHLm/o71L1zKDzQIg6+CvyrAMtzt2XDsT3c4+NsqX/+LgpJmhvpwxNAjyLBl02633XzWEiiu6UifYU7wvA/HeRj5O30WtOd6cXRh1grfKTWJnJmumlzRWdHzLS/WWMm29ucdwIDAQAB";
   const DEV_UNPACKED_KEY =
     "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtdeTUTUuHZx1xSvDuISF7wJP8nEPwW4vP8zTkdfdtb/1wM0JJ7XFeUHSIiq8l4Cs6/2f8tpK6MspeD7WhwuFWFHA2GWKoLSP0keuuBAhUFKrfISlNwFaNLX5LRkLSZQnr0ujIznvEuRZaXydIYR1e9pdhYTIcp2ToHW4CI02FUBtJVUUVeKGDiKKlKUrxwGtt1ecGZwVrQ1t7dj3DLrKguw1bONtoczFT3cCs9oVYg4l8frzlyI6xfsX8ynd4F+xS6+gYQ3aJBj7phAWHGAxbVRxTAzpzXRkb9A3ne31Ysjy4uYF9x7fK6NvDj/cm+EEfGDb3VmyXvOa3zeerXtdmwIDAQAB";
 
@@ -55,7 +55,7 @@ export default defineConfig(({ mode }) => {
       manifest.web_accessible_resources.push({
         matches: ["<all_urls>"],
         resources: ["assets/*.js.map"],
-      })
+      });
 
       break;
     case "staging":
