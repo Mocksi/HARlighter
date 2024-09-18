@@ -157,7 +157,7 @@ chrome.runtime.onMessageExternal.addListener(
     // execute in async block so that we return true
     // synchronously, telling chrome to wait for the response
     (async () => {
-      if (request.source === "top") {
+      if (request.source === "extension/top") {
         if (request.message === AppEvents.EDIT_DEMO_STOP) {
           mainIframeSrcPort.postMessage({
             message: AppEvents.EDIT_DEMO_STOP,
