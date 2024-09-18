@@ -84,6 +84,8 @@ function MainIframe() {
     data: { uuid: "" },
     message: "",
   });
+
+  // TODO: move reactor stuff back into mocksi-extension.tsx
   const reactor = new Reactor();
   const highlighter = getHighlighter();
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
