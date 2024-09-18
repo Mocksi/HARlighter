@@ -156,6 +156,7 @@ chrome.runtime.onMessage.addListener(
   },
 );
 
+function respondToApp() {}
 chrome.runtime.onMessageExternal.addListener(
   (request, _sender, sendResponse) => {
     console.log("on message external: ", request);
@@ -223,6 +224,7 @@ chrome.runtime.onMessageExternal.addListener(
           showDefaultIcon(tab.id);
         }
 
+        // send message to main iframe component reactor
         chrome.tabs.sendMessage(
           tab.id,
           {
@@ -230,6 +232,7 @@ chrome.runtime.onMessageExternal.addListener(
             message: request.message,
           },
           async (response) => {
+            // response from content script to extension/main
             console.log("response:", response);
             if (response.message === DemoEditEvents.UNDO) {
               await mainIframeSrcPort.postMessage({
