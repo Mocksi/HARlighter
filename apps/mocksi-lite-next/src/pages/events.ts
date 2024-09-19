@@ -18,6 +18,7 @@ export enum DemoEditEvents {
   NEW_EDIT = "NEW_EDIT",
   HIDE_TOOLBAR = "HIDE_TOOLBAR",
   SHOW_TOOLBAR = "SHOW_TOOLBAR",
+  UNDO = "UNDO",
 }
 
 export enum LayoutEvents {

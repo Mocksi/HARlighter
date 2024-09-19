@@ -1,4 +1,9 @@
-import { AppEvents, AuthEvents, LayoutEvents } from "@pages/events";
+import {
+  AppEvents,
+  AuthEvents,
+  DemoEditEvents,
+  LayoutEvents,
+} from "@pages/events";
 import { jwtDecode } from "jwt-decode";
 
 console.log("background script loaded");
@@ -110,10 +115,15 @@ addEventListener("install", () => {
 });
 
 let mainIframeSrcPort: chrome.runtime.Port;
+let topIframeSrcPort: chrome.runtime.Port;
 
 chrome.runtime.onConnectExternal.addListener((port) => {
-  if (port.name === "main-iframe-src") {
+  console.log("connecting...", port);
+  if (port.name === "extension/main") {
     mainIframeSrcPort = port;
+  }
+  if (port.name === "extension/top") {
+    topIframeSrcPort = port;
   }
 });
 
@@ -139,36 +149,29 @@ chrome.action.onClicked.addListener((tab) => {
   }
 });
 
-chrome.runtime.onMessage.addListener(
-  (request, _sender, sendResponse): boolean => {
-    sendResponse({
-      data: request.data,
-      message: request.message,
-      status: "ok",
-    });
-    return true;
-  },
-);
-
 chrome.runtime.onMessageExternal.addListener(
-  (request, sender, sendResponse) => {
+  (request, _sender, sendResponse) => {
     console.log("on message external: ", request);
 
     // execute in async block so that we return true
     // synchronously, telling chrome to wait for the response
     (async () => {
-      if (request.source === "extension/top") {
-        if (request.message === AppEvents.EDIT_DEMO_STOP) {
-          mainIframeSrcPort.postMessage({
-            message: AppEvents.EDIT_DEMO_STOP,
-          });
-        }
+      if (
+        request.source === "extension/top" &&
+        request.message === AppEvents.EDIT_DEMO_STOP
+      ) {
+        // notify extension/main that demo edit mode exited in extension/top
+        mainIframeSrcPort.postMessage({
+          ...request,
+          message: AppEvents.EDIT_DEMO_STOP,
+        });
       }
 
       if (request.message === AuthEvents.AUTH_ERROR) {
         await clearAuth();
         sendResponse({
           message: AuthEvents.RETRY,
+          source: "background",
           status: "ok",
         });
       } else if (request.message === AuthEvents.UNAUTHORIZED) {
@@ -178,12 +181,14 @@ chrome.runtime.onMessageExternal.addListener(
           const tab = await getCurrentTab();
           sendResponse({
             message: { accessToken, email, url: tab?.url },
+            source: "background",
             status: "ok",
           });
         } else {
           await showAuthTab(true);
           sendResponse({
             message: AuthEvents.AUTHENTICATING,
+            source: "background",
             status: "ok",
           });
         }
@@ -192,8 +197,10 @@ chrome.runtime.onMessageExternal.addListener(
         if (!tab?.id) {
           sendResponse({
             message: LayoutEvents.NO_TAB,
+            source: "background",
             status: "ok",
           });
+          console.error("No tab found");
           return;
         }
 
@@ -217,16 +224,30 @@ chrome.runtime.onMessageExternal.addListener(
           showDefaultIcon(tab.id);
         }
 
-        chrome.tabs.sendMessage(
-          tab.id,
-          {
-            data: request.data,
-            message: request.message,
-          },
-          (response) => {
-            sendResponse(response);
-          },
-        );
+        // send message to iframes and reactor in mocksi-extension
+        chrome.tabs.sendMessage(tab.id, request, async (response) => {
+          console.log("response from content script in background:", response);
+          if (response.message === DemoEditEvents.UNDO) {
+            // pass updated modifications from reactor to extension/main to store
+            await mainIframeSrcPort.postMessage({
+              ...response,
+              status: "ok", // response handler expects status
+            });
+          }
+          if (
+            request.message === AppEvents.EDIT_DEMO_START ||
+            request.message === DemoEditEvents.NEW_EDIT ||
+            request.message === DemoEditEvents.CHAT_RESPONSE
+          ) {
+            // notify extension/top # of edits changed
+            await topIframeSrcPort.postMessage({
+              ...response,
+              status: "ok",
+            });
+          }
+          sendResponse(response);
+          return true;
+        });
       }
     })();
 
