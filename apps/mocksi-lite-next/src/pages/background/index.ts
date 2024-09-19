@@ -149,18 +149,6 @@ chrome.action.onClicked.addListener((tab) => {
   }
 });
 
-// chrome.runtime.onMessage.addListener(
-//   (request, _sender, sendResponse): boolean => {
-//     console.log("on message top level:", request);
-//     sendResponse({
-//       data: request.data,
-//       message: request.message,
-//       status: "ok",
-//     });
-//     return true;
-//   },
-// );
-
 chrome.runtime.onMessageExternal.addListener(
   (request, _sender, sendResponse) => {
     console.log("on message external: ", request);
