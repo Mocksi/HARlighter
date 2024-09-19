@@ -247,13 +247,13 @@ chrome.runtime.onMessageExternal.addListener(
             });
           }
           if (
-            response.message === AppEvents.EDIT_DEMO_START ||
+            request.message === AppEvents.EDIT_DEMO_START ||
             request.message === DemoEditEvents.NEW_EDIT ||
             request.message === DemoEditEvents.CHAT_RESPONSE
           ) {
             // notify extension/top # of edits changed
             await topIframeSrcPort.postMessage({
-              ...request,
+              ...response,
               status: "ok",
             });
           }

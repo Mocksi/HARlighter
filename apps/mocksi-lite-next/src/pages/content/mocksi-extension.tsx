@@ -2,7 +2,7 @@ import type { ModificationRequest } from "@repo/reactor";
 import { Reactor } from "@repo/reactor";
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { DemoEditEvents, LayoutEvents } from "../events";
+import { AppEvents, DemoEditEvents, LayoutEvents } from "../events";
 import { getHighlighter } from "./highlighter";
 import MainIframe from "./main-iframe";
 import TopIframe from "./top-iframe";
@@ -56,7 +56,7 @@ function Extension() {
           await reactor.pushModification(mod);
         }
       } else {
-        console.log("no edits provided to reactor");
+        console.debug("no edits provided to reactor");
       }
       return await reactor.attach(document, highlighter);
     }
@@ -124,11 +124,21 @@ function Extension() {
       // synchronously, telling chrome to wait for the response
       (async () => {
         let data = null;
-        console.log("request in mocksi-extension from background: ", request);
+        console.debug("request in mocksi-extension from background: ", request);
         prevStartStopDemoEventRef.current = await handleStartStopDemoEvent(
           prevStartStopDemoEventRef.current,
           request,
         );
+
+        // make sure edits are available to extension/top
+        if (request.message === AppEvents.EDIT_DEMO_START) {
+          data = {
+            edits: Array.from(reactor.getAppliedModifications()).map(
+              (mod) => mod.modificationRequest,
+            ),
+            uuid: request.data.uuid,
+          };
+        }
 
         if (request.message === DemoEditEvents.NEW_EDIT) {
           if (request.data) {
