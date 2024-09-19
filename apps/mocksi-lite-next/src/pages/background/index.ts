@@ -114,13 +114,8 @@ addEventListener("install", () => {
   });
 });
 
-<<<<<<< HEAD
 let mainIframeSrcPort: null | chrome.runtime.Port = null;
 let topIframeSrcPort: null | chrome.runtime.Port = null;
-=======
-let mainIframeSrcPort: chrome.runtime.Port;
-let topIframeSrcPort: chrome.runtime.Port;
->>>>>>> MOC-262_undo-button
 
 chrome.runtime.onConnectExternal.addListener((port) => {
   console.log("connecting...", port);
@@ -165,7 +160,6 @@ chrome.runtime.onMessageExternal.addListener(
         request.source === "extension/top" &&
         request.message === AppEvents.EDIT_DEMO_STOP
       ) {
-<<<<<<< HEAD
         if (mainIframeSrcPort) {
           // notify extension/main that demo edit mode exited in extension/top
           mainIframeSrcPort.postMessage({
@@ -175,13 +169,6 @@ chrome.runtime.onMessageExternal.addListener(
         } else {
           console.log("mainIframeSrcPort is not connected");
         }
-=======
-        // notify extension/main that demo edit mode exited in extension/top
-        mainIframeSrcPort.postMessage({
-          ...request,
-          message: AppEvents.EDIT_DEMO_STOP,
-        });
->>>>>>> MOC-262_undo-button
       }
 
       if (request.message === AuthEvents.AUTH_ERROR) {
@@ -218,11 +205,7 @@ chrome.runtime.onMessageExternal.addListener(
             status: "ok",
           });
           console.error("No tab found");
-<<<<<<< HEAD
           return true;
-=======
-          return;
->>>>>>> MOC-262_undo-button
         }
 
         if (
@@ -250,7 +233,6 @@ chrome.runtime.onMessageExternal.addListener(
           console.log("response from content script in background:", response);
           if (response.message === DemoEditEvents.UNDO) {
             // pass updated modifications from reactor to extension/main to store
-<<<<<<< HEAD
             if (mainIframeSrcPort) {
               await mainIframeSrcPort.postMessage({
                 ...response,
@@ -259,12 +241,6 @@ chrome.runtime.onMessageExternal.addListener(
             } else {
               console.log("mainIframeSrcPort is not connected");
             }
-=======
-            await mainIframeSrcPort.postMessage({
-              ...response,
-              status: "ok", // response handler expects status
-            });
->>>>>>> MOC-262_undo-button
           }
           if (
             request.message === AppEvents.EDIT_DEMO_START ||
@@ -272,7 +248,6 @@ chrome.runtime.onMessageExternal.addListener(
             request.message === DemoEditEvents.CHAT_RESPONSE
           ) {
             // notify extension/top # of edits changed
-<<<<<<< HEAD
             if (topIframeSrcPort) {
               await topIframeSrcPort.postMessage({
                 ...response,
@@ -286,16 +261,6 @@ chrome.runtime.onMessageExternal.addListener(
           sendResponse(response);
         });
         return true;
-=======
-            await topIframeSrcPort.postMessage({
-              ...response,
-              status: "ok",
-            });
-          }
-          sendResponse(response);
-          return true;
-        });
->>>>>>> MOC-262_undo-button
       }
     })();
 
