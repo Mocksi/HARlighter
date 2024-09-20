@@ -13,6 +13,26 @@ const MOCKSI_AUTH = "mocksi-auth";
 let fallbackTab: null | chrome.tabs.Tab = null;
 let prevLayoutEvent = "";
 
+let mainIframeSrcPort: null | chrome.runtime.Port = null;
+let topIframeSrcPort: null | chrome.runtime.Port = null;
+
+addEventListener("install", () => {
+  // TODO test if this works on other browsers
+  chrome.tabs.create({
+    url: import.meta.env.VITE_NEST_APP,
+  });
+});
+
+chrome.runtime.onConnectExternal.addListener((port) => {
+  console.log("connecting...", port);
+  if (port.name === "extension/main") {
+    mainIframeSrcPort = port;
+  }
+  if (port.name === "extension/top") {
+    topIframeSrcPort = port;
+  }
+});
+
 const getAuth = async (): Promise<null | {
   accessToken: string;
   email: string;
@@ -107,31 +127,11 @@ async function showPlayIcon(tabId: number) {
   });
 }
 
-addEventListener("install", () => {
-  // TODO test if this works on other browsers
-  chrome.tabs.create({
-    url: import.meta.env.VITE_NEST_APP,
-  });
-});
-
-let mainIframeSrcPort: null | chrome.runtime.Port = null;
-let topIframeSrcPort: null | chrome.runtime.Port = null;
-
-chrome.runtime.onConnectExternal.addListener((port) => {
-  console.log("connecting...", port);
-  if (port.name === "extension/main") {
-    mainIframeSrcPort = port;
-  }
-  if (port.name === "extension/top") {
-    topIframeSrcPort = port;
-  }
-});
-
 // when user clicks toolbar mount extension
 chrome.action.onClicked.addListener((tab) => {
   if (!tab?.id) {
     console.log("No tab  exits click, could not mount extension");
-    return;
+    return true;
   }
   // store the tab they clicked on to open the extension
   // so we can use it as a fallback
@@ -147,6 +147,7 @@ chrome.action.onClicked.addListener((tab) => {
     });
     prevLayoutEvent = LayoutEvents.HIDE;
   }
+  return true;
 });
 
 chrome.runtime.onMessageExternal.addListener(
@@ -199,12 +200,7 @@ chrome.runtime.onMessageExternal.addListener(
       } else {
         const tab = await getCurrentTab();
         if (!tab?.id) {
-          sendResponse({
-            message: LayoutEvents.NO_TAB,
-            source: "background",
-            status: "ok",
-          });
-          console.error("No tab found");
+          console.error("No tab found: ");
           return true;
         }
 
@@ -243,9 +239,9 @@ chrome.runtime.onMessageExternal.addListener(
             }
           }
           if (
-            request.message === AppEvents.EDIT_DEMO_START ||
-            request.message === DemoEditEvents.NEW_EDIT ||
-            request.message === DemoEditEvents.CHAT_RESPONSE
+            response.message === AppEvents.EDIT_DEMO_START ||
+            response.message === DemoEditEvents.CHAT_RESPONSE ||
+            response.message === DemoEditEvents.NEW_EDIT
           ) {
             // notify extension/top # of edits changed
             if (topIframeSrcPort) {
@@ -259,11 +255,10 @@ chrome.runtime.onMessageExternal.addListener(
           }
 
           sendResponse(response);
+          return true;
         });
-        return true;
       }
     })();
-
     return true;
   },
 );
