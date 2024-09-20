@@ -239,9 +239,9 @@ chrome.runtime.onMessageExternal.addListener(
             }
           }
           if (
-            request.message === AppEvents.EDIT_DEMO_START ||
-            request.message === DemoEditEvents.NEW_EDIT ||
-            request.message === DemoEditEvents.CHAT_RESPONSE
+            response.message === AppEvents.EDIT_DEMO_START ||
+            response.message === DemoEditEvents.CHAT_RESPONSE ||
+            response.message === DemoEditEvents.NEW_EDIT
           ) {
             // notify extension/top # of edits changed
             if (topIframeSrcPort) {
