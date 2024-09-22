@@ -1,4 +1,4 @@
-import { generateRandomString } from "./utils";
+import { generateRandomString } from "./utils.js";
 
 export type Modification = {
 	selector?: string;

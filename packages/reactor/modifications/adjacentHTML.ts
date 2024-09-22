@@ -1,4 +1,4 @@
-import { AppliableModification } from "../interfaces";
+import { AppliableModification } from "../interfaces.js";
 
 export class AdjacentHTMLModification extends AppliableModification {
 	elementId: string;

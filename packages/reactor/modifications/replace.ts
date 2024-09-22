@@ -1,4 +1,4 @@
-import { AppliableModification } from "../interfaces";
+import { AppliableModification } from "../interfaces.js";
 import * as cssSelector from "css-selector-generator";
 
 export class ReplaceModification extends AppliableModification {

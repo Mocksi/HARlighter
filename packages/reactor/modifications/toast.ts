@@ -1,4 +1,4 @@
-import { AppliableModification } from "../interfaces";
+import { AppliableModification } from "../interfaces.js";
 
 export class ToastModification extends AppliableModification {
 	message: string;

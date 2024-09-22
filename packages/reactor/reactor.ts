@@ -3,13 +3,13 @@ import type {
   DomJsonExportNode,
   Highlighter,
   ModificationRequest,
-} from "./interfaces";
-import { htmlElementToJson } from "./main";
+} from "./interfaces.js";
+import { htmlElementToJson } from "./main.js";
 import {
   AppliedModificationsImpl,
   generateModifications,
-} from "./modifications";
-import { ReactorMutationObserver } from "./mutationObserver";
+} from "./modifications.js";
+import { ReactorMutationObserver } from "./mutationObserver.js";
 
 /**
  * Reactor applied modifications to the current page. Modifications

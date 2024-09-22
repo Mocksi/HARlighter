@@ -1,6 +1,6 @@
 import type {
 	ModificationRequest,
-} from "./interfaces";
+} from "./interfaces.js";
 
 export function parseRequest(userRequest: string): ModificationRequest {
 	try {

@@ -1,6 +1,6 @@
-import Reactor from "./reactor";
-import { AppliedModificationsImpl } from "./modifications";
-import { applyModification, matchesSelector } from "./modifications";
+import Reactor from "./reactor.js";
+import { AppliedModificationsImpl } from "./modifications.js";
+import { applyModification, matchesSelector } from "./modifications.js";
 
 export class ReactorMutationObserver {
 	private reactor: Reactor;
@@ -42,7 +42,7 @@ export class ReactorMutationObserver {
 	}
 
 	walkAddedElements(element: Element) {
-		const treeWalker = document.createTreeWalker(
+		const treeWalker = window.document.createTreeWalker(
 			element,
 			NodeFilter.SHOW_ELEMENT,
 			null
@@ -68,7 +68,7 @@ export class ReactorMutationObserver {
 	}
 
 	walkRemovedElements(element: Element) {
-		const treeWalker = document.createTreeWalker(
+		const treeWalker = window.document.createTreeWalker(
 			element,
 			NodeFilter.SHOW_ELEMENT,
 			null

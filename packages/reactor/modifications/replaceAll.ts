@@ -1,4 +1,4 @@
-import { AppliableModification } from "../interfaces";
+import { AppliableModification } from "../interfaces.js";
 
 export class ReplaceAllModification extends AppliableModification {
 	element: Element;
@@ -106,7 +106,7 @@ function walkTree(
 	const changeNodes: Node[] = [];
 	const changes: TreeChange[] = [];
 
-	const treeWalker = document.createTreeWalker(
+	const treeWalker = window.document.createTreeWalker(
 		rootElement,
 		NodeFilter.SHOW_TEXT,
 		(node) => {
@@ -195,7 +195,7 @@ function replaceText(
 
 		for (let i = 0; i < split.length; i++) {
 			if (typeof split[i] !== "undefined") {
-				const textNode = document.createTextNode(split[i] || "");
+				const textNode = window.document.createTextNode(split[i] || "");
 				parentElement.insertBefore(textNode, nextSibling);
 
 				if (i % 2 !== 0) {

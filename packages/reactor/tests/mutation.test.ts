@@ -11,7 +11,7 @@ describe("test mutation listeners", {}, () => {
 
 	// Vitest beforeEach function for setup
 	beforeEach(() => {
-		doc = document.implementation.createHTMLDocument("Test Document");
+		doc = window.document.implementation.createHTMLDocument("Test Document");
         
         reactor = new Reactor();
         reactor.attach(doc, {
