@@ -58,9 +58,6 @@ importers:
       '@repo/config-typescript':
         specifier: workspace:*
         version: link:../../packages/config-typescript
-      '@types/chrome':
-        specifier: latest
-        version: 0.0.271
       '@vitejs/plugin-react':
         specifier: ^4.2.1
         version: 4.3.1(vite@5.3.3(@types/node@20.14.10)(less@4.2.0)(sass@1.77.8)(terser@5.31.2))
@@ -665,9 +662,6 @@ packages:
 
   '@types/chrome@0.0.270':
     resolution: {integrity: sha512-ADvkowV7YnJfycZZxL2brluZ6STGW+9oKG37B422UePf2PCXuFA/XdERI0T18wtuWPx0tmFeZqq6MOXVk1IC+Q==}
-
-  '@types/chrome@0.0.271':
-    resolution: {integrity: sha512-K0qgXvkwA5ic+/eygF1xiypHEvCoBgH5lwrhg3yva2mqJuCWyYm0vpZQ22GksAxgGfo0PWev9Zx3plp2clMlwg==}
 
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
@@ -3149,11 +3143,6 @@ snapshots:
       '@babel/types': 7.24.8
 
   '@types/chrome@0.0.270':
-    dependencies:
-      '@types/filesystem': 0.0.36
-      '@types/har-format': 1.2.15
-
-  '@types/chrome@0.0.271':
     dependencies:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.15
