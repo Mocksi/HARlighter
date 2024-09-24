@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "prettier-plugin-organize-attributes": "latest",
+    "prettier-plugin-tailwindcss": "^0.5.11"
+  },
+  "files": [
+    "index.js"
+  ],
+  "license": "MIT",
+  "name": "@repo/config-prettier",
+  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "1.0.0"
+}

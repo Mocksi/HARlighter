@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "types": ["chrome", "node", "react-dom", "react", "uuid", "vitest", "vite"]
+  },
+  "display": "Web App",
+  "extends": "./base.json",
+  "lib": ["es2022", "dom", "dom.iterable"]
+}

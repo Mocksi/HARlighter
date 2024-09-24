@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "types": ["jsdom", "chrome", "uuid", "vitest"]
+  },
+  "composite": true,
+  "declarationMap": true,
+  "display": "Web Library",
+  "extends": "./base.json",
+  "lib": ["es2022", "dom", "dom.iterable"]
+}

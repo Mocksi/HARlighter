@@ -1,21 +1,23 @@
 {
-  "name": "harlighter",
-  "private": true,
-  "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev"
+  "dependencies": {
+    "@repo/reactor": "workspace:*"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
-    "prettier": "^3.2.5",
-    "turbo": "1.13.3"
+    "@repo/config-eslint": "workspace:*",
+    "@repo/config-prettier": "workspace:*",
+    "@repo/config-typescript": "workspace:*",
+    "turbo": "latest"
   },
-  "packageManager": "pnpm@9.0.2",
   "engines": {
     "node": ">=18"
   },
-  "dependencies": {
-    "@repo/reactor": "workspace:*"
+  "name": "harlighter",
+  "packageManager": "pnpm@9.0.2",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "format": "turbo format",
+    "lint": "turbo lint"
   }
 }

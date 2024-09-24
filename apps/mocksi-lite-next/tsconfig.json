@@ -1,44 +1,10 @@
 {
-  "compilerOptions": {
-    "allowJs": false,
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "jsx": "react-jsx",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "noEmit": true,
-    "noFallthroughCasesInSwitch": true,
-    "paths": {
-      "@assets/*": [
-        "src/assets/*"
-      ],
-      "@pages/*": [
-        "src/pages/*"
-      ],
-      "@src/*": [
-        "src/*"
-      ]
-    },
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "esnext",
-    "types": [
-      "vite/client",
-      "node",
-      "chrome"
-    ]
-  },
+  "extends": "@repo/config-typescript/web-app.json",
+  "ignore": [
+    "public"
+  ],
   "include": [
     "src",
-    "utils",
     "vite.config.ts"
   ],
 }

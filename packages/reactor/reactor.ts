@@ -164,7 +164,7 @@ class Reactor {
         );
         out.push(applied);
         this.appliedModifications.push(applied);
-      
+
         // re-enable the mutation listener
         this.mutationObserver.attach(this.doc);
       }
