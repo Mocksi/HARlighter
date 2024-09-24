@@ -39,7 +39,7 @@
     "build": "vite build --mode '${npm_config_mode}'",
     "dev": "nodemon",
     "format": "prettier --write \"src/**/*.{tsx,ts}\"",
-    "lint": "eslint --fix ."
+    "lint": "eslint --fix . --ext .ts,.tsx"
   },
   "type": "module",
   "version": "1.2.0"
