@@ -30,6 +30,7 @@
   },
   "license": "MIT",
   "name": "web-extension",
+  "prettier": "@repo/config-prettier",
   "repository": {
     "type": "git",
     "url": "https://github.com/JohnBra/web-extension.git"
@@ -38,7 +39,7 @@
     "build": "vite build --mode '${npm_config_mode}'",
     "dev": "nodemon",
     "format": "prettier --write \"src/**/*.{tsx,ts}\"",
-    "lint": "eslint --fix"
+    "lint": "eslint --fix ."
   },
   "type": "module",
   "version": "1.2.0"

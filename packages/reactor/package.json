@@ -9,19 +9,20 @@
     "@repo/config-prettier": "workspace:*",
     "@repo/config-typescript": "workspace:*",
     "@vitest/coverage-v8": "^2.0.1",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.0",
     "jsdom": "^24.1.0",
     "typescript": "^5.3.3",
     "vitest": "^2.0.1"
   },
   "main": "index.ts",
   "name": "@repo/reactor",
+  "prettier": "@repo/config-prettier",
   "private": true,
   "scripts": {
     "build": "tsc",
     "coverage": "pnpm exec vitest run --coverage",
     "format": "prettier --write \"**/*.{tsx,ts}\"",
-    "lint": "eslint --fix",
+    "lint": "eslint --fix . --ext .ts,.tsx",
     "prepare": "tsc",
     "test": "pnpm exec vitest"
   },

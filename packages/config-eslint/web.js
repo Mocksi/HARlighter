@@ -1,13 +1,10 @@
-/** @type {import("eslint").Linter.Config} */
 module.exports = {
   env: {
     browser: true,
     es6: true,
   },
-
-  extends: ["./base.js"],
   extends: [
-    "@repo/config-eslint/base.js",
+    "./base.js",
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
@@ -30,13 +27,6 @@ module.exports = {
   },
   plugins: ["react"],
   rules: {
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      {
-        argsIgnorePattern: "^_",
-      },
-    ],
-    "no-unused-vars": "off",
     "react/react-in-jsx-scope": "off",
   },
 };

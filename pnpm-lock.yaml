@@ -91,6 +91,9 @@ importers:
 
   packages/config-eslint:
     devDependencies:
+      '@eslint/js':
+        specifier: latest
+        version: 9.11.1
       '@typescript-eslint/eslint-plugin':
         specifier: latest
         version: 8.7.0(@typescript-eslint/parser@8.7.0(eslint@9.11.1(jiti@1.21.6))(typescript@5.5.4))(eslint@9.11.1(jiti@1.21.6))(typescript@5.5.4)
@@ -168,7 +171,7 @@ importers:
         specifier: ^2.0.1
         version: 2.0.2(vitest@2.0.2(@types/node@20.14.10)(jsdom@24.1.0)(less@4.2.0)(sass@1.77.8)(terser@5.31.2))
       eslint:
-        specifier: ^8.56.0
+        specifier: ^8.57.0
         version: 8.57.0
       jsdom:
         specifier: ^24.1.0

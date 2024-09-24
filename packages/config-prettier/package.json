@@ -4,6 +4,9 @@
     "prettier-plugin-organize-attributes": "latest",
     "prettier-plugin-tailwindcss": "^0.5.11"
   },
+  "exports": {
+    ".": "./index.js"
+  },
   "files": [
     "index.js"
   ],
