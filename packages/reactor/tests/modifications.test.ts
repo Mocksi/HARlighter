@@ -11,7 +11,7 @@ describe("Utils", () => {
 
 	// Vitest beforeEach function for setup
 	beforeEach(() => {
-		doc = document.implementation.createHTMLDocument("Test Document");
+		doc = window.document.implementation.createHTMLDocument("Test Document");
 	});
 
 	describe("applyModification", () => {

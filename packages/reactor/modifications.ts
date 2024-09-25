@@ -1,11 +1,11 @@
-import { AdjacentHTMLModification } from "./modifications/adjacentHTML";
-import { HighlightModification } from "./modifications/highlight";
-import { NoopModification } from "./modifications/noop";
-import { RemoveModification } from "./modifications/remove";
-import { ReplaceModification } from "./modifications/replace";
-import { ReplaceAllModification } from "./modifications/replaceAll";
-import { SwapImageModification } from "./modifications/swapImage";
-import { ToastModification } from "./modifications/toast";
+import { AdjacentHTMLModification } from "./modifications/adjacentHTML.js";
+import { HighlightModification } from "./modifications/highlight.js";
+import { NoopModification } from "./modifications/noop.js";
+import { RemoveModification } from "./modifications/remove.js";
+import { ReplaceModification } from "./modifications/replace.js";
+import { ReplaceAllModification } from "./modifications/replaceAll.js";
+import { SwapImageModification } from "./modifications/swapImage.js";
+import { ToastModification } from "./modifications/toast.js";
 
 import type {
 	AppliableModification,
@@ -13,7 +13,7 @@ import type {
 	Highlighter,
 	Modification,
 	ModificationRequest,
-} from "./interfaces";
+} from "./interfaces.js";
 
 export class AppliedModificationsImpl implements AppliedModifications {
 	modificationRequest: ModificationRequest;
@@ -70,9 +70,9 @@ export async function generateModifications(
 					// construct a new NodeListOf<Element> from items found by the xpath
 					elements = [];
 					if (!mod.xpath.startsWith("//html")) {
-						mod.xpath = `//html/${mod.xpath}`;
+						mod.xpath = `//html${mod.xpath}`;
 					}
-					const xpath = document.evaluate(
+					const xpath = window.document.evaluate(
 						mod.xpath,
 						doc,
 						null,
@@ -201,7 +201,7 @@ export function matchesSelector(element: Element, mod: Modification): boolean {
 	if (mod.selector) {
 		return element.matches(mod.selector);
 	} else if (mod.xpath) {
-		const xpathResult = document.evaluate(mod.xpath, document, null, XPathResult.BOOLEAN_TYPE, null);
+		const xpathResult = window.document.evaluate(mod.xpath, window.document, null, XPathResult.BOOLEAN_TYPE, null);
 		return xpathResult.booleanValue;
 	}
 

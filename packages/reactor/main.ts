@@ -2,9 +2,9 @@ import type {
 	AppliedModifications,
 	DomJsonExportNode,
 	ModificationRequest,
-} from "./interfaces";
-import { generateModifications } from "./modifications";
-import { parseRequest } from "./utils";
+} from "./interfaces.js";
+import { generateModifications } from "./modifications.js";
+import { parseRequest } from "./utils.js";
 
 export async function modifyHtml(
 	htmlString: string,

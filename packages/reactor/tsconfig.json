@@ -7,7 +7,9 @@
 	  "module": "ESNext",
 	  "target": "ESNext",
 	  "esModuleInterop": true,
-	  "allowSyntheticDefaultImports": true
+	  "allowSyntheticDefaultImports": true,
+	  "strict": true,
+	  "forceConsistentCasingInFileNames": true
 	},
 	"include": ["index.ts", "receivers", "utils", "commands"],
 	"exclude": ["node_modules", "dist", "test"]

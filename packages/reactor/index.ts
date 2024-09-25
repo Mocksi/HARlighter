@@ -4,8 +4,8 @@ export type {
   Highlighter,
   Modification,
   ModificationRequest,
-} from "./interfaces";
+} from "./interfaces.js";
 
-import Reactor from "./reactor";
+import Reactor from "./reactor.js";
 
 export { Reactor };
