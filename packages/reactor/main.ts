@@ -1,6 +1,7 @@
 import type {
 	AppliedModifications,
 	DomJsonExportNode,
+	DomJsonExportOptions,
 	ModificationRequest,
 } from "./interfaces.js";
 import { generateModifications } from "./modifications.js";
@@ -39,7 +40,11 @@ export async function modifyDom(
 	}
 }
 
-export const htmlElementToJson = (root: HTMLElement): DomJsonExportNode[] => {
+export const htmlElementToJson = (root: HTMLElement, options?: DomJsonExportOptions): DomJsonExportNode[] => {
+	const stylesMap: {[key: string]: string} = {};
+	const styleIndex: { idx: number } = { idx: 1 };
+	const exportStyles = options?.styles ?? false;
+
 	function nodeToJson(node: Node): DomJsonExportNode {
 		if (node instanceof Text) {
 			return {
@@ -49,6 +54,7 @@ export const htmlElementToJson = (root: HTMLElement): DomJsonExportNode[] => {
 						node.parentElement.offsetHeight > 0
 					: false,
 				text: node.data,
+				attributes: {}
 			};
 		}
 
@@ -60,12 +66,33 @@ export const htmlElementToJson = (root: HTMLElement): DomJsonExportNode[] => {
 					element instanceof HTMLElement
 						? element.offsetWidth > 0 || element.offsetHeight > 0
 						: false,
+				attributes: {},
 			};
 
 			if (element.attributes.length > 0) {
-				obj.attributes = {};
 				for (const attr of Array.from(element.attributes)) {
 					obj.attributes[attr.name] = attr.value;
+				}
+			}
+
+			if (exportStyles) {
+				const styles = window.getComputedStyle(element);
+				if (styles.length > 0) {
+					const styleString = Array.from(styles)
+						.map((style) => `${style}: ${styles.getPropertyValue(style)}`)
+						.join('; ');
+					let styleClass = stylesMap[styleString];
+					if (!styleClass) {
+						styleClass = `mocksi-${styleIndex.idx}`;
+						stylesMap[styleString] = styleClass;
+						styleIndex.idx += 1;
+					}
+
+					if (obj.attributes['class']) {
+						obj.attributes['class'] += ' ' + styleClass;
+					} else {
+						obj.attributes['class'] = styleClass;
+					}
 				}
 			}
 
@@ -100,6 +127,16 @@ export const htmlElementToJson = (root: HTMLElement): DomJsonExportNode[] => {
 	const json = Array.from(root.childNodes)
 		.filter(textElementFilter)
 		.map((child) => nodeToJson(child));
+
+	if (exportStyles) {
+		const stylesString = Object.entries(stylesMap).map(([styleString, clazz]) => `.${clazz} { ${styleString} }`).join('\n');
+		json.push({
+			tag: 'style',
+			visible: false,
+			text: stylesString,
+			attributes: {}
+		})
+	}
 
 	return json;
 };

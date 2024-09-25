@@ -37,11 +37,15 @@ export interface AppliedModifications {
 	setHighlight(highlight: boolean): void;
 }
 
-export interface DomJsonExportNode {
+export type DomJsonExportOptions = {
+	styles?: boolean;
+}
+
+export type DomJsonExportNode = {
 	tag: string;
 	visible: boolean;
 	text?: string;
-	attributes?: Record<string, string>;
+	attributes: Record<string, string>;
 	children?: DomJsonExportNode[];
 }
 

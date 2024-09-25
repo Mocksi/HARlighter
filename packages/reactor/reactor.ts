@@ -1,6 +1,7 @@
 import type {
   AppliedModifications,
   DomJsonExportNode,
+  DomJsonExportOptions,
   Highlighter,
   ModificationRequest,
 } from "./interfaces.js";
@@ -122,7 +123,7 @@ class Reactor {
    * @throws {Error} If the reactor is not attached and no element is specified.
    * @return {DomJsonExportNode[]} An array of `DomJsonExportNode` objects representing the exported DOM.
    */
-  exportDOM(element: null | HTMLElement = null): DomJsonExportNode[] {
+  exportDOM(element: null | HTMLElement = null, options?: DomJsonExportOptions): DomJsonExportNode[] {
     let useElement = element;
 
     if (!useElement) {
@@ -133,7 +134,7 @@ class Reactor {
       }
     }
 
-    return htmlElementToJson(useElement);
+    return htmlElementToJson(useElement, options);
   }
 
   /**

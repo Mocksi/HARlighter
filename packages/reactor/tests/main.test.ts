@@ -1,16 +1,17 @@
 import { JSDOM } from "jsdom";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeEach } from "vitest";
 import type { ModificationRequest } from "../interfaces";
-import { modifyDom, modifyHtml } from "../main";
+import { modifyDom, modifyHtml, htmlElementToJson } from "../main";
 import type { AppliedModificationsImpl } from "../modifications";
 
-// Set up a mock DOM environment
-const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-global.document = dom.window.document;
-// biome-ignore lint/suspicious/noExplicitAny: testing
-global.window = dom.window as any;
-
 describe("modifyHtml", () => {
+	let doc: Document;
+
+	// Vitest beforeEach function for setup
+	beforeEach(() => {
+		doc = window.document.implementation.createHTMLDocument("Test Document");
+	});
+
 	it("should replace text content", async () => {
 		const html = `<div id="user-info">Eliza Hart</div>`;
 		const userRequest = JSON.stringify({
@@ -330,4 +331,108 @@ describe("modifyHtml", () => {
 		expect(result).not.toContain("<p>New content</p>");
 		expect(result).toContain("<p>Old content</p>");
 	});
+
+	it('should convert a simple HTML element to JSON', async () => {
+		doc.body.innerHTML = '<div id="test" class="example">Hello World!</div>';
+		const json = htmlElementToJson(doc.body);
+	
+		expect(json).toEqual([
+		  {
+			tag: 'div',
+			visible: false,
+			attributes: {
+			  id: 'test',
+			  class: 'example',
+			},
+			text: 'Hello World!',
+		  },
+		]);
+	  });
+	
+	  it('should handle nested HTML elements', async () => {
+		doc.body.innerHTML = '<div id="test"><p>Hello</p><span>World!</span></div>';
+		const json = htmlElementToJson(doc.body);
+	
+		expect(json).toEqual([
+		  {
+			tag: 'div',
+			visible: false,
+			attributes: {
+			  id: 'test',
+			},
+			children: [
+			  {
+				attributes: {},
+				tag: 'p',
+				visible: false,
+				text: 'Hello',
+			  },
+			  {
+				attributes: {},
+				tag: 'span',
+				visible: false,
+				text: 'World!',
+			  },
+			],
+		  },
+		]);
+	  });
+
+	  it('should export styles when the option is set', async () => {
+		doc.body.innerHTML = '<div id="test" style="color: red; font-size: 24px;">Hello World!</div>';
+		const json = htmlElementToJson(doc.body, {styles: true});
+	
+		expect(json).toEqual([
+		  {
+			tag: 'div',
+			visible: false,
+			attributes: {
+			  class: 'mocksi-1',
+			  id: 'test',
+			  style: 'color: red; font-size: 24px;',
+			},
+			text: 'Hello World!',
+		  },
+		  {
+			attributes: {},
+			tag: "style",
+			text: ".mocksi-1 { display: block; color: rgb(255, 0, 0); font-size: 24px; visibility: visible; pointer-events: auto; background-color: rgba(0, 0, 0, 0); border-block-start-color: rgb(255, 0, 0); border-block-end-color: rgb(255, 0, 0); border-inline-start-color: rgb(255, 0, 0); border-inline-end-color: rgb(255, 0, 0); border-top-color: rgb(255, 0, 0); border-right-color: rgb(255, 0, 0); border-bottom-color: rgb(255, 0, 0); border-left-color: rgb(255, 0, 0); caret-color: auto }",
+			visible: false
+		  }
+		]);
+	  });
+
+	  it('should consolidate styles when they are the same', async () => {
+		doc.body.innerHTML = '<div id="test" style="color: red; font-size: 24px;">Hello World!</div><div id="test" style="color: red; font-size: 24px;">Hello World!</div>';
+		const json = htmlElementToJson(doc.body, {styles: true});
+	
+		expect(json).toEqual([
+		  {
+			tag: 'div',
+			visible: false,
+			attributes: {
+			  class: 'mocksi-1',
+			  id: 'test',
+			  style: 'color: red; font-size: 24px;',
+			},
+			text: 'Hello World!',
+		  },
+		  {
+			tag: 'div',
+			visible: false,
+			attributes: {
+			  class: 'mocksi-1',
+			  id: 'test',
+			  style: 'color: red; font-size: 24px;',
+			},
+			text: 'Hello World!',
+		  },
+		  {
+			attributes: {},
+			tag: "style",
+			text: ".mocksi-1 { display: block; color: rgb(255, 0, 0); font-size: 24px; visibility: visible; pointer-events: auto; background-color: rgba(0, 0, 0, 0); border-block-start-color: rgb(255, 0, 0); border-block-end-color: rgb(255, 0, 0); border-inline-start-color: rgb(255, 0, 0); border-inline-end-color: rgb(255, 0, 0); border-top-color: rgb(255, 0, 0); border-right-color: rgb(255, 0, 0); border-bottom-color: rgb(255, 0, 0); border-left-color: rgb(255, 0, 0); caret-color: auto }",
+			visible: false
+		  }
+		]);
+	  });
 });
