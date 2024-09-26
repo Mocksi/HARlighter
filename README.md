@@ -1,3 +1,6 @@
+> [!WARNING]  
+> This Repo is no longer actively mantained, use with caution.
+
 # Hack Your Demo: HARlighter – Where Every Session Crafts a Story.
 
 ![HARLighter@0 2x](https://github.com/Mocksi/HARlighter/assets/63699/e77e0307-75d8-4d4b-8879-5d97e07673c2)
